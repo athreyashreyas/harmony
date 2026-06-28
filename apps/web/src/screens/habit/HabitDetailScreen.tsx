@@ -6,6 +6,7 @@ import ComposeHabitSheet, { type HabitDraft } from '../../components/ComposeHabi
 import SoftHeatmap from '../../components/SoftHeatmap/SoftHeatmap';
 import WatercolorWash from '../../components/WatercolorWash/WatercolorWash';
 import { archiveHabit, logsForHabit, saveHabit } from '../../lib/db/queries';
+import { detectHabitPatterns } from '../../lib/drift/patterns';
 import { hexToRgba } from '../../lib/color';
 import { formatDateMedium, isoDaysAgo, lastTendedPhrase } from '../../lib/time/dates';
 import { BackButton } from '../onboarding/ui';
@@ -77,10 +78,14 @@ export default function HabitDetailScreen() {
       }));
   }, [habit, habits, windowLogs]);
 
-  // Pattern observations are computed by the drift engine (section 11.3),
-  // which arrives in Phase 7. Until then this is empty, so the section stays
+  // Pattern observations (section 11.3), computed from the recent all-habits
+  // window so adjacency (pairing with another habit) can be detected. Returns
+  // empty until something clears the confidence threshold, keeping the section
   // hidden rather than filling space.
-  const patterns: string[] = [];
+  const patterns = useMemo(
+    () => (habit ? detectHabitPatterns(habit, windowLogs, habits, new Date()) : []),
+    [habit, windowLogs, habits],
+  );
 
   if (!habit || !area) {
     return (

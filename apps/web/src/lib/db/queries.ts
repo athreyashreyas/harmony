@@ -28,9 +28,10 @@ export async function activeHabitsForUser(userId: string): Promise<Habit[]> {
   return habits.filter((h) => h.archivedAt == null).sort((a, b) => a.order - b.order);
 }
 
-// Trailing window of logs, inclusive of today. Covers both the Bloom's 14 day
-// activity ratio and the times-per-week weekly count, with a little headroom.
-export async function recentLogsForUser(userId: string, windowDays = 30): Promise<Log[]> {
+// Trailing window of logs, inclusive of today. 60 days covers the Bloom's 14
+// day activity ratio, the weekly counts, drift cadence (median gap over 60
+// days), and the habit detail pattern observations, all from one load.
+export async function recentLogsForUser(userId: string, windowDays = 60): Promise<Log[]> {
   const from = isoDaysAgo(windowDays);
   return db.logs.where('userId').equals(userId).and((log) => log.date >= from).toArray();
 }

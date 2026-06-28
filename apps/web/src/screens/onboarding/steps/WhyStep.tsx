@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import WatercolorWash from '../../../components/WatercolorWash/WatercolorWash';
+import { renderTemplate } from '../../../lib/templates/composer';
+import { getTemplate } from '../../../lib/templates/library';
 import { useOnboarding } from '../OnboardingContext';
 import OnboardingScaffold from '../OnboardingScaffold';
 import { PrimaryButton, QuietLink } from '../ui';
@@ -7,14 +9,18 @@ import { WHY_EXAMPLES } from '../examples';
 
 const MIN_WHY = 10;
 
-// Builds the live preview the way a real drift nudge would. The user's sentence
-// is always shown verbatim. The full template engine (Phase 7) replaces this
-// single illustrative line; the framing label "A reminder might read" already
-// marks it as an example.
+// The live preview renders a real drift template (the daysSince-free one) so
+// the user sees exactly how a nudge frames their words. A fixed template keeps
+// the preview steady as they type rather than reshuffling on each keystroke.
+// The sentence is always shown verbatim.
+const PREVIEW_TEMPLATE = getTemplate('drift-quiet-while');
+
 function previewNudge(areaName: string, whySentence: string): string {
   const sentence = whySentence.trim();
-  if (!sentence) return `${areaName} has been quiet for a little while. You wrote: ...`;
-  return `${areaName} has been quiet for a little while. You wrote: “${sentence}”`;
+  if (!sentence || !PREVIEW_TEMPLATE) {
+    return `${areaName} has been quiet for a little while. You wrote: ...`;
+  }
+  return renderTemplate(PREVIEW_TEMPLATE.body, { areaName, whySentence: sentence });
 }
 
 // Screen 3, shown once per area. The most important screen in the product.

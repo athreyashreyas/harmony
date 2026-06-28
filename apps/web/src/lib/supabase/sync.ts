@@ -1,4 +1,4 @@
-import type { Area, Habit, Log, UserProfile } from '@harmony/shared';
+import type { Area, Habit, Log, NudgeHistory, UserProfile } from '@harmony/shared';
 import { supabase } from './client';
 import { db } from '../db/schema';
 
@@ -188,5 +188,28 @@ export async function mirrorHabitUpsert(habit: Habit): Promise<void> {
     if (error) throw error;
   } catch (err) {
     console.warn('Habit mirror to Supabase failed, will reconcile later.', err);
+  }
+}
+
+function nudgeToRow(n: NudgeHistory) {
+  return {
+    id: n.id,
+    user_id: n.userId,
+    template_id: n.templateId,
+    area_id: n.areaId,
+    habit_id: n.habitId,
+    composed_text: n.composedText,
+    sent_at: new Date(n.sentAt).toISOString(),
+    channel: n.channel,
+  };
+}
+
+export async function mirrorNudge(nudge: NudgeHistory): Promise<void> {
+  if (!supabase) return;
+  try {
+    const { error } = await supabase.from('nudge_history').upsert(nudgeToRow(nudge));
+    if (error) throw error;
+  } catch (err) {
+    console.warn('Nudge mirror to Supabase failed, will reconcile later.', err);
   }
 }

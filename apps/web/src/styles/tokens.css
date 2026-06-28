@@ -1,0 +1,45 @@
+/* Design tokens as CSS variables (section 4). The same values live in
+   tailwind.config.ts; these mirror them for any non-utility usage (SVG fills,
+   inline styles). Fonts are loaded via <link> in index.html. */
+
+:root {
+  /* Quiet Paper surfaces and ink */
+  --parchment-50: #fdfcf9;
+  --parchment-100: #faf9f6;
+  --parchment-200: #f0ede6;
+  --parchment-300: #e0dcd2;
+
+  --ink-900: #1a1a18;
+  --ink-700: #3d3d38;
+  --ink-500: #6b6960;
+  --ink-300: #9b9890;
+  --ink-100: #d4d2cb;
+
+  /* Iris, the single brand colour */
+  --iris-700: #3a2870;
+  --iris-600: #4a3878;
+  --iris-500: #574887;
+  --iris-400: #6e5fa0;
+  --iris-100: #ede8f5;
+  --iris-50: #f6f3fa;
+
+  /* Status colours, used sparingly */
+  --rose-600: #a14a5e;
+  --rose-500: #b85c72;
+  --rose-100: #f3e2e6;
+  --sage-600: #3d5a3e;
+  --sage-500: #4f7942;
+  --sage-100: #e8f0e6;
+
+  /* Type */
+  --font-serif: 'DM Serif Display', Georgia, serif;
+  --font-sans: 'Plus Jakarta Sans', system-ui, sans-serif;
+
+  /* Radii */
+  --radius-card: 12px;
+  --radius-sheet: 16px;
+  --radius-fab: 24px;
+
+  /* Keyboard lift, updated from visualViewport in later phases */
+  --keyboard-height: 0px;
+}

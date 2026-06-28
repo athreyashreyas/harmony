@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import AreaBalanceBar from '../../components/AreaBalanceBar/AreaBalanceBar';
 import { computeAreaActivity } from '../../components/Bloom/activity';
 import ComposeHabitSheet, { type HabitDraft } from '../../components/ComposeHabitSheet/ComposeHabitSheet';
+import Skeleton from '../../components/Skeleton/Skeleton';
 import { saveHabit } from '../../lib/db/queries';
 import { gentleObservations } from '../../lib/insights/observations';
 import { composeWeeklyRecap } from '../../lib/insights/recap';
@@ -20,10 +21,13 @@ export default function InsightsScreen() {
   const profile = useUser((s) => s.profile);
   const areas = useAreas((s) => s.areas);
   const loadAreas = useAreas((s) => s.load);
+  const areasLoaded = useAreas((s) => s.loadedFor);
   const habits = useHabits((s) => s.habits);
   const loadHabits = useHabits((s) => s.load);
+  const habitsLoaded = useHabits((s) => s.loadedFor);
   const logs = useLogs((s) => s.logs);
   const loadLogs = useLogs((s) => s.load);
+  const logsLoaded = useLogs((s) => s.loadedFor);
 
   const [suggestSheetArea, setSuggestSheetArea] = useState<string | null>(null);
 
@@ -72,19 +76,28 @@ export default function InsightsScreen() {
     setSuggestSheetArea(null);
   }
 
+  const loaded = Boolean(
+    profile && areasLoaded === profile.id && habitsLoaded === profile.id && logsLoaded === profile.id,
+  );
   const hasAnything = recap.length > 0 || balances.length > 0 || observations.length > 0 || suggestions.length > 0;
 
   return (
     <div className="mx-auto w-full max-w-2xl px-5 pt-8 pb-28 md:pb-12">
       <h1 className="font-serif text-3xl text-ink-900">Insights</h1>
 
-      {!hasAnything && (
+      {!loaded ? (
+        <div className="mt-7 space-y-2.5">
+          <Skeleton className="h-4 w-full" />
+          <Skeleton className="h-4 w-5/6" />
+          <Skeleton className="h-4 w-2/3" />
+        </div>
+      ) : !hasAnything ? (
         <p className="mt-3 text-sm text-ink-300">
           Your weekly recap and observations will appear here once you've tended to a few things.
         </p>
-      )}
+      ) : null}
 
-      {recap.length > 0 && (
+      {loaded && recap.length > 0 && (
         <section className="mt-7">
           <p className={eyebrow}>This week</p>
           <div className="mt-3 space-y-2.5">
@@ -97,7 +110,7 @@ export default function InsightsScreen() {
         </section>
       )}
 
-      {balances.length > 0 && (
+      {loaded && balances.length > 0 && (
         <section className="mt-9">
           <p className={eyebrow}>Area balance</p>
           <div className="mt-4 space-y-4">
@@ -108,7 +121,7 @@ export default function InsightsScreen() {
         </section>
       )}
 
-      {observations.length > 0 && (
+      {loaded && observations.length > 0 && (
         <section className="mt-9 space-y-2">
           <p className={eyebrow}>Worth noticing</p>
           {observations.map((text, i) => (
@@ -119,7 +132,7 @@ export default function InsightsScreen() {
         </section>
       )}
 
-      {suggestions.length > 0 && (
+      {loaded && suggestions.length > 0 && (
         <section className="mt-9 space-y-2.5">
           <p className={eyebrow}>What to do next</p>
           {suggestions.map((s, i) => (

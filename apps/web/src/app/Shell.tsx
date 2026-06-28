@@ -1,5 +1,6 @@
 import { NavLink, Outlet } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import SyncDot from '../components/SyncDot/SyncDot';
 import { NAV_ITEMS } from './navItems';
 
 // The app shell. A flex row at md+ (sidebar then content), a flex column on
@@ -11,6 +12,7 @@ import { NAV_ITEMS } from './navItems';
 export default function Shell() {
   return (
     <div className="flex h-full w-full flex-col md:flex-row">
+      <SyncDot />
       <Sidebar />
 
       <div className="flex min-w-0 flex-1 flex-col">

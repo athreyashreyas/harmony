@@ -1,7 +1,8 @@
-import { useEffect, useRef, type ReactNode } from 'react';
+import { useEffect, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import { AnimatePresence, motion, useDragControls } from 'framer-motion';
 import { spring } from '../../lib/motion';
+import { useFocusTrap } from '../../lib/useFocusTrap';
 
 // Portaled bottom sheet (section 3, section 5.4). Pinned to the bottom,
 // capped at 90% height. The grip handle is the only draggable element so the
@@ -19,7 +20,7 @@ export default function BottomSheet({
   children: ReactNode;
 }) {
   const dragControls = useDragControls();
-  const panelRef = useRef<HTMLDivElement>(null);
+  const panelRef = useFocusTrap<HTMLDivElement>(open);
 
   useEffect(() => {
     if (!open) return;
@@ -63,6 +64,7 @@ export default function BottomSheet({
             role="dialog"
             aria-modal="true"
             aria-label={title}
+            tabIndex={-1}
             className="scroll-ios relative flex max-h-[90%] flex-col rounded-t-sheet bg-parchment-50 shadow-sheet"
             style={{ marginBottom: 'var(--keyboard-height, 0px)' }}
             initial={{ y: '100%' }}

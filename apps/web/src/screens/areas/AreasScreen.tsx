@@ -3,6 +3,7 @@ import { Reorder } from 'framer-motion';
 import type { Area } from '@harmony/shared';
 import AreaRow from '../../components/AreaRow/AreaRow';
 import FAB from '../../components/FAB/FAB';
+import Skeleton from '../../components/Skeleton/Skeleton';
 import { archiveArea, reorderAreas, saveArea } from '../../lib/db/queries';
 import { useAreas } from '../../store/useAreas';
 import { useHabits } from '../../store/useHabits';
@@ -14,6 +15,7 @@ export default function AreasScreen() {
   const profile = useUser((s) => s.profile);
   const areas = useAreas((s) => s.areas);
   const loadAreas = useAreas((s) => s.load);
+  const areasLoaded = useAreas((s) => s.loadedFor);
   const habits = useHabits((s) => s.habits);
   const loadHabits = useHabits((s) => s.load);
   const logs = useLogs((s) => s.logs);
@@ -81,7 +83,13 @@ export default function AreasScreen() {
       <p className="mt-2 text-sm text-ink-300">Your areas of life, in priority order.</p>
 
       <div className="mt-6">
-        {orderedAreas.length === 0 ? (
+        {areasLoaded !== profile?.id ? (
+          <div className="space-y-2.5">
+            <Skeleton className="h-[70px] w-full" />
+            <Skeleton className="h-[70px] w-full" />
+            <Skeleton className="h-[70px] w-full" />
+          </div>
+        ) : orderedAreas.length === 0 ? (
           <p className="text-sm text-ink-300">Add the parts of life you want to tend to.</p>
         ) : (
           <Reorder.Group axis="y" values={orderedAreas} onReorder={handleReorder} className="space-y-2.5">

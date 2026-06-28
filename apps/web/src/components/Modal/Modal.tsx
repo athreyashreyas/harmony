@@ -2,6 +2,7 @@ import { useEffect, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { spring } from '../../lib/motion';
+import { useFocusTrap } from '../../lib/useFocusTrap';
 
 // Portaled, centered modal (section 3, section 5.4). Escapes any stacking
 // context by rendering to document.body. Closes on backdrop click and Escape.
@@ -16,6 +17,8 @@ export default function Modal({
   title?: string;
   children: ReactNode;
 }) {
+  const panelRef = useFocusTrap<HTMLDivElement>(open);
+
   useEffect(() => {
     if (!open) return;
     function onKey(e: KeyboardEvent) {
@@ -40,9 +43,11 @@ export default function Modal({
             aria-hidden="true"
           />
           <motion.div
+            ref={panelRef}
             role="dialog"
             aria-modal="true"
             aria-label={title}
+            tabIndex={-1}
             className="relative w-full max-w-sm rounded-sheet bg-parchment-50 p-5 shadow-sheet"
             initial={{ opacity: 0, y: 16, scale: 0.98 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}

@@ -267,6 +267,7 @@ export default function SettingsScreen() {
                   type="time"
                   value={dnd.dndStart}
                   onChange={(e) => profile && void updateNotifications(profile.id, { dndStart: e.target.value })}
+                  aria-label="Quiet hours start"
                   className="rounded-card bg-parchment-100 px-3 py-2 text-sm text-ink-900 ring-1 ring-inset ring-parchment-300"
                 />
                 <span className="text-sm text-ink-300">to</span>
@@ -274,6 +275,7 @@ export default function SettingsScreen() {
                   type="time"
                   value={dnd.dndEnd}
                   onChange={(e) => profile && void updateNotifications(profile.id, { dndEnd: e.target.value })}
+                  aria-label="Quiet hours end"
                   className="rounded-card bg-parchment-100 px-3 py-2 text-sm text-ink-900 ring-1 ring-inset ring-parchment-300"
                 />
               </div>
@@ -292,10 +294,11 @@ export default function SettingsScreen() {
                 <button
                   type="button"
                   onClick={() => setExpandedChangelog(expanded ? -1 : i)}
+                  aria-expanded={expanded}
                   className="flex w-full items-center justify-between px-4 py-3 text-left"
                 >
                   <span className="text-sm font-medium text-ink-900">{entry.title}</span>
-                  <span className="text-ink-300">{expanded ? '–' : '+'}</span>
+                  <span className="text-ink-300">{expanded ? '−' : '+'}</span>
                 </button>
                 {expanded && <p className="px-4 pb-3 text-sm text-ink-500">{entry.body}</p>}
               </div>

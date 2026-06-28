@@ -13,13 +13,13 @@ export default function AuthLayout({
   children: ReactNode;
 }) {
   return (
-    <div className="flex min-h-full items-center justify-center px-5 pt-safe pb-safe">
+    <main className="flex min-h-full items-center justify-center px-5 pt-safe pb-safe">
       <div className="w-full max-w-sm py-12">
         <h1 className="font-serif text-3xl text-ink-900">{title}</h1>
         <p className="mt-2 text-sm text-ink-500">{sub}</p>
         <div className="mt-8">{children}</div>
       </div>
-    </div>
+    </main>
   );
 }
 

@@ -89,12 +89,12 @@ export default function HabitDetailScreen() {
 
   if (!habit || !area) {
     return (
-      <div className="flex h-full flex-col items-center justify-center px-5 pt-safe pb-safe text-center">
+      <main className="flex h-full flex-col items-center justify-center px-5 pt-safe pb-safe text-center">
         <p className="text-sm text-ink-300">This habit is no longer here.</p>
         <button type="button" onClick={() => navigate('/')} className="mt-4 text-sm text-iris-500 hover:underline">
           Back to home
         </button>
-      </div>
+      </main>
     );
   }
 
@@ -133,7 +133,7 @@ export default function HabitDetailScreen() {
           </div>
         </header>
 
-        <div className="mx-auto w-full max-w-md px-5">
+        <main className="mx-auto w-full max-w-md px-5">
           <div className="flex">
             <AreaChip area={area} onClick={() => navigate('/areas')} />
           </div>
@@ -213,7 +213,7 @@ export default function HabitDetailScreen() {
               Edit habit
             </button>
           </div>
-        </div>
+        </main>
       </div>
 
       <ComposeHabitSheet

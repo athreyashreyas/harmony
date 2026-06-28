@@ -57,21 +57,21 @@ export default function AuthGate() {
 
   if (!isSupabaseConfigured) {
     return (
-      <div className="flex min-h-full flex-col items-center justify-center px-5 pt-safe pb-safe text-center">
+      <main className="flex min-h-full flex-col items-center justify-center px-5 pt-safe pb-safe text-center">
         <h1 className="font-serif text-2xl text-ink-900">Supabase is not configured.</h1>
         <p className="mt-3 max-w-sm text-sm text-ink-500">
           Add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to apps/web/.env.local, then restart
           the dev server.
         </p>
-      </div>
+      </main>
     );
   }
 
   if (status === 'loading') {
     return (
-      <div className="flex min-h-full items-center justify-center pt-safe pb-safe">
+      <main className="flex min-h-full items-center justify-center pt-safe pb-safe">
         <span className="font-serif text-xl text-iris-500">harmony</span>
-      </div>
+      </main>
     );
   }
 

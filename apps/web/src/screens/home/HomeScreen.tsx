@@ -11,6 +11,7 @@ import FAB from '../../components/FAB/FAB';
 import HabitCard from '../../components/HabitCard/HabitCard';
 import NoteSheet from '../../components/NoteSheet/NoteSheet';
 import PushPrompt from '../../components/PushPrompt/PushPrompt';
+import Skeleton from '../../components/Skeleton/Skeleton';
 import { saveHabit } from '../../lib/db/queries';
 import { detectDrift } from '../../lib/drift/detect';
 import { compose } from '../../lib/templates/composer';
@@ -133,6 +134,10 @@ export default function HomeScreen() {
     };
   }, [profile, areasLoaded, habitsLoaded, logsLoaded, areas, habits, logs]);
 
+  const loaded = Boolean(
+    profile && areasLoaded === profile.id && habitsLoaded === profile.id && logsLoaded === profile.id,
+  );
+
   const today = todayISO();
   const todaysHabits = useMemo(
     () => habits.filter((h) => isHabitDueToday(h)),
@@ -190,16 +195,25 @@ export default function HomeScreen() {
       )}
 
       <div className="mt-8">
-        <Bloom
-          areas={areas}
-          habits={habits}
-          logs={logs}
-          onSelectArea={() => navigate('/areas')}
-        />
-        <p className="mt-4 text-center text-sm text-ink-500">{bloomCaption(activities)}</p>
+        {loaded ? (
+          <>
+            <Bloom
+              areas={areas}
+              habits={habits}
+              logs={logs}
+              onSelectArea={() => navigate('/areas')}
+            />
+            <p className="mt-4 text-center text-sm text-ink-500">{bloomCaption(activities)}</p>
+          </>
+        ) : (
+          <div className="flex flex-col items-center">
+            <Skeleton className="h-[220px] w-[220px] rounded-full" />
+            <Skeleton className="mt-4 h-4 w-40" />
+          </div>
+        )}
       </div>
 
-      {areas.length > 0 && (
+      {loaded && areas.length > 0 && (
         <div className="scroll-ios mt-7 flex gap-2 overflow-x-auto pb-1">
           {areas.map((area) => (
             <AreaChip key={area.id} area={area} onClick={() => navigate('/areas')} />
@@ -210,7 +224,7 @@ export default function HomeScreen() {
       <div className="mt-9">
         <div className="flex items-baseline justify-between">
           <p className="text-xs font-medium uppercase tracking-[0.1em] text-ink-300">Today</p>
-          {todaysHabits.length > 0 && (
+          {loaded && todaysHabits.length > 0 && (
             <p className="text-xs text-ink-300">
               {doneCount} of {todaysHabits.length} tended
             </p>
@@ -218,7 +232,12 @@ export default function HomeScreen() {
         </div>
 
         <div className="mt-3">
-          {habits.length === 0 ? (
+          {!loaded ? (
+            <div className="space-y-2.5">
+              <Skeleton className="h-[58px] w-full" />
+              <Skeleton className="h-[58px] w-full" />
+            </div>
+          ) : habits.length === 0 ? (
             <p className="text-sm text-ink-300">Your habits will appear here once you add one.</p>
           ) : todaysHabits.length === 0 ? (
             <p className="text-sm text-ink-300">Nothing scheduled for today. Rest counts too.</p>
@@ -250,7 +269,7 @@ export default function HomeScreen() {
         </div>
       </div>
 
-      {areas.length > 0 && <FAB label="Add habit" onClick={() => setComposeOpen(true)} />}
+      {loaded && areas.length > 0 && <FAB label="Add habit" onClick={() => setComposeOpen(true)} />}
 
       <ComposeHabitSheet
         open={composeOpen}

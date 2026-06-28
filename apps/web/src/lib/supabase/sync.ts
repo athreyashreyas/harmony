@@ -1,6 +1,7 @@
 import type { Area, Habit, Log, NotificationSettings, NudgeHistory, UserProfile } from '@harmony/shared';
 import { supabase } from './client';
 import { db } from '../db/schema';
+import { withSync } from '../sync/status';
 
 // Getting a profile row to and from Supabase, with Dexie as the on-device
 // cache, plus best-effort mirroring of areas, habits, and logs. Full
@@ -124,19 +125,22 @@ function habitToRow(h: Habit) {
 // swallowed: Dexie already holds the source of truth, and reconciliation
 // happens in the background later.
 export async function mirrorOnboarding(areas: Area[], habits: Habit[]): Promise<void> {
-  if (!supabase) return;
-  try {
-    if (areas.length) {
-      const { error } = await supabase.from('areas').upsert(areas.map(areaToRow));
-      if (error) throw error;
+  const client = supabase;
+  if (!client) return;
+  await withSync(async () => {
+    try {
+      if (areas.length) {
+        const { error } = await client.from('areas').upsert(areas.map(areaToRow));
+        if (error) throw error;
+      }
+      if (habits.length) {
+        const { error } = await client.from('habits').upsert(habits.map(habitToRow));
+        if (error) throw error;
+      }
+    } catch (err) {
+      console.warn('Onboarding mirror to Supabase failed, will reconcile later.', err);
     }
-    if (habits.length) {
-      const { error } = await supabase.from('habits').upsert(habits.map(habitToRow));
-      if (error) throw error;
-    }
-  } catch (err) {
-    console.warn('Onboarding mirror to Supabase failed, will reconcile later.', err);
-  }
+  });
 }
 
 function logToRow(log: Log) {
@@ -152,45 +156,57 @@ function logToRow(log: Log) {
 }
 
 export async function mirrorLogUpsert(log: Log): Promise<void> {
-  if (!supabase) return;
-  try {
-    const { error } = await supabase.from('logs').upsert(logToRow(log));
-    if (error) throw error;
-  } catch (err) {
-    console.warn('Log mirror to Supabase failed, will reconcile later.', err);
-  }
+  const client = supabase;
+  if (!client) return;
+  await withSync(async () => {
+    try {
+      const { error } = await client.from('logs').upsert(logToRow(log));
+      if (error) throw error;
+    } catch (err) {
+      console.warn('Log mirror to Supabase failed, will reconcile later.', err);
+    }
+  });
 }
 
 export async function mirrorLogDelete(logId: string): Promise<void> {
-  if (!supabase) return;
-  try {
-    const { error } = await supabase.from('logs').delete().eq('id', logId);
-    if (error) throw error;
-  } catch (err) {
-    console.warn('Log delete mirror to Supabase failed, will reconcile later.', err);
-  }
+  const client = supabase;
+  if (!client) return;
+  await withSync(async () => {
+    try {
+      const { error } = await client.from('logs').delete().eq('id', logId);
+      if (error) throw error;
+    } catch (err) {
+      console.warn('Log delete mirror to Supabase failed, will reconcile later.', err);
+    }
+  });
 }
 
 // Single row mirrors for the edit flows (Phase 5): area and habit create,
 // edit, archive, and reorder all funnel through these.
 export async function mirrorAreaUpsert(area: Area): Promise<void> {
-  if (!supabase) return;
-  try {
-    const { error } = await supabase.from('areas').upsert(areaToRow(area));
-    if (error) throw error;
-  } catch (err) {
-    console.warn('Area mirror to Supabase failed, will reconcile later.', err);
-  }
+  const client = supabase;
+  if (!client) return;
+  await withSync(async () => {
+    try {
+      const { error } = await client.from('areas').upsert(areaToRow(area));
+      if (error) throw error;
+    } catch (err) {
+      console.warn('Area mirror to Supabase failed, will reconcile later.', err);
+    }
+  });
 }
 
 export async function mirrorHabitUpsert(habit: Habit): Promise<void> {
-  if (!supabase) return;
-  try {
-    const { error } = await supabase.from('habits').upsert(habitToRow(habit));
-    if (error) throw error;
-  } catch (err) {
-    console.warn('Habit mirror to Supabase failed, will reconcile later.', err);
-  }
+  const client = supabase;
+  if (!client) return;
+  await withSync(async () => {
+    try {
+      const { error } = await client.from('habits').upsert(habitToRow(habit));
+      if (error) throw error;
+    } catch (err) {
+      console.warn('Habit mirror to Supabase failed, will reconcile later.', err);
+    }
+  });
 }
 
 function nudgeToRow(n: NudgeHistory) {
@@ -207,13 +223,16 @@ function nudgeToRow(n: NudgeHistory) {
 }
 
 export async function mirrorNudge(nudge: NudgeHistory): Promise<void> {
-  if (!supabase) return;
-  try {
-    const { error } = await supabase.from('nudge_history').upsert(nudgeToRow(nudge));
-    if (error) throw error;
-  } catch (err) {
-    console.warn('Nudge mirror to Supabase failed, will reconcile later.', err);
-  }
+  const client = supabase;
+  if (!client) return;
+  await withSync(async () => {
+    try {
+      const { error } = await client.from('nudge_history').upsert(nudgeToRow(nudge));
+      if (error) throw error;
+    } catch (err) {
+      console.warn('Nudge mirror to Supabase failed, will reconcile later.', err);
+    }
+  });
 }
 
 function notificationSettingsToRow(userId: string, s: NotificationSettings) {
@@ -227,15 +246,18 @@ function notificationSettingsToRow(userId: string, s: NotificationSettings) {
 }
 
 export async function mirrorNotificationSettings(userId: string, settings: NotificationSettings): Promise<void> {
-  if (!supabase) return;
-  try {
-    const { error } = await supabase
-      .from('notification_settings')
-      .upsert(notificationSettingsToRow(userId, settings));
-    if (error) throw error;
-  } catch (err) {
-    console.warn('Notification settings mirror to Supabase failed, will reconcile later.', err);
-  }
+  const client = supabase;
+  if (!client) return;
+  await withSync(async () => {
+    try {
+      const { error } = await client
+        .from('notification_settings')
+        .upsert(notificationSettingsToRow(userId, settings));
+      if (error) throw error;
+    } catch (err) {
+      console.warn('Notification settings mirror to Supabase failed, will reconcile later.', err);
+    }
+  });
 }
 
 // Deletes everything the signed in user can reach under row level security

@@ -24,3 +24,12 @@
     @apply ring-2 ring-iris-500 ring-offset-2 ring-offset-parchment-100;
   }
 }
+
+/* Skeletons use Tailwind's animate-pulse, which framer-motion's MotionConfig
+   cannot reach since it is plain CSS. Reduced motion turns the pulse into a
+   steady, calm placeholder instead (section 20). */
+@media (prefers-reduced-motion: reduce) {
+  .animate-pulse {
+    animation: none;
+  }
+}

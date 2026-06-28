@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import type { Log } from '@harmony/shared';
 import BottomSheet from '../../components/BottomSheet/BottomSheet';
+import Skeleton from '../../components/Skeleton/Skeleton';
 import { isoDaysAgo, formatDateMedium, formatMonthYear, monthGrid, startOfMonthISO, endOfMonthISO, todayISO } from '../../lib/time/dates';
 import { logsInRange } from '../../lib/db/queries';
 import { useAreas } from '../../store/useAreas';
@@ -37,6 +38,7 @@ export default function LogScreen() {
 
   const [viewedMonth, setViewedMonth] = useState(() => new Date());
   const [monthLogs, setMonthLogs] = useState<Log[]>([]);
+  const [monthLoading, setMonthLoading] = useState(true);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
 
   useEffect(() => {
@@ -48,7 +50,11 @@ export default function LogScreen() {
 
   useEffect(() => {
     if (!profile) return;
-    void logsInRange(profile.id, startOfMonthISO(viewedMonth), endOfMonthISO(viewedMonth)).then(setMonthLogs);
+    setMonthLoading(true);
+    void logsInRange(profile.id, startOfMonthISO(viewedMonth), endOfMonthISO(viewedMonth)).then((rows) => {
+      setMonthLogs(rows);
+      setMonthLoading(false);
+    });
   }, [profile, viewedMonth]);
 
   const areaById = useMemo(() => new Map(areas.map((a) => [a.id, a])), [areas]);
@@ -115,6 +121,13 @@ export default function LogScreen() {
           />
         </div>
 
+        {monthLoading ? (
+          <div className="mt-4 grid grid-cols-7 gap-2">
+            {Array.from({ length: 35 }).map((_, i) => (
+              <Skeleton key={i} className="h-6 w-6 rounded-full" />
+            ))}
+          </div>
+        ) : (
         <div className="mt-4 grid grid-cols-7 gap-y-2 text-center">
           {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((d, i) => (
             <span key={i} className="text-[10px] text-ink-300">
@@ -132,6 +145,7 @@ export default function LogScreen() {
                   key={date}
                   type="button"
                   onClick={() => setSelectedDate(date)}
+                  aria-label={`${formatDateMedium(date)}${areaIds.length ? ', tended' : ''}`}
                   className="flex flex-col items-center gap-1 py-1"
                 >
                   <span
@@ -157,6 +171,7 @@ export default function LogScreen() {
             }),
           )}
         </div>
+        )}
       </section>
 
       <BottomSheet

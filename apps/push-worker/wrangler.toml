@@ -1,0 +1,23 @@
+name = "harmony-push-worker"
+main = "src/index.ts"
+compatibility_date = "2024-09-23"
+# web-push relies on Node's crypto for payload encryption and VAPID signing.
+compatibility_flags = ["nodejs_compat"]
+
+# Drift checks run every 15 minutes (section 17.3).
+[triggers]
+crons = ["*/15 * * * *"]
+
+# D1 is optional (section 17.3): a local cache of sent nudges to reduce Supabase
+# reads. The worker is fully functional without it, using Supabase as the source
+# of truth. To enable, create the database and uncomment, then apply schema.sql:
+#   wrangler d1 create harmony-nudges
+#   wrangler d1 execute harmony-nudges --file=schema.sql
+# [[d1_databases]]
+# binding = "NUDGE_CACHE"
+# database_name = "harmony-nudges"
+# database_id = "<from wrangler d1 create>"
+
+# Secrets are set with `wrangler secret put <NAME>`, never committed:
+#   VAPID_PUBLIC, VAPID_PRIVATE, VAPID_SUBJECT (mailto:you@example.com),
+#   SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, TEST_PUSH_SECRET

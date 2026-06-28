@@ -65,11 +65,17 @@ async function persistSubscription(userId: string, subscription: PushSubscriptio
   // The spec's path is to POST to the Cloudflare Worker, which writes to
   // Supabase with the service role. When no worker is configured yet, write
   // straight to Supabase (RLS lets a user manage their own rows) so the
-  // subscription is not lost.
+  // subscription is not lost. The worker derives the user from the access
+  // token, not the body, so the token is sent in the Authorization header.
   if (WORKER_URL) {
+    const { data } = (await supabase?.auth.getSession()) ?? { data: { session: null } };
+    const token = data.session?.access_token;
     const res = await fetch(`${WORKER_URL.replace(/\/$/, '')}/subscribe`, {
       method: 'POST',
-      headers: { 'content-type': 'application/json' },
+      headers: {
+        'content-type': 'application/json',
+        ...(token ? { authorization: `Bearer ${token}` } : {}),
+      },
       body: JSON.stringify(payload),
     });
     if (!res.ok) throw new Error(`Worker subscribe failed: ${res.status}`);

@@ -1,4 +1,4 @@
-import type { Cadence } from '@harmony/shared';
+import type { Cadence } from '../types';
 
 // Expected gap, in days, between completions for a cadence. Used as the
 // fallback cadence for a fresh area with no log history yet (section 16:

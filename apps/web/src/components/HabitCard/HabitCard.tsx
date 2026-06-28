@@ -9,18 +9,20 @@ const TIME_LABEL: Record<TimeOfDay, string> = {
 };
 
 // Section 9.4. Tapping the check toggles the log, optimistic, no confirmation.
-// Tapping the rest of the card opens the nested habit view in Phase 6; until
-// then it is quietly inert rather than pointing somewhere fake.
+// Tapping the rest of the card opens the edit sheet (Phase 5). The full
+// nested habit view with the heatmap and mantra is Phase 6.
 export default function HabitCard({
   habit,
   area,
   done,
   onToggle,
+  onOpen,
 }: {
   habit: Habit;
   area: Area;
   done: boolean;
   onToggle: () => void;
+  onOpen: () => void;
 }) {
   return (
     <div
@@ -47,16 +49,24 @@ export default function HabitCard({
         )}
       </motion.button>
 
-      <div className="min-w-0 flex-1">
-        <p className={done ? 'truncate text-sm text-ink-300 line-through' : 'truncate text-sm text-ink-900'}>
-          {habit.name}
-        </p>
-        <p className="truncate text-xs" style={{ color: area.color }}>
-          {area.name}
-        </p>
-      </div>
+      <button type="button" onClick={onOpen} className="flex min-w-0 flex-1 items-center gap-3 text-left">
+        <span className="min-w-0 flex-1">
+          <span
+            className={
+              done
+                ? 'block truncate text-sm text-ink-300 line-through'
+                : 'block truncate text-sm text-ink-900'
+            }
+          >
+            {habit.name}
+          </span>
+          <span className="block truncate text-xs" style={{ color: area.color }}>
+            {area.name}
+          </span>
+        </span>
 
-      <span className="shrink-0 text-xs text-ink-300">{TIME_LABEL[habit.timeOfDay]}</span>
+        <span className="shrink-0 text-xs text-ink-300">{TIME_LABEL[habit.timeOfDay]}</span>
+      </button>
     </div>
   );
 }

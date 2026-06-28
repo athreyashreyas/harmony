@@ -168,3 +168,25 @@ export async function mirrorLogDelete(logId: string): Promise<void> {
     console.warn('Log delete mirror to Supabase failed, will reconcile later.', err);
   }
 }
+
+// Single row mirrors for the edit flows (Phase 5): area and habit create,
+// edit, archive, and reorder all funnel through these.
+export async function mirrorAreaUpsert(area: Area): Promise<void> {
+  if (!supabase) return;
+  try {
+    const { error } = await supabase.from('areas').upsert(areaToRow(area));
+    if (error) throw error;
+  } catch (err) {
+    console.warn('Area mirror to Supabase failed, will reconcile later.', err);
+  }
+}
+
+export async function mirrorHabitUpsert(habit: Habit): Promise<void> {
+  if (!supabase) return;
+  try {
+    const { error } = await supabase.from('habits').upsert(habitToRow(habit));
+    if (error) throw error;
+  } catch (err) {
+    console.warn('Habit mirror to Supabase failed, will reconcile later.', err);
+  }
+}

@@ -48,10 +48,15 @@ export default function SignUpScreen() {
       return;
     }
 
-    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-    const profile = await createProfile({ id: data.user.id, firstName, timezone });
-    setSignedIn(profile);
-    setSubmitting(false);
+    try {
+      const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      const profile = await createProfile({ id: data.user.id, firstName, timezone });
+      setSignedIn(profile);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Something went wrong creating your profile.');
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   if (needsConfirmation) {

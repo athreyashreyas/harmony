@@ -30,10 +30,15 @@ export default function AuthGate() {
         setSignedOut();
         return;
       }
-      const loadedProfile = await pullProfile(user.id);
-      if (!active) return;
-      if (loadedProfile) setSignedIn(loadedProfile);
-      else setSignedOut();
+      try {
+        const loadedProfile = await pullProfile(user.id);
+        if (!active) return;
+        if (loadedProfile) setSignedIn(loadedProfile);
+        else setSignedOut();
+      } catch (err) {
+        console.error('Failed to load profile after session check.', err);
+        if (active) setSignedOut();
+      }
     });
 
     const { data: subscription } = supabase.auth.onAuthStateChange(async (_event, session) => {
@@ -43,9 +48,14 @@ export default function AuthGate() {
         setSignedOut();
         return;
       }
-      const loadedProfile = await pullProfile(user.id);
-      if (!active) return;
-      if (loadedProfile) setSignedIn(loadedProfile);
+      try {
+        const loadedProfile = await pullProfile(user.id);
+        if (!active) return;
+        if (loadedProfile) setSignedIn(loadedProfile);
+      } catch (err) {
+        console.error('Failed to load profile after auth state change.', err);
+        if (active) setSignedOut();
+      }
     });
 
     return () => {

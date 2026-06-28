@@ -37,9 +37,15 @@ export default function SignInScreen() {
       return;
     }
 
-    const profile = await pullProfile(data.user.id);
-    if (profile) setSignedIn(profile);
-    setSubmitting(false);
+    try {
+      const profile = await pullProfile(data.user.id);
+      if (profile) setSignedIn(profile);
+      else setError('Signed in, but your profile could not be found.');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Something went wrong loading your profile.');
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   async function handleReset() {

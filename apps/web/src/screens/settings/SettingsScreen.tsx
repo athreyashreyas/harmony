@@ -6,6 +6,7 @@ import AreaRow from '../../components/AreaRow/AreaRow';
 import Modal from '../../components/Modal/Modal';
 import Switch from '../../components/Switch/Switch';
 import { reorderAreas, saveArea } from '../../lib/db/queries';
+import { enablePush, pushReadiness, type PushReadiness } from '../../lib/push/subscribe';
 import { supabase } from '../../lib/supabase/client';
 import { deleteAllUserData } from '../../lib/supabase/sync';
 import { useAreas } from '../../store/useAreas';
@@ -65,6 +66,11 @@ export default function SettingsScreen() {
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [expandedChangelog, setExpandedChangelog] = useState(0);
+  const [pushState, setPushState] = useState<PushReadiness | null>(null);
+
+  useEffect(() => {
+    setPushState(pushReadiness());
+  }, []);
 
   useEffect(() => {
     if (!profile) return;
@@ -117,12 +123,57 @@ export default function SettingsScreen() {
     void updateNotifications(profile.id, { mutedAreaIds: next });
   }
 
+  async function handleEnablePush() {
+    if (!profile) return;
+    const result = await enablePush(profile.id);
+    setPushState(result);
+  }
+
   async function handleDeleteAccount() {
     if (!profile) return;
     setDeleting(true);
     await deleteAllUserData(profile.id);
     await supabase?.auth.signOut();
     window.location.href = '/sign-in';
+  }
+
+  // A single line describing how push stands on this specific device, beneath
+  // the per-area toggles (which govern the worker, not the browser permission).
+  function deviceNotice() {
+    switch (pushState) {
+      case 'granted':
+        return <p className="mt-3 text-xs text-ink-300">Reminders are on for this device.</p>;
+      case 'denied':
+        return (
+          <p className="mt-3 text-xs text-ink-300">
+            Notifications are blocked in your browser settings. Turn them on there to enable reminders.
+          </p>
+        );
+      case 'needs-install':
+        return (
+          <p className="mt-3 text-xs text-ink-300">
+            Add Harmony to your home screen first, then reminders can be turned on here.
+          </p>
+        );
+      case 'unconfigured':
+        return (
+          <p className="mt-3 text-xs text-ink-300">
+            Push is not configured for this build yet.
+          </p>
+        );
+      case 'ready':
+        return (
+          <button
+            type="button"
+            onClick={handleEnablePush}
+            className="mt-3 rounded-full bg-iris-500 px-4 py-2 text-sm font-medium text-parchment-50"
+          >
+            Turn on reminders on this device
+          </button>
+        );
+      default:
+        return null;
+    }
   }
 
   return (
@@ -184,6 +235,8 @@ export default function SettingsScreen() {
             label="All notifications"
           />
         </div>
+
+        {dnd.masterEnabled && deviceNotice()}
 
         {dnd.masterEnabled && (
           <>

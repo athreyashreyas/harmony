@@ -10,6 +10,7 @@ import DriftBanner from '../../components/DriftBanner/DriftBanner';
 import FAB from '../../components/FAB/FAB';
 import HabitCard from '../../components/HabitCard/HabitCard';
 import NoteSheet from '../../components/NoteSheet/NoteSheet';
+import PushPrompt from '../../components/PushPrompt/PushPrompt';
 import { saveHabit } from '../../lib/db/queries';
 import { detectDrift } from '../../lib/drift/detect';
 import { compose } from '../../lib/templates/composer';
@@ -179,6 +180,8 @@ export default function HomeScreen() {
         {greetingWord()}
         {profile ? `, ${profile.firstName}.` : '.'}
       </h1>
+
+      {profile && <PushPrompt userId={profile.id} />}
 
       {banner && (
         <div className="mt-6">

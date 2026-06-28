@@ -29,19 +29,28 @@ function ChevronIcon() {
   );
 }
 
-// One row in the Areas list (section 10). Drag handle reorders, tapping the
-// row opens the edit sheet (there is no separate per-area detail screen in
-// the spec).
+const IMPORTANCE_LABEL: Record<Area['importance'], string> = {
+  core: 'Really matters',
+  matters: 'Matters',
+  optional: 'Nice to have',
+};
+
+// One row in the Areas list (section 10), and identically in Settings'
+// priority list (section 14) with showImportance set, which adds the tier
+// chip. Drag handle reorders, tapping the row opens the edit sheet (there is
+// no separate per-area detail screen in the spec).
 export default function AreaRow({
   area,
   habits,
   logs,
   onOpen,
+  showImportance = false,
 }: {
   area: Area;
   habits: Habit[];
   logs: Log[];
   onOpen: () => void;
+  showImportance?: boolean;
 }) {
   const dragControls = useDragControls();
 
@@ -91,6 +100,12 @@ export default function AreaRow({
             {areaHabits.length} habit{areaHabits.length === 1 ? '' : 's'}, {tendedDatesThisWeek} tended this week
           </span>
         </span>
+
+        {showImportance && (
+          <span className="hidden shrink-0 rounded-full bg-parchment-200 px-2.5 py-1 text-[10px] font-medium text-ink-500 sm:inline-block">
+            {IMPORTANCE_LABEL[area.importance]}
+          </span>
+        )}
 
         <span className="hidden shrink-0 items-center gap-0.5 sm:flex" aria-hidden="true">
           {sparkline.map(({ date, tended }) => (

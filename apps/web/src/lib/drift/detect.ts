@@ -1,4 +1,4 @@
-import type { Area, Habit, Log, NudgeHistory } from '@harmony/shared';
+import type { Area, DriftSensitivity, Habit, Log, NudgeHistory } from '@harmony/shared';
 import { daysBetween, isoDaysAgo, todayISO } from '../time/dates';
 import { isDriftTemplate } from '../templates/library';
 import { cadenceGapDays, clamp, median } from './cadence';
@@ -12,6 +12,15 @@ import { cadenceGapDays, clamp, median } from './cadence';
 const HISTORY_DAYS = 60;
 const DAY_MS = 86_400_000;
 const NO_REPEAT_DAYS = 3;
+
+// Per-area dial on top of importance (section 14). 'default' reproduces the
+// unscaled thresholds below; 'low' waits longer before calling an area quiet,
+// 'high' calls it sooner.
+const SENSITIVITY_MULTIPLIER: Record<DriftSensitivity, number> = {
+  low: 1.5,
+  default: 1,
+  high: 0.65,
+};
 
 export interface DriftCandidate {
   area: Area;
@@ -75,8 +84,9 @@ export function detectDrift(input: {
 
     const cadence = areaCadence(area, habits, logs, now);
     const daysSince = daysSinceLastLog(area, logs, now);
-    const threshold =
+    const baseThreshold =
       area.importance === 'core' ? Math.max(cadence * 1.5, 5) : Math.max(cadence * 2.0, 10);
+    const threshold = baseThreshold * SENSITIVITY_MULTIPLIER[area.driftSensitivity ?? 'default'];
 
     if (daysSince > threshold && !firedRecently(area, nudgeHistory, now)) {
       candidates.push({ area, daysSinceLast: daysSince, cadence });

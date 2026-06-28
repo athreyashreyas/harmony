@@ -6,6 +6,11 @@ export type Importance = 'core' | 'matters' | 'optional';
 
 export type TimeOfDay = 'morning' | 'afternoon' | 'evening' | 'anytime';
 
+// How readily an area's drift nudges fire, on top of its importance tier
+// (section 14, per-area setting). 'default' reproduces section 16's
+// thresholds unchanged.
+export type DriftSensitivity = 'low' | 'default' | 'high';
+
 export type Cadence =
   | { kind: 'daily' }
   | { kind: 'weekdays' }
@@ -32,6 +37,10 @@ export interface Area {
   order: number;
   createdAt: number;
   archivedAt: number | null;
+  // Per-area settings (section 14). Optional so areas created before Phase 9
+  // still read back fine; callers fall back to 'default' / 'anytime'.
+  driftSensitivity?: DriftSensitivity;
+  reminderTimeOfDay?: TimeOfDay;
 }
 
 export interface Habit {
@@ -73,4 +82,16 @@ export interface NudgeHistory {
 export interface WeatherSummary {
   kind: 'sunny' | 'rainy' | 'cold' | 'hot';
   phrase: string;
+}
+
+// Notification preferences (section 14). One row per user. The worker
+// (Phase 11) reads this from Supabase to decide whether and when to push;
+// the in-app drift banner does not consult it (push is the only channel
+// these settings gate, per the Phase 7 decision to keep the banner
+// unconditional).
+export interface NotificationSettings {
+  masterEnabled: boolean;
+  mutedAreaIds: string[];
+  dndStart: string; // "HH:mm" local
+  dndEnd: string;
 }

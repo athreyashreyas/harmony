@@ -1,4 +1,4 @@
-import type { Area, Habit, Log, NudgeHistory, UserProfile } from '@harmony/shared';
+import type { Area, Habit, Log, NotificationSettings, NudgeHistory, UserProfile } from '@harmony/shared';
 import { supabase } from './client';
 import { db } from '../db/schema';
 
@@ -98,6 +98,8 @@ function areaToRow(a: Area) {
     sort_order: a.order,
     created_at: new Date(a.createdAt).toISOString(),
     archived_at: a.archivedAt ? new Date(a.archivedAt).toISOString() : null,
+    drift_sensitivity: a.driftSensitivity ?? 'default',
+    reminder_time_of_day: a.reminderTimeOfDay ?? 'anytime',
   };
 }
 
@@ -212,4 +214,44 @@ export async function mirrorNudge(nudge: NudgeHistory): Promise<void> {
   } catch (err) {
     console.warn('Nudge mirror to Supabase failed, will reconcile later.', err);
   }
+}
+
+function notificationSettingsToRow(userId: string, s: NotificationSettings) {
+  return {
+    user_id: userId,
+    master_enabled: s.masterEnabled,
+    muted_area_ids: s.mutedAreaIds,
+    dnd_start: s.dndStart,
+    dnd_end: s.dndEnd,
+  };
+}
+
+export async function mirrorNotificationSettings(userId: string, settings: NotificationSettings): Promise<void> {
+  if (!supabase) return;
+  try {
+    const { error } = await supabase
+      .from('notification_settings')
+      .upsert(notificationSettingsToRow(userId, settings));
+    if (error) throw error;
+  } catch (err) {
+    console.warn('Notification settings mirror to Supabase failed, will reconcile later.', err);
+  }
+}
+
+// Deletes everything the signed in user can reach under row level security
+// (logs, habits, areas, nudge history, notification settings, profile). The
+// underlying auth.users row cannot be removed from the client without a
+// service role key, which must never ship to the browser, so this is the
+// honest scope of an in-app "delete account": all of the user's data, with
+// sign out following immediately after.
+export async function deleteAllUserData(userId: string): Promise<void> {
+  if (supabase) {
+    await supabase.from('logs').delete().eq('user_id', userId);
+    await supabase.from('nudge_history').delete().eq('user_id', userId);
+    await supabase.from('habits').delete().eq('user_id', userId);
+    await supabase.from('areas').delete().eq('user_id', userId);
+    await supabase.from('notification_settings').delete().eq('user_id', userId);
+    await supabase.from('profiles').delete().eq('id', userId);
+  }
+  await db.delete();
 }

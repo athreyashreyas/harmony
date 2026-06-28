@@ -1,7 +1,7 @@
 {
   "name": "harmony",
   "private": true,
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Habits that help you return to yourself.",
   "packageManager": "pnpm@9.15.0",
   "engines": {

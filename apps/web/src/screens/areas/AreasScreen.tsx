@@ -8,7 +8,7 @@ import { useAreas } from '../../store/useAreas';
 import { useHabits } from '../../store/useHabits';
 import { useLogs } from '../../store/useLogs';
 import { useUser } from '../../store/useUser';
-import AreaSheet from './AreaSheet';
+import AreaSheet, { type AreaFields } from './AreaSheet';
 
 export default function AreasScreen() {
   const profile = useUser((s) => s.profile);
@@ -50,7 +50,7 @@ export default function AreasScreen() {
     setSheetOpen(true);
   }
 
-  async function handleSave(fields: Pick<Area, 'name' | 'color' | 'importance' | 'whySentence'>) {
+  async function handleSave(fields: AreaFields) {
     if (!profile) return;
     const area: Area = editingArea
       ? { ...editingArea, ...fields }

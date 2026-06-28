@@ -1,4 +1,5 @@
-import type { Area, Habit, Log } from '@harmony/shared';
+import type { Area, Habit, Log, NotificationSettings } from '@harmony/shared';
+import { DEFAULT_DND } from '@harmony/shared';
 import { db } from './schema';
 import { isoDaysAgo, todayISO } from '../time/dates';
 import {
@@ -6,6 +7,7 @@ import {
   mirrorHabitUpsert,
   mirrorLogDelete,
   mirrorLogUpsert,
+  mirrorNotificationSettings,
 } from '../supabase/sync';
 
 // Dexie is the source of truth on device (section 6.2).
@@ -172,4 +174,17 @@ export async function setLogNote(
   await db.logs.put(log);
   void mirrorLogUpsert(log);
   return log;
+}
+
+const NOTIFICATION_SETTINGS_KEY = 'notificationSettings';
+
+export async function loadNotificationSettings(): Promise<NotificationSettings> {
+  const row = await db.settings.get(NOTIFICATION_SETTINGS_KEY);
+  if (row) return row.value as NotificationSettings;
+  return { masterEnabled: true, mutedAreaIds: [], dndStart: DEFAULT_DND.start, dndEnd: DEFAULT_DND.end };
+}
+
+export async function saveNotificationSettings(userId: string, settings: NotificationSettings): Promise<void> {
+  await db.settings.put({ key: NOTIFICATION_SETTINGS_KEY, value: settings });
+  void mirrorNotificationSettings(userId, settings);
 }

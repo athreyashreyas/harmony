@@ -5,9 +5,11 @@ import type { Habit } from '@harmony/shared';
 import AreaChip from '../../components/AreaChip/AreaChip';
 import { computeAreaActivity } from '../../components/Bloom/activity';
 import Bloom from '../../components/Bloom/Bloom';
+import ComposeHabitSheet, { type HabitDraft } from '../../components/ComposeHabitSheet/ComposeHabitSheet';
 import FAB from '../../components/FAB/FAB';
 import HabitCard from '../../components/HabitCard/HabitCard';
-import { archiveHabit, saveHabit } from '../../lib/db/queries';
+import NoteSheet from '../../components/NoteSheet/NoteSheet';
+import { saveHabit } from '../../lib/db/queries';
 import { isHabitDueToday } from '../../lib/time/cadence';
 import { formatLongDate, greetingWord, todayISO } from '../../lib/time/dates';
 import { listContainer, listItem } from '../../lib/motion';
@@ -15,7 +17,6 @@ import { useAreas } from '../../store/useAreas';
 import { useHabits } from '../../store/useHabits';
 import { useLogs } from '../../store/useLogs';
 import { useUser } from '../../store/useUser';
-import ComposeHabitSheet, { type HabitDraft } from './ComposeHabitSheet';
 
 function bloomCaption(activities: number[]): string {
   if (activities.length === 0) return 'Tend to yourself today.';
@@ -36,9 +37,10 @@ export default function HomeScreen() {
   const logs = useLogs((s) => s.logs);
   const loadLogs = useLogs((s) => s.load);
   const toggle = useLogs((s) => s.toggle);
+  const setNote = useLogs((s) => s.setNote);
 
-  const [sheetOpen, setSheetOpen] = useState(false);
-  const [editingHabit, setEditingHabit] = useState<Habit | null>(null);
+  const [composeOpen, setComposeOpen] = useState(false);
+  const [noteHabit, setNoteHabit] = useState<Habit | null>(null);
 
   useEffect(() => {
     if (!profile) return;
@@ -65,41 +67,26 @@ export default function HomeScreen() {
 
   const areaById = useMemo(() => new Map(areas.map((a) => [a.id, a])), [areas]);
 
-  function openCreate() {
-    setEditingHabit(null);
-    setSheetOpen(true);
-  }
+  const noteForToday = noteHabit
+    ? (logs.find((l) => l.habitId === noteHabit.id && l.date === today)?.note ?? '')
+    : '';
 
-  function openEdit(habit: Habit) {
-    setEditingHabit(habit);
-    setSheetOpen(true);
-  }
-
-  async function handleSave(draft: HabitDraft) {
+  async function handleCreate(draft: HabitDraft) {
     if (!profile) return;
-    const habit: Habit = editingHabit
-      ? { ...editingHabit, ...draft }
-      : {
-          id: crypto.randomUUID(),
-          userId: profile.id,
-          reminderTime: null,
-          startDate: today,
-          endDate: null,
-          order: habits.length,
-          createdAt: Date.now(),
-          archivedAt: null,
-          ...draft,
-        };
+    const habit: Habit = {
+      id: crypto.randomUUID(),
+      userId: profile.id,
+      reminderTime: null,
+      startDate: today,
+      endDate: null,
+      order: habits.length,
+      createdAt: Date.now(),
+      archivedAt: null,
+      ...draft,
+    };
     await saveHabit(habit);
     await loadHabits(profile.id);
-    setSheetOpen(false);
-  }
-
-  async function handleArchive() {
-    if (!editingHabit || !profile) return;
-    await archiveHabit(editingHabit.id);
-    await loadHabits(profile.id);
-    setSheetOpen(false);
+    setComposeOpen(false);
   }
 
   return (
@@ -111,7 +98,12 @@ export default function HomeScreen() {
       </h1>
 
       <div className="mt-8">
-        <Bloom areas={areas} habits={habits} logs={logs} onSelectArea={() => navigate('/areas')} />
+        <Bloom
+          areas={areas}
+          habits={habits}
+          logs={logs}
+          onSelectArea={() => navigate('/areas')}
+        />
         <p className="mt-4 text-center text-sm text-ink-500">{bloomCaption(activities)}</p>
       </div>
 
@@ -155,7 +147,8 @@ export default function HomeScreen() {
                       area={area}
                       done={doneIds.has(habit.id)}
                       onToggle={() => void toggle(habit)}
-                      onOpen={() => openEdit(habit)}
+                      onOpen={() => navigate(`/habit/${habit.id}`)}
+                      onLongPress={() => setNoteHabit(habit)}
                     />
                   </motion.div>
                 );
@@ -165,16 +158,26 @@ export default function HomeScreen() {
         </div>
       </div>
 
-      {areas.length > 0 && <FAB label="Add habit" onClick={openCreate} />}
+      {areas.length > 0 && <FAB label="Add habit" onClick={() => setComposeOpen(true)} />}
 
       <ComposeHabitSheet
-        open={sheetOpen}
+        open={composeOpen}
         areas={areas}
-        isEdit={editingHabit != null}
-        initial={editingHabit}
-        onClose={() => setSheetOpen(false)}
-        onSave={handleSave}
-        onArchive={editingHabit ? handleArchive : undefined}
+        isEdit={false}
+        initial={null}
+        onClose={() => setComposeOpen(false)}
+        onSave={handleCreate}
+      />
+
+      <NoteSheet
+        open={noteHabit != null}
+        habitName={noteHabit?.name ?? ''}
+        initialNote={noteForToday}
+        onClose={() => setNoteHabit(null)}
+        onSave={(note) => {
+          if (noteHabit) void setNote(noteHabit, note);
+          setNoteHabit(null);
+        }}
       />
     </div>
   );

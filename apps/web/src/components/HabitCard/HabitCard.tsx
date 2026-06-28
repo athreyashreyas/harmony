@@ -1,3 +1,4 @@
+import { useRef } from 'react';
 import { motion } from 'framer-motion';
 import type { Area, Habit, TimeOfDay } from '@harmony/shared';
 
@@ -8,22 +9,46 @@ const TIME_LABEL: Record<TimeOfDay, string> = {
   anytime: 'Anytime',
 };
 
-// Section 9.4. Tapping the check toggles the log, optimistic, no confirmation.
-// Tapping the rest of the card opens the edit sheet (Phase 5). The full
-// nested habit view with the heatmap and mantra is Phase 6.
+const LONG_PRESS_MS = 500;
+
+// Section 9.4 and 9.5. Tapping the check toggles the log (optimistic, no
+// confirmation). Tapping the rest of the card opens the nested habit view.
+// Long-pressing the card opens the note sheet for today.
 export default function HabitCard({
   habit,
   area,
   done,
   onToggle,
   onOpen,
+  onLongPress,
 }: {
   habit: Habit;
   area: Area;
   done: boolean;
   onToggle: () => void;
   onOpen: () => void;
+  onLongPress: () => void;
 }) {
+  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const wasLong = useRef(false);
+
+  function startPress() {
+    wasLong.current = false;
+    timer.current = setTimeout(() => {
+      wasLong.current = true;
+      onLongPress();
+    }, LONG_PRESS_MS);
+  }
+
+  function endPress() {
+    if (timer.current) clearTimeout(timer.current);
+    if (!wasLong.current) onOpen();
+  }
+
+  function cancelPress() {
+    if (timer.current) clearTimeout(timer.current);
+  }
+
   return (
     <div
       className="flex items-center gap-3 rounded-card bg-parchment-50 py-3 pl-3 pr-4 shadow-card"
@@ -49,7 +74,16 @@ export default function HabitCard({
         )}
       </motion.button>
 
-      <button type="button" onClick={onOpen} className="flex min-w-0 flex-1 items-center gap-3 text-left">
+      <button
+        type="button"
+        onPointerDown={startPress}
+        onPointerUp={endPress}
+        onPointerLeave={cancelPress}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter') onOpen();
+        }}
+        className="flex min-w-0 flex-1 items-center gap-3 text-left"
+      >
         <span className="min-w-0 flex-1">
           <span
             className={

@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
 import type { Area, Cadence, TimeOfDay } from '@harmony/shared';
-import BottomSheet from '../../components/BottomSheet/BottomSheet';
-import WatercolorWash from '../../components/WatercolorWash/WatercolorWash';
+import BottomSheet from '../BottomSheet/BottomSheet';
+import WatercolorWash from '../WatercolorWash/WatercolorWash';
 import { hexToRgba } from '../../lib/color';
 import { CADENCE_OPTIONS, TIME_OF_DAY_OPTIONS, cadenceKey } from '../../lib/cadenceOptions';
-import { PrimaryButton, QuietLink } from '../onboarding/ui';
+import { PrimaryButton, QuietLink } from '../../screens/onboarding/ui';
 
 const selectClass =
   'w-full rounded-card bg-parchment-50/90 px-3.5 py-2.5 text-sm text-ink-900 ring-1 ring-inset ring-parchment-300 focus:ring-2 focus:ring-iris-500';

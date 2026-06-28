@@ -41,3 +41,26 @@ export function greetingWord(date: Date = new Date()): string {
   if (segment === 'afternoon') return 'Good afternoon';
   return 'Good evening';
 }
+
+function dateFromISO(dateISO: string): Date {
+  return new Date(`${dateISO}T00:00:00`);
+}
+
+export function weekdayLong(dateISO: string): string {
+  return dateFromISO(dateISO).toLocaleDateString(undefined, { weekday: 'long' });
+}
+
+// Medium date for note thread cards, e.g. "Thursday, June 12".
+export function formatDateMedium(dateISO: string): string {
+  return dateFromISO(dateISO).toLocaleDateString(undefined, {
+    weekday: 'long',
+    month: 'long',
+    day: 'numeric',
+  });
+}
+
+// Phrase for "Last tended ..." (section 11.1). Combines the weekday of the
+// day it counted for with the time of day it was actually tapped.
+export function lastTendedPhrase(dateISO: string, loggedAt: number): string {
+  return `${weekdayLong(dateISO)} ${daySegment(new Date(loggedAt))}`;
+}

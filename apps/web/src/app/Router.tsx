@@ -4,6 +4,7 @@ import AuthGate from './AuthGate';
 import SignInScreen from '../screens/auth/SignInScreen';
 import SignUpScreen from '../screens/auth/SignUpScreen';
 import OnboardingFlow from '../screens/onboarding/OnboardingFlow';
+import HabitDetailScreen from '../screens/habit/HabitDetailScreen';
 import HomeScreen from '../screens/home/HomeScreen';
 import AreasScreen from '../screens/areas/AreasScreen';
 import LogScreen from '../screens/log/LogScreen';
@@ -18,6 +19,7 @@ export default function Router() {
 
       <Route element={<AuthGate />}>
         <Route path="onboarding" element={<OnboardingFlow />} />
+        <Route path="habit/:habitId" element={<HabitDetailScreen />} />
 
         <Route element={<Shell />}>
           <Route index element={<HomeScreen />} />

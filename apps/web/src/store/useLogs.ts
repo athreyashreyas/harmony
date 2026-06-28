@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import type { Habit, Log } from '@harmony/shared';
-import { recentLogsForUser, toggleLog as toggleLogInDb } from '../lib/db/queries';
+import { recentLogsForUser, setLogNote, toggleLog as toggleLogInDb } from '../lib/db/queries';
 import { todayISO } from '../lib/time/dates';
 
 interface LogsState {
@@ -8,6 +8,7 @@ interface LogsState {
   loadedFor: string | null;
   load: (userId: string) => Promise<void>;
   toggle: (habit: Habit, dateISO?: string) => Promise<void>;
+  setNote: (habit: Habit, note: string, dateISO?: string) => Promise<void>;
 }
 
 // A trailing window of logs (section 9.5, tap-to-log). Writes go to Dexie
@@ -42,6 +43,11 @@ export const useLogs = create<LogsState>((set, get) => ({
 
     // Reconcile with the real write, which has its own id when creating.
     const result = await toggleLogInDb(habit, dateISO);
+    const withoutThisDay = get().logs.filter((l) => !(l.habitId === habit.id && l.date === dateISO));
+    set({ logs: result ? [...withoutThisDay, result] : withoutThisDay });
+  },
+  setNote: async (habit, note, dateISO = todayISO()) => {
+    const result = await setLogNote(habit, dateISO, note);
     const withoutThisDay = get().logs.filter((l) => !(l.habitId === habit.id && l.date === dateISO));
     set({ logs: result ? [...withoutThisDay, result] : withoutThisDay });
   },

@@ -122,3 +122,42 @@ export async function archiveHabit(habitId: string): Promise<void> {
   await db.habits.put(archived);
   void mirrorHabitUpsert(archived);
 }
+
+// All logs for one habit, oldest first. Drives the heatmap, the note thread,
+// and the "last tended" line in the detail view (section 11), which need more
+// than the trailing window the Home store keeps.
+export async function logsForHabit(habitId: string): Promise<Log[]> {
+  const logs = await db.logs.where('habitId').equals(habitId).toArray();
+  return logs.sort((a, b) => a.date.localeCompare(b.date));
+}
+
+// Attaches or clears a note on a given day's log (section 9.5, the long-press
+// note). Writing a note for a day that was not logged marks it tended too,
+// since a note is a reflection on having done the habit. Returns the log when
+// one exists afterward, or null when an empty note on an untended day was a
+// no-op.
+export async function setLogNote(
+  habit: Habit,
+  dateISO: string,
+  note: string | null,
+): Promise<Log | null> {
+  const trimmed = note?.trim() ? note.trim() : null;
+  const existing = await db.logs.where('[habitId+date]').equals([habit.id, dateISO]).first();
+
+  if (!existing && !trimmed) return null;
+
+  const log: Log = existing
+    ? { ...existing, note: trimmed }
+    : {
+        id: crypto.randomUUID(),
+        userId: habit.userId,
+        habitId: habit.id,
+        areaId: habit.areaId,
+        date: dateISO,
+        loggedAt: Date.now(),
+        note: trimmed,
+      };
+  await db.logs.put(log);
+  void mirrorLogUpsert(log);
+  return log;
+}

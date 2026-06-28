@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link, Navigate } from 'react-router-dom';
+import { errorMessage } from '../../lib/errorMessage';
 import { supabase } from '../../lib/supabase/client';
 import { createProfile } from '../../lib/supabase/sync';
 import { useUser } from '../../store/useUser';
@@ -53,7 +54,8 @@ export default function SignUpScreen() {
       const profile = await createProfile({ id: data.user.id, firstName, timezone });
       setSignedIn(profile);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Something went wrong creating your profile.');
+      console.error('createProfile failed', err);
+      setError(errorMessage(err, 'Something went wrong creating your profile.'));
     } finally {
       setSubmitting(false);
     }

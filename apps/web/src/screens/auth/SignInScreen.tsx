@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link, Navigate } from 'react-router-dom';
+import { errorMessage } from '../../lib/errorMessage';
 import { supabase } from '../../lib/supabase/client';
 import { pullProfile } from '../../lib/supabase/sync';
 import { useUser } from '../../store/useUser';
@@ -42,7 +43,8 @@ export default function SignInScreen() {
       if (profile) setSignedIn(profile);
       else setError('Signed in, but your profile could not be found.');
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Something went wrong loading your profile.');
+      console.error('pullProfile failed', err);
+      setError(errorMessage(err, 'Something went wrong loading your profile.'));
     } finally {
       setSubmitting(false);
     }

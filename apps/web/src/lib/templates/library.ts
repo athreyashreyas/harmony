@@ -98,10 +98,16 @@ export const TEMPLATES: Template[] = [
   { id: 'celebrate-nice', type: 'celebration', body: `Nice, {firstName}.` },
   { id: 'celebrate-return', type: 'celebration', body: `A small return to {areaName}.` },
 
-  // Weekly recap sentences: building blocks for the Sunday recap (Phase 8).
-  { id: 'recap-strong', type: 'weekly-recap-sentence', body: `Your {areaName} had a strong week.` },
-  { id: 'recap-steady', type: 'weekly-recap-sentence', body: `{areaName} was steady.` },
+  // Weekly recap sentences: building blocks for the Sunday recap (section
+  // 13.1, Phase 8). recap.ts selects these deterministically from real
+  // weekly facts rather than through the random composer, so a few carry
+  // extra placeholders (habitName, countPhrase, lastDayName, areaNames) that
+  // recap.ts supplies directly.
+  { id: 'recap-strong', type: 'weekly-recap-sentence', body: `Your {areaName} had a strong week. You tended to {habitName} {countPhrase}.` },
+  { id: 'recap-steady', type: 'weekly-recap-sentence', body: `{areaName} was steady. You tended to {habitName} on {lastDayName}.` },
   { id: 'recap-quiet', type: 'weekly-recap-sentence', body: `{areaName} has been quiet for {daysSince} days. You wrote: "{whySentence}"` },
+  { id: 'recap-nice-single', type: 'weekly-recap-sentence', body: `Nice to have areas can wait. {areaNames} is okay where it is.` },
+  { id: 'recap-nice-multi', type: 'weekly-recap-sentence', body: `Nice to have areas can wait. {areaNames} are okay where they are.` },
   { id: 'recap-fresh', type: 'weekly-recap-sentence', body: `Sunday's a fresh week. No need to catch up.` },
 
   // Install nudge.

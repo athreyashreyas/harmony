@@ -1,5 +1,6 @@
 import type { Habit, Log } from '@harmony/shared';
 import { daySegment, isoDaysAgo } from '../time/dates';
+import { joinWithAnd } from '../text';
 
 // Pattern observations for the habit detail view (section 11.3). Rules based,
 // surfaced only above a confidence threshold. Always about presence, never
@@ -14,13 +15,7 @@ const STREAK_WEEKS = 7;
 const MIN_STREAK = 4;
 const MAX_OBSERVATIONS = 3;
 
-const WEEKDAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-
-function joinWithAnd(items: string[]): string {
-  if (items.length === 1) return items[0];
-  if (items.length === 2) return `${items[0]} and ${items[1]}`;
-  return `${items.slice(0, -1).join(', ')}, and ${items[items.length - 1]}`;
-}
+export const WEEKDAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
 function dayOfWeekObservation(dates: string[]): string | null {
   const counts = new Array(7).fill(0);

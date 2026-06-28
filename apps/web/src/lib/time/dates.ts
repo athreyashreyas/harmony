@@ -64,3 +64,35 @@ export function formatDateMedium(dateISO: string): string {
 export function lastTendedPhrase(dateISO: string, loggedAt: number): string {
   return `${weekdayLong(dateISO)} ${daySegment(new Date(loggedAt))}`;
 }
+
+export function formatMonthYear(date: Date): string {
+  return date.toLocaleDateString(undefined, { month: 'long', year: 'numeric' });
+}
+
+export function startOfMonthISO(date: Date): string {
+  return todayISO(new Date(date.getFullYear(), date.getMonth(), 1));
+}
+
+export function endOfMonthISO(date: Date): string {
+  return todayISO(new Date(date.getFullYear(), date.getMonth() + 1, 0));
+}
+
+// A 6 row by 7 column grid of ISO dates for the month-view calendar (section
+// 12), padded with null outside the month so every row is a full week.
+// Weeks start on Sunday, matching the cadence model's 0=Sun day numbering.
+export function monthGrid(date: Date): (string | null)[][] {
+  const first = new Date(date.getFullYear(), date.getMonth(), 1);
+  const daysInMonth = new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
+  const startWeekday = first.getDay();
+
+  const cells: (string | null)[] = [];
+  for (let i = 0; i < startWeekday; i++) cells.push(null);
+  for (let day = 1; day <= daysInMonth; day++) {
+    cells.push(todayISO(new Date(date.getFullYear(), date.getMonth(), day)));
+  }
+  while (cells.length % 7 !== 0) cells.push(null);
+
+  const rows: (string | null)[][] = [];
+  for (let i = 0; i < cells.length; i += 7) rows.push(cells.slice(i, i + 7));
+  return rows;
+}

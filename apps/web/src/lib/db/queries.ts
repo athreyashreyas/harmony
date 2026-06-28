@@ -36,6 +36,17 @@ export async function recentLogsForUser(userId: string, windowDays = 60): Promis
   return db.logs.where('userId').equals(userId).and((log) => log.date >= from).toArray();
 }
 
+// Logs between two ISO dates, inclusive. Goes straight to Dexie rather than
+// the trailing window the Home/Insights stores keep, since the Log calendar
+// (section 12) can be browsed to any month, not just the last 60 days.
+export async function logsInRange(userId: string, fromISO: string, toISO: string): Promise<Log[]> {
+  return db.logs
+    .where('userId')
+    .equals(userId)
+    .and((log) => log.date >= fromISO && log.date <= toISO)
+    .toArray();
+}
+
 // Commits the full onboarding result in one transaction so areas and habits
 // land together or not at all.
 export async function saveOnboarding(areas: Area[], habits: Habit[]): Promise<void> {

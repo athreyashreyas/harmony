@@ -39,7 +39,9 @@ function areaCadence(area: Area, habits: Habit[], logs: Log[], now: Date): numbe
   return fromHabits != null ? clamp(fromHabits, 1, 14) : 7;
 }
 
-function daysSinceLastLog(area: Area, logs: Log[], now: Date): number {
+// Exported for reuse by the weekly recap (section 13.1), which needs the same
+// "how long has this area been quiet" measure.
+export function daysSinceLastLog(area: Area, logs: Log[], now: Date): number {
   const today = todayISO(now);
   const areaDates = logs.filter((l) => l.areaId === area.id).map((l) => l.date);
   if (areaDates.length > 0) {

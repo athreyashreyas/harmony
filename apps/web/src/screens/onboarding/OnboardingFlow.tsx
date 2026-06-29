@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { AnimatePresence, motion } from 'framer-motion';
+import { motion } from 'framer-motion';
 import type { Area, Habit } from '@harmony/shared';
 import { areasForUser, saveOnboarding } from '../../lib/db/queries';
 import { markOnboarded, mirrorOnboarding } from '../../lib/supabase/sync';
@@ -146,35 +146,41 @@ function OnboardingInner() {
     navigate('/', { replace: true });
   }
 
-  const common = { stepIndex, totalSteps: STEPS.length };
+  // Render-time guard: an area-dependent step with no areas would render blank,
+  // so fall back to the area picker without waiting for an effect.
+  const effectiveStep: Step =
+    AREA_STEPS.includes(step) && areas.length === 0 ? 'areas' : step;
+  const common = { stepIndex: STEPS.indexOf(effectiveStep), totalSteps: STEPS.length };
 
+  // No AnimatePresence / mode="wait" here on purpose: a dragging element inside
+  // an exiting child (the importance chips) can stop the exit-complete callback
+  // from firing, which left the next step unmounted until a manual refresh.
+  // Keying a plain motion.div by step gives a snappy enter animation while
+  // guaranteeing the new step always mounts immediately.
   return (
     <div className="h-full overflow-hidden">
-      <AnimatePresence mode="wait" custom={direction}>
-        <motion.div
-          key={step}
-          custom={direction}
-          initial={{ opacity: 0, x: direction * 16 }}
-          animate={{ opacity: 1, x: 0, transition: { duration: 0.18, ease: [0.22, 1, 0.36, 1] } }}
-          exit={{ opacity: 0, x: direction * -12, transition: { duration: 0.07, ease: 'easeIn' } }}
-          className="h-full"
-        >
-          {step === 'welcome' && <WelcomeStep {...common} onNext={() => go('areas')} />}
-          {step === 'areas' && (
-            <AreasStep {...common} onBack={() => go('welcome')} onNext={() => go('why')} />
-          )}
-          {step === 'why' && (
-            <WhyStep {...common} onBack={() => go('areas')} onNext={() => go('importance')} />
-          )}
-          {step === 'importance' && (
-            <ImportanceStep {...common} onBack={() => go('why')} onNext={() => go('habits')} />
-          )}
-          {step === 'habits' && (
-            <HabitsStep {...common} onBack={() => go('importance')} onNext={commitAndContinue} />
-          )}
-          {step === 'install' && <InstallStep {...common} onFinish={finish} />}
-        </motion.div>
-      </AnimatePresence>
+      <motion.div
+        key={effectiveStep}
+        initial={{ opacity: 0, x: direction * 16 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
+        className="h-full"
+      >
+        {effectiveStep === 'welcome' && <WelcomeStep {...common} onNext={() => go('areas')} />}
+        {effectiveStep === 'areas' && (
+          <AreasStep {...common} onBack={() => go('welcome')} onNext={() => go('why')} />
+        )}
+        {effectiveStep === 'why' && (
+          <WhyStep {...common} onBack={() => go('areas')} onNext={() => go('importance')} />
+        )}
+        {effectiveStep === 'importance' && (
+          <ImportanceStep {...common} onBack={() => go('why')} onNext={() => go('habits')} />
+        )}
+        {effectiveStep === 'habits' && (
+          <HabitsStep {...common} onBack={() => go('importance')} onNext={commitAndContinue} />
+        )}
+        {effectiveStep === 'install' && <InstallStep {...common} onFinish={finish} />}
+      </motion.div>
     </div>
   );
 }

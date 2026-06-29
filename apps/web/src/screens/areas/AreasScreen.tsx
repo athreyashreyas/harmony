@@ -78,7 +78,7 @@ export default function AreasScreen() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-2xl px-5 pt-8 pb-28 md:pb-12">
+    <div className="mx-auto w-full max-w-2xl px-5 pt-8 pb-36 md:pb-16">
       <h1 className="font-serif text-3xl text-ink-900">Areas</h1>
       <p className="mt-2 text-sm text-ink-300">Your areas of life, in priority order.</p>
 

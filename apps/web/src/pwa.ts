@@ -43,6 +43,8 @@ function showUpdatingOverlay() {
   document.body.append(overlay);
 }
 
+const UPDATE_CHECK_INTERVAL = 60 * 60 * 1000; // hourly
+
 export function setupPWA() {
   if (!('serviceWorker' in navigator)) return;
 
@@ -54,7 +56,25 @@ export function setupPWA() {
   // genuinely new worker, which is the real "an update shipped" case.
   const hadControllerAtStartup = Boolean(navigator.serviceWorker.controller);
 
-  registerSW({ immediate: true });
+  // registerType is autoUpdate, so a new worker installs and activates itself
+  // whenever one is found. The checks below make an installed PWA (which can
+  // stay open for days without a navigation) actually look for new versions on
+  // its own, so updates flow without anyone re-adding the home-screen icon.
+  registerSW({
+    immediate: true,
+    onRegisteredSW(_swUrl, registration) {
+      if (!registration) return;
+      const check = () => {
+        registration.update().catch(() => {
+          /* offline or transient: try again next interval */
+        });
+      };
+      setInterval(check, UPDATE_CHECK_INTERVAL);
+      document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible') check();
+      });
+    },
+  });
 
   let reloading = false;
   navigator.serviceWorker.addEventListener('controllerchange', () => {

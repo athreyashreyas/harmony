@@ -179,7 +179,7 @@ export default function HomeScreen() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-2xl px-5 pt-6 pb-28 md:pb-12">
+    <div className="mx-auto w-full max-w-2xl px-5 pt-6 pb-36 md:pb-16">
       <p className="text-sm text-ink-300">{formatLongDate()}</p>
       <h1 className="mt-0.5 font-serif text-2xl text-ink-900">
         {greetingWord()}

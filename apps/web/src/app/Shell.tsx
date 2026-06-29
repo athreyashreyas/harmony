@@ -11,16 +11,19 @@ import { NAV_ITEMS } from './navItems';
 // child (not position: fixed) so it stays flush to the true bottom.
 export default function Shell() {
   return (
-    <div className="flex h-full w-full flex-col md:flex-row">
+    <div className="flex h-full w-full flex-col overflow-hidden md:flex-row">
       <SyncDot />
       <Sidebar />
 
-      <div className="flex min-w-0 flex-1 flex-col">
-        <main className="scroll-ios min-h-0 flex-1 overflow-y-auto pt-safe pl-safe pr-safe">
+      {/* pt-safe lives on main, outside the scroller, so content never slides
+          under the status bar; a clean nested div does the actual scrolling. */}
+      <main className="flex min-w-0 min-h-0 flex-1 flex-col pt-safe pl-safe pr-safe">
+        <div className="scroll-ios min-h-0 flex-1 overflow-y-auto">
           <Outlet />
-        </main>
-        <BottomNav />
-      </div>
+        </div>
+      </main>
+
+      <BottomNav />
     </div>
   );
 }

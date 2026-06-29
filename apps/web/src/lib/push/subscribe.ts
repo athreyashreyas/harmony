@@ -62,24 +62,32 @@ async function persistSubscription(userId: string, subscription: PushSubscriptio
     userAgent: navigator.userAgent,
   };
 
-  // The spec's path is to POST to the Cloudflare Worker, which writes to
-  // Supabase with the service role. When no worker is configured yet, write
-  // straight to Supabase (RLS lets a user manage their own rows) so the
-  // subscription is not lost. The worker derives the user from the access
-  // token, not the body, so the token is sent in the Authorization header.
+  // Preferred path: POST to the Cloudflare Worker, which writes to Supabase
+  // with the service role. It derives the user from the access token, not the
+  // body. Guarded by a timeout so a slow or unreachable worker never hangs the
+  // "turn on reminders" button; on any failure we fall back to writing the
+  // subscription straight to Supabase (RLS lets a user manage their own rows).
   if (WORKER_URL) {
-    const { data } = (await supabase?.auth.getSession()) ?? { data: { session: null } };
-    const token = data.session?.access_token;
-    const res = await fetch(`${WORKER_URL.replace(/\/$/, '')}/subscribe`, {
-      method: 'POST',
-      headers: {
-        'content-type': 'application/json',
-        ...(token ? { authorization: `Bearer ${token}` } : {}),
-      },
-      body: JSON.stringify(payload),
-    });
-    if (!res.ok) throw new Error(`Worker subscribe failed: ${res.status}`);
-    return;
+    try {
+      const { data } = (await supabase?.auth.getSession()) ?? { data: { session: null } };
+      const token = data.session?.access_token;
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 8000);
+      const res = await fetch(`${WORKER_URL.replace(/\/$/, '')}/subscribe`, {
+        method: 'POST',
+        headers: {
+          'content-type': 'application/json',
+          ...(token ? { authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify(payload),
+        signal: controller.signal,
+      });
+      clearTimeout(timeout);
+      if (!res.ok) throw new Error(`Worker subscribe failed: ${res.status}`);
+      return;
+    } catch (err) {
+      console.warn('Worker subscribe failed, writing subscription to Supabase directly.', err);
+    }
   }
 
   if (supabase && json.endpoint && json.keys) {

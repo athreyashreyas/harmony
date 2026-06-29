@@ -1,8 +1,17 @@
 /* The native-feel layer (section 5). Copied verbatim from the spec. */
 
-/* 5.1 Sizing the shell to the real visible viewport */
+/* 5.1 Sizing the shell to the real visible viewport.
+   iOS reports 100dvh as roughly the screen height minus the top safe-area
+   inset in standalone PWAs, so add the inset back for the true full-screen
+   height at rest, and cap with 100lvh so rounding can never push past the real
+   screen edge. (Same proven formula as the sibling app.) */
 html {
   height: min(calc(100dvh + env(safe-area-inset-top)), 100lvh);
+  -webkit-tap-highlight-color: transparent;
+  -webkit-font-smoothing: antialiased;
+  /* Nudge the whole rem-based type and spacing scale up a touch: the default
+     16px read small on tablets. Everything scales proportionally. */
+  font-size: 17px;
 }
 body {
   height: 100%;

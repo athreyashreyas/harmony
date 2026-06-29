@@ -67,6 +67,7 @@ export default function SettingsScreen() {
   const [deleting, setDeleting] = useState(false);
   const [expandedChangelog, setExpandedChangelog] = useState(0);
   const [pushState, setPushState] = useState<PushReadiness | null>(null);
+  const [pushBusy, setPushBusy] = useState(false);
 
   useEffect(() => {
     setPushState(pushReadiness());
@@ -124,9 +125,19 @@ export default function SettingsScreen() {
   }
 
   async function handleEnablePush() {
-    if (!profile) return;
-    const result = await enablePush(profile.id);
-    setPushState(result);
+    if (!profile || pushBusy) return;
+    setPushBusy(true);
+    try {
+      const result = await enablePush(profile.id);
+      setPushState(result);
+    } catch (err) {
+      console.error('enablePush failed', err);
+      // Permission was likely granted but storing the subscription failed;
+      // reflect the real browser permission so the UI is not stuck.
+      setPushState(pushReadiness());
+    } finally {
+      setPushBusy(false);
+    }
   }
 
   async function handleDeleteAccount() {
@@ -166,9 +177,10 @@ export default function SettingsScreen() {
           <button
             type="button"
             onClick={handleEnablePush}
-            className="mt-3 rounded-full bg-iris-500 px-4 py-2 text-sm font-medium text-parchment-50"
+            disabled={pushBusy}
+            className="mt-3 rounded-full bg-iris-500 px-4 py-2 text-sm font-medium text-parchment-50 disabled:opacity-40"
           >
-            Turn on reminders on this device
+            {pushBusy ? 'Turning on...' : 'Turn on reminders on this device'}
           </button>
         );
       default:

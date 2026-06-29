@@ -4,8 +4,8 @@
 -- columns, so no new grants are needed.
 
 alter table habits
-  add column color text;
+  add column if not exists color text;
 
 alter table notification_settings
-  add column habit_reminders boolean not null default true,
-  add column daily_summary boolean not null default true;
+  add column if not exists habit_reminders boolean not null default true,
+  add column if not exists daily_summary boolean not null default true;

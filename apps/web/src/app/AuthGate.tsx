@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { supabase, isSupabaseConfigured } from '../lib/supabase/client';
+import { ensureSubscribed } from '../lib/push/subscribe';
 import { hasLocalData, pullProfile, pullUserData, subscribeUserRealtime, type SyncTable } from '../lib/supabase/sync';
 import { useSyncStore } from '../lib/sync/status';
 import { useAreas } from '../store/useAreas';
@@ -133,6 +134,10 @@ export default function AuthGate() {
       else void useSettings.getState().load();
     };
     const unsubscribe = subscribeUserRealtime(userId, refreshTable);
+
+    // Self-heal this device's push subscription if permission is granted but the
+    // backend row is missing (e.g. an earlier subscribe failed silently).
+    void ensureSubscribed(userId);
 
     // Backstops for anything realtime might miss (dropped socket, sleep): pull
     // on foreground, on reconnect, and a gentle poll while visible.

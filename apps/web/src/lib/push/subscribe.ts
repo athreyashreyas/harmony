@@ -128,3 +128,25 @@ export async function enablePush(userId: string): Promise<PushReadiness> {
   await persistSubscription(userId, subscription);
   return 'granted';
 }
+
+// Self-heal: if this device already has notification permission, make sure its
+// push subscription actually exists in the backend. The UI shows "reminders are
+// on" purely from the OS permission, so a device whose original subscribe
+// silently failed would otherwise look enabled forever while receiving nothing.
+// Idempotent (reuses the existing subscription, upserts by endpoint), so it is
+// safe to call on every app open.
+export async function ensureSubscribed(userId: string): Promise<void> {
+  if (pushReadiness() !== 'granted' || !VAPID_PUBLIC_KEY) return;
+  try {
+    const registration = await navigator.serviceWorker.ready;
+    const subscription =
+      (await registration.pushManager.getSubscription()) ??
+      (await registration.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
+      }));
+    await persistSubscription(userId, subscription);
+  } catch (err) {
+    console.warn('ensureSubscribed failed', err);
+  }
+}

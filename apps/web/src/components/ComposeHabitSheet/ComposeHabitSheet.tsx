@@ -188,7 +188,7 @@ export default function ComposeHabitSheet({
                 Match area
               </button>
             </div>
-            <div className="flex flex-wrap justify-center gap-3">
+            <div className="grid gap-3 [grid-template-columns:repeat(auto-fill,minmax(2.5rem,1fr))]">
               {AREA_PALETTE.map((swatch) => (
                 <button
                   key={swatch.hex}
@@ -196,7 +196,7 @@ export default function ComposeHabitSheet({
                   aria-label={swatch.name}
                   aria-pressed={color === swatch.hex}
                   onClick={() => setColor(swatch.hex)}
-                  className="h-9 w-9 rounded-full"
+                  className="aspect-square w-full rounded-full"
                   style={{
                     backgroundColor: swatch.hex,
                     boxShadow:

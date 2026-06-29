@@ -85,7 +85,7 @@ export default function AreaSheet({
 
         <div>
           <p className="mb-3 text-center text-sm font-medium text-ink-700">Colour</p>
-          <div className="flex flex-wrap justify-center gap-3">
+          <div className="grid gap-3 [grid-template-columns:repeat(auto-fill,minmax(2.5rem,1fr))]">
             {AREA_PALETTE.map((swatch) => (
               <button
                 key={swatch.hex}
@@ -93,7 +93,7 @@ export default function AreaSheet({
                 aria-label={swatch.name}
                 aria-pressed={color === swatch.hex}
                 onClick={() => setColor(swatch.hex)}
-                className="h-9 w-9 rounded-full"
+                className="aspect-square w-full rounded-full"
                 style={{
                   backgroundColor: swatch.hex,
                   boxShadow:

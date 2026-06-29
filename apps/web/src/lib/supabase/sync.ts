@@ -1,3 +1,4 @@
+import type { Table } from 'dexie';
 import type { Area, Habit, Log, NotificationSettings, NudgeHistory, UserProfile } from '@harmony/shared';
 import { supabase } from './client';
 import { db } from '../db/schema';
@@ -310,6 +311,17 @@ interface LogRow {
   note: string | null;
 }
 
+interface SettingsRow {
+  master_enabled: boolean;
+  muted_area_ids: string[] | null;
+  dnd_start: string;
+  dnd_end: string;
+  habit_reminders: boolean | null;
+  daily_summary: boolean | null;
+}
+
+const NOTIFICATION_SETTINGS_KEY = 'notificationSettings';
+
 function rowToArea(r: AreaRow): Area {
   return {
     id: r.id,
@@ -362,18 +374,45 @@ export async function hasLocalData(userId: string): Promise<boolean> {
   return (await db.areas.where('userId').equals(userId).count()) > 0;
 }
 
-// Fetch areas, habits, and logs for the user from Supabase and upsert them into
-// Dexie. Returns false if Supabase isn't configured or the fetch failed (so the
-// caller can decide whether to proceed with whatever is local).
+// How recent a local row must be to be shielded from deletion during a
+// reconcile. A row missing from the server is treated as "deleted elsewhere"
+// only if it is older than this; newer rows are assumed to be a just-made local
+// write whose mirror may still be in flight (or briefly offline), so they are
+// kept rather than wiped.
+const RECONCILE_GRACE_MS = 2 * 60 * 1000;
+
+// Makes the server authoritative for one table, safely: upsert every server
+// row, and delete local rows the server no longer has, except ones written
+// within the grace window. This is what propagates deletes and un-toggles
+// across devices, not just additions.
+async function reconcileTable<T extends { id: string; userId: string }>(
+  table: Table<T, string>,
+  userId: string,
+  serverRows: T[],
+  writtenAt: (row: T) => number,
+): Promise<void> {
+  const serverIds = new Set(serverRows.map((r) => r.id));
+  const cutoff = Date.now() - RECONCILE_GRACE_MS;
+  const local = await table.where('userId').equals(userId).toArray();
+  const stale = local.filter((r) => !serverIds.has(r.id) && writtenAt(r) < cutoff).map((r) => r.id);
+  if (stale.length) await table.bulkDelete(stale);
+  if (serverRows.length) await table.bulkPut(serverRows);
+}
+
+// Fetch areas, habits, and logs for the user from Supabase and reconcile them
+// into Dexie (server authoritative, with the grace window above). Returns false
+// if Supabase isn't configured or the fetch failed, so the caller can proceed
+// with whatever is local.
 export async function pullUserData(userId: string): Promise<boolean> {
   const client = supabase;
   if (!client) return false;
 
   return withSync(async () => {
-    const [areasRes, habitsRes, logsRes] = await Promise.all([
+    const [areasRes, habitsRes, logsRes, settingsRes] = await Promise.all([
       client.from('areas').select('*').eq('user_id', userId),
       client.from('habits').select('*').eq('user_id', userId),
       client.from('logs').select('*').eq('user_id', userId),
+      client.from('notification_settings').select('*').eq('user_id', userId).maybeSingle(),
     ]);
     if (areasRes.error || habitsRes.error || logsRes.error) {
       console.warn('Pull from Supabase failed.', areasRes.error ?? habitsRes.error ?? logsRes.error);
@@ -385,10 +424,25 @@ export async function pullUserData(userId: string): Promise<boolean> {
     const logs = (logsRes.data as LogRow[]).map(rowToLog);
 
     await db.transaction('rw', db.areas, db.habits, db.logs, async () => {
-      if (areas.length) await db.areas.bulkPut(areas);
-      if (habits.length) await db.habits.bulkPut(habits);
-      if (logs.length) await db.logs.bulkPut(logs);
+      await reconcileTable(db.areas, userId, areas, (a) => a.createdAt);
+      await reconcileTable(db.habits, userId, habits, (h) => h.createdAt);
+      await reconcileTable(db.logs, userId, logs, (l) => l.loggedAt);
     });
+
+    // Notification settings: mirror the cloud copy down so per-device config
+    // (mute, quiet hours, the reminder toggles) stays in agreement.
+    const s = settingsRes.data as SettingsRow | null;
+    if (s) {
+      const settings: NotificationSettings = {
+        masterEnabled: s.master_enabled,
+        mutedAreaIds: s.muted_area_ids ?? [],
+        dndStart: s.dnd_start,
+        dndEnd: s.dnd_end,
+        habitReminders: s.habit_reminders ?? true,
+        dailySummary: s.daily_summary ?? true,
+      };
+      await db.settings.put({ key: NOTIFICATION_SETTINGS_KEY, value: settings });
+    }
     return true;
   });
 }

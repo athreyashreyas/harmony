@@ -2,17 +2,30 @@ import { useEffect } from 'react';
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { supabase, isSupabaseConfigured } from '../lib/supabase/client';
 import { hasLocalData, pullProfile, pullUserData } from '../lib/supabase/sync';
+import { useSyncStore } from '../lib/sync/status';
 import { useAreas } from '../store/useAreas';
 import { useHabits } from '../store/useHabits';
 import { useLogs } from '../store/useLogs';
+import { useSettings } from '../store/useSettings';
 import { useUser } from '../store/useUser';
 
-// Reload the data stores from Dexie after a background pull, so a device that
-// was already showing data picks up anything new fetched from the cloud.
+// Reload the data stores from Dexie after a pull, so a device that was already
+// showing data picks up anything fetched from the cloud.
 function refreshStores(userId: string) {
   void useAreas.getState().load(userId);
   void useHabits.getState().load(userId);
   void useLogs.getState().load(userId);
+  void useSettings.getState().load();
+}
+
+// A safe re-sync: pull from the cloud and refresh the UI, but only when online
+// and nothing is mid-mirror (so the authoritative reconcile can't race a write
+// that hasn't reached the server yet).
+async function syncNow(userId: string) {
+  if (!navigator.onLine) return;
+  if (useSyncStore.getState().pending > 0) return;
+  const ok = await pullUserData(userId);
+  if (ok) refreshStores(userId);
 }
 
 // Gates the protected routes (onboarding and the main shell). Listens for
@@ -103,6 +116,30 @@ export default function AuthGate() {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Re-sync from the cloud whenever a signed-in device is brought back to the
+  // foreground or reconnects, so opening another device (or returning to this
+  // one) reflects writes made elsewhere, including deletes and un-logs.
+  useEffect(() => {
+    if (status !== 'signed-in' || !profile) return;
+    const userId = profile.id;
+    const onVisible = () => {
+      if (document.visibilityState === 'visible') void syncNow(userId);
+    };
+    const onOnline = () => void syncNow(userId);
+    document.addEventListener('visibilitychange', onVisible);
+    window.addEventListener('online', onOnline);
+    // Gentle poll so two devices left open both converge, even without a focus
+    // event. Only runs while the tab is visible.
+    const interval = window.setInterval(() => {
+      if (document.visibilityState === 'visible') void syncNow(userId);
+    }, 60_000);
+    return () => {
+      document.removeEventListener('visibilitychange', onVisible);
+      window.removeEventListener('online', onOnline);
+      window.clearInterval(interval);
+    };
+  }, [status, profile]);
 
   if (!isSupabaseConfigured) {
     return (

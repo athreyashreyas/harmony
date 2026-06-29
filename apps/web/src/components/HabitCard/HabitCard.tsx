@@ -49,10 +49,13 @@ export default function HabitCard({
     if (timer.current) clearTimeout(timer.current);
   }
 
+  // A habit shows its own colour when set, otherwise it inherits the area's.
+  const accent = habit.color ?? area.color;
+
   return (
     <div
       className="flex items-center gap-3 rounded-card bg-parchment-50 py-3 pl-3 pr-4 shadow-card"
-      style={{ borderLeft: `3px solid ${area.color}` }}
+      style={{ borderLeft: `3px solid ${accent}` }}
     >
       <motion.button
         type="button"
@@ -63,7 +66,7 @@ export default function HabitCard({
         className="flex h-[22px] w-[22px] shrink-0 items-center justify-center rounded-full transition-colors"
         style={
           done
-            ? { backgroundColor: area.color }
+            ? { backgroundColor: accent }
             : { boxShadow: 'inset 0 0 0 1.5px var(--parchment-300)' }
         }
       >

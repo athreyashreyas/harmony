@@ -71,6 +71,7 @@ interface HabitRow {
   sort_order: number;
   created_at: string;
   archived_at: string | null;
+  color: string | null;
 }
 
 interface LogRow {
@@ -100,6 +101,8 @@ interface SettingsRow {
   muted_area_ids: string[];
   dnd_start: string;
   dnd_end: string;
+  habit_reminders: boolean;
+  daily_summary: boolean;
 }
 
 interface SubscriptionRow {
@@ -140,6 +143,7 @@ function toHabit(r: HabitRow): Habit {
     order: r.sort_order,
     createdAt: Date.parse(r.created_at),
     archivedAt: r.archived_at ? Date.parse(r.archived_at) : null,
+    color: r.color ?? undefined,
   };
 }
 
@@ -182,6 +186,8 @@ const DEFAULT_SETTINGS: NotificationSettings = {
   mutedAreaIds: [],
   dndStart: '21:00',
   dndEnd: '07:00',
+  habitReminders: true,
+  dailySummary: true,
 };
 
 export async function getActiveUsers(env: Env): Promise<UserProfile[]> {
@@ -218,6 +224,8 @@ export async function getUserBundle(env: Env, userId: string): Promise<UserBundl
         mutedAreaIds: s.muted_area_ids ?? [],
         dndStart: s.dnd_start,
         dndEnd: s.dnd_end,
+        habitReminders: s.habit_reminders ?? true,
+        dailySummary: s.daily_summary ?? true,
       }
     : DEFAULT_SETTINGS;
 

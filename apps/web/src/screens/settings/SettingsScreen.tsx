@@ -4,7 +4,9 @@ import type { Area } from '@harmony/shared';
 import { DEFAULT_DND } from '@harmony/shared';
 import AreaRow from '../../components/AreaRow/AreaRow';
 import Modal from '../../components/Modal/Modal';
+import ReleaseRow from '../../components/ReleaseRow/ReleaseRow';
 import Switch from '../../components/Switch/Switch';
+import { APP_VERSION, CHANGELOG } from '../../lib/changelog';
 import { reorderAreas, saveArea } from '../../lib/db/queries';
 import { enablePush, pushReadiness, type PushReadiness } from '../../lib/push/subscribe';
 import { supabase } from '../../lib/supabase/client';
@@ -18,33 +20,6 @@ import AreaSheet, { type AreaFields } from '../areas/AreaSheet';
 import { PrimaryButton } from '../onboarding/ui';
 
 const eyebrow = 'text-[10px] font-medium uppercase tracking-[0.1em] text-ink-300';
-
-const CHANGELOG = [
-  {
-    title: 'Insights and a quiet log',
-    body: 'A weekly recap written from your own days, area balance, and a monthly record of what you tended to.',
-  },
-  {
-    title: 'Gentle reminders',
-    body: "Harmony now notices when an area's gone quiet and brings your own words back to you, plus a closer look at patterns in each habit.",
-  },
-  {
-    title: 'A closer look at each habit',
-    body: 'Tap any habit for its own page: a soft heatmap, your notes, and what it tends to pair with.',
-  },
-  {
-    title: 'Tend and tidy',
-    body: 'Add, edit, reorder, and archive your areas and habits any time.',
-  },
-  {
-    title: 'The Bloom',
-    body: "Home now shows a living bloom of how you're tending to yourself, and today's habits, one tap to log.",
-  },
-  {
-    title: 'Welcome to Harmony',
-    body: 'Onboarding, in your own words: the areas of life that matter, and one small habit for each.',
-  },
-];
 
 export default function SettingsScreen() {
   const profile = useUser((s) => s.profile);
@@ -65,7 +40,6 @@ export default function SettingsScreen() {
   const [sheetOpen, setSheetOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
-  const [expandedChangelog, setExpandedChangelog] = useState(0);
   const [pushState, setPushState] = useState<PushReadiness | null>(null);
   const [pushBusy, setPushBusy] = useState(false);
 
@@ -94,6 +68,8 @@ export default function SettingsScreen() {
     mutedAreaIds: [],
     dndStart: DEFAULT_DND.start,
     dndEnd: DEFAULT_DND.end,
+    habitReminders: true,
+    dailySummary: true,
   };
 
   const mutedSet = useMemo(() => new Set(dnd.mutedAreaIds), [dnd.mutedAreaIds]);
@@ -292,6 +268,30 @@ export default function SettingsScreen() {
                 />
               </div>
             </div>
+
+            <div className="mt-4 flex items-center justify-between rounded-card bg-parchment-50 px-4 py-3 shadow-card">
+              <span className="min-w-0 pr-3">
+                <span className="block text-sm text-ink-900">Habit reminders</span>
+                <span className="block text-xs text-ink-300">A nudge at a habit's set time, on the days it's due.</span>
+              </span>
+              <Switch
+                checked={dnd.habitReminders}
+                onChange={(next) => profile && void updateNotifications(profile.id, { habitReminders: next })}
+                label="Habit reminders"
+              />
+            </div>
+
+            <div className="mt-2 flex items-center justify-between rounded-card bg-parchment-50 px-4 py-3 shadow-card">
+              <span className="min-w-0 pr-3">
+                <span className="block text-sm text-ink-900">Evening summary</span>
+                <span className="block text-xs text-ink-300">One quiet round-up of anything still unlogged that day.</span>
+              </span>
+              <Switch
+                checked={dnd.dailySummary}
+                onChange={(next) => profile && void updateNotifications(profile.id, { dailySummary: next })}
+                label="Evening summary"
+              />
+            </div>
           </>
         )}
       </section>
@@ -299,29 +299,15 @@ export default function SettingsScreen() {
       <section className="mt-9">
         <p className={eyebrow}>What's new</p>
         <div className="mt-3 space-y-2">
-          {CHANGELOG.map((entry, i) => {
-            const expanded = expandedChangelog === i;
-            return (
-              <div key={entry.title} className="rounded-card bg-parchment-50 shadow-card">
-                <button
-                  type="button"
-                  onClick={() => setExpandedChangelog(expanded ? -1 : i)}
-                  aria-expanded={expanded}
-                  className="flex w-full items-center justify-between px-4 py-3 text-left"
-                >
-                  <span className="text-sm font-medium text-ink-900">{entry.title}</span>
-                  <span className="text-ink-300">{expanded ? '−' : '+'}</span>
-                </button>
-                {expanded && <p className="px-4 pb-3 text-sm text-ink-500">{entry.body}</p>}
-              </div>
-            );
-          })}
+          {CHANGELOG.map((release, i) => (
+            <ReleaseRow key={release.version} release={release} defaultOpen={i === 0} />
+          ))}
         </div>
       </section>
 
       <section className="mt-9">
         <p className={eyebrow}>About</p>
-        <p className="mt-2 text-sm text-ink-500">Harmony, version 0.1.0.</p>
+        <p className="mt-2 text-sm text-ink-500">Harmony, version {APP_VERSION}.</p>
         <p className="mt-1 text-xs text-ink-300">Terms and privacy are not published yet.</p>
       </section>
 

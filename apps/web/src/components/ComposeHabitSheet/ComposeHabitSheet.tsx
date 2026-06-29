@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import type { Area, Cadence, TimeOfDay } from '@harmony/shared';
+import { AREA_PALETTE } from '@harmony/shared';
 import BottomSheet from '../BottomSheet/BottomSheet';
 import WatercolorWash from '../WatercolorWash/WatercolorWash';
 import { hexToRgba } from '../../lib/color';
@@ -14,10 +15,13 @@ export interface HabitDraft {
   name: string;
   cadence: Cadence;
   timeOfDay: TimeOfDay;
+  color?: string;
+  reminderTime: string | null;
 }
 
-// Create and edit share one sheet. The watercolour wash appears once an area
-// is selected (section 4.3, the third of its three uses).
+// Create and edit share one sheet. The watercolour wash appears once an area is
+// selected, in the habit's own colour if it has one. Habits can pick their own
+// colour (else they inherit the area's) and an optional reminder time.
 export default function ComposeHabitSheet({
   open,
   areas,
@@ -39,6 +43,8 @@ export default function ComposeHabitSheet({
   const [name, setName] = useState('');
   const [cadence, setCadence] = useState<Cadence>(CADENCE_OPTIONS[0].value);
   const [timeOfDay, setTimeOfDay] = useState<TimeOfDay>('anytime');
+  const [color, setColor] = useState<string | null>(null);
+  const [reminderTime, setReminderTime] = useState<string | null>(null);
 
   useEffect(() => {
     if (!open) return;
@@ -46,20 +52,23 @@ export default function ComposeHabitSheet({
     setName(initial?.name ?? '');
     setCadence(initial?.cadence ?? CADENCE_OPTIONS[0].value);
     setTimeOfDay(initial?.timeOfDay ?? 'anytime');
+    setColor(initial?.color ?? null);
+    setReminderTime(initial?.reminderTime ?? null);
   }, [open, initial]);
 
   const selectedArea = areas.find((a) => a.id === areaId) ?? null;
+  const accent = color ?? selectedArea?.color ?? null;
   const canSave = name.trim().length > 0 && areaId != null;
 
   function handleSave() {
     if (!canSave || !areaId) return;
-    onSave({ areaId, name: name.trim(), cadence, timeOfDay });
+    onSave({ areaId, name: name.trim(), cadence, timeOfDay, color: color ?? undefined, reminderTime });
   }
 
   return (
     <BottomSheet open={open} onClose={onClose} title={isEdit ? 'Edit habit' : 'Add habit'}>
       <div className="relative -mx-5 -mt-4 overflow-hidden px-5 pt-4">
-        {selectedArea && <WatercolorWash color={selectedArea.color} height={320} />}
+        {accent && <WatercolorWash color={accent} height={320} />}
 
         <div className="relative space-y-5 pb-4">
           <div>
@@ -136,6 +145,68 @@ export default function ComposeHabitSheet({
                 </option>
               ))}
             </select>
+          </div>
+
+          <div>
+            <label htmlFor="habit-reminder" className="mb-1.5 block text-sm font-medium text-ink-700">
+              Remind me at
+            </label>
+            <div className="flex items-center gap-3">
+              <input
+                id="habit-reminder"
+                type="time"
+                value={reminderTime ?? ''}
+                onChange={(e) => setReminderTime(e.target.value || null)}
+                className={selectClass}
+              />
+              {reminderTime && (
+                <button
+                  type="button"
+                  onClick={() => setReminderTime(null)}
+                  className="shrink-0 text-sm text-ink-500 hover:text-ink-700"
+                >
+                  Clear
+                </button>
+              )}
+            </div>
+            <p className="mt-1.5 text-xs text-ink-300">
+              Optional. A gentle nudge at this time on the days it's due.
+            </p>
+          </div>
+
+          <div>
+            <p className="mb-2 text-sm font-medium text-ink-700">Colour</p>
+            <div className="flex flex-wrap gap-2.5">
+              <button
+                type="button"
+                onClick={() => setColor(null)}
+                aria-pressed={color === null}
+                title="Match the area's colour"
+                className="flex h-7 items-center rounded-full bg-parchment-200 px-3 text-xs font-medium text-ink-500"
+                style={
+                  color === null && selectedArea
+                    ? { boxShadow: `0 0 0 2px #FFFAF1, 0 0 0 4px ${selectedArea.color}` }
+                    : undefined
+                }
+              >
+                Match area
+              </button>
+              {AREA_PALETTE.map((swatch) => (
+                <button
+                  key={swatch.hex}
+                  type="button"
+                  aria-label={swatch.name}
+                  aria-pressed={color === swatch.hex}
+                  onClick={() => setColor(swatch.hex)}
+                  className="h-7 w-7 rounded-full"
+                  style={{
+                    backgroundColor: swatch.hex,
+                    boxShadow:
+                      color === swatch.hex ? `0 0 0 2px #FFFAF1, 0 0 0 4px ${swatch.hex}` : undefined,
+                  }}
+                />
+              ))}
+            </div>
           </div>
 
           <PrimaryButton onClick={handleSave} disabled={!canSave}>

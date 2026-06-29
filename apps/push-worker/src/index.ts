@@ -1,4 +1,5 @@
-import type { NudgeHistory, UserProfile } from '@harmony/shared';
+import type { Habit, NudgeHistory, UserProfile } from '@harmony/shared';
+import { isHabitDueOn } from '@harmony/shared';
 import { compose } from './templates';
 import { detectDrift } from './drift';
 import { isDriftTemplate } from './templates';
@@ -15,9 +16,21 @@ import {
 } from './supabase';
 import { sendPush, type PushPayload, type VapidConfig } from './webpush';
 
-// Anti-spam invariants (section 16).
+// Anti-spam invariants (section 16). The per-day cap governs drift nudges only;
+// time-of-day habit reminders and the evening summary are user-requested and
+// each capped to once per habit / once per day on their own.
 const MAX_PER_USER_PER_DAY = 2;
 const NOTIFICATION_URL = '/';
+
+// The cron fires every 15 minutes; a scheduled reminder counts as "due now" if
+// its time falls in the slot leading up to this run.
+const FIRE_WINDOW_MIN = 15;
+// Local time the evening round-up of unlogged habits goes out (before the
+// default 21:00 quiet hours, so it isn't suppressed).
+const SUMMARY_TIME = '20:00';
+// Sentinel template ids for the non-drift pushes (not in the drift library).
+const REMINDER_TEMPLATE_ID = 'habit-reminder';
+const SUMMARY_TEMPLATE_ID = 'daily-summary';
 
 const CORS_HEADERS: Record<string, string> = {
   'access-control-allow-origin': '*',
@@ -61,6 +74,33 @@ function sameUtcDay(a: number, b: number): boolean {
   return new Date(a).toISOString().slice(0, 10) === new Date(b).toISOString().slice(0, 10);
 }
 
+// The user's local calendar date ("YYYY-MM-DD"), matching how the app stamps
+// log.date. Used to tell "due today" and "logged today" from the worker.
+function localDateISO(date: Date, timezone: string): string {
+  try {
+    return new Intl.DateTimeFormat('en-CA', {
+      timeZone: timezone,
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    }).format(date);
+  } catch {
+    return new Intl.DateTimeFormat('en-CA', { year: 'numeric', month: '2-digit', day: '2-digit' }).format(date);
+  }
+}
+
+function minutesOfDay(hhmm: string): number {
+  const [h, m] = hhmm.split(':').map(Number);
+  return (h || 0) * 60 + (m || 0);
+}
+
+// True when `targetMin` falls within the 15-minute slot ending at `nowMin`, so
+// each scheduled time fires in exactly one cron run.
+function inFireWindow(nowMin: number, targetMin: number): boolean {
+  const diff = nowMin - targetMin;
+  return diff >= 0 && diff < FIRE_WINDOW_MIN;
+}
+
 async function sendToAllSubscriptions(
   env: Env,
   bundle: UserBundle,
@@ -88,6 +128,109 @@ async function processUser(env: Env, user: UserProfile, now: Date): Promise<void
   if (bundle.subscriptions.length === 0) return;
   if (withinDnd(now, user.timezone, bundle.settings.dndStart, bundle.settings.dndEnd)) return;
 
+  // Time-of-day reminders and the evening summary are independent of the drift
+  // cap; run them first, then the drift nudges.
+  await sendHabitReminders(env, user, now, bundle);
+  await sendDailySummary(env, user, now, bundle);
+  await sendDriftNudges(env, user, now, bundle);
+}
+
+// #1: a gentle nudge for each due, still-unlogged habit at its reminder time.
+async function sendHabitReminders(env: Env, user: UserProfile, now: Date, bundle: UserBundle): Promise<void> {
+  if (!bundle.settings.habitReminders) return;
+
+  const tz = user.timezone;
+  const today = localDateISO(now, tz);
+  const nowMin = minutesOfDay(localHHmm(now, tz));
+
+  for (const habit of bundle.habits) {
+    if (!habit.reminderTime) continue;
+    if (!isHabitDueOn(habit, today)) continue;
+    if (!inFireWindow(nowMin, minutesOfDay(habit.reminderTime))) continue;
+
+    const loggedToday = bundle.logs.some((l) => l.habitId === habit.id && l.date === today);
+    if (loggedToday) continue;
+
+    const alreadyReminded = bundle.nudgeHistory.some(
+      (n) =>
+        n.templateId === REMINDER_TEMPLATE_ID &&
+        n.habitId === habit.id &&
+        localDateISO(new Date(n.sentAt), tz) === today,
+    );
+    if (alreadyReminded) continue;
+
+    const payload: PushPayload = {
+      title: 'Harmony',
+      body: `A little time for ${habit.name}?`,
+      url: NOTIFICATION_URL,
+    };
+    const delivered = await sendToAllSubscriptions(env, bundle, payload);
+    if (!delivered) continue;
+
+    const nudge: NudgeHistory = {
+      id: crypto.randomUUID(),
+      userId: user.id,
+      templateId: REMINDER_TEMPLATE_ID,
+      areaId: habit.areaId,
+      habitId: habit.id,
+      composedText: payload.body,
+      sentAt: Date.now(),
+      channel: 'push',
+    };
+    await recordNudge(env, nudge);
+    bundle.nudgeHistory.push(nudge);
+  }
+}
+
+function summaryText(unlogged: Habit[]): string {
+  const names = unlogged.map((h) => h.name);
+  if (names.length === 1) return `${names[0]} is still waiting today.`;
+  if (names.length <= 3) return `Still waiting today: ${names.join(', ')}.`;
+  return `${names.length} habits are still waiting today, whenever you're ready.`;
+}
+
+// #2: one evening round-up of habits due today that are still unlogged.
+async function sendDailySummary(env: Env, user: UserProfile, now: Date, bundle: UserBundle): Promise<void> {
+  if (!bundle.settings.dailySummary) return;
+
+  const tz = user.timezone;
+  const nowMin = minutesOfDay(localHHmm(now, tz));
+  if (!inFireWindow(nowMin, minutesOfDay(SUMMARY_TIME))) return;
+
+  const today = localDateISO(now, tz);
+  const alreadySent = bundle.nudgeHistory.some(
+    (n) => n.templateId === SUMMARY_TEMPLATE_ID && localDateISO(new Date(n.sentAt), tz) === today,
+  );
+  if (alreadySent) return;
+
+  const unlogged = bundle.habits.filter(
+    (h) => isHabitDueOn(h, today) && !bundle.logs.some((l) => l.habitId === h.id && l.date === today),
+  );
+  if (unlogged.length === 0) return;
+
+  const payload: PushPayload = {
+    title: 'Harmony',
+    body: summaryText(unlogged),
+    url: NOTIFICATION_URL,
+  };
+  const delivered = await sendToAllSubscriptions(env, bundle, payload);
+  if (!delivered) return;
+
+  const nudge: NudgeHistory = {
+    id: crypto.randomUUID(),
+    userId: user.id,
+    templateId: SUMMARY_TEMPLATE_ID,
+    areaId: null,
+    habitId: null,
+    composedText: payload.body,
+    sentAt: Date.now(),
+    channel: 'push',
+  };
+  await recordNudge(env, nudge);
+  bundle.nudgeHistory.push(nudge);
+}
+
+async function sendDriftNudges(env: Env, user: UserProfile, now: Date, bundle: UserBundle): Promise<void> {
   const muted = new Set(bundle.settings.mutedAreaIds);
 
   // Daily cap: how many push drift nudges already went out today.

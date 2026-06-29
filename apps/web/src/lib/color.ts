@@ -22,3 +22,21 @@ export function hexToRgba(hex: string, alpha: number): string {
   const { r, g, b } = hexToRgb(hex);
   return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 }
+
+function toHex(n: number): string {
+  return Math.round(Math.max(0, Math.min(255, n)))
+    .toString(16)
+    .padStart(2, '0');
+}
+
+// Flattens `hex` at `alpha` composited over `baseHex` into a solid hex. Used to
+// tint the status bar to match the top of a watercolour wash (which is the
+// accent colour at low opacity over the paper).
+export function blendOver(hex: string, alpha: number, baseHex: string): string {
+  const fg = hexToRgb(hex);
+  const bg = hexToRgb(baseHex);
+  const r = fg.r * alpha + bg.r * (1 - alpha);
+  const g = fg.g * alpha + bg.g * (1 - alpha);
+  const b = fg.b * alpha + bg.b * (1 - alpha);
+  return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
+}

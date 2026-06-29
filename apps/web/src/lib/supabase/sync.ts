@@ -118,6 +118,7 @@ function habitToRow(h: Habit) {
     sort_order: h.order,
     created_at: new Date(h.createdAt).toISOString(),
     archived_at: h.archivedAt ? new Date(h.archivedAt).toISOString() : null,
+    color: h.color ?? null,
   };
 }
 
@@ -242,6 +243,8 @@ function notificationSettingsToRow(userId: string, s: NotificationSettings) {
     muted_area_ids: s.mutedAreaIds,
     dnd_start: s.dndStart,
     dnd_end: s.dndEnd,
+    habit_reminders: s.habitReminders,
+    daily_summary: s.dailySummary,
   };
 }
 

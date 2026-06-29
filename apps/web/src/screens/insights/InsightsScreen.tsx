@@ -64,7 +64,6 @@ export default function InsightsScreen() {
     await saveHabit({
       id: crypto.randomUUID(),
       userId: profile.id,
-      reminderTime: null,
       startDate: todayISO(),
       endDate: null,
       order: habits.length,
@@ -154,7 +153,13 @@ export default function InsightsScreen() {
         isEdit={false}
         initial={
           suggestSheetArea
-            ? { areaId: suggestSheetArea, name: '', cadence: { kind: 'times-per-week', times: 3 }, timeOfDay: 'anytime' }
+            ? {
+                areaId: suggestSheetArea,
+                name: '',
+                cadence: { kind: 'times-per-week', times: 3 },
+                timeOfDay: 'anytime',
+                reminderTime: null,
+              }
             : null
         }
         onClose={() => setSuggestSheetArea(null)}

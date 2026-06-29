@@ -165,7 +165,6 @@ export default function HomeScreen() {
     const habit: Habit = {
       id: crypto.randomUUID(),
       userId: profile.id,
-      reminderTime: null,
       startDate: today,
       endDate: null,
       order: habits.length,
@@ -214,10 +213,16 @@ export default function HomeScreen() {
       </div>
 
       {loaded && areas.length > 0 && (
-        <div className="scroll-ios mt-7 flex gap-2 overflow-x-auto pb-1">
+        // Full-bleed to the screen edges with matching padding, gentle snap, and
+        // no visible scrollbar, so chips glide in and out instead of hard-
+        // cropping at the container edge.
+        <div className="no-scrollbar scroll-ios -mx-5 mt-7 flex snap-x snap-proximity gap-2 overflow-x-auto px-5">
           {areas.map((area) => (
-            <AreaChip key={area.id} area={area} onClick={() => navigate('/areas')} />
+            <div key={area.id} className="snap-start">
+              <AreaChip area={area} onClick={() => navigate('/areas')} />
+            </div>
           ))}
+          <span aria-hidden="true" className="w-1 shrink-0" />
         </div>
       )}
 

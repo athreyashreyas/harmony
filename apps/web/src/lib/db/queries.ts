@@ -179,9 +179,18 @@ export async function setLogNote(
 const NOTIFICATION_SETTINGS_KEY = 'notificationSettings';
 
 export async function loadNotificationSettings(): Promise<NotificationSettings> {
+  const defaults: NotificationSettings = {
+    masterEnabled: true,
+    mutedAreaIds: [],
+    dndStart: DEFAULT_DND.start,
+    dndEnd: DEFAULT_DND.end,
+    habitReminders: true,
+    dailySummary: true,
+  };
   const row = await db.settings.get(NOTIFICATION_SETTINGS_KEY);
-  if (row) return row.value as NotificationSettings;
-  return { masterEnabled: true, mutedAreaIds: [], dndStart: DEFAULT_DND.start, dndEnd: DEFAULT_DND.end };
+  // Merge over defaults so settings saved before these fields existed still
+  // read back complete.
+  return row ? { ...defaults, ...(row.value as Partial<NotificationSettings>) } : defaults;
 }
 
 export async function saveNotificationSettings(userId: string, settings: NotificationSettings): Promise<void> {

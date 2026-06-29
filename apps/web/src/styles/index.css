@@ -25,6 +25,16 @@
   }
 }
 
+/* Hide the scrollbar on horizontal strips (area chips, neighbours) so no stray
+   track flashes in during momentum scroll. Scrolling still works. */
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
 /* Skeletons use Tailwind's animate-pulse, which framer-motion's MotionConfig
    cannot reach since it is plain CSS. Reduced motion turns the pulse into a
    steady, calm placeholder instead (section 20). */

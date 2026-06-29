@@ -72,29 +72,28 @@ function BottomNav() {
   return (
     <nav
       aria-label="Primary"
-      className="shrink-0 border-t border-parchment-300 bg-parchment-50 pb-safe pl-safe pr-safe md:hidden"
+      className="shrink-0 border-t border-parchment-200 bg-parchment-50 pb-safe pl-safe pr-safe shadow-[0_-2px_10px_rgba(35,25,15,0.06)] md:hidden"
     >
-      <ul className="flex items-stretch justify-around">
+      <div className="mx-auto flex max-w-md items-stretch justify-around px-2 pt-1.5">
         {NAV_ITEMS.map((item) => (
-          <li key={item.to} className="flex-1">
-            <NavLink
-              to={item.to}
-              end={item.to === '/'}
-              className={({ isActive }) =>
-                [
-                  'flex flex-col items-center gap-1 py-2.5 transition-colors',
-                  isActive ? 'text-iris-500' : 'text-ink-300',
-                ].join(' ')
-              }
-            >
-              <motion.span whileTap={{ scale: 0.9 }} className="flex flex-col items-center gap-1">
-                {item.icon}
-                <span className="text-[10px] font-medium tracking-wide">{item.label}</span>
-              </motion.span>
-            </NavLink>
-          </li>
+          <NavLink
+            key={item.to}
+            to={item.to}
+            end={item.to === '/'}
+            className={({ isActive }) =>
+              [
+                'flex flex-1 flex-col items-center gap-0.5 py-1 transition-colors',
+                isActive ? 'text-iris-500' : 'text-ink-300',
+              ].join(' ')
+            }
+          >
+            <motion.span whileTap={{ scale: 0.9 }} className="flex h-8 items-center justify-center">
+              {item.icon}
+            </motion.span>
+            <span className="text-[10px] font-medium tracking-wide">{item.label}</span>
+          </NavLink>
         ))}
-      </ul>
+      </div>
     </nav>
   );
 }

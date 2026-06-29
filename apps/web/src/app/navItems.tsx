@@ -1,15 +1,15 @@
 import type { ReactNode } from 'react';
 
-// Shared icon wrapper: 24x24, stroke driven by currentColor, calm 1.6 weight.
+// Shared icon wrapper: 22x22, stroke driven by currentColor, calm weight.
 function Icon({ children }: { children: ReactNode }) {
   return (
     <svg
-      width="24"
-      height="24"
+      width="22"
+      height="22"
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
-      strokeWidth="1.6"
+      strokeWidth="1.8"
       strokeLinecap="round"
       strokeLinejoin="round"
       aria-hidden="true"

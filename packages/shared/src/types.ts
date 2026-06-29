@@ -56,6 +56,9 @@ export interface Habit {
   order: number;
   createdAt: number;
   archivedAt: number | null;
+  // Optional per-habit colour override (section: colour-coding). When unset,
+  // the habit inherits its area's colour.
+  color?: string;
 }
 
 export interface Log {
@@ -94,4 +97,8 @@ export interface NotificationSettings {
   mutedAreaIds: string[];
   dndStart: string; // "HH:mm" local
   dndEnd: string;
+  // Per-habit scheduled reminders at the habit's reminderTime (default on).
+  habitReminders: boolean;
+  // One evening round-up of habits still unlogged that day (default on).
+  dailySummary: boolean;
 }

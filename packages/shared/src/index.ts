@@ -2,6 +2,7 @@ export * from './types';
 export * from './templateTypes';
 export * from './constants';
 export * from './time';
+export * from './scheduling';
 export * from './templates/library';
 export * from './templates/composer';
 export * from './drift/cadence';

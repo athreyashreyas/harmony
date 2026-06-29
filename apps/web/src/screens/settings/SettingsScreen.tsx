@@ -10,7 +10,7 @@ import { APP_VERSION, CHANGELOG } from '../../lib/changelog';
 import { reorderAreas, saveArea } from '../../lib/db/queries';
 import { enablePush, pushReadiness, type PushReadiness } from '../../lib/push/subscribe';
 import { supabase } from '../../lib/supabase/client';
-import { deleteAllUserData } from '../../lib/supabase/sync';
+import { deleteAccount } from '../../lib/supabase/sync';
 import { useUserData } from '../../lib/useUserData';
 import { useAreas } from '../../store/useAreas';
 import { useSettings } from '../../store/useSettings';
@@ -101,7 +101,7 @@ export default function SettingsScreen() {
   async function handleDeleteAccount() {
     if (!profile) return;
     setDeleting(true);
-    await deleteAllUserData(profile.id);
+    await deleteAccount(profile.id);
     await supabase?.auth.signOut();
     window.location.href = '/sign-in';
   }

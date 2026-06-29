@@ -507,20 +507,46 @@ export function subscribeUserRealtime(
   };
 }
 
-// Deletes everything the signed in user can reach under row level security
-// (logs, habits, areas, nudge history, notification settings, profile). The
-// underlying auth.users row cannot be removed from the client without a
-// service role key, which must never ship to the browser, so this is the
-// honest scope of an in-app "delete account": all of the user's data, with
-// sign out following immediately after.
-export async function deleteAllUserData(userId: string): Promise<void> {
-  if (supabase) {
-    await supabase.from('logs').delete().eq('user_id', userId);
-    await supabase.from('nudge_history').delete().eq('user_id', userId);
-    await supabase.from('habits').delete().eq('user_id', userId);
-    await supabase.from('areas').delete().eq('user_id', userId);
-    await supabase.from('notification_settings').delete().eq('user_id', userId);
-    await supabase.from('profiles').delete().eq('id', userId);
+// Data-only delete: removes everything the signed-in user can reach under row
+// level security. The auth.users row can't be removed from the browser (that
+// needs the service role), so this alone leaves the account registered.
+async function deleteUserDataViaRls(userId: string): Promise<void> {
+  if (!supabase) return;
+  await supabase.from('logs').delete().eq('user_id', userId);
+  await supabase.from('nudge_history').delete().eq('user_id', userId);
+  await supabase.from('habits').delete().eq('user_id', userId);
+  await supabase.from('areas').delete().eq('user_id', userId);
+  await supabase.from('notification_settings').delete().eq('user_id', userId);
+  await supabase.from('profiles').delete().eq('id', userId);
+}
+
+// Full account deletion. Prefer the worker, which deletes the data AND the
+// auth.users row with the service role, so the email is freed for re-signup.
+// Falls back to a data-only delete if the worker isn't configured or fails.
+// Returns whether the auth account itself was removed.
+export async function deleteAccount(userId: string): Promise<{ accountRemoved: boolean }> {
+  const workerUrl = import.meta.env.VITE_PUSH_WORKER_URL as string | undefined;
+  let accountRemoved = false;
+
+  if (workerUrl && supabase) {
+    try {
+      const { data } = await supabase.auth.getSession();
+      const token = data.session?.access_token;
+      if (token) {
+        const res = await fetch(`${workerUrl.replace(/\/$/, '')}/delete-account`, {
+          method: 'POST',
+          headers: { 'content-type': 'application/json', authorization: `Bearer ${token}` },
+        });
+        if (res.ok) accountRemoved = true;
+        else console.warn('Worker delete-account failed', res.status, await res.text());
+      }
+    } catch (err) {
+      console.warn('Worker delete-account error', err);
+    }
   }
+
+  // The worker already removed the data on success; otherwise clear what we can.
+  if (!accountRemoved) await deleteUserDataViaRls(userId);
   await db.delete();
+  return { accountRemoved };
 }

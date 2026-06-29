@@ -299,3 +299,26 @@ export async function userIdFromToken(env: Env, token: string): Promise<string |
   const user = (await res.json()) as { id?: string };
   return user.id ?? null;
 }
+
+// Fully delete a user: their data first (so the auth deletion can't be blocked
+// by a foreign key, regardless of on-delete-cascade), then the auth.users row
+// itself via the Admin API. Only the service role can do this, which is why it
+// lives in the worker and not the browser.
+export async function deleteUserCompletely(env: Env, userId: string): Promise<void> {
+  const uid = `user_id=eq.${userId}`;
+  await rest(env, `logs?${uid}`, { method: 'DELETE' });
+  await rest(env, `nudge_history?${uid}`, { method: 'DELETE' });
+  await rest(env, `habits?${uid}`, { method: 'DELETE' });
+  await rest(env, `areas?${uid}`, { method: 'DELETE' });
+  await rest(env, `notification_settings?${uid}`, { method: 'DELETE' });
+  await rest(env, `push_subscriptions?${uid}`, { method: 'DELETE' });
+  await rest(env, `profiles?id=eq.${userId}`, { method: 'DELETE' });
+
+  const res = await fetch(`${env.SUPABASE_URL}/auth/v1/admin/users/${userId}`, {
+    method: 'DELETE',
+    headers: { apikey: env.SUPABASE_SERVICE_ROLE_KEY, authorization: `Bearer ${env.SUPABASE_SERVICE_ROLE_KEY}` },
+  });
+  if (!res.ok) {
+    throw new Error(`Admin user delete failed: ${res.status} ${await res.text()}`);
+  }
+}

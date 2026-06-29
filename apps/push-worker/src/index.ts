@@ -5,6 +5,7 @@ import { detectDrift } from './drift';
 import { isDriftTemplate } from './templates';
 import {
   deleteSubscription,
+  deleteUserCompletely,
   getActiveUsers,
   getUserBundle,
   recordNudge,
@@ -364,6 +365,19 @@ async function handleUnsubscribe(request: Request, env: Env): Promise<Response> 
   return json({ ok: true });
 }
 
+// True account deletion: removes the caller's data and their auth.users row.
+// The user id comes from the verified token, not the body, so a caller can only
+// ever delete their own account.
+async function handleDeleteAccount(request: Request, env: Env): Promise<Response> {
+  const token = request.headers.get('authorization')?.replace(/^Bearer\s+/i, '');
+  if (!token) return json({ error: 'missing token' }, 401);
+  const userId = await userIdFromToken(env, token);
+  if (!userId) return json({ error: 'invalid token' }, 401);
+
+  await deleteUserCompletely(env, userId);
+  return json({ ok: true });
+}
+
 // Dev-only: send a test notification to a user's devices (section 17.3),
 // gated by a shared secret header.
 async function handleTestPush(request: Request, env: Env): Promise<Response> {
@@ -399,6 +413,9 @@ export default {
       }
       if (url.pathname === '/subscribe' && request.method === 'DELETE') {
         return await handleUnsubscribe(request, env);
+      }
+      if (url.pathname === '/delete-account' && request.method === 'POST') {
+        return await handleDeleteAccount(request, env);
       }
       if (url.pathname === '/test-push' && request.method === 'POST') {
         return await handleTestPush(request, env);

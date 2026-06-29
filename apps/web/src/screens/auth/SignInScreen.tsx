@@ -53,7 +53,12 @@ export default function SignInScreen() {
   async function handleReset() {
     if (!supabase || !email) return;
     setError(null);
-    const { error: resetError } = await supabase.auth.resetPasswordForEmail(email);
+    // Send the recovery link to the dedicated reset screen, not the app root,
+    // so the user lands somewhere they can actually set a new password instead
+    // of being dropped into the app by the recovery session.
+    const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
     if (resetError) {
       setError(resetError.message);
       return;

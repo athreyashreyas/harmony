@@ -14,6 +14,7 @@ const AuthGate = lazy(() => import('./AuthGate'));
 // (section 20: Performance > 90, FCP < 1.5s). Each chunk loads on demand and
 // is cached by the service worker after first visit.
 const SignUpScreen = lazy(() => import('../screens/auth/SignUpScreen'));
+const ResetPasswordScreen = lazy(() => import('../screens/auth/ResetPasswordScreen'));
 const OnboardingFlow = lazy(() => import('../screens/onboarding/OnboardingFlow'));
 const HabitDetailScreen = lazy(() => import('../screens/habit/HabitDetailScreen'));
 const HomeScreen = lazy(() => import('../screens/home/HomeScreen'));
@@ -34,6 +35,7 @@ export default function Router() {
       <Routes>
         <Route path="sign-in" element={<SignInScreen />} />
         <Route path="sign-up" element={<SignUpScreen />} />
+        <Route path="reset-password" element={<ResetPasswordScreen />} />
 
         <Route element={<AuthGate />}>
           <Route path="onboarding" element={<OnboardingFlow />} />

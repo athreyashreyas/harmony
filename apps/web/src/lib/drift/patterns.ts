@@ -1,5 +1,5 @@
 import type { Habit, Log } from '@harmony/shared';
-import { daySegment, isoDaysAgo } from '../time/dates';
+import { daySegment, isoDaysAgo, weekdayOf } from '../time/dates';
 import { joinWithAnd } from '../text';
 
 // Pattern observations for the habit detail view (section 11.3). Rules based,
@@ -19,7 +19,7 @@ export const WEEKDAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thurs
 
 function dayOfWeekObservation(dates: string[]): string | null {
   const counts = new Array(7).fill(0);
-  for (const d of dates) counts[new Date(`${d}T00:00:00`).getDay()]++;
+  for (const d of dates) counts[weekdayOf(d)]++;
 
   const ranked = counts
     .map((count, day) => ({ count, day }))

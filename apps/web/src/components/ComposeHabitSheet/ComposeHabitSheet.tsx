@@ -5,19 +5,15 @@ import BottomSheet from '../BottomSheet/BottomSheet';
 import WatercolorWash from '../WatercolorWash/WatercolorWash';
 import { hexToRgba } from '../../lib/color';
 import { CADENCE_OPTIONS, TIME_OF_DAY_OPTIONS, cadenceKey } from '../../lib/cadenceOptions';
+import type { HabitDraft } from '../../lib/domain';
 import { PrimaryButton, QuietLink } from '../../screens/onboarding/ui';
+
+// Re-exported so existing `import { HabitDraft } from '.../ComposeHabitSheet'`
+// sites keep working; the canonical definition lives in lib/domain.
+export type { HabitDraft } from '../../lib/domain';
 
 const selectClass =
   'w-full rounded-card bg-parchment-50/90 px-3.5 py-2.5 text-sm text-ink-900 ring-1 ring-inset ring-parchment-300 focus:ring-2 focus:ring-iris-500';
-
-export interface HabitDraft {
-  areaId: string;
-  name: string;
-  cadence: Cadence;
-  timeOfDay: TimeOfDay;
-  color?: string;
-  reminderTime: string | null;
-}
 
 // Create and edit share one sheet. The watercolour wash appears once an area is
 // selected, in the habit's own colour if it has one. Habits can pick their own
@@ -175,14 +171,14 @@ export default function ComposeHabitSheet({
           </div>
 
           <div>
-            <p className="mb-2 text-sm font-medium text-ink-700">Colour</p>
-            <div className="flex flex-wrap gap-2.5">
+            <p className="mb-3 text-center text-sm font-medium text-ink-700">Colour</p>
+            <div className="mb-3 flex justify-center">
               <button
                 type="button"
                 onClick={() => setColor(null)}
                 aria-pressed={color === null}
                 title="Match the area's colour"
-                className="flex h-7 items-center rounded-full bg-parchment-200 px-3 text-xs font-medium text-ink-500"
+                className="flex h-9 items-center rounded-full bg-parchment-200 px-4 text-sm font-medium text-ink-500"
                 style={
                   color === null && selectedArea
                     ? { boxShadow: `0 0 0 2px #FFFAF1, 0 0 0 4px ${selectedArea.color}` }
@@ -191,6 +187,8 @@ export default function ComposeHabitSheet({
               >
                 Match area
               </button>
+            </div>
+            <div className="flex flex-wrap justify-center gap-3">
               {AREA_PALETTE.map((swatch) => (
                 <button
                   key={swatch.hex}
@@ -198,7 +196,7 @@ export default function ComposeHabitSheet({
                   aria-label={swatch.name}
                   aria-pressed={color === swatch.hex}
                   onClick={() => setColor(swatch.hex)}
-                  className="h-7 w-7 rounded-full"
+                  className="h-9 w-9 rounded-full"
                   style={{
                     backgroundColor: swatch.hex,
                     boxShadow:

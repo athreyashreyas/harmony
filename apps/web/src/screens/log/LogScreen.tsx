@@ -4,10 +4,7 @@ import BottomSheet from '../../components/BottomSheet/BottomSheet';
 import Skeleton from '../../components/Skeleton/Skeleton';
 import { isoDaysAgo, formatDateMedium, formatMonthYear, monthGrid, startOfMonthISO, endOfMonthISO, todayISO } from '../../lib/time/dates';
 import { logsInRange } from '../../lib/db/queries';
-import { useAreas } from '../../store/useAreas';
-import { useHabits } from '../../store/useHabits';
-import { useLogs } from '../../store/useLogs';
-import { useUser } from '../../store/useUser';
+import { useUserData } from '../../lib/useUserData';
 
 const MAX_DOTS_PER_DAY = 4;
 
@@ -28,25 +25,12 @@ function ChevronButton({ direction, onClick, disabled }: { direction: 'left' | '
 }
 
 export default function LogScreen() {
-  const profile = useUser((s) => s.profile);
-  const areas = useAreas((s) => s.areas);
-  const loadAreas = useAreas((s) => s.load);
-  const habits = useHabits((s) => s.habits);
-  const loadHabits = useHabits((s) => s.load);
-  const weekLogs = useLogs((s) => s.logs);
-  const loadLogs = useLogs((s) => s.load);
+  const { profile, areas, habits, logs: weekLogs } = useUserData();
 
   const [viewedMonth, setViewedMonth] = useState(() => new Date());
   const [monthLogs, setMonthLogs] = useState<Log[]>([]);
   const [monthLoading, setMonthLoading] = useState(true);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (!profile) return;
-    void loadAreas(profile.id);
-    void loadHabits(profile.id);
-    void loadLogs(profile.id);
-  }, [profile, loadAreas, loadHabits, loadLogs]);
 
   useEffect(() => {
     if (!profile) return;

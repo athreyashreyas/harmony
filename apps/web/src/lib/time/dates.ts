@@ -22,6 +22,21 @@ function dateFromISO(dateISO: string): Date {
   return new Date(`${dateISO}T00:00:00`);
 }
 
+// Day of week for an ISO date, 0=Sunday..6=Saturday, matching the cadence
+// model's numbering. Used wherever logs are bucketed by weekday (patterns,
+// observations, suggestions) so the parse-and-getDay dance lives in one place.
+export function weekdayOf(dateISO: string): number {
+  return dateFromISO(dateISO).getDay();
+}
+
+// The Sunday that starts the week containing `dateISO` (defaults to today), as
+// an ISO date. Weeks start on Sunday to match weekdayOf.
+export function startOfWeekISO(dateISO: string = todayISO()): string {
+  const date = dateFromISO(dateISO);
+  date.setDate(date.getDate() - date.getDay());
+  return todayISO(date);
+}
+
 export function weekdayLong(dateISO: string): string {
   return dateFromISO(dateISO).toLocaleDateString(undefined, { weekday: 'long' });
 }

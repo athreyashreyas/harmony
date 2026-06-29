@@ -5,32 +5,17 @@ import AreaRow from '../../components/AreaRow/AreaRow';
 import FAB from '../../components/FAB/FAB';
 import Skeleton from '../../components/Skeleton/Skeleton';
 import { archiveArea, reorderAreas, saveArea } from '../../lib/db/queries';
+import { createArea } from '../../lib/domain';
+import { useUserData } from '../../lib/useUserData';
 import { useAreas } from '../../store/useAreas';
-import { useHabits } from '../../store/useHabits';
-import { useLogs } from '../../store/useLogs';
-import { useUser } from '../../store/useUser';
 import AreaSheet, { type AreaFields } from './AreaSheet';
 
 export default function AreasScreen() {
-  const profile = useUser((s) => s.profile);
-  const areas = useAreas((s) => s.areas);
-  const loadAreas = useAreas((s) => s.load);
-  const areasLoaded = useAreas((s) => s.loadedFor);
-  const habits = useHabits((s) => s.habits);
-  const loadHabits = useHabits((s) => s.load);
-  const logs = useLogs((s) => s.logs);
-  const loadLogs = useLogs((s) => s.load);
+  const { profile, areas, habits, logs, loaded, reloadAreas, reloadHabits } = useUserData();
 
   const [orderedAreas, setOrderedAreas] = useState<Area[]>(areas);
   const [sheetOpen, setSheetOpen] = useState(false);
   const [editingArea, setEditingArea] = useState<Area | null>(null);
-
-  useEffect(() => {
-    if (!profile) return;
-    void loadAreas(profile.id);
-    void loadHabits(profile.id);
-    void loadLogs(profile.id);
-  }, [profile, loadAreas, loadHabits, loadLogs]);
 
   useEffect(() => {
     setOrderedAreas(areas);
@@ -56,24 +41,17 @@ export default function AreasScreen() {
     if (!profile) return;
     const area: Area = editingArea
       ? { ...editingArea, ...fields }
-      : {
-          id: crypto.randomUUID(),
-          userId: profile.id,
-          order: orderedAreas.length,
-          createdAt: Date.now(),
-          archivedAt: null,
-          ...fields,
-        };
+      : createArea(fields, { userId: profile.id, order: orderedAreas.length });
     await saveArea(area);
-    await loadAreas(profile.id);
+    await reloadAreas(profile.id);
     setSheetOpen(false);
   }
 
   async function handleArchive() {
     if (!editingArea || !profile) return;
     await archiveArea(editingArea.id);
-    await loadAreas(profile.id);
-    await loadHabits(profile.id);
+    await reloadAreas(profile.id);
+    await reloadHabits(profile.id);
     setSheetOpen(false);
   }
 
@@ -83,7 +61,7 @@ export default function AreasScreen() {
       <p className="mt-2 text-sm text-ink-300">Your areas of life, in priority order.</p>
 
       <div className="mt-6">
-        {areasLoaded !== profile?.id ? (
+        {!loaded ? (
           <div className="space-y-2.5">
             <Skeleton className="h-[70px] w-full" />
             <Skeleton className="h-[70px] w-full" />

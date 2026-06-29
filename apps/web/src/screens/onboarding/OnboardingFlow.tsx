@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import type { Area, Habit } from '@harmony/shared';
 import { areasForUser, saveOnboarding } from '../../lib/db/queries';
+import { createArea, createHabit } from '../../lib/domain';
 import { markOnboarded, mirrorOnboarding } from '../../lib/supabase/sync';
 import { useUser } from '../../store/useUser';
 import { OnboardingProvider, useOnboarding } from './OnboardingContext';
@@ -95,35 +96,28 @@ function OnboardingInner() {
       const now = Date.now();
       const date = todayISO();
 
-      const areaRows: Area[] = areas.map((a, i) => ({
-        id: a.id,
-        userId: profile.id,
-        name: a.name,
-        color: a.color,
-        importance: a.importance,
-        whySentence: a.whySentence,
-        order: i,
-        createdAt: now,
-        archivedAt: null,
-      }));
+      const areaRows: Area[] = areas.map((a, i) =>
+        createArea(
+          { name: a.name, color: a.color, importance: a.importance, whySentence: a.whySentence },
+          { userId: profile.id, order: i, id: a.id, createdAt: now },
+        ),
+      );
 
       const habitRows: Habit[] = areas
         .map((a) => ({ areaId: a.id, draft: habits[a.id] }))
         .filter((h) => h.draft && h.draft.name.trim().length > 0)
-        .map(({ areaId, draft }) => ({
-          id: crypto.randomUUID(),
-          userId: profile.id,
-          areaId,
-          name: draft!.name.trim(),
-          cadence: draft!.cadence,
-          timeOfDay: draft!.timeOfDay,
-          reminderTime: null,
-          startDate: date,
-          endDate: null,
-          order: 0,
-          createdAt: now,
-          archivedAt: null,
-        }));
+        .map(({ areaId, draft }) =>
+          createHabit(
+            {
+              areaId,
+              name: draft!.name.trim(),
+              cadence: draft!.cadence,
+              timeOfDay: draft!.timeOfDay,
+              reminderTime: null,
+            },
+            { userId: profile.id, order: 0, startDate: date, createdAt: now },
+          ),
+        );
 
       await saveOnboarding(areaRows, habitRows);
       void mirrorOnboarding(areaRows, habitRows);

@@ -1,5 +1,6 @@
 import type { Area, Habit, Log } from '@harmony/shared';
 import { WEEKDAY_NAMES } from '../drift/patterns';
+import { weekdayOf } from '../time/dates';
 
 // "What to do next" (section 13.4). Up to two, rules-based, and always a CTA
 // to a specific in-app action, never bare advice.
@@ -35,7 +36,7 @@ function strongestDaySuggestion(habits: Habit[], logs: Log[]): Suggestion | null
     if (habitLogs.length < MIN_LOGS_FOR_DAY_PATTERN) continue;
 
     const counts = new Array(7).fill(0);
-    for (const log of habitLogs) counts[new Date(`${log.date}T00:00:00`).getDay()]++;
+    for (const log of habitLogs) counts[weekdayOf(log.date)]++;
 
     const topDay = counts.indexOf(Math.max(...counts));
     const share = counts[topDay] / habitLogs.length;

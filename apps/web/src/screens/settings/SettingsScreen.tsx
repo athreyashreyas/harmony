@@ -11,9 +11,8 @@ import { reorderAreas, saveArea } from '../../lib/db/queries';
 import { enablePush, pushReadiness, type PushReadiness } from '../../lib/push/subscribe';
 import { supabase } from '../../lib/supabase/client';
 import { deleteAllUserData } from '../../lib/supabase/sync';
+import { useUserData } from '../../lib/useUserData';
 import { useAreas } from '../../store/useAreas';
-import { useHabits } from '../../store/useHabits';
-import { useLogs } from '../../store/useLogs';
 import { useSettings } from '../../store/useSettings';
 import { useUser } from '../../store/useUser';
 import AreaSheet, { type AreaFields } from '../areas/AreaSheet';
@@ -22,14 +21,8 @@ import { PrimaryButton } from '../onboarding/ui';
 const eyebrow = 'text-[10px] font-medium uppercase tracking-[0.1em] text-ink-300';
 
 export default function SettingsScreen() {
-  const profile = useUser((s) => s.profile);
+  const { profile, areas, habits, logs, reloadAreas } = useUserData();
   const setSignedOut = useUser((s) => s.setSignedOut);
-  const areas = useAreas((s) => s.areas);
-  const loadAreas = useAreas((s) => s.load);
-  const habits = useHabits((s) => s.habits);
-  const loadHabits = useHabits((s) => s.load);
-  const logs = useLogs((s) => s.logs);
-  const loadLogs = useLogs((s) => s.load);
   const notifications = useSettings((s) => s.notifications);
   const loadNotifications = useSettings((s) => s.load);
   const updateNotifications = useSettings((s) => s.update);
@@ -48,12 +41,8 @@ export default function SettingsScreen() {
   }, []);
 
   useEffect(() => {
-    if (!profile) return;
-    void loadAreas(profile.id);
-    void loadHabits(profile.id);
-    void loadLogs(profile.id);
     void loadNotifications();
-  }, [profile, loadAreas, loadHabits, loadLogs, loadNotifications]);
+  }, [loadNotifications]);
 
   useEffect(() => {
     setOrderedAreas(areas);
@@ -88,7 +77,7 @@ export default function SettingsScreen() {
   async function handleSaveArea(fields: AreaFields) {
     if (!editingArea) return;
     await saveArea({ ...editingArea, ...fields });
-    if (profile) await loadAreas(profile.id);
+    if (profile) await reloadAreas(profile.id);
     setSheetOpen(false);
   }
 

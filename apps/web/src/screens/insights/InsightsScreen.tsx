@@ -1,42 +1,23 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AreaBalanceBar from '../../components/AreaBalanceBar/AreaBalanceBar';
 import { computeAreaActivity } from '../../components/Bloom/activity';
 import ComposeHabitSheet, { type HabitDraft } from '../../components/ComposeHabitSheet/ComposeHabitSheet';
 import Skeleton from '../../components/Skeleton/Skeleton';
 import { saveHabit } from '../../lib/db/queries';
+import { createHabit } from '../../lib/domain';
 import { gentleObservations } from '../../lib/insights/observations';
 import { composeWeeklyRecap } from '../../lib/insights/recap';
 import { whatToDoNext, type Suggestion } from '../../lib/insights/suggestions';
-import { todayISO } from '../../lib/time/dates';
-import { useAreas } from '../../store/useAreas';
-import { useHabits } from '../../store/useHabits';
-import { useLogs } from '../../store/useLogs';
-import { useUser } from '../../store/useUser';
+import { useUserData } from '../../lib/useUserData';
 
 const eyebrow = 'text-[10px] font-medium uppercase tracking-[0.1em] text-ink-300';
 
 export default function InsightsScreen() {
   const navigate = useNavigate();
-  const profile = useUser((s) => s.profile);
-  const areas = useAreas((s) => s.areas);
-  const loadAreas = useAreas((s) => s.load);
-  const areasLoaded = useAreas((s) => s.loadedFor);
-  const habits = useHabits((s) => s.habits);
-  const loadHabits = useHabits((s) => s.load);
-  const habitsLoaded = useHabits((s) => s.loadedFor);
-  const logs = useLogs((s) => s.logs);
-  const loadLogs = useLogs((s) => s.load);
-  const logsLoaded = useLogs((s) => s.loadedFor);
+  const { profile, areas, habits, logs, loaded, reloadHabits } = useUserData();
 
   const [suggestSheetArea, setSuggestSheetArea] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (!profile) return;
-    void loadAreas(profile.id);
-    void loadHabits(profile.id);
-    void loadLogs(profile.id);
-  }, [profile, loadAreas, loadHabits, loadLogs]);
 
   const recap = useMemo(
     () => (profile ? composeWeeklyRecap({ areas, habits, logs, profile }) : []),
@@ -61,23 +42,11 @@ export default function InsightsScreen() {
 
   async function handleCreateHabit(draft: HabitDraft) {
     if (!profile) return;
-    await saveHabit({
-      id: crypto.randomUUID(),
-      userId: profile.id,
-      startDate: todayISO(),
-      endDate: null,
-      order: habits.length,
-      createdAt: Date.now(),
-      archivedAt: null,
-      ...draft,
-    });
-    await loadHabits(profile.id);
+    await saveHabit(createHabit(draft, { userId: profile.id, order: habits.length }));
+    await reloadHabits(profile.id);
     setSuggestSheetArea(null);
   }
 
-  const loaded = Boolean(
-    profile && areasLoaded === profile.id && habitsLoaded === profile.id && logsLoaded === profile.id,
-  );
   const hasAnything = recap.length > 0 || balances.length > 0 || observations.length > 0 || suggestions.length > 0;
 
   return (

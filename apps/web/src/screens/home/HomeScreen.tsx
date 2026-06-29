@@ -13,6 +13,7 @@ import NoteSheet from '../../components/NoteSheet/NoteSheet';
 import PushPrompt from '../../components/PushPrompt/PushPrompt';
 import Skeleton from '../../components/Skeleton/Skeleton';
 import { saveHabit } from '../../lib/db/queries';
+import { createHabit } from '../../lib/domain';
 import { detectDrift } from '../../lib/drift/detect';
 import { compose } from '../../lib/templates/composer';
 import { isDriftTemplate } from '../../lib/templates/library';
@@ -20,10 +21,8 @@ import { nudgeHistoryForUser, recentTemplateIdsFor, recordNudge } from '../../li
 import { isHabitDueToday } from '../../lib/time/cadence';
 import { formatLongDate, greetingWord, todayISO } from '../../lib/time/dates';
 import { listContainer, listItem } from '../../lib/motion';
-import { useAreas } from '../../store/useAreas';
-import { useHabits } from '../../store/useHabits';
+import { useUserData } from '../../lib/useUserData';
 import { useLogs } from '../../store/useLogs';
-import { useUser } from '../../store/useUser';
 
 interface Banner {
   text: string;
@@ -42,16 +41,7 @@ function bloomCaption(activities: number[]): string {
 
 export default function HomeScreen() {
   const navigate = useNavigate();
-  const profile = useUser((s) => s.profile);
-  const areas = useAreas((s) => s.areas);
-  const loadAreas = useAreas((s) => s.load);
-  const areasLoaded = useAreas((s) => s.loadedFor);
-  const habits = useHabits((s) => s.habits);
-  const loadHabits = useHabits((s) => s.load);
-  const habitsLoaded = useHabits((s) => s.loadedFor);
-  const logs = useLogs((s) => s.logs);
-  const loadLogs = useLogs((s) => s.load);
-  const logsLoaded = useLogs((s) => s.loadedFor);
+  const { profile, areas, habits, logs, loaded, reloadHabits } = useUserData();
   const toggle = useLogs((s) => s.toggle);
   const setNote = useLogs((s) => s.setNote);
 
@@ -60,21 +50,12 @@ export default function HomeScreen() {
   const [banner, setBanner] = useState<Banner | null>(null);
   const composeLock = useRef<string | null>(null);
 
-  useEffect(() => {
-    if (!profile) return;
-    void loadAreas(profile.id);
-    void loadHabits(profile.id);
-    void loadLogs(profile.id);
-  }, [profile, loadAreas, loadHabits, loadLogs]);
-
   // Drift banner (sections 9.3, 16). Runs once everything has loaded and again
   // whenever logs change (so logging the quiet area clears the banner). The
   // composed text is recorded once per area per day and reused on later opens,
   // so the wording stays put through the day and varies across days.
   useEffect(() => {
-    const ready =
-      profile && areasLoaded === profile.id && habitsLoaded === profile.id && logsLoaded === profile.id;
-    if (!ready) return;
+    if (!loaded || !profile) return;
 
     let cancelled = false;
     void (async () => {
@@ -132,11 +113,7 @@ export default function HomeScreen() {
     return () => {
       cancelled = true;
     };
-  }, [profile, areasLoaded, habitsLoaded, logsLoaded, areas, habits, logs]);
-
-  const loaded = Boolean(
-    profile && areasLoaded === profile.id && habitsLoaded === profile.id && logsLoaded === profile.id,
-  );
+  }, [profile, loaded, areas, habits, logs]);
 
   const today = todayISO();
   const todaysHabits = useMemo(
@@ -162,18 +139,8 @@ export default function HomeScreen() {
 
   async function handleCreate(draft: HabitDraft) {
     if (!profile) return;
-    const habit: Habit = {
-      id: crypto.randomUUID(),
-      userId: profile.id,
-      startDate: today,
-      endDate: null,
-      order: habits.length,
-      createdAt: Date.now(),
-      archivedAt: null,
-      ...draft,
-    };
-    await saveHabit(habit);
-    await loadHabits(profile.id);
+    await saveHabit(createHabit(draft, { userId: profile.id, order: habits.length, startDate: today }));
+    await reloadHabits(profile.id);
     setComposeOpen(false);
   }
 

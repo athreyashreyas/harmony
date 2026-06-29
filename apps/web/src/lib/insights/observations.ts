@@ -1,6 +1,6 @@
 import type { Area, Habit, Log } from '@harmony/shared';
 import { WEEKDAY_NAMES } from '../drift/patterns';
-import { daySegment, isoDaysAgo } from '../time/dates';
+import { daySegment, isoDaysAgo, weekdayOf } from '../time/dates';
 
 // Gentle observations (section 13.3). Up to three, surfaced only when a rule
 // triggers. Rules-based, no LLM, same spirit as the habit detail patterns but
@@ -50,7 +50,7 @@ function mostConsistentTimeObservation(habits: Habit[], logs: Log[]): string | n
 
     const counts = new Map<string, number>();
     for (const log of habitLogs) {
-      const day = new Date(`${log.date}T00:00:00`).getDay();
+      const day = weekdayOf(log.date);
       const segment = daySegment(new Date(log.loggedAt));
       const key = `${day}:${segment}`;
       counts.set(key, (counts.get(key) ?? 0) + 1);

@@ -1,15 +1,9 @@
 import { useMemo } from 'react';
 import { Reorder, useDragControls } from 'framer-motion';
 import type { Area, Habit, Log } from '@harmony/shared';
-import { isoDaysAgo, todayISO } from '../../lib/time/dates';
+import { isoDaysAgo, startOfWeekISO } from '../../lib/time/dates';
 
 const SPARKLINE_DAYS = 14;
-
-function startOfWeekISO(today: string = todayISO()): string {
-  const date = new Date(`${today}T00:00:00`);
-  date.setDate(date.getDate() - date.getDay());
-  return todayISO(date);
-}
 
 function GripIcon() {
   return (

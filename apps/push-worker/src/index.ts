@@ -22,12 +22,15 @@ import { sendPush, type PushPayload, type VapidConfig } from './webpush';
 const MAX_PER_USER_PER_DAY = 2;
 const NOTIFICATION_URL = '/';
 
-// The cron fires every 15 minutes; a scheduled reminder counts as "due now" if
-// its time falls in the slot leading up to this run.
-const FIRE_WINDOW_MIN = 15;
+// How long after a scheduled time a reminder may still fire. The cron runs
+// every 15 minutes, but runs can be skipped or delayed; a generous catch-up
+// window means a reminder isn't silently dropped if the exact slot is missed.
+// The once-per-habit-per-day guard prevents repeats within the window.
+const REMINDER_CATCHUP_MIN = 120;
 // Local time the evening round-up of unlogged habits goes out (before the
-// default 21:00 quiet hours, so it isn't suppressed).
+// default 21:00 quiet hours, so it isn't suppressed), with a shorter catch-up.
 const SUMMARY_TIME = '20:00';
+const SUMMARY_CATCHUP_MIN = 60;
 // Sentinel template ids for the non-drift pushes (not in the drift library).
 const REMINDER_TEMPLATE_ID = 'habit-reminder';
 const SUMMARY_TEMPLATE_ID = 'daily-summary';
@@ -94,11 +97,12 @@ function minutesOfDay(hhmm: string): number {
   return (h || 0) * 60 + (m || 0);
 }
 
-// True when `targetMin` falls within the 15-minute slot ending at `nowMin`, so
-// each scheduled time fires in exactly one cron run.
-function inFireWindow(nowMin: number, targetMin: number): boolean {
+// True when the scheduled `targetMin` is due: it has passed today and we are
+// still within the catch-up window. Pairing this with a once-per-day guard
+// means a delayed or skipped cron run won't drop the reminder.
+function isDue(nowMin: number, targetMin: number, windowMin: number): boolean {
   const diff = nowMin - targetMin;
-  return diff >= 0 && diff < FIRE_WINDOW_MIN;
+  return diff >= 0 && diff < windowMin;
 }
 
 async function sendToAllSubscriptions(
@@ -165,7 +169,7 @@ async function sendHabitReminders(env: Env, user: UserProfile, now: Date, bundle
   for (const habit of bundle.habits) {
     if (!habit.reminderTime) continue;
     if (!isHabitDueOn(habit, today)) continue;
-    if (!inFireWindow(nowMin, minutesOfDay(habit.reminderTime))) continue;
+    if (!isDue(nowMin, minutesOfDay(habit.reminderTime), REMINDER_CATCHUP_MIN)) continue;
 
     const loggedToday = bundle.logs.some((l) => l.habitId === habit.id && l.date === today);
     if (loggedToday) continue;
@@ -214,7 +218,7 @@ async function sendDailySummary(env: Env, user: UserProfile, now: Date, bundle: 
 
   const tz = user.timezone;
   const nowMin = minutesOfDay(localHHmm(now, tz));
-  if (!inFireWindow(nowMin, minutesOfDay(SUMMARY_TIME))) return;
+  if (!isDue(nowMin, minutesOfDay(SUMMARY_TIME), SUMMARY_CATCHUP_MIN)) return;
 
   const today = localDateISO(now, tz);
   const alreadySent = bundle.nudgeHistory.some(

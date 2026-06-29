@@ -1,0 +1,333 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Harmony, PR FAQ</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400&family=Inter:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --paper-50: #fffaf1;
+        --paper-100: #fbf1e4;
+        --paper-200: #f3e4cf;
+        --paper-300: #e7d3b4;
+        --ink-900: #23190f;
+        --ink-700: #483a27;
+        --ink-500: #76654c;
+        --ink-300: #ab977a;
+        --terra-700: #7a3318;
+        --terra-500: #b5532f;
+        --terra-400: #c9714a;
+        --sage: #5b7a35;
+        --max: 760px;
+      }
+      * { box-sizing: border-box; }
+      html { -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+      body {
+        margin: 0;
+        background: var(--paper-100);
+        color: var(--ink-700);
+        font-family: 'Inter', system-ui, sans-serif;
+        font-size: 17px;
+        line-height: 1.7;
+      }
+      .wrap { max-width: var(--max); margin: 0 auto; padding: 0 24px; }
+      h1, h2, h3 { font-family: 'Fraunces', Georgia, serif; color: var(--ink-900); font-weight: 500; line-height: 1.15; }
+      h1 { font-size: clamp(34px, 6vw, 52px); letter-spacing: -0.01em; }
+      h2 { font-size: clamp(24px, 4vw, 32px); margin: 0 0 4px; }
+      h3 { font-size: 19px; margin: 0; }
+      a { color: var(--terra-500); }
+      em { color: var(--ink-900); font-style: italic; }
+      .eyebrow {
+        font-size: 11px; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase;
+        color: var(--ink-300);
+      }
+
+      /* Hero */
+      header.hero {
+        background:
+          radial-gradient(120% 90% at 50% -10%, var(--paper-50), transparent 60%),
+          var(--paper-100);
+        padding: 64px 0 48px;
+        text-align: center;
+        border-bottom: 1px solid var(--paper-200);
+      }
+      .bloom { width: 132px; height: 132px; margin: 0 auto 28px; display: block; }
+      .hero p.lede { font-size: 20px; color: var(--ink-500); max-width: 560px; margin: 18px auto 0; }
+      .pill {
+        display: inline-block; margin-top: 26px; padding: 8px 16px; border-radius: 999px;
+        background: var(--paper-200); color: var(--ink-500); font-size: 13px; font-weight: 500;
+      }
+
+      section { padding: 52px 0; border-bottom: 1px solid var(--paper-200); }
+      section:last-of-type { border-bottom: 0; }
+      .sectionhead { margin-bottom: 28px; }
+      p { margin: 0 0 18px; }
+      .lead-quote {
+        font-family: 'Fraunces', Georgia, serif; font-style: italic; font-size: 22px;
+        color: var(--ink-900); line-height: 1.45; border-left: 3px solid var(--terra-400);
+        padding-left: 20px; margin: 24px 0;
+      }
+      .byline { font-size: 14px; color: var(--ink-300); }
+
+      /* Bloom diagram band */
+      .diagram {
+        background: var(--paper-50); border: 1px solid var(--paper-200); border-radius: 20px;
+        padding: 26px; margin: 24px 0; display: grid; grid-template-columns: 150px 1fr; gap: 24px;
+        align-items: center;
+      }
+      .diagram svg { width: 150px; height: 150px; }
+      .ramp { display: flex; gap: 10px; margin-top: 6px; align-items: flex-end; height: 86px; }
+      .ramp .bar { flex: 1; background: var(--terra-400); border-radius: 6px 6px 3px 3px; opacity: 0.9; }
+      .ramp .label { }
+      .legend { font-size: 14px; color: var(--ink-500); }
+      @media (max-width: 560px) { .diagram { grid-template-columns: 1fr; justify-items: center; text-align: center; } }
+
+      /* cards */
+      .cards { display: grid; gap: 14px; }
+      .card { background: var(--paper-50); border: 1px solid var(--paper-200); border-radius: 16px; padding: 18px 20px; }
+      .card h3 { margin-bottom: 6px; }
+      .card p { margin: 0; font-size: 15.5px; color: var(--ink-500); }
+      .step { display: flex; gap: 14px; align-items: flex-start; }
+      .step .n {
+        flex: none; width: 28px; height: 28px; border-radius: 999px; background: var(--terra-500);
+        color: var(--paper-50); font-size: 14px; font-weight: 600; display: grid; place-items: center; margin-top: 2px;
+      }
+
+      /* FAQ */
+      details {
+        background: var(--paper-50); border: 1px solid var(--paper-200); border-radius: 14px;
+        padding: 4px 20px; margin-bottom: 10px;
+      }
+      details[open] { background: var(--paper-50); border-color: var(--paper-300); }
+      summary {
+        cursor: pointer; list-style: none; padding: 14px 0; font-weight: 500; color: var(--ink-900);
+        display: flex; justify-content: space-between; gap: 16px; align-items: center;
+      }
+      summary::-webkit-details-marker { display: none; }
+      summary::after { content: '+'; color: var(--terra-500); font-size: 22px; line-height: 1; }
+      details[open] summary::after { content: '\2212'; }
+      details .body { padding: 0 0 16px; color: var(--ink-500); font-size: 15.5px; }
+      details .body p { margin: 0 0 12px; }
+      details .body p:last-child { margin: 0; }
+
+      footer { text-align: center; padding: 40px 0 60px; color: var(--ink-300); font-size: 13px; }
+      .tag { color: var(--terra-500); font-weight: 600; }
+    </style>
+  </head>
+  <body>
+    <header class="hero">
+      <div class="wrap">
+        <!-- the bloom mark -->
+        <svg class="bloom" viewBox="0 0 120 120" aria-label="Harmony bloom">
+          <g style="mix-blend-mode: multiply">
+            <ellipse cx="60" cy="38" rx="20" ry="26" fill="#b7902a" opacity="0.85" transform="rotate(0 60 60)" />
+            <ellipse cx="60" cy="38" rx="20" ry="26" fill="#b5532f" opacity="0.85" transform="rotate(60 60 60)" />
+            <ellipse cx="60" cy="38" rx="20" ry="26" fill="#7a3b6e" opacity="0.85" transform="rotate(120 60 60)" />
+            <ellipse cx="60" cy="38" rx="20" ry="26" fill="#5b7a35" opacity="0.85" transform="rotate(180 60 60)" />
+            <ellipse cx="60" cy="38" rx="20" ry="26" fill="#3a7ca8" opacity="0.85" transform="rotate(240 60 60)" />
+            <ellipse cx="60" cy="38" rx="20" ry="26" fill="#944021" opacity="0.85" transform="rotate(300 60 60)" />
+          </g>
+          <circle cx="60" cy="60" r="17" fill="#fffaf1" />
+          <text x="60" y="61" text-anchor="middle" dominant-baseline="central"
+            font-family="Fraunces, Georgia, serif" font-size="22" fill="#b5532f">h</text>
+        </svg>
+        <p class="eyebrow">For immediate release &middot; Noor's App Dreamland Ltd.</p>
+        <h1>Harmony helps you return to the life you said matters.</h1>
+        <p class="lede">A calm habit companion built around the parts of life you care about, not streaks to defend. No shame, no scolding. Just a quiet bloom that fills as you show up.</p>
+        <span class="pill">Press Release &amp; FAQ</span>
+      </div>
+    </header>
+
+    <!-- PRESS RELEASE -->
+    <section>
+      <div class="wrap">
+        <div class="sectionhead">
+          <p class="eyebrow">The press release</p>
+          <h2>Habits, but quieter.</h2>
+        </div>
+
+        <p>Most habit apps are scoreboards. They count days in a row, flash red when you slip, and quietly make you feel worse on the days you most needed something gentle. Harmony takes the opposite view. It begins not with a checklist but with a question: <em>what parts of your life actually matter to you?</em></p>
+
+        <p>During a short, unhurried onboarding, you name your own areas of life, write in your own words why each one matters, and put them in the order that feels true. Then you add one small habit for each. From that day on, Harmony's home screen is a living <em>Bloom</em>: a ring of petals, one per area, that open as you tend to them and recede softly when life pulls you away. There are no streaks to break and nothing to lose.</p>
+
+        <p class="lead-quote">"We wanted the opposite of a guilt machine. Open it on a hard day and it should feel like a friend who remembers what you care about, not a coach with a stopwatch."</p>
+        <p class="byline">Noor's App Dreamland Ltd., on why Harmony exists</p>
+
+        <p>When an area goes quiet, Harmony does something unusual: instead of a generic "you missed your goal," it brings back the sentence <em>you</em> wrote about why that area mattered, in your own words. A gentle line on the home screen, and, if you like, a soft notification at a time you choose. The reminders read like a kind note, never a demand.</p>
+
+        <p>Everything you make follows you. Sign in on a phone, a tablet, the web, and your areas, habits, and history are simply there, updating across devices the moment you change them. It works offline, installs to your home screen, and keeps your data private: no ads, no selling, nothing to index.</p>
+
+        <p class="lead-quote">"I stopped using streak apps because missing one day made me quit for a month. With Harmony I came back to reading after two weeks away and it just said, in my own handwriting almost, why I'd wanted to. I cried a little, then I read."</p>
+        <p class="byline">An early reader of Harmony</p>
+
+        <p><strong>Getting started takes about three minutes.</strong> Open Harmony, create an account, name a few areas of life, and add a habit to each. Add it to your home screen to turn on gentle reminders. That is the whole setup. The rest is just tending.</p>
+      </div>
+    </section>
+
+    <!-- HOW THE BLOOM WORKS -->
+    <section>
+      <div class="wrap">
+        <div class="sectionhead">
+          <p class="eyebrow">The heart of it</p>
+          <h2>How the Bloom works</h2>
+        </div>
+
+        <p>The Bloom is the picture of your last two weeks. Each area of life is one petal. A petal grows outward as you tend to that area and eases back inward as time passes without it. It is a rhythm, not a grade.</p>
+
+        <div class="diagram">
+          <svg viewBox="0 0 120 120" aria-hidden="true">
+            <circle cx="60" cy="60" r="54" fill="none" stroke="#e7d3b4" stroke-dasharray="2 4" />
+            <circle cx="60" cy="60" r="40" fill="none" stroke="#e7d3b4" stroke-dasharray="2 4" />
+            <g style="mix-blend-mode: multiply">
+              <path d="M60 60 L60 16 A44 44 0 0 1 98 38 Z" fill="#b5532f" opacity="0.8" />
+              <path d="M60 60 L98 38 A44 44 0 0 1 98 82 Z" fill="#b7902a" opacity="0.5" />
+              <path d="M60 60 L98 82 A44 44 0 0 1 60 104 Z" fill="#5b7a35" opacity="0.7" />
+              <path d="M60 60 L60 104 A44 44 0 0 1 22 82 Z" fill="#7a3b6e" opacity="0.3" />
+              <path d="M60 60 L22 82 A44 44 0 0 1 22 38 Z" fill="#3a7ca8" opacity="0.6" />
+              <path d="M60 60 L22 38 A44 44 0 0 1 60 16 Z" fill="#944021" opacity="0.45" />
+            </g>
+            <circle cx="60" cy="60" r="15" fill="#fffaf1" />
+          </svg>
+          <div class="legend">
+            <p style="margin:0 0 8px"><strong>Each petal</strong> is one area. <strong>How far it reaches</strong> is how fully you have tended it lately. The two dotted rings are gentle markers, at a third and two thirds of the way out.</p>
+            <p style="margin:0">A petal at full reach is an area you have kept up with. A short petal is one that is waiting. The center holds your <span class="tag">h</span>.</p>
+          </div>
+        </div>
+
+        <h3 style="margin-top:8px">Does it reset every week? Does it drop after a day?</h3>
+        <p>Neither, and this is the part people ask about most. The Bloom uses a <em>rolling 14 day window</em>. There is no Monday reset and no overnight punishment. Every day, the window quietly slides: what you did today counts, and what you did fifteen days ago gently ages out. So a petal does not crash because you missed yesterday; it simply reflects the last two weeks as a whole, recalculated each day.</p>
+
+        <h3 style="margin-top:24px">How a petal decides its reach</h3>
+        <p>For each area, Harmony looks at how many times you tended its habits in the last 14 days, compared with how many times those habits asked to be tended. A habit set to "every day" expects fourteen; "three times a week" expects six; "weekdays" expects ten. Your real completions divided by that expectation gives a ratio.</p>
+        <p>That ratio is then shaped so that <em>doing exactly what you set out to do reaches about two thirds of the way out</em> (right around the outer dotted ring), and going above and beyond can push a petal to full. This is deliberate: keeping your own cadence should feel good and look healthy, without demanding perfection to ever look "complete."</p>
+
+        <div class="cards" style="margin-top:22px">
+          <div class="card"><h3>It grows</h3><p>Log a habit and its area's petal springs outward within the same moment, before anything touches the network.</p></div>
+          <div class="card"><h3>It eases back</h3><p>Go quiet and the petal recedes slowly over days as completions age out of the 14 day window. Never a sudden drop.</p></div>
+          <div class="card"><h3>It rests, it does not fail</h3><p>An area with no habits yet, or a brand new one, simply sits as a small bud. That is a calm rest state, not a red mark.</p></div>
+        </div>
+
+        <h3 style="margin-top:26px">The line under the Bloom</h3>
+        <p>Below the petals, one short caption reads the whole picture. When your areas are broadly in step it says <em>"In a good rhythm today."</em> When one has gone quiet it says <em>"A few areas waiting for you."</em> Otherwise it simply offers <em>"Tend to yourself today."</em> It is a mood, not a metric.</p>
+
+        <h3 style="margin-top:26px">And the rest of the app reuses the same idea</h3>
+        <p>The Insights screen shows the same calculation over a longer 30 day window as soft balance bars, so you can see the shape of a month. Same gentle math, wider lens.</p>
+      </div>
+    </section>
+
+    <!-- USER JOURNEYS -->
+    <section>
+      <div class="wrap">
+        <div class="sectionhead">
+          <p class="eyebrow">What it feels like to use</p>
+          <h2>User journeys</h2>
+        </div>
+        <div class="cards">
+          <div class="step"><div class="n">1</div><div><h3>The first three minutes</h3><p>Sign up, name the areas of life that matter, write a line about why each one does, order them, and add one small habit to each. Add Harmony to your home screen.</p></div></div>
+          <div class="step"><div class="n">2</div><div><h3>The daily loop</h3><p>Open Harmony, glance at the Bloom, tap a habit to mark it tended. Long press to leave a few words about the day. Watch the petal answer.</p></div></div>
+          <div class="step"><div class="n">3</div><div><h3>Shaping a habit</h3><p>Add or edit a habit with exactly the schedule you want: certain weekdays, a number of times a week, or every few days, with a start date and an optional end. Give it a colour and a reminder time.</p></div></div>
+          <div class="step"><div class="n">4</div><div><h3>Coming back after a gap</h3><p>Life happened. You open Harmony and instead of a broken streak you find your own words about why an area mattered, waiting kindly. You do one small thing.</p></div></div>
+          <div class="step"><div class="n">5</div><div><h3>Reflecting</h3><p>The Log shows a calm month of what you tended, with your notes. Insights offers a weekly recap written from your own week, balance bars, and a gentle suggestion or two.</p></div></div>
+          <div class="step"><div class="n">6</div><div><h3>Across your devices</h3><p>Pick up your phone, then your tablet. Everything is already there and stays in step the moment you change it, online or off.</p></div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQ -->
+    <section>
+      <div class="wrap">
+        <div class="sectionhead">
+          <p class="eyebrow">Questions, answered kindly</p>
+          <h2>FAQ</h2>
+        </div>
+
+        <details open>
+          <summary>Are there streaks?</summary>
+          <div class="body"><p>No. On purpose. There is nothing to break and nothing to lose. The Bloom shows your last two weeks as a living shape, recalculated daily, so a single missed day never undoes your progress.</p></div>
+        </details>
+        <details>
+          <summary>If I miss a day, does my Bloom collapse?</summary>
+          <div class="body"><p>No. Because the Bloom reads a rolling 14 day window, one missed day barely moves a petal. Petals recede slowly as older completions age out, never in a punishing drop.</p></div>
+        </details>
+        <details>
+          <summary>Does the Bloom reset weekly or daily?</summary>
+          <div class="body"><p>It does not reset at all. There is no Monday wipe and no nightly reset. The 14 day window simply slides forward each day: today's tending is added, the day from two weeks ago falls away.</p></div>
+        </details>
+        <details>
+          <summary>What makes a petal full?</summary>
+          <div class="body"><p>Tending an area's habits as often as they ask, across the last two weeks, brings a petal to about two thirds (the outer dotted ring). Doing more than your set cadence can push it to full. You never need to be perfect for it to look healthy.</p></div>
+        </details>
+        <details>
+          <summary>How do reminders work, and are they pushy?</summary>
+          <div class="body"><p>They are quiet by design. You can give a habit a reminder time and Harmony will send a soft, gently worded nudge on the days it is due, if it is still unlogged. There is an optional evening round up of anything still waiting. When an area has gone quiet for a while, a reminder may bring back your own words about why it mattered. You control quiet hours, can mute any area, and can turn it all off.</p><p>On iPhone, notifications only work once Harmony is added to the home screen. That is an Apple rule, not ours.</p></div>
+        </details>
+        <details>
+          <summary>Can I schedule a habit for specific days, or for a limited time?</summary>
+          <div class="body"><p>Yes. A habit can be every day, weekdays, weekends, certain days you pick, a number of times a week, or every few days. You can also set a start date and an optional end date, so a habit can run indefinitely or just for a season.</p></div>
+        </details>
+        <details>
+          <summary>Does my data sync across devices?</summary>
+          <div class="body"><p>Yes. Sign in anywhere and your areas, habits, and history arrive on their own, and stay in step the moment you make a change, thanks to live syncing. It also works offline and catches up when you reconnect.</p></div>
+        </details>
+        <details>
+          <summary>Is it private? Do you sell my data or show ads?</summary>
+          <div class="body"><p>No ads, ever, and we do not sell your data or use it to profile you. Your information is tied only to your account, stored to sync across your devices, and you can delete your account and its data from Settings at any time.</p></div>
+        </details>
+        <details>
+          <summary>What if I forget my password?</summary>
+          <div class="body"><p>Use "Forgot your password?" on the sign in screen. You will get an email link that takes you to a page to set a new password, then you sign back in.</p></div>
+        </details>
+        <details>
+          <summary>Do I need an account? Can I use it on the web?</summary>
+          <div class="body"><p>Yes to an account, so your data can follow you. Harmony runs in the browser, installs as an app on phones and tablets, and works the same across all of them.</p></div>
+        </details>
+        <details>
+          <summary>Who makes Harmony?</summary>
+          <div class="body"><p>Made with love by Noor's App Dreamland Ltd.</p></div>
+        </details>
+      </div>
+    </section>
+
+    <!-- INTERNAL FAQ -->
+    <section>
+      <div class="wrap">
+        <div class="sectionhead">
+          <p class="eyebrow">For the team</p>
+          <h2>Internal FAQ</h2>
+        </div>
+        <details>
+          <summary>Why a rolling window instead of a streak or weekly target?</summary>
+          <div class="body"><p>Streaks punish absence and turn one slip into a quit. A rolling 14 day window makes the product forgiving by construction: the worst a single bad day can do is age in slowly and age out slowly. It also gives a smooth, animatable value for the petals rather than a binary done or not.</p></div>
+        </details>
+        <details>
+          <summary>Why does hitting cadence read as roughly two thirds, not full?</summary>
+          <div class="body"><p>If meeting your own plan filled a petal completely, there would be nowhere to go and "complete" would invite all-or-nothing thinking. Landing keeping-your-cadence around the outer ring leaves visible headroom for extra effort while making a normal week look healthy and calm. The exact shaping is a tuned constant and is a fair candidate to revisit against real usage.</p></div>
+        </details>
+        <details>
+          <summary>What are the open numbers we should tune with real data?</summary>
+          <div class="body"><p>The cadence-to-fill shaping, the caption thresholds (broadly in rhythm versus an area being quiet), the two reference ring positions, and the drift sensitivity that decides when an area is "quiet" enough to surface a nudge. All are deliberately conservative defaults today.</p></div>
+        </details>
+        <details>
+          <summary>How does syncing stay consistent across devices?</summary>
+          <div class="body"><p>Writes save locally first and mirror up immediately. On sign in and on returning to a device, the app pulls and reconciles so deletes and un-logs propagate, not just additions, with a short grace window protecting very recent local writes. Live updates arrive over a realtime channel scoped to the signed in user. Backstops cover dropped sockets. The known gap is durable offline retry, which is the next foundational step.</p></div>
+        </details>
+        <details>
+          <summary>Why is the push worker deployed separately from the app?</summary>
+          <div class="body"><p>The web app is hosted on Cloudflare Pages, which auto-deploys from the git repository on every push. The notification engine is a separate Cloudflare Worker (it runs on a schedule and sends web push), and it is not wired into that same git auto-deploy, so it ships with its own command. They are two different runtimes with two different deploy paths.</p></div>
+        </details>
+      </div>
+    </section>
+
+    <footer>
+      <div class="wrap">
+        Harmony &middot; Made with love by Noor's App Dreamland Ltd.
+      </div>
+    </footer>
+  </body>
+</html>

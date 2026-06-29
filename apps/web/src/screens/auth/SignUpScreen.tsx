@@ -51,7 +51,7 @@ export default function SignUpScreen() {
 
     try {
       const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-      const profile = await createProfile({ id: data.user.id, firstName, timezone });
+      const profile = await createProfile({ id: data.user.id, firstName: firstName.trim(), timezone });
       setSignedIn(profile);
     } catch (err) {
       console.error('createProfile failed', err);

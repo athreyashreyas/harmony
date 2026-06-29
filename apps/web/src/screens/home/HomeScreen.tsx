@@ -149,7 +149,7 @@ export default function HomeScreen() {
       <p className="text-sm text-ink-300">{formatLongDate()}</p>
       <h1 className="mt-0.5 font-serif text-2xl text-ink-900">
         {greetingWord()}
-        {profile ? `, ${profile.firstName}.` : '.'}
+        {profile ? `, ${profile.firstName.trim()}.` : '.'}
       </h1>
 
       {profile && <PushPrompt userId={profile.id} />}

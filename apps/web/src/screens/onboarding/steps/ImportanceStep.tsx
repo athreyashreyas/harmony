@@ -1,8 +1,7 @@
 import { useRef } from 'react';
-import { LayoutGroup, motion } from 'framer-motion';
+import { motion } from 'framer-motion';
 import type { Importance } from '@harmony/shared';
 import { hexToRgba } from '../../../lib/color';
-import { spring } from '../../../lib/motion';
 import { useOnboarding } from '../OnboardingContext';
 import OnboardingScaffold from '../OnboardingScaffold';
 import { PrimaryButton } from '../ui';
@@ -26,7 +25,9 @@ function clientYFromEvent(e: MouseEvent | TouchEvent | PointerEvent): number {
 }
 
 // Screen 4. Drag chips between the three buckets, or tap a chip to move it to
-// the next bucket. Default is "Matters".
+// the next bucket. Default is "Matters". Chips reposition instantly on move
+// (no shared-layout animation): that pattern was both a performance drag and a
+// fragile interaction inside the step's exit transition.
 export default function ImportanceStep({
   stepIndex,
   totalSteps,
@@ -69,54 +70,47 @@ export default function ImportanceStep({
         <p className="mt-3 text-sm text-ink-500">These don't have to be in stone. Tweak any time.</p>
         <p className="mt-1 text-xs text-ink-300">Drag a chip, or tap it to move it along.</p>
 
-        <LayoutGroup>
-          <div className="mt-6 space-y-3">
-            {BUCKETS.map((bucket) => {
-              const inBucket = areas.filter((a) => a.importance === bucket.id);
-              return (
-                <div
-                  key={bucket.id}
-                  ref={(el) => {
-                    bucketRefs.current[bucket.id] = el;
-                  }}
-                  className="rounded-sheet bg-parchment-200/70 p-4"
-                >
-                  <p className="text-sm font-medium text-ink-700">{bucket.label}</p>
-                  <p className="text-xs text-ink-300">{bucket.hint}</p>
-                  <div className="mt-3 flex min-h-[2.5rem] flex-wrap gap-2">
-                    {inBucket.map((area) => (
-                      <motion.button
-                        key={area.id}
-                        type="button"
-                        layout
-                        layoutId={area.id}
-                        transition={spring}
-                        drag
-                        dragSnapToOrigin
-                        whileDrag={{ scale: 1.06, zIndex: 20 }}
-                        onTap={() => setImportance(area.id, NEXT_TIER[area.importance])}
-                        onDragEnd={(event) => {
-                          const target = bucketAt(clientYFromEvent(event));
-                          if (target && target !== area.importance) {
-                            setImportance(area.id, target);
-                          }
-                        }}
-                        className="flex cursor-grab items-center gap-2 rounded-full px-4 py-2 text-sm font-medium active:cursor-grabbing"
-                        style={{ backgroundColor: hexToRgba(area.color, 0.12), color: area.color }}
-                      >
-                        <span
-                          className="h-2 w-2 rounded-full"
-                          style={{ backgroundColor: area.color }}
-                        />
-                        {area.name}
-                      </motion.button>
-                    ))}
-                  </div>
+        <div className="mt-6 space-y-3">
+          {BUCKETS.map((bucket) => {
+            const inBucket = areas.filter((a) => a.importance === bucket.id);
+            return (
+              <div
+                key={bucket.id}
+                ref={(el) => {
+                  bucketRefs.current[bucket.id] = el;
+                }}
+                className="rounded-sheet bg-parchment-200/70 p-4"
+              >
+                <p className="text-sm font-medium text-ink-700">{bucket.label}</p>
+                <p className="text-xs text-ink-300">{bucket.hint}</p>
+                <div className="mt-3 flex min-h-[2.5rem] flex-wrap gap-2">
+                  {inBucket.map((area) => (
+                    <motion.button
+                      key={area.id}
+                      type="button"
+                      drag
+                      dragSnapToOrigin
+                      whileTap={{ scale: 0.97 }}
+                      whileDrag={{ scale: 1.06, zIndex: 20 }}
+                      onTap={() => setImportance(area.id, NEXT_TIER[area.importance])}
+                      onDragEnd={(event) => {
+                        const target = bucketAt(clientYFromEvent(event));
+                        if (target && target !== area.importance) {
+                          setImportance(area.id, target);
+                        }
+                      }}
+                      className="flex cursor-grab touch-none items-center gap-2 rounded-full px-4 py-2 text-sm font-medium active:cursor-grabbing"
+                      style={{ backgroundColor: hexToRgba(area.color, 0.12), color: area.color }}
+                    >
+                      <span className="h-2 w-2 rounded-full" style={{ backgroundColor: area.color }} />
+                      {area.name}
+                    </motion.button>
+                  ))}
                 </div>
-              );
-            })}
-          </div>
-        </LayoutGroup>
+              </div>
+            );
+          })}
+        </div>
       </div>
     </OnboardingScaffold>
   );

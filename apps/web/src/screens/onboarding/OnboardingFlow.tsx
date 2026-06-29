@@ -114,10 +114,9 @@ function OnboardingInner() {
         <motion.div
           key={step}
           custom={direction}
-          initial={{ opacity: 0, x: direction * 24 }}
-          animate={{ opacity: 1, x: 0 }}
-          exit={{ opacity: 0, x: direction * -24 }}
-          transition={{ duration: 0.15 }}
+          initial={{ opacity: 0, x: direction * 16 }}
+          animate={{ opacity: 1, x: 0, transition: { duration: 0.18, ease: [0.22, 1, 0.36, 1] } }}
+          exit={{ opacity: 0, x: direction * -12, transition: { duration: 0.07, ease: 'easeIn' } }}
           className="h-full"
         >
           {step === 'welcome' && <WelcomeStep {...common} onNext={() => go('areas')} />}

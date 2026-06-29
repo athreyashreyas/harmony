@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import { MotionConfig } from 'framer-motion';
 import Router from './app/Router';
+import ErrorBoundary from './components/ErrorBoundary/ErrorBoundary';
 import { initInstallCapture } from './lib/push/install';
 import { initSyncStatus } from './lib/sync/status';
 import { setupPWA } from './pwa';
@@ -20,9 +21,11 @@ createRoot(document.getElementById('root')!).render(
     {/* prefers-reduced-motion: reduce makes every spring and tween instant
         app-wide (section 20), without removing any functional motion. */}
     <MotionConfig reducedMotion="user">
-      <BrowserRouter>
-        <Router />
-      </BrowserRouter>
+      <ErrorBoundary>
+        <BrowserRouter>
+          <Router />
+        </BrowserRouter>
+      </ErrorBoundary>
     </MotionConfig>
   </StrictMode>,
 );

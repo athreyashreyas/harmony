@@ -4,9 +4,11 @@ compatibility_date = "2024-09-23"
 # web-push relies on Node's crypto for payload encryption and VAPID signing.
 compatibility_flags = ["nodejs_compat"]
 
-# Drift checks run every 15 minutes (section 17.3).
+# Runs every minute (Cloudflare cron's finest granularity) so habit reminders
+# fire within about a minute of their set time. Drift and the daily summary are
+# self-throttled, so the extra runs don't mean extra notifications.
 [triggers]
-crons = ["*/15 * * * *"]
+crons = ["* * * * *"]
 
 # D1 is optional (section 17.3): a local cache of sent nudges to reduce Supabase
 # reads. The worker is fully functional without it, using Supabase as the source

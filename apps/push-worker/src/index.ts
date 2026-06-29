@@ -22,15 +22,14 @@ import { sendPush, type PushPayload, type VapidConfig } from './webpush';
 const MAX_PER_USER_PER_DAY = 2;
 const NOTIFICATION_URL = '/';
 
-// How long after a scheduled time a reminder may still fire. The cron runs
-// every 15 minutes, but runs can be skipped or delayed; a generous catch-up
-// window means a reminder isn't silently dropped if the exact slot is missed.
-// The once-per-habit-per-day guard prevents repeats within the window.
-const REMINDER_CATCHUP_MIN = 120;
+// The cron runs every minute, so a reminder fires within about a minute of its
+// set time. A tiny catch-up (2 minutes) only guards against a single skipped or
+// delayed run; the once-per-habit-per-day guard prevents repeats.
+const REMINDER_CATCHUP_MIN = 2;
 // Local time the evening round-up of unlogged habits goes out (before the
-// default 21:00 quiet hours, so it isn't suppressed), with a shorter catch-up.
+// default 21:00 quiet hours, so it isn't suppressed), with a small catch-up.
 const SUMMARY_TIME = '20:00';
-const SUMMARY_CATCHUP_MIN = 60;
+const SUMMARY_CATCHUP_MIN = 5;
 // Sentinel template ids for the non-drift pushes (not in the drift library).
 const REMINDER_TEMPLATE_ID = 'habit-reminder';
 const SUMMARY_TEMPLATE_ID = 'daily-summary';

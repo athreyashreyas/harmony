@@ -233,6 +233,8 @@ export default function HabitDetailScreen() {
           timeOfDay: habit.timeOfDay,
           color: habit.color,
           reminderTime: habit.reminderTime,
+          startDate: habit.startDate,
+          endDate: habit.endDate,
         }}
         onClose={() => setSheetOpen(false)}
         onSave={handleSave}

@@ -114,8 +114,10 @@ function OnboardingInner() {
               cadence: draft!.cadence,
               timeOfDay: draft!.timeOfDay,
               reminderTime: null,
+              startDate: date,
+              endDate: null,
             },
-            { userId: profile.id, order: 0, startDate: date, createdAt: now },
+            { userId: profile.id, order: 0, createdAt: now },
           ),
         );
 

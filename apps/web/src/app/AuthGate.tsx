@@ -169,7 +169,7 @@ export default function AuthGate() {
   if (status === 'loading') {
     return (
       <main className="flex min-h-full items-center justify-center pt-safe pb-safe">
-        <span className="font-serif text-xl text-iris-500">harmony</span>
+        <span className="font-serif text-xl text-iris-500">Harmony</span>
       </main>
     );
   }

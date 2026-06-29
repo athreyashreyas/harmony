@@ -1,5 +1,4 @@
 import type { Area, Cadence, Habit, TimeOfDay } from '@harmony/shared';
-import { todayISO } from './time/dates';
 
 // The editable shape of a habit, as the compose sheet collects it. Everything
 // else on a Habit (id, ownership, timestamps, ordering) is assigned at create
@@ -11,6 +10,10 @@ export interface HabitDraft {
   timeOfDay: TimeOfDay;
   color?: string;
   reminderTime: string | null;
+  // When the habit starts counting, and an optional last day (null = no end,
+  // i.e. it runs indefinitely).
+  startDate: string;
+  endDate: string | null;
 }
 
 // The editable shape of an area, as the area sheet collects it. Re-exported
@@ -25,16 +28,15 @@ export type AreaFields = Pick<
 // every create site.
 export function createHabit(
   draft: HabitDraft,
-  opts: { userId: string; order: number; startDate?: string; createdAt?: number },
+  opts: { userId: string; order: number; createdAt?: number },
 ): Habit {
   return {
     id: crypto.randomUUID(),
     userId: opts.userId,
-    startDate: opts.startDate ?? todayISO(),
-    endDate: null,
     order: opts.order,
     createdAt: opts.createdAt ?? Date.now(),
     archivedAt: null,
+    // draft carries startDate / endDate (and the rest of the editable fields).
     ...draft,
   };
 }

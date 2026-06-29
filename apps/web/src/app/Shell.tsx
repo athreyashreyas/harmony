@@ -47,7 +47,7 @@ function Sidebar() {
       className="hidden shrink-0 flex-col border-r border-parchment-300 bg-parchment-50 pt-safe pb-safe pl-safe md:flex md:w-60"
     >
       <div className="px-6 py-7">
-        <span className="font-serif text-2xl text-iris-500">harmony</span>
+        <span className="font-serif text-2xl text-iris-500">Harmony</span>
       </div>
       <ul className="flex flex-col gap-1 px-3">
         {NAV_ITEMS.map((item) => (

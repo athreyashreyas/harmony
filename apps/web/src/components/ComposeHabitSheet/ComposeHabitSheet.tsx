@@ -2,10 +2,12 @@ import { useEffect, useState } from 'react';
 import type { Area, Cadence, TimeOfDay } from '@harmony/shared';
 import { AREA_PALETTE } from '@harmony/shared';
 import BottomSheet from '../BottomSheet/BottomSheet';
+import CadenceEditor from '../CadenceEditor/CadenceEditor';
 import WatercolorWash from '../WatercolorWash/WatercolorWash';
 import { hexToRgba } from '../../lib/color';
-import { CADENCE_OPTIONS, TIME_OF_DAY_OPTIONS, cadenceKey } from '../../lib/cadenceOptions';
+import { TIME_OF_DAY_OPTIONS } from '../../lib/cadenceOptions';
 import type { HabitDraft } from '../../lib/domain';
+import { todayISO } from '../../lib/time/dates';
 import { PrimaryButton, QuietLink } from '../../screens/onboarding/ui';
 
 // Re-exported so existing `import { HabitDraft } from '.../ComposeHabitSheet'`
@@ -37,19 +39,23 @@ export default function ComposeHabitSheet({
 }) {
   const [areaId, setAreaId] = useState<string | null>(null);
   const [name, setName] = useState('');
-  const [cadence, setCadence] = useState<Cadence>(CADENCE_OPTIONS[0].value);
+  const [cadence, setCadence] = useState<Cadence>({ kind: 'times-per-week', times: 3 });
   const [timeOfDay, setTimeOfDay] = useState<TimeOfDay>('anytime');
   const [color, setColor] = useState<string | null>(null);
   const [reminderTime, setReminderTime] = useState<string | null>(null);
+  const [startDate, setStartDate] = useState<string>(todayISO());
+  const [endDate, setEndDate] = useState<string | null>(null);
 
   useEffect(() => {
     if (!open) return;
     setAreaId(initial?.areaId ?? null);
     setName(initial?.name ?? '');
-    setCadence(initial?.cadence ?? CADENCE_OPTIONS[0].value);
+    setCadence(initial?.cadence ?? { kind: 'times-per-week', times: 3 });
     setTimeOfDay(initial?.timeOfDay ?? 'anytime');
     setColor(initial?.color ?? null);
     setReminderTime(initial?.reminderTime ?? null);
+    setStartDate(initial?.startDate ?? todayISO());
+    setEndDate(initial?.endDate ?? null);
   }, [open, initial]);
 
   const selectedArea = areas.find((a) => a.id === areaId) ?? null;
@@ -58,7 +64,17 @@ export default function ComposeHabitSheet({
 
   function handleSave() {
     if (!canSave || !areaId) return;
-    onSave({ areaId, name: name.trim(), cadence, timeOfDay, color: color ?? undefined, reminderTime });
+    onSave({
+      areaId,
+      name: name.trim(),
+      cadence,
+      timeOfDay,
+      color: color ?? undefined,
+      reminderTime,
+      startDate,
+      // Guard against an end date that drifted before the start.
+      endDate: endDate && endDate >= startDate ? endDate : null,
+    });
   }
 
   return (
@@ -104,26 +120,7 @@ export default function ComposeHabitSheet({
             />
           </div>
 
-          <div>
-            <label htmlFor="habit-frequency" className="mb-1.5 block text-sm font-medium text-ink-700">
-              How often
-            </label>
-            <select
-              id="habit-frequency"
-              value={cadenceKey(cadence)}
-              onChange={(e) => {
-                const option = CADENCE_OPTIONS.find((o) => cadenceKey(o.value) === e.target.value);
-                if (option) setCadence(option.value);
-              }}
-              className={selectClass}
-            >
-              {CADENCE_OPTIONS.map((o) => (
-                <option key={cadenceKey(o.value)} value={cadenceKey(o.value)}>
-                  {o.label}
-                </option>
-              ))}
-            </select>
-          </div>
+          <CadenceEditor value={cadence} onChange={setCadence} />
 
           <div>
             <label htmlFor="habit-time" className="mb-1.5 block text-sm font-medium text-ink-700">
@@ -141,6 +138,54 @@ export default function ComposeHabitSheet({
                 </option>
               ))}
             </select>
+          </div>
+
+          <div>
+            <p className="mb-1.5 text-sm font-medium text-ink-700">Duration</p>
+            <div className="flex items-center gap-3">
+              <label htmlFor="habit-start" className="w-12 shrink-0 text-sm text-ink-500">
+                Starts
+              </label>
+              <input
+                id="habit-start"
+                type="date"
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value || todayISO())}
+                className={selectClass}
+              />
+            </div>
+            <div className="mt-2 flex items-center gap-3">
+              <label htmlFor="habit-end" className="w-12 shrink-0 text-sm text-ink-500">
+                Ends
+              </label>
+              {endDate === null ? (
+                <button
+                  type="button"
+                  onClick={() => setEndDate(startDate)}
+                  className="flex-1 rounded-card bg-parchment-200 px-3.5 py-2.5 text-left text-sm text-ink-500"
+                >
+                  No end date. Tap to set one.
+                </button>
+              ) : (
+                <>
+                  <input
+                    id="habit-end"
+                    type="date"
+                    min={startDate}
+                    value={endDate}
+                    onChange={(e) => setEndDate(e.target.value || startDate)}
+                    className={selectClass}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setEndDate(null)}
+                    className="shrink-0 text-sm text-ink-500 hover:text-ink-700"
+                  >
+                    Clear
+                  </button>
+                </>
+              )}
+            </div>
           </div>
 
           <div>

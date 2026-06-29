@@ -139,7 +139,7 @@ export default function HomeScreen() {
 
   async function handleCreate(draft: HabitDraft) {
     if (!profile) return;
-    await saveHabit(createHabit(draft, { userId: profile.id, order: habits.length, startDate: today }));
+    await saveHabit(createHabit(draft, { userId: profile.id, order: habits.length }));
     await reloadHabits(profile.id);
     setComposeOpen(false);
   }

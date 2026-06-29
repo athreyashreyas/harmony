@@ -9,6 +9,7 @@ import { createHabit } from '../../lib/domain';
 import { gentleObservations } from '../../lib/insights/observations';
 import { composeWeeklyRecap } from '../../lib/insights/recap';
 import { whatToDoNext, type Suggestion } from '../../lib/insights/suggestions';
+import { todayISO } from '../../lib/time/dates';
 import { useUserData } from '../../lib/useUserData';
 
 const eyebrow = 'text-[10px] font-medium uppercase tracking-[0.1em] text-ink-300';
@@ -128,6 +129,8 @@ export default function InsightsScreen() {
                 cadence: { kind: 'times-per-week', times: 3 },
                 timeOfDay: 'anytime',
                 reminderTime: null,
+                startDate: todayISO(),
+                endDate: null,
               }
             : null
         }

@@ -13,6 +13,7 @@ export default function AuthGate() {
   const profile = useUser((s) => s.profile);
   const setSignedIn = useUser((s) => s.setSignedIn);
   const setSignedOut = useUser((s) => s.setSignedOut);
+  const setEmail = useUser((s) => s.setEmail);
   const location = useLocation();
 
   useEffect(() => {
@@ -30,6 +31,7 @@ export default function AuthGate() {
         setSignedOut();
         return;
       }
+      setEmail(user.email ?? null);
       try {
         const loadedProfile = await pullProfile(user.id);
         if (!active) return;
@@ -48,6 +50,7 @@ export default function AuthGate() {
         setSignedOut();
         return;
       }
+      setEmail(user.email ?? null);
       try {
         const loadedProfile = await pullProfile(user.id);
         if (!active) return;

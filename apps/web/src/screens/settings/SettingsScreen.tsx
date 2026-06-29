@@ -23,22 +23,19 @@ const eyebrow = 'text-[10px] font-medium uppercase tracking-[0.1em] text-ink-300
 export default function SettingsScreen() {
   const { profile, areas, habits, logs, reloadAreas } = useUserData();
   const setSignedOut = useUser((s) => s.setSignedOut);
+  const email = useUser((s) => s.email);
   const notifications = useSettings((s) => s.notifications);
   const loadNotifications = useSettings((s) => s.load);
   const updateNotifications = useSettings((s) => s.update);
 
-  const [email, setEmail] = useState<string | null>(null);
   const [orderedAreas, setOrderedAreas] = useState<Area[]>(areas);
   const [editingArea, setEditingArea] = useState<Area | null>(null);
   const [sheetOpen, setSheetOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
-  const [pushState, setPushState] = useState<PushReadiness | null>(null);
+  // pushReadiness() is synchronous, so seed it on first render to avoid a flash.
+  const [pushState, setPushState] = useState<PushReadiness>(() => pushReadiness());
   const [pushBusy, setPushBusy] = useState(false);
-
-  useEffect(() => {
-    setPushState(pushReadiness());
-  }, []);
 
   useEffect(() => {
     void loadNotifications();
@@ -47,10 +44,6 @@ export default function SettingsScreen() {
   useEffect(() => {
     setOrderedAreas(areas);
   }, [areas]);
-
-  useEffect(() => {
-    supabase?.auth.getUser().then(({ data }) => setEmail(data.user?.email ?? null));
-  }, []);
 
   const dnd = notifications ?? {
     masterEnabled: true,
@@ -159,7 +152,8 @@ export default function SettingsScreen() {
 
       <section className="mt-7">
         <p className={eyebrow}>Account</p>
-        {email && <p className="mt-2 text-sm text-ink-700">{email}</p>}
+        {/* Fixed height so the buttons below never jump when the email lands. */}
+        <p className="mt-2 min-h-[1.25rem] text-sm text-ink-700">{email ?? ''}</p>
         <div className="mt-4 flex flex-wrap gap-3">
           <button
             type="button"

@@ -39,10 +39,10 @@ function dayOfWeekObservation(dates: string[]): string | null {
 
   const set = new Set(top);
   if (set.size === 2 && set.has(0) && set.has(6)) {
-    return 'You tend to do this on weekends.';
+    return 'This one tends to belong to your weekends.';
   }
   const names = top.sort((a, b) => a - b).map((d) => WEEKDAY_NAMES[d]);
-  return `You tend to do this on ${joinWithAnd(names)}.`;
+  return `This tends to land on ${joinWithAnd(names)}.`;
 }
 
 function timeOfDayObservation(logs: Log[]): string | null {
@@ -53,8 +53,8 @@ function timeOfDayObservation(logs: Log[]): string | null {
   const [topSegment, topCount] = Object.entries(counts).sort((a, b) => b[1] - a[1])[0];
   if (topCount / total <= DOMINANCE) return null;
 
-  if (topSegment === 'night') return 'You usually tend to this at night.';
-  return `You usually tend to this in the ${topSegment}.`;
+  if (topSegment === 'night') return 'You usually find your way to this at night.';
+  return `You usually find your way to this in the ${topSegment}.`;
 }
 
 function adjacencyObservation(
@@ -76,7 +76,7 @@ function adjacencyObservation(
     }
   }
 
-  return best ? `You often pair this with ${best.name}.` : null;
+  return best ? `This one likes company. It often travels with ${best.name}.` : null;
 }
 
 function streakObservation(dates: string[], now: Date): string | null {
@@ -87,7 +87,7 @@ function streakObservation(dates: string[], now: Date): string | null {
     if (dates.some((d) => d >= weekStart && d <= weekEnd)) weeksPresent++;
   }
   if (weeksPresent < MIN_STREAK) return null;
-  return `You've shown up for this in ${weeksPresent} of the last ${STREAK_WEEKS} weeks.`;
+  return `You've shown up for this in ${weeksPresent} of the last ${STREAK_WEEKS} weeks. That kind of steadiness is rare.`;
 }
 
 export function detectHabitPatterns(

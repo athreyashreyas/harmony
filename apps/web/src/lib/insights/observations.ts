@@ -36,9 +36,9 @@ function weeklyRecordObservation(areas: Area[], habits: Habit[], logs: Log[], no
     }
   }
 
-  return best
-    ? `You've added ${best.count} log${best.count === 1 ? '' : 's'} to ${best.area.name} this week, your most in a month.`
-    : null;
+  if (!best) return null;
+  const times = best.count === 1 ? 'once' : `${best.count} times`;
+  return `You came back to ${best.area.name} ${times} this week, more than any week in the last month. Something's taking root there.`;
 }
 
 function mostConsistentTimeObservation(habits: Habit[], logs: Log[]): string | null {
@@ -68,7 +68,7 @@ function mostConsistentTimeObservation(habits: Habit[], logs: Log[]): string | n
   if (!best) return null;
   const dayName = WEEKDAY_NAMES[best.day];
   const segmentWord = best.segment === 'night' ? 'nights' : `${best.segment}s`;
-  return `${dayName} ${segmentWord} are your most consistent time for ${best.habit.name}.`;
+  return `${best.habit.name} has found its home on ${dayName} ${segmentWord}. That's a rhythm worth keeping.`;
 }
 
 function quieterThanUsualObservation(areas: Area[], habits: Habit[], logs: Log[], now: Date): string | null {
@@ -97,7 +97,7 @@ function quieterThanUsualObservation(areas: Area[], habits: Habit[], logs: Log[]
   }
 
   return best
-    ? `${best.area.name} has been quieter than usual. You wrote: "${best.area.whySentence}"`
+    ? `${best.area.name} has been softer than its usual lately. The reason you gave: "${best.area.whySentence}"`
     : null;
 }
 

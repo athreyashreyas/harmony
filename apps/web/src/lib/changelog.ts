@@ -12,6 +12,16 @@ export interface Release {
 // plain, the same voice as the rest of the app.
 export const CHANGELOG: Release[] = [
   {
+    version: '0.6.0',
+    date: '2026-06-29',
+    major: true,
+    title: 'Schedule habits your way, in kinder words',
+    notes: [
+      'Shape a habit exactly how it lives: certain days of the week, a number of times a week, or every few days, with a start date and an optional end.',
+      'The nudges, observations, and little suggestions are warmer and more personal now, less like an app talking and more like someone who knows you.',
+    ],
+  },
+  {
     version: '0.5.0',
     date: '2026-06-29',
     major: true,

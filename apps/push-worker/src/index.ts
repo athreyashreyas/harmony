@@ -135,6 +135,25 @@ async function processUser(env: Env, user: UserProfile, now: Date): Promise<void
   await sendDriftNudges(env, user, now, bundle);
 }
 
+// A small, warm set of reminder phrasings, picked deterministically per
+// habit-and-day so it stays put within a day but varies across days.
+const REMINDER_LINES = [
+  (name: string) => `A quiet moment for ${name}?`,
+  (name: string) => `${name}, whenever you're ready.`,
+  (name: string) => `Now might be a good time for ${name}.`,
+  (name: string) => `${name} is here when you are.`,
+];
+
+function hashString(s: string): number {
+  let h = 0;
+  for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0;
+  return Math.abs(h);
+}
+
+function reminderText(name: string, seed: string): string {
+  return REMINDER_LINES[hashString(seed) % REMINDER_LINES.length](name);
+}
+
 // #1: a gentle nudge for each due, still-unlogged habit at its reminder time.
 async function sendHabitReminders(env: Env, user: UserProfile, now: Date, bundle: UserBundle): Promise<void> {
   if (!bundle.settings.habitReminders) return;
@@ -161,7 +180,7 @@ async function sendHabitReminders(env: Env, user: UserProfile, now: Date, bundle
 
     const payload: PushPayload = {
       title: 'Harmony',
-      body: `A little time for ${habit.name}?`,
+      body: reminderText(habit.name, `${habit.id}:${today}`),
       url: NOTIFICATION_URL,
     };
     const delivered = await sendToAllSubscriptions(env, bundle, payload);
@@ -184,9 +203,9 @@ async function sendHabitReminders(env: Env, user: UserProfile, now: Date, bundle
 
 function summaryText(unlogged: Habit[]): string {
   const names = unlogged.map((h) => h.name);
-  if (names.length === 1) return `${names[0]} is still waiting today.`;
-  if (names.length <= 3) return `Still waiting today: ${names.join(', ')}.`;
-  return `${names.length} habits are still waiting today, whenever you're ready.`;
+  if (names.length === 1) return `${names[0]} is still waiting for you today. No rush.`;
+  if (names.length <= 3) return `A few are still waiting today: ${names.join(', ')}. Whatever you can.`;
+  return `${names.length} small things are still waiting today. Even one would be a kindness to yourself.`;
 }
 
 // #2: one evening round-up of habits due today that are still unlogged.

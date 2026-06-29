@@ -291,7 +291,7 @@ export default function SettingsScreen() {
       <section className="mt-9">
         <p className={eyebrow}>About</p>
         <p className="mt-2 text-sm text-ink-500">Harmony, version {APP_VERSION}.</p>
-        <p className="mt-1 text-xs text-ink-300">Terms and privacy are not published yet.</p>
+        <p className="mt-1 text-xs text-ink-300">Made with love by Noor's App Dreamland Ltd.</p>
       </section>
 
       <AreaSheet

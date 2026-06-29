@@ -263,6 +263,136 @@ export async function mirrorNotificationSettings(userId: string, settings: Notif
   });
 }
 
+// --- Pull (hydrate local cache from the cloud) -----------------------------
+// The mirror functions above push local writes up. These pull the account's
+// data down so a fresh device or a separate storage context (notably an iOS
+// home-screen PWA, which has its own IndexedDB separate from Safari) shows the
+// same data instead of an empty Home. Merge is by id (upsert); full
+// delete/conflict reconciliation is still a later phase.
+
+interface AreaRow {
+  id: string;
+  user_id: string;
+  name: string;
+  color: string;
+  importance: Area['importance'];
+  why_sentence: string;
+  sort_order: number;
+  created_at: string;
+  archived_at: string | null;
+  drift_sensitivity: Area['driftSensitivity'];
+  reminder_time_of_day: Area['reminderTimeOfDay'];
+}
+
+interface HabitRow {
+  id: string;
+  user_id: string;
+  area_id: string;
+  name: string;
+  cadence: Habit['cadence'];
+  time_of_day: Habit['timeOfDay'];
+  reminder_time: string | null;
+  start_date: string;
+  end_date: string | null;
+  sort_order: number;
+  created_at: string;
+  archived_at: string | null;
+  color: string | null;
+}
+
+interface LogRow {
+  id: string;
+  user_id: string;
+  habit_id: string;
+  area_id: string;
+  date: string;
+  logged_at: string;
+  note: string | null;
+}
+
+function rowToArea(r: AreaRow): Area {
+  return {
+    id: r.id,
+    userId: r.user_id,
+    name: r.name,
+    color: r.color,
+    importance: r.importance,
+    whySentence: r.why_sentence,
+    order: r.sort_order,
+    createdAt: new Date(r.created_at).getTime(),
+    archivedAt: r.archived_at ? new Date(r.archived_at).getTime() : null,
+    driftSensitivity: r.drift_sensitivity ?? undefined,
+    reminderTimeOfDay: r.reminder_time_of_day ?? undefined,
+  };
+}
+
+function rowToHabit(r: HabitRow): Habit {
+  return {
+    id: r.id,
+    userId: r.user_id,
+    areaId: r.area_id,
+    name: r.name,
+    cadence: r.cadence,
+    timeOfDay: r.time_of_day,
+    reminderTime: r.reminder_time,
+    startDate: r.start_date,
+    endDate: r.end_date,
+    order: r.sort_order,
+    createdAt: new Date(r.created_at).getTime(),
+    archivedAt: r.archived_at ? new Date(r.archived_at).getTime() : null,
+    color: r.color ?? undefined,
+  };
+}
+
+function rowToLog(r: LogRow): Log {
+  return {
+    id: r.id,
+    userId: r.user_id,
+    habitId: r.habit_id,
+    areaId: r.area_id,
+    date: r.date,
+    loggedAt: new Date(r.logged_at).getTime(),
+    note: r.note,
+  };
+}
+
+// True once the local cache has at least one area for this user, i.e. this
+// device/context has been hydrated before.
+export async function hasLocalData(userId: string): Promise<boolean> {
+  return (await db.areas.where('userId').equals(userId).count()) > 0;
+}
+
+// Fetch areas, habits, and logs for the user from Supabase and upsert them into
+// Dexie. Returns false if Supabase isn't configured or the fetch failed (so the
+// caller can decide whether to proceed with whatever is local).
+export async function pullUserData(userId: string): Promise<boolean> {
+  const client = supabase;
+  if (!client) return false;
+
+  return withSync(async () => {
+    const [areasRes, habitsRes, logsRes] = await Promise.all([
+      client.from('areas').select('*').eq('user_id', userId),
+      client.from('habits').select('*').eq('user_id', userId),
+      client.from('logs').select('*').eq('user_id', userId),
+    ]);
+    if (areasRes.error || habitsRes.error || logsRes.error) {
+      console.warn('Pull from Supabase failed.', areasRes.error ?? habitsRes.error ?? logsRes.error);
+      return false;
+    }
+
+    const areas = (areasRes.data as AreaRow[]).map(rowToArea);
+    const habits = (habitsRes.data as HabitRow[]).map(rowToHabit);
+    const logs = (logsRes.data as LogRow[]).map(rowToLog);
+
+    await db.transaction('rw', db.areas, db.habits, db.logs, async () => {
+      if (areas.length) await db.areas.bulkPut(areas);
+      if (habits.length) await db.habits.bulkPut(habits);
+      if (logs.length) await db.logs.bulkPut(logs);
+    });
+    return true;
+  });
+}
+
 // Deletes everything the signed in user can reach under row level security
 // (logs, habits, areas, nudge history, notification settings, profile). The
 // underlying auth.users row cannot be removed from the client without a

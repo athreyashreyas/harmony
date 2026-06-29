@@ -1,8 +1,19 @@
 import { useEffect } from 'react';
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { supabase, isSupabaseConfigured } from '../lib/supabase/client';
-import { pullProfile } from '../lib/supabase/sync';
+import { hasLocalData, pullProfile, pullUserData } from '../lib/supabase/sync';
+import { useAreas } from '../store/useAreas';
+import { useHabits } from '../store/useHabits';
+import { useLogs } from '../store/useLogs';
 import { useUser } from '../store/useUser';
+
+// Reload the data stores from Dexie after a background pull, so a device that
+// was already showing data picks up anything new fetched from the cloud.
+function refreshStores(userId: string) {
+  void useAreas.getState().load(userId);
+  void useHabits.getState().load(userId);
+  void useLogs.getState().load(userId);
+}
 
 // Gates the protected routes (onboarding and the main shell). Listens for
 // Supabase auth changes, hydrates the local profile, and redirects based on
@@ -24,6 +35,23 @@ export default function AuthGate() {
 
     let active = true;
 
+    // Hydrate the local cache from the cloud. On a fresh context (empty local
+    // DB, e.g. a newly installed PWA) block so Home does not flash empty;
+    // otherwise refresh in the background so an active device stays current.
+    const hydrate = async (userId: string) => {
+      try {
+        if (await hasLocalData(userId)) {
+          void pullUserData(userId).then((ok) => {
+            if (ok && active) refreshStores(userId);
+          });
+        } else {
+          await pullUserData(userId);
+        }
+      } catch (err) {
+        console.warn('Failed to hydrate local data from the cloud.', err);
+      }
+    };
+
     supabase.auth.getSession().then(async ({ data }) => {
       if (!active) return;
       const user = data.session?.user;
@@ -35,8 +63,13 @@ export default function AuthGate() {
       try {
         const loadedProfile = await pullProfile(user.id);
         if (!active) return;
-        if (loadedProfile) setSignedIn(loadedProfile);
-        else setSignedOut();
+        if (!loadedProfile) {
+          setSignedOut();
+          return;
+        }
+        await hydrate(user.id);
+        if (!active) return;
+        setSignedIn(loadedProfile);
       } catch (err) {
         console.error('Failed to load profile after session check.', err);
         if (active) setSignedOut();
@@ -54,7 +87,10 @@ export default function AuthGate() {
       try {
         const loadedProfile = await pullProfile(user.id);
         if (!active) return;
-        if (loadedProfile) setSignedIn(loadedProfile);
+        if (!loadedProfile) return;
+        await hydrate(user.id);
+        if (!active) return;
+        setSignedIn(loadedProfile);
       } catch (err) {
         console.error('Failed to load profile after auth state change.', err);
         if (active) setSignedOut();

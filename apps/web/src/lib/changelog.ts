@@ -12,6 +12,18 @@ export interface Release {
 // plain, the same voice as the rest of the app.
 export const CHANGELOG: Release[] = [
   {
+    version: '0.5.0',
+    date: '2026-06-29',
+    major: true,
+    title: 'Your habits, in step across every device',
+    notes: [
+      'Sign in anywhere and everything is already there. Open Harmony on a new phone or tablet and your areas, habits, and history arrive on their own.',
+      'Changes now sync the moment you make them, so your phone and your tablet stay in step without a refresh.',
+      'Forgot your password? You can set a new one from the email link and get straight back in.',
+      'A handful of quiet fixes: the greeting reads cleanly, the Me screen loads instantly, and tall sheets stay clear of the status bar while you type.',
+    ],
+  },
+  {
     version: '0.4.0',
     date: '2026-06-29',
     major: true,

@@ -121,7 +121,11 @@ function AreaSelectChip({
       className="flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-colors disabled:opacity-40"
       style={
         selected
-          ? { backgroundColor: hexToRgba(color, 0.12), color }
+          ? {
+              backgroundColor: hexToRgba(color, 0.22),
+              color,
+              boxShadow: `inset 0 0 0 1.5px ${hexToRgba(color, 0.55)}`,
+            }
           : { backgroundColor: 'var(--parchment-200)', color: 'var(--ink-700)' }
       }
     >

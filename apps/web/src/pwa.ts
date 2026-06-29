@@ -46,10 +46,19 @@ function showUpdatingOverlay() {
 export function setupPWA() {
   if (!('serviceWorker' in navigator)) return;
 
+  // Whether a worker already controls this page at startup. On the very first
+  // visit there is none: the worker installs, calls clients.claim(), and fires
+  // controllerchange for the FIRST time. Reloading on that first claim would
+  // restart the app mid-session (and wipe in-memory state like a half-finished
+  // onboarding draft). Only reload when an EXISTING controller is replaced by a
+  // genuinely new worker, which is the real "an update shipped" case.
+  const hadControllerAtStartup = Boolean(navigator.serviceWorker.controller);
+
   registerSW({ immediate: true });
 
   let reloading = false;
   navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (!hadControllerAtStartup) return;
     if (reloading) return;
     reloading = true;
     showUpdatingOverlay();

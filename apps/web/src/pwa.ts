@@ -17,7 +17,7 @@ function showUpdatingOverlay() {
     'align-items:center',
     'justify-content:center',
     'gap:16px',
-    'background:#FAF9F6',
+    'background:#FBF1E4',
     'font-family:"Plus Jakarta Sans",system-ui,sans-serif',
     'color:#6B6960',
     'font-size:14px',
@@ -28,7 +28,7 @@ function showUpdatingOverlay() {
     'width:14px',
     'height:14px',
     'border-radius:9999px',
-    'background:#574887',
+    'background:#B5532F',
     'animation:harmony-pulse 0.9s ease-in-out infinite',
   ].join(';');
 

@@ -3,33 +3,36 @@
    inline styles). Fonts are loaded via <link> in index.html. */
 
 :root {
-  /* Quiet Paper surfaces and ink */
-  --parchment-50: #fdfcf9;
-  --parchment-100: #faf9f6;
-  --parchment-200: #f0ede6;
-  --parchment-300: #e0dcd2;
+  /* Warm paper surfaces and ink (Terracotta + Amber theme). The token names
+     are kept (parchment / ink / iris) so every existing class and var picks up
+     the new palette without renaming anything across the app. */
+  --parchment-50: #fffaf1;
+  --parchment-100: #fbf1e4;
+  --parchment-200: #f3e4cf;
+  --parchment-300: #e7d3b4;
 
-  --ink-900: #1a1a18;
-  --ink-700: #3d3d38;
-  --ink-500: #6b6960;
-  --ink-300: #9b9890;
-  --ink-100: #d4d2cb;
+  --ink-900: #23190f;
+  --ink-700: #483a27;
+  --ink-500: #76654c;
+  --ink-300: #ab977a;
+  --ink-100: #dcccb4;
 
-  /* Iris, the single brand colour */
-  --iris-700: #3a2870;
-  --iris-600: #4a3878;
-  --iris-500: #574887;
-  --iris-400: #6e5fa0;
-  --iris-100: #ede8f5;
-  --iris-50: #f6f3fa;
+  /* Brand primary, now terracotta (still named iris in the token system) */
+  --iris-700: #7a3318;
+  --iris-600: #944021;
+  --iris-500: #b5532f;
+  --iris-400: #c9714a;
+  --iris-100: #f6e0cf;
+  --iris-50: #fbf0e4;
 
-  /* Status colours, used sparingly */
+  /* Status colours, used sparingly. Sage warmed to an olive that sits on the
+     cream; rose kept distinct from the terracotta primary for "quiet/below". */
   --rose-600: #a14a5e;
   --rose-500: #b85c72;
   --rose-100: #f3e2e6;
-  --sage-600: #3d5a3e;
-  --sage-500: #4f7942;
-  --sage-100: #e8f0e6;
+  --sage-600: #47602a;
+  --sage-500: #5b7a35;
+  --sage-100: #eaf0dd;
 
   /* Type */
   --font-serif: 'DM Serif Display', Georgia, serif;

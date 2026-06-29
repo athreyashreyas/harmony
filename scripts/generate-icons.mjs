@@ -11,8 +11,9 @@ import { dirname, join } from 'node:path';
 
 const OUT_DIR = join(dirname(fileURLToPath(import.meta.url)), '..', 'apps', 'web', 'public', 'icons');
 
-const PARCHMENT = [250, 249, 246];
-const IRIS = [87, 72, 135];
+// Warm paper (parchment-100) and terracotta primary, matching the app theme.
+const PARCHMENT = [251, 241, 228];
+const IRIS = [181, 83, 47];
 const WHITE = [255, 255, 255];
 
 function sdSegment(px, py, ax, ay, bx, by) {

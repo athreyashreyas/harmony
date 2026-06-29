@@ -182,7 +182,7 @@ function CustomAreaModal({
               backgroundColor: swatch.hex,
               boxShadow:
                 color === swatch.hex
-                  ? `0 0 0 2px #FDFCF9, 0 0 0 4px ${swatch.hex}`
+                  ? `0 0 0 2px #FFFAF1, 0 0 0 4px ${swatch.hex}`
                   : undefined,
             }}
           />

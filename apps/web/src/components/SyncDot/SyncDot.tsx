@@ -23,8 +23,8 @@ export default function SyncDot() {
       role="status"
       aria-label={label}
       title={label}
-      className="pointer-events-none fixed right-3 z-40"
-      style={{ top: 'calc(var(--safe-top) + 0.75rem)' }}
+      className="pointer-events-none fixed z-40"
+      style={{ top: 'calc(var(--safe-top) + 0.75rem)', right: 'calc(var(--safe-right) + 0.75rem)' }}
     >
       <motion.span
         className="block h-2 w-2 rounded-full"

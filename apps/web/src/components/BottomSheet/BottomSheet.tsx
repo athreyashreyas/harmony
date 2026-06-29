@@ -65,8 +65,15 @@ export default function BottomSheet({
             aria-modal="true"
             aria-label={title}
             tabIndex={-1}
-            className="scroll-ios relative flex max-h-[90%] flex-col rounded-t-sheet bg-parchment-50 shadow-sheet"
-            style={{ marginBottom: 'var(--keyboard-height, 0px)' }}
+            className="scroll-ios relative flex flex-col rounded-t-sheet bg-parchment-50 shadow-sheet"
+            // Lift above the keyboard, and cap the height to the room left
+            // between the status bar (safe-top) and the keyboard, so a tall
+            // sheet can never be pushed up under the status bar.
+            style={{
+              marginBottom: 'var(--keyboard-height, 0px)',
+              maxHeight: 'calc(100% - var(--keyboard-height, 0px) - var(--safe-top, 0px) - 0.5rem)',
+              transition: 'margin-bottom 0.2s ease, max-height 0.2s ease',
+            }}
             initial={{ y: '100%' }}
             animate={{ y: 0 }}
             exit={{ y: '100%' }}

@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { supabase, isSupabaseConfigured } from '../lib/supabase/client';
-import { hasLocalData, pullProfile, pullUserData } from '../lib/supabase/sync';
+import { hasLocalData, pullProfile, pullUserData, subscribeUserRealtime, type SyncTable } from '../lib/supabase/sync';
 import { useSyncStore } from '../lib/sync/status';
 import { useAreas } from '../store/useAreas';
 import { useHabits } from '../store/useHabits';
@@ -123,18 +123,31 @@ export default function AuthGate() {
   useEffect(() => {
     if (status !== 'signed-in' || !profile) return;
     const userId = profile.id;
+
+    // Instant cross-device updates: apply each remote change to Dexie and
+    // reload just the affected store.
+    const refreshTable = (table: SyncTable) => {
+      if (table === 'areas') void useAreas.getState().load(userId);
+      else if (table === 'habits') void useHabits.getState().load(userId);
+      else if (table === 'logs') void useLogs.getState().load(userId);
+      else void useSettings.getState().load();
+    };
+    const unsubscribe = subscribeUserRealtime(userId, refreshTable);
+
+    // Backstops for anything realtime might miss (dropped socket, sleep): pull
+    // on foreground, on reconnect, and a gentle poll while visible.
     const onVisible = () => {
       if (document.visibilityState === 'visible') void syncNow(userId);
     };
     const onOnline = () => void syncNow(userId);
     document.addEventListener('visibilitychange', onVisible);
     window.addEventListener('online', onOnline);
-    // Gentle poll so two devices left open both converge, even without a focus
-    // event. Only runs while the tab is visible.
     const interval = window.setInterval(() => {
       if (document.visibilityState === 'visible') void syncNow(userId);
     }, 60_000);
+
     return () => {
+      unsubscribe();
       document.removeEventListener('visibilitychange', onVisible);
       window.removeEventListener('online', onOnline);
       window.clearInterval(interval);

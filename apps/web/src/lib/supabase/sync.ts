@@ -368,6 +368,17 @@ function rowToLog(r: LogRow): Log {
   };
 }
 
+function rowToSettings(s: SettingsRow): NotificationSettings {
+  return {
+    masterEnabled: s.master_enabled,
+    mutedAreaIds: s.muted_area_ids ?? [],
+    dndStart: s.dnd_start,
+    dndEnd: s.dnd_end,
+    habitReminders: s.habit_reminders ?? true,
+    dailySummary: s.daily_summary ?? true,
+  };
+}
+
 // True once the local cache has at least one area for this user, i.e. this
 // device/context has been hydrated before.
 export async function hasLocalData(userId: string): Promise<boolean> {
@@ -433,18 +444,67 @@ export async function pullUserData(userId: string): Promise<boolean> {
     // (mute, quiet hours, the reminder toggles) stays in agreement.
     const s = settingsRes.data as SettingsRow | null;
     if (s) {
-      const settings: NotificationSettings = {
-        masterEnabled: s.master_enabled,
-        mutedAreaIds: s.muted_area_ids ?? [],
-        dndStart: s.dnd_start,
-        dndEnd: s.dnd_end,
-        habitReminders: s.habit_reminders ?? true,
-        dailySummary: s.daily_summary ?? true,
-      };
-      await db.settings.put({ key: NOTIFICATION_SETTINGS_KEY, value: settings });
+      await db.settings.put({ key: NOTIFICATION_SETTINGS_KEY, value: rowToSettings(s) });
     }
     return true;
   });
+}
+
+// --- Realtime (instant cross-device updates) -------------------------------
+// Subscribe to the user's rows via Supabase Realtime so a change on one device
+// lands on the others within a moment, instead of waiting for the next pull.
+// Applies each change straight into Dexie, then calls onChange(table) so the UI
+// store can reload. Returns an unsubscribe function. Requires the tables to be
+// in the `supabase_realtime` publication (see the migration note).
+export type SyncTable = 'areas' | 'habits' | 'logs' | 'notification_settings';
+
+interface RealtimePayload {
+  eventType: 'INSERT' | 'UPDATE' | 'DELETE';
+  new: Record<string, unknown>;
+  old: Record<string, unknown>;
+}
+
+export function subscribeUserRealtime(
+  userId: string,
+  onChange: (table: SyncTable) => void,
+): () => void {
+  const client = supabase;
+  if (!client) return () => {};
+
+  const filter = `user_id=eq.${userId}`;
+  const channel = client.channel(`harmony:${userId}`);
+
+  const apply = async (table: SyncTable, p: RealtimePayload) => {
+    if (table === 'notification_settings') {
+      if (p.eventType !== 'DELETE') {
+        await db.settings.put({ key: NOTIFICATION_SETTINGS_KEY, value: rowToSettings(p.new as unknown as SettingsRow) });
+      }
+    } else if (p.eventType === 'DELETE') {
+      const id = p.old.id as string | undefined;
+      if (id) await db[table].delete(id);
+    } else if (table === 'areas') {
+      await db.areas.put(rowToArea(p.new as unknown as AreaRow));
+    } else if (table === 'habits') {
+      await db.habits.put(rowToHabit(p.new as unknown as HabitRow));
+    } else {
+      await db.logs.put(rowToLog(p.new as unknown as LogRow));
+    }
+    onChange(table);
+  };
+
+  const tables: SyncTable[] = ['areas', 'habits', 'logs', 'notification_settings'];
+  for (const table of tables) {
+    channel.on(
+      'postgres_changes',
+      { event: '*', schema: 'public', table, filter },
+      (payload) => void apply(table, payload as unknown as RealtimePayload),
+    );
+  }
+  channel.subscribe();
+
+  return () => {
+    void client.removeChannel(channel);
+  };
 }
 
 // Deletes everything the signed in user can reach under row level security

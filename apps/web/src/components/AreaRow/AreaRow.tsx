@@ -80,13 +80,21 @@ export default function AreaRow({
       value={area}
       dragListener={false}
       dragControls={dragControls}
-      className="flex items-center gap-3 rounded-card bg-parchment-50 px-3 py-3 shadow-card"
+      whileDrag={{ scale: 1.02, boxShadow: '0 10px 26px rgba(35, 25, 15, 0.18)' }}
+      transition={{ type: 'spring', stiffness: 600, damping: 40 }}
+      className="flex touch-pan-y select-none items-center gap-3 rounded-card bg-parchment-50 px-3 py-3 shadow-card"
     >
       <button
         type="button"
-        onPointerDown={(e) => dragControls.start(e)}
+        onPointerDown={(e) => {
+          // Begin dragging straight from the press, and keep the gesture from
+          // turning into a scroll, text selection, or long-press callout.
+          e.preventDefault();
+          dragControls.start(e);
+        }}
         aria-label={`Reorder ${area.name}`}
-        className="shrink-0 cursor-grab touch-none text-ink-300 active:cursor-grabbing"
+        style={{ touchAction: 'none' }}
+        className="-m-1.5 shrink-0 cursor-grab touch-none p-1.5 text-ink-300 active:cursor-grabbing"
       >
         <GripIcon />
       </button>

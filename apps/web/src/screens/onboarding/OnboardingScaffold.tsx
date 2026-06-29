@@ -34,7 +34,13 @@ export default function OnboardingScaffold({
         </div>
       </header>
 
-      <main className="scroll-ios relative z-10 min-h-0 flex-1 overflow-y-auto px-5">
+      <main
+        className="scroll-ios relative z-10 min-h-0 flex-1 overflow-y-auto px-5"
+        // Room equal to the on-screen keyboard so a focused field scrolls up
+        // within this region instead of iOS shoving the whole page (and the
+        // header) up under the status bar.
+        style={{ paddingBottom: 'var(--keyboard-height, 0px)' }}
+      >
         <div className="mx-auto w-full max-w-md">{children}</div>
       </main>
 

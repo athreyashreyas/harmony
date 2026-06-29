@@ -10,6 +10,23 @@ export interface Setting {
   value: unknown;
 }
 
+// One queued write waiting to reach Supabase. Writes go to Dexie first and are
+// enqueued here; a flusher drains them in order, so an edit made offline (or
+// when a mirror call fails) is retried instead of lost. Auto-incrementing id
+// preserves the order writes were made, which also respects table FK order
+// (an area is created before its habits before their logs).
+export type OutboxTable = 'areas' | 'habits' | 'logs' | 'nudge_history' | 'notification_settings';
+
+export interface OutboxItem {
+  id?: number;
+  op: 'upsert' | 'delete';
+  table: OutboxTable;
+  // For upsert: the snake_case row. For delete: enough to identify the row.
+  payload: Record<string, unknown>;
+  onConflict?: string; // upsert conflict target (defaults to 'id')
+  createdAt: number;
+}
+
 export class HarmonyDB extends Dexie {
   profile!: Table<UserProfile, string>;
   areas!: Table<Area, string>;
@@ -17,6 +34,7 @@ export class HarmonyDB extends Dexie {
   logs!: Table<Log, string>;
   nudgeHistory!: Table<NudgeHistory, string>;
   settings!: Table<Setting, string>;
+  outbox!: Table<OutboxItem, number>;
 
   constructor() {
     super('harmony');
@@ -29,6 +47,10 @@ export class HarmonyDB extends Dexie {
       logs: 'id, userId, habitId, areaId, date, loggedAt, [habitId+date]',
       nudgeHistory: 'id, userId, templateId, areaId, sentAt',
       settings: 'key',
+    });
+    // v2 adds the offline write outbox.
+    this.version(2).stores({
+      outbox: '++id, createdAt',
     });
   }
 }

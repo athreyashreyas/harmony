@@ -1,7 +1,7 @@
 import type { Table } from 'dexie';
 import type { Area, Habit, Log, NotificationSettings, NudgeHistory, UserProfile } from '@harmony/shared';
 import { supabase } from './client';
-import { db } from '../db/schema';
+import { db, type OutboxItem } from '../db/schema';
 import { withSync } from '../sync/status';
 
 // Getting a profile row to and from Supabase, with Dexie as the on-device
@@ -123,28 +123,6 @@ function habitToRow(h: Habit) {
   };
 }
 
-// Best-effort mirror of the onboarding result to Supabase. Failures are
-// swallowed: Dexie already holds the source of truth, and reconciliation
-// happens in the background later.
-export async function mirrorOnboarding(areas: Area[], habits: Habit[]): Promise<void> {
-  const client = supabase;
-  if (!client) return;
-  await withSync(async () => {
-    try {
-      if (areas.length) {
-        const { error } = await client.from('areas').upsert(areas.map(areaToRow));
-        if (error) throw error;
-      }
-      if (habits.length) {
-        const { error } = await client.from('habits').upsert(habits.map(habitToRow));
-        if (error) throw error;
-      }
-    } catch (err) {
-      console.warn('Onboarding mirror to Supabase failed, will reconcile later.', err);
-    }
-  });
-}
-
 function logToRow(log: Log) {
   return {
     id: log.id,
@@ -155,60 +133,6 @@ function logToRow(log: Log) {
     logged_at: new Date(log.loggedAt).toISOString(),
     note: log.note,
   };
-}
-
-export async function mirrorLogUpsert(log: Log): Promise<void> {
-  const client = supabase;
-  if (!client) return;
-  await withSync(async () => {
-    try {
-      const { error } = await client.from('logs').upsert(logToRow(log));
-      if (error) throw error;
-    } catch (err) {
-      console.warn('Log mirror to Supabase failed, will reconcile later.', err);
-    }
-  });
-}
-
-export async function mirrorLogDelete(logId: string): Promise<void> {
-  const client = supabase;
-  if (!client) return;
-  await withSync(async () => {
-    try {
-      const { error } = await client.from('logs').delete().eq('id', logId);
-      if (error) throw error;
-    } catch (err) {
-      console.warn('Log delete mirror to Supabase failed, will reconcile later.', err);
-    }
-  });
-}
-
-// Single row mirrors for the edit flows (Phase 5): area and habit create,
-// edit, archive, and reorder all funnel through these.
-export async function mirrorAreaUpsert(area: Area): Promise<void> {
-  const client = supabase;
-  if (!client) return;
-  await withSync(async () => {
-    try {
-      const { error } = await client.from('areas').upsert(areaToRow(area));
-      if (error) throw error;
-    } catch (err) {
-      console.warn('Area mirror to Supabase failed, will reconcile later.', err);
-    }
-  });
-}
-
-export async function mirrorHabitUpsert(habit: Habit): Promise<void> {
-  const client = supabase;
-  if (!client) return;
-  await withSync(async () => {
-    try {
-      const { error } = await client.from('habits').upsert(habitToRow(habit));
-      if (error) throw error;
-    } catch (err) {
-      console.warn('Habit mirror to Supabase failed, will reconcile later.', err);
-    }
-  });
 }
 
 function nudgeToRow(n: NudgeHistory) {
@@ -224,19 +148,6 @@ function nudgeToRow(n: NudgeHistory) {
   };
 }
 
-export async function mirrorNudge(nudge: NudgeHistory): Promise<void> {
-  const client = supabase;
-  if (!client) return;
-  await withSync(async () => {
-    try {
-      const { error } = await client.from('nudge_history').upsert(nudgeToRow(nudge));
-      if (error) throw error;
-    } catch (err) {
-      console.warn('Nudge mirror to Supabase failed, will reconcile later.', err);
-    }
-  });
-}
-
 function notificationSettingsToRow(userId: string, s: NotificationSettings) {
   return {
     user_id: userId,
@@ -249,18 +160,93 @@ function notificationSettingsToRow(userId: string, s: NotificationSettings) {
   };
 }
 
-export async function mirrorNotificationSettings(userId: string, settings: NotificationSettings): Promise<void> {
+// --- Outbox (durable, offline-tolerant writes) -----------------------------
+// Every write goes to Dexie first (source of truth) and is queued here, then a
+// flusher drains it to Supabase in order. A write made offline, or one whose
+// request fails, stays queued and is retried, instead of being lost.
+
+async function enqueue(item: Omit<OutboxItem, 'id' | 'createdAt'>): Promise<void> {
+  await db.outbox.add({ ...item, createdAt: Date.now() });
+  void flushOutbox();
+}
+
+let flushing = false;
+
+// Drains the outbox to Supabase in insertion order. Stops (and keeps the rest)
+// on a network error so it can retry later; drops an item the server actively
+// rejects so one bad write can't block the queue forever. Returns when it can
+// make no further progress.
+export async function flushOutbox(): Promise<void> {
   const client = supabase;
-  if (!client) return;
-  await withSync(async () => {
-    try {
-      const { error } = await client
-        .from('notification_settings')
-        .upsert(notificationSettingsToRow(userId, settings));
-      if (error) throw error;
-    } catch (err) {
-      console.warn('Notification settings mirror to Supabase failed, will reconcile later.', err);
+  if (!client || flushing || !navigator.onLine) return;
+  flushing = true;
+  try {
+    for (;;) {
+      if (!navigator.onLine) break;
+      const item = await db.outbox.orderBy('id').first();
+      if (!item) break;
+
+      const result = await withSync(async () => {
+        let error: { code?: string } | null = null;
+        if (item.op === 'delete') {
+          if (item.table === 'logs') {
+            ({ error } = await client.from('logs').delete().eq('id', item.payload.id as string));
+          }
+        } else {
+          ({ error } = await client
+            .from(item.table)
+            .upsert(item.payload, item.onConflict ? { onConflict: item.onConflict } : undefined));
+        }
+        if (!error) return 'ok' as const;
+        // A PostgrestError (server reached, request rejected) carries a code;
+        // a bare network failure does not. Drop the former, retry the latter.
+        if (error.code) {
+          console.warn('Outbox item rejected by server, dropping.', item.table, item.op, error);
+          return 'drop' as const;
+        }
+        console.warn('Outbox flush hit a network error, will retry.', error);
+        return 'retry' as const;
+      });
+
+      if (result === 'retry') break;
+      await db.outbox.delete(item.id!);
     }
+  } finally {
+    flushing = false;
+  }
+}
+
+export async function mirrorOnboarding(areas: Area[], habits: Habit[]): Promise<void> {
+  for (const area of areas) await enqueue({ op: 'upsert', table: 'areas', payload: areaToRow(area) });
+  for (const habit of habits) await enqueue({ op: 'upsert', table: 'habits', payload: habitToRow(habit) });
+}
+
+export async function mirrorLogUpsert(log: Log): Promise<void> {
+  await enqueue({ op: 'upsert', table: 'logs', payload: logToRow(log) });
+}
+
+export async function mirrorLogDelete(logId: string): Promise<void> {
+  await enqueue({ op: 'delete', table: 'logs', payload: { id: logId } });
+}
+
+export async function mirrorAreaUpsert(area: Area): Promise<void> {
+  await enqueue({ op: 'upsert', table: 'areas', payload: areaToRow(area) });
+}
+
+export async function mirrorHabitUpsert(habit: Habit): Promise<void> {
+  await enqueue({ op: 'upsert', table: 'habits', payload: habitToRow(habit) });
+}
+
+export async function mirrorNudge(nudge: NudgeHistory): Promise<void> {
+  await enqueue({ op: 'upsert', table: 'nudge_history', payload: nudgeToRow(nudge) });
+}
+
+export async function mirrorNotificationSettings(userId: string, settings: NotificationSettings): Promise<void> {
+  await enqueue({
+    op: 'upsert',
+    table: 'notification_settings',
+    payload: notificationSettingsToRow(userId, settings),
+    onConflict: 'user_id',
   });
 }
 
@@ -549,4 +535,12 @@ export async function deleteAccount(userId: string): Promise<{ accountRemoved: b
   if (!accountRemoved) await deleteUserDataViaRls(userId);
   await db.delete();
   return { accountRemoved };
+}
+
+// Clears all local (Dexie) data without touching the cloud. Used on sign-out so
+// the next account on this device starts clean and nothing is left at rest. A
+// returning user re-hydrates from the cloud on sign-in. Uses clear() rather than
+// delete() so the database stays open for the next session.
+export async function wipeLocalData(): Promise<void> {
+  await Promise.all(db.tables.map((t) => t.clear()));
 }

@@ -31,22 +31,8 @@ export default function BottomSheet({
     return () => window.removeEventListener('keydown', onKey);
   }, [open, onClose]);
 
-  useEffect(() => {
-    if (!open || !window.visualViewport) return;
-    const viewport = window.visualViewport;
-    function update() {
-      const overlap = window.innerHeight - viewport.height - viewport.offsetTop;
-      document.documentElement.style.setProperty('--keyboard-height', `${Math.max(0, overlap)}px`);
-    }
-    update();
-    viewport.addEventListener('resize', update);
-    viewport.addEventListener('scroll', update);
-    return () => {
-      viewport.removeEventListener('resize', update);
-      viewport.removeEventListener('scroll', update);
-      document.documentElement.style.setProperty('--keyboard-height', '0px');
-    };
-  }, [open]);
+  // --keyboard-height is kept current app-wide by initKeyboardTracking (see
+  // lib/keyboard.ts); the panel styles below read it to lift above the keyboard.
 
   return createPortal(
     <AnimatePresence>

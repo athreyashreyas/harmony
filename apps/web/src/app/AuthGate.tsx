@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { supabase, isSupabaseConfigured } from '../lib/supabase/client';
 import { ensureSubscribed } from '../lib/push/subscribe';
-import { hasLocalData, pullProfile, pullUserData, subscribeUserRealtime, type SyncTable } from '../lib/supabase/sync';
+import { flushOutbox, hasLocalData, pullProfile, pullUserData, subscribeUserRealtime, type SyncTable } from '../lib/supabase/sync';
 import { refreshStores, syncNow } from '../lib/sync/refresh';
 import { useAreas } from '../store/useAreas';
 import { useHabits } from '../store/useHabits';
@@ -35,6 +35,9 @@ export default function AuthGate() {
     // otherwise refresh in the background so an active device stays current.
     const hydrate = async (userId: string) => {
       try {
+        // Send any writes queued offline before pulling, so the authoritative
+        // reconcile sees them on the server rather than deleting them locally.
+        await flushOutbox();
         if (await hasLocalData(userId)) {
           void pullUserData(userId).then((ok) => {
             if (ok && active) refreshStores(userId);

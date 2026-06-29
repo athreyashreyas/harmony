@@ -1,4 +1,4 @@
-import { pullUserData } from '../supabase/sync';
+import { flushOutbox, pullUserData } from '../supabase/sync';
 import { useSyncStore } from './status';
 import { useAreas } from '../../store/useAreas';
 import { useHabits } from '../../store/useHabits';
@@ -19,6 +19,9 @@ export function refreshStores(userId: string): void {
 // a write that hasn't reached the server yet. Used by focus/online/poll.
 export async function syncNow(userId: string): Promise<void> {
   if (!navigator.onLine) return;
+  // Send any queued local writes up first, so the authoritative pull can't
+  // reconcile-away a change that simply hasn't reached the server yet.
+  await flushOutbox();
   if (useSyncStore.getState().pending > 0) return;
   const ok = await pullUserData(userId);
   if (ok) refreshStores(userId);

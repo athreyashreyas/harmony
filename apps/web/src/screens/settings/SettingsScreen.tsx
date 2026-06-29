@@ -10,7 +10,7 @@ import { APP_VERSION, CHANGELOG } from '../../lib/changelog';
 import { reorderAreas, saveArea } from '../../lib/db/queries';
 import { enablePush, pushReadiness, type PushReadiness } from '../../lib/push/subscribe';
 import { supabase } from '../../lib/supabase/client';
-import { deleteAccount } from '../../lib/supabase/sync';
+import { deleteAccount, flushOutbox, wipeLocalData } from '../../lib/supabase/sync';
 import { useUserData } from '../../lib/useUserData';
 import { useAreas } from '../../store/useAreas';
 import { useSettings } from '../../store/useSettings';
@@ -57,7 +57,11 @@ export default function SettingsScreen() {
   const mutedSet = useMemo(() => new Set(dnd.mutedAreaIds), [dnd.mutedAreaIds]);
 
   async function handleSignOut() {
+    // Flush queued writes while still authenticated, then sign out and wipe the
+    // local cache so nothing is left on this device for the next account.
+    await flushOutbox();
     await supabase?.auth.signOut();
+    await wipeLocalData();
     setSignedOut();
   }
 

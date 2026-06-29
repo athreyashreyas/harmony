@@ -5,6 +5,7 @@ import { MotionConfig } from 'framer-motion';
 import Router from './app/Router';
 import ErrorBoundary from './components/ErrorBoundary/ErrorBoundary';
 import { initInstallCapture } from './lib/push/install';
+import { initKeyboardTracking } from './lib/keyboard';
 import { initSyncStatus } from './lib/sync/status';
 import { setupPWA } from './pwa';
 import './styles/index.css';
@@ -15,6 +16,8 @@ initInstallCapture();
 setupPWA();
 // Track online/offline for the sync dot (section 20).
 initSyncStatus();
+// Keep --keyboard-height current so inputs stay clear of the on-screen keyboard.
+initKeyboardTracking();
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

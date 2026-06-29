@@ -130,11 +130,15 @@ async function processUser(env: Env, user: UserProfile, now: Date): Promise<void
   const bundle = await getUserBundle(env, user.id);
   if (!bundle.settings.masterEnabled) return;
   if (bundle.subscriptions.length === 0) return;
-  if (withinDnd(now, user.timezone, bundle.settings.dndStart, bundle.settings.dndEnd)) return;
 
-  // Time-of-day reminders and the evening summary are independent of the drift
-  // cap; run them first, then the drift nudges.
+  const inQuietHours = withinDnd(now, user.timezone, bundle.settings.dndStart, bundle.settings.dndEnd);
+
+  // A per-habit reminder is a time the user chose deliberately, so it fires even
+  // during quiet hours. The drift nudges and the evening round-up are ours to
+  // time, so they stay quiet during quiet hours.
   await sendHabitReminders(env, user, now, bundle);
+  if (inQuietHours) return;
+
   await sendDailySummary(env, user, now, bundle);
   await sendDriftNudges(env, user, now, bundle);
 }

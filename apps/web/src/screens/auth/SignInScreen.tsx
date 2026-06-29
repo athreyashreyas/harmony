@@ -2,9 +2,16 @@ import { useState } from 'react';
 import { Link, Navigate } from 'react-router-dom';
 import { errorMessage } from '../../lib/errorMessage';
 import { supabase } from '../../lib/supabase/client';
-import { pullProfile } from '../../lib/supabase/sync';
+import { createProfile, pullProfile } from '../../lib/supabase/sync';
 import { useUser } from '../../store/useUser';
 import AuthLayout, { FieldLabel, PrimaryButton, TextInput } from './AuthLayout';
+
+// Fallback display name from an email's local part, used only when we have to
+// create a profile at sign-in (email-confirmation flow) with no stashed name.
+function nameFromEmail(email: string): string {
+  const local = email.split('@')[0]?.split(/[.\-_+]/)[0] ?? '';
+  return local ? local.charAt(0).toUpperCase() + local.slice(1) : 'Friend';
+}
 
 export default function SignInScreen() {
   const status = useUser((s) => s.status);
@@ -40,10 +47,33 @@ export default function SignInScreen() {
 
     try {
       const profile = await pullProfile(data.user.id);
-      if (profile) setSignedIn(profile);
-      else setError('Signed in, but your profile could not be found.');
+      if (profile) {
+        setSignedIn(profile);
+      } else {
+        // No profile row yet: this happens when sign-up required email
+        // confirmation, which defers profile creation to first sign-in. Create
+        // it now, using the name stashed at sign-up (or a fallback).
+        let pending = '';
+        try {
+          pending = localStorage.getItem('harmony.pendingFirstName') ?? '';
+        } catch {
+          // ignore
+        }
+        const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        const created = await createProfile({
+          id: data.user.id,
+          firstName: pending.trim() || nameFromEmail(email),
+          timezone,
+        });
+        try {
+          localStorage.removeItem('harmony.pendingFirstName');
+        } catch {
+          // ignore
+        }
+        setSignedIn(created);
+      }
     } catch (err) {
-      console.error('pullProfile failed', err);
+      console.error('Profile load or creation failed', err);
       setError(errorMessage(err, 'Something went wrong loading your profile.'));
     } finally {
       setSubmitting(false);

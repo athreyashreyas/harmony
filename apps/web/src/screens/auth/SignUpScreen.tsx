@@ -43,7 +43,13 @@ export default function SignUpScreen() {
 
     if (!data.session) {
       // Email confirmation is required before a session exists. The profile
-      // gets created on first sign in instead, once there is one.
+      // gets created on first sign in instead, once there is one. Stash the
+      // name so that sign-in can use it when it creates the profile.
+      try {
+        localStorage.setItem('harmony.pendingFirstName', firstName.trim());
+      } catch {
+        // ignore
+      }
       setNeedsConfirmation(true);
       setSubmitting(false);
       return;

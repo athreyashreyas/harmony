@@ -80,6 +80,7 @@ export default function AreaRow({
     >
       <button
         type="button"
+        data-no-pull
         onPointerDown={(e) => {
           // Begin dragging straight from the press, and keep the gesture from
           // turning into a scroll, text selection, or long-press callout.

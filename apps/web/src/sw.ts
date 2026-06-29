@@ -29,9 +29,12 @@ interface PushPayload {
 self.addEventListener('push', (event) => {
   const data: PushPayload = event.data?.json() ?? {};
   const { title, body, areaId, url } = data;
+  // The OS already shows the app name ("Harmony") as the banner header, so the
+  // notification's own heading should be the message itself, not "Harmony"
+  // again. Use the message (body) as the heading and omit the second line.
+  const heading = body || title || 'Harmony';
   event.waitUntil(
-    self.registration.showNotification(title ?? 'Harmony', {
-      body,
+    self.registration.showNotification(heading, {
       icon: '/icons/icon-192.png',
       badge: '/icons/badge.png',
       tag: areaId ? `area-${areaId}` : undefined, // coalesce per-area nudges

@@ -3,31 +3,12 @@ import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { supabase, isSupabaseConfigured } from '../lib/supabase/client';
 import { ensureSubscribed } from '../lib/push/subscribe';
 import { hasLocalData, pullProfile, pullUserData, subscribeUserRealtime, type SyncTable } from '../lib/supabase/sync';
-import { useSyncStore } from '../lib/sync/status';
+import { refreshStores, syncNow } from '../lib/sync/refresh';
 import { useAreas } from '../store/useAreas';
 import { useHabits } from '../store/useHabits';
 import { useLogs } from '../store/useLogs';
 import { useSettings } from '../store/useSettings';
 import { useUser } from '../store/useUser';
-
-// Reload the data stores from Dexie after a pull, so a device that was already
-// showing data picks up anything fetched from the cloud.
-function refreshStores(userId: string) {
-  void useAreas.getState().load(userId);
-  void useHabits.getState().load(userId);
-  void useLogs.getState().load(userId);
-  void useSettings.getState().load();
-}
-
-// A safe re-sync: pull from the cloud and refresh the UI, but only when online
-// and nothing is mid-mirror (so the authoritative reconcile can't race a write
-// that hasn't reached the server yet).
-async function syncNow(userId: string) {
-  if (!navigator.onLine) return;
-  if (useSyncStore.getState().pending > 0) return;
-  const ok = await pullUserData(userId);
-  if (ok) refreshStores(userId);
-}
 
 // Gates the protected routes (onboarding and the main shell). Listens for
 // Supabase auth changes, hydrates the local profile, and redirects based on

@@ -15,12 +15,11 @@ export const CHANGELOG: Release[] = [
     version: '0.7.0',
     date: '2026-06-29',
     major: true,
-    title: 'Reminders that actually arrive, and pull to refresh',
+    title: 'Reminders that actually arrive',
     notes: [
       'Notifications now work end to end and land within about a minute of the time you set, on every device you turn them on.',
       'Each device keeps its own reminders quietly in order, and the app heals a device that looked on but had quietly slipped off.',
       'Notification text reads cleanly now: just Harmony, then your message.',
-      'Pull down from the top of any screen to refresh: it pulls your latest from the cloud and checks for a new version.',
     ],
   },
   {

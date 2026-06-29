@@ -1,4 +1,4 @@
-import { createContext, useContext, useMemo, useState, type ReactNode } from 'react';
+import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 import type { Cadence, Importance, TimeOfDay } from '@harmony/shared';
 import type { DraftArea, DraftHabits } from './onboardingTypes';
 
@@ -14,20 +14,47 @@ interface OnboardingContextValue {
   setHabitName: (areaId: string, name: string) => void;
   setHabitCadence: (areaId: string, cadence: Cadence) => void;
   setHabitTimeOfDay: (areaId: string, timeOfDay: TimeOfDay) => void;
+  clearDraft: () => void;
 }
 
 const OnboardingContext = createContext<OnboardingContextValue | null>(null);
 
 const DEFAULT_CADENCE: Cadence = { kind: 'times-per-week', times: 3 };
 const DEFAULT_TIME: TimeOfDay = 'anytime';
+const DRAFT_KEY = 'harmony.onboardingDraft';
 
 function newId(): string {
   return crypto.randomUUID();
 }
 
+// The draft lives in localStorage as well as memory so a reload from any cause
+// (a service worker update, an accidental refresh, the OS reclaiming the tab)
+// never loses a half-finished onboarding.
+function loadDraft(): { areas: DraftArea[]; habits: DraftHabits } {
+  try {
+    const raw = localStorage.getItem(DRAFT_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw) as { areas?: DraftArea[]; habits?: DraftHabits };
+      return { areas: parsed.areas ?? [], habits: parsed.habits ?? {} };
+    }
+  } catch {
+    // Corrupt or unavailable storage just means we start fresh.
+  }
+  return { areas: [], habits: {} };
+}
+
 export function OnboardingProvider({ children }: { children: ReactNode }) {
-  const [areas, setAreas] = useState<DraftArea[]>([]);
-  const [habits, setHabits] = useState<DraftHabits>({});
+  // Lazy initializers so the draft is read from storage once, on mount.
+  const [areas, setAreas] = useState<DraftArea[]>(() => loadDraft().areas);
+  const [habits, setHabits] = useState<DraftHabits>(() => loadDraft().habits);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(DRAFT_KEY, JSON.stringify({ areas, habits }));
+    } catch {
+      // Best effort: persistence is a safety net, not a hard requirement.
+    }
+  }, [areas, habits]);
 
   const value = useMemo<OnboardingContextValue>(() => {
     function ensureHabit(prev: DraftHabits, areaId: string) {
@@ -63,6 +90,15 @@ export function OnboardingProvider({ children }: { children: ReactNode }) {
         setHabits((prev) => ({ ...prev, [areaId]: { ...ensureHabit(prev, areaId), cadence } })),
       setHabitTimeOfDay: (areaId, timeOfDay) =>
         setHabits((prev) => ({ ...prev, [areaId]: { ...ensureHabit(prev, areaId), timeOfDay } })),
+      clearDraft: () => {
+        setAreas([]);
+        setHabits({});
+        try {
+          localStorage.removeItem(DRAFT_KEY);
+        } catch {
+          // ignore
+        }
+      },
     };
   }, [areas, habits]);
 

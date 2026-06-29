@@ -16,19 +16,51 @@ import InstallStep from './steps/InstallStep';
 const STEPS = ['welcome', 'areas', 'why', 'importance', 'habits', 'install'] as const;
 type Step = (typeof STEPS)[number];
 
+// Steps that iterate over the chosen areas; meaningless (and blank) with none.
+const AREA_STEPS: Step[] = ['why', 'importance', 'habits'];
+const STEP_KEY = 'harmony.onboardingStep';
+
 function todayISO(): string {
   return new Date().toISOString().slice(0, 10);
+}
+
+function loadStep(): Step {
+  try {
+    const saved = localStorage.getItem(STEP_KEY);
+    if (saved && (STEPS as readonly string[]).includes(saved)) return saved as Step;
+  } catch {
+    // ignore
+  }
+  return 'welcome';
 }
 
 function OnboardingInner() {
   const navigate = useNavigate();
   const profile = useUser((s) => s.profile);
   const updateProfile = useUser((s) => s.updateProfile);
-  const { areas, habits } = useOnboarding();
+  const { areas, habits, clearDraft } = useOnboarding();
 
-  const [step, setStep] = useState<Step>('welcome');
+  // Step is persisted too, so a reload resumes exactly where the user was
+  // rather than dropping them back at the welcome screen.
+  const [step, setStep] = useState<Step>(loadStep);
   const [direction, setDirection] = useState(1);
   const committedRef = useRef(false);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(STEP_KEY, step);
+    } catch {
+      // ignore
+    }
+  }, [step]);
+
+  // Safety net: never sit on an area-dependent step with no areas (which would
+  // render blank). Bounce back to the area picker instead.
+  useEffect(() => {
+    if (AREA_STEPS.includes(step) && areas.length === 0) {
+      setStep('areas');
+    }
+  }, [step, areas.length]);
 
   // Resume: if a prior run already committed areas (the app was closed on the
   // install screen), skip straight back to it rather than restarting.
@@ -103,6 +135,14 @@ function OnboardingInner() {
     if (!profile) return;
     await markOnboarded(profile.id);
     updateProfile({ ...profile, onboardedAt: Date.now() });
+    // The draft has served its purpose; clear it so a future visit to
+    // onboarding (e.g. a second account) starts clean.
+    clearDraft();
+    try {
+      localStorage.removeItem(STEP_KEY);
+    } catch {
+      // ignore
+    }
     navigate('/', { replace: true });
   }
 

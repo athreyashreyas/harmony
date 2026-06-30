@@ -12,6 +12,18 @@ export interface Release {
 // plain, the same voice as the rest of the app.
 export const CHANGELOG: Release[] = [
   {
+    version: '0.8.0',
+    date: '2026-06-30',
+    major: true,
+    title: 'Schedule anything, and a livelier home',
+    notes: [
+      'Far richer scheduling: alongside daily, weekdays, and certain days, you can now repeat every few weeks or every few months, which covers weekly, fortnightly, monthly, quarterly, and yearly.',
+      'Tap an area on the home screen (or a petal on the Bloom) to filter the day to just that area; hold a petal to lift it out of the wheel with your own words.',
+      'Open an area to reorder the habits inside it, the same way you order the areas themselves.',
+      'A larger Bloom that takes its place at the centre, and a clearer status dot that no longer brushes against the cards.',
+    ],
+  },
+  {
     version: '0.7.0',
     date: '2026-06-29',
     major: true,

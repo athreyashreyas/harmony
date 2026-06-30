@@ -1,3 +1,5 @@
+import type { GuideArtKind } from './guide';
+
 export interface Release {
   version: string;
   date: string; // 'YYYY-MM-DD'
@@ -5,6 +7,9 @@ export interface Release {
   notes: string[];
   // Feature releases worth reading; minor and fix releases leave this off.
   major?: boolean;
+  // Optional little demonstrations, shown under the release when its card is
+  // open, so "What's new" can show how to use a feature, not only describe it.
+  art?: GuideArtKind[];
 }
 
 // Release notes, newest first. The first entry's version is the single source
@@ -17,10 +22,11 @@ export const CHANGELOG: Release[] = [
     major: true,
     title: 'A guide to it all',
     notes: [
-      'A new guide, How Harmony works, with what is new up top and a gentle walk-through of everything: the Bloom, tending, areas and weights, tugs, the Log, insights, reminders, and syncing across your devices.',
-      'It greets you once after setting up, so your first moments have a friendly hand to hold.',
-      'Find it any time under Me, where the release notes used to live.',
+      'A new guide with two sides: What is new, and a gentle walk-through of everything, the Bloom, tending, areas and weights, tugs, the Log, insights, reminders, and syncing across your devices.',
+      'It greets you with the full guide once after setting up, so your first moments have a friendly hand to hold. Open it any time under Me to see what is new.',
+      'Every past release is here too, tucked under Earlier versions, each with a little picture of the feature it brought.',
     ],
+    art: ['guide'],
   },
   {
     version: '0.11.0',
@@ -33,6 +39,7 @@ export const CHANGELOG: Release[] = [
       "Tugs are clearer on a habit's page: their own heading among an area's habits, an outlined streak, and 'not tugged yet' rather than 'not tended'.",
       'Going back from a habit now returns you home, instead of retracing every neighbour you looked at along the way.',
     ],
+    art: ['weights'],
   },
   {
     version: '0.10.0',
@@ -45,6 +52,7 @@ export const CHANGELOG: Release[] = [
       'Added Socialising to the starting areas, and you can now keep up to twelve.',
       '"Archive" is now "Delete", since that is what it really does.',
     ],
+    art: ['tug'],
   },
   {
     version: '0.9.0',
@@ -56,6 +64,7 @@ export const CHANGELOG: Release[] = [
       'A new Sync popup behind the status dot: sync your data on demand, see at a glance whether you are offline, syncing, or up to date, and pick up a new version without closing the app.',
       'On the home screen, switch between Today and All to see every habit, not only the ones due today.',
     ],
+    art: ['log', 'sync'],
   },
   {
     version: '0.8.0',
@@ -68,6 +77,7 @@ export const CHANGELOG: Release[] = [
       'Open an area to reorder the habits inside it, the same way you order the areas themselves.',
       'A larger Bloom that takes its place at the centre, and a clearer status dot that no longer brushes against the cards.',
     ],
+    art: ['bloom', 'areas'],
   },
   {
     version: '0.7.0',

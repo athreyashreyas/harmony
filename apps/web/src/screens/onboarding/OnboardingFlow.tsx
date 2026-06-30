@@ -139,9 +139,9 @@ function OnboardingInner() {
     } catch {
       // ignore
     }
-    // First stop after onboarding is the guide, so the very first thing they
-    // meet is a kind walk-through. "Back to Harmony" from there lands home.
-    navigate('/guide', { replace: true });
+    // First stop after onboarding is the full walk-through (the Guide pane), so
+    // the very first thing they meet is a kind tour. "Back to Harmony" lands home.
+    navigate('/guide?pane=guide', { replace: true });
   }
 
   // Render-time guard: an area-dependent step with no areas would render blank,

@@ -207,9 +207,9 @@ async function sendHabitReminders(env: Env, user: UserProfile, now: Date, bundle
 
 function summaryText(unlogged: Habit[]): string {
   const names = unlogged.map((h) => h.name);
-  if (names.length === 1) return `${names[0]} is still waiting for you today. No rush.`;
-  if (names.length <= 3) return `A few are still waiting today: ${names.join(', ')}. Whatever you can.`;
-  return `${names.length} small things are still waiting today. Even one would be a kindness to yourself.`;
+  if (names.length === 1) return `${names[0]} is still waiting today. No rush.`;
+  if (names.length <= 3) return `Still waiting today: ${names.join(', ')}.`;
+  return `${names.length} things are still waiting today. Even one counts.`;
 }
 
 // #2: one evening round-up of habits due today that are still unlogged.

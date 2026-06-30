@@ -1,0 +1,278 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Harmony — Theme mockups</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root { color-scheme: light; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    background: #ece6dc;
+    color: #2b2218;
+    padding: 40px 20px 80px;
+    -webkit-font-smoothing: antialiased;
+  }
+  .page { max-width: 1240px; margin: 0 auto; }
+  .intro { max-width: 760px; margin: 0 auto 8px; text-align: center; }
+  .intro h1 { font-family: 'Fraunces', serif; font-size: 40px; font-weight: 600; letter-spacing: -0.01em; }
+  .intro p { margin-top: 14px; font-size: 15px; line-height: 1.6; color: #6a5e4c; }
+  .eyebrow { font-size: 11px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: #a08d70; }
+  .section-head { max-width: 1240px; margin: 56px auto 22px; }
+  .section-head h2 { font-family: 'Fraunces', serif; font-size: 26px; font-weight: 600; margin-top: 6px; }
+  .section-head p { margin-top: 6px; font-size: 14px; color: #6a5e4c; max-width: 720px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 30px; }
+
+  /* A phone frame. All colours come from CSS variables set per theme, the same
+     token model the app would use (one set of vars, swapped by theme id). */
+  .card { display: flex; flex-direction: column; }
+  .label { margin: 0 4px 12px; }
+  .label .name { font-family: 'Fraunces', serif; font-size: 19px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+  .label .tag { margin-top: 3px; font-size: 12.5px; line-height: 1.5; color: #6a5e4c; }
+  .badge { font-size: 10px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: #fff; background: #E0962A; border-radius: 999px; padding: 3px 8px; }
+  .badge.def { background: #8a7a5e; }
+  .badge.dark { background: #3a3f57; }
+
+  .phone {
+    position: relative;
+    border-radius: 34px;
+    padding: 14px 14px 18px;
+    background: var(--bg);
+    color: var(--ink);
+    box-shadow: 0 1px 1px rgba(0,0,0,.04), 0 18px 40px -18px rgba(40,30,15,.45);
+    border: 1px solid rgba(0,0,0,.05);
+    overflow: hidden;
+    aspect-ratio: 9 / 19;
+  }
+  .card.focus .phone { box-shadow: 0 1px 1px rgba(0,0,0,.04), 0 22px 48px -16px rgba(180,120,20,.5); outline: 2px solid var(--primary); outline-offset: 3px; }
+
+  .statusbar { display: flex; justify-content: space-between; align-items: center; padding: 2px 8px 10px; font-size: 12px; font-weight: 600; color: var(--ink); }
+  .statusbar .dots { display: flex; gap: 4px; align-items: center; }
+  .statusbar .syncdot { width: 8px; height: 8px; border-radius: 999px; background: var(--primary); }
+
+  .greet-date { font-size: 11.5px; color: var(--ink-faint); padding: 0 6px; }
+  .greet { font-family: 'Fraunces', serif; font-size: 21px; font-weight: 600; padding: 2px 6px 0; color: var(--ink); }
+
+  .bloom-wrap { display: flex; flex-direction: column; align-items: center; margin-top: 12px; }
+  .bloom-cap { margin-top: 8px; font-size: 12px; color: var(--ink-soft); }
+
+  .chips { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; margin-top: 16px; padding: 0 4px; }
+  .chip { display: inline-flex; align-items: center; gap: 6px; font-size: 11.5px; font-weight: 500; border-radius: 999px; padding: 5px 11px; }
+  .chip .cdot { width: 6px; height: 6px; border-radius: 999px; }
+
+  .toggle { display: flex; margin: 18px 4px 0; background: var(--bg-deep); border-radius: 999px; padding: 3px; }
+  .toggle span { flex: 1; text-align: center; font-size: 12px; font-weight: 500; padding: 6px 0; border-radius: 999px; color: var(--ink-soft); }
+  .toggle span.on { background: var(--surface); color: var(--ink); box-shadow: 0 1px 3px rgba(0,0,0,.1); }
+
+  .count { text-align: right; font-size: 11px; color: var(--ink-faint); margin: 8px 6px 0; }
+
+  .habits { display: flex; flex-direction: column; gap: 9px; margin-top: 10px; padding: 0 2px; }
+  .habit { display: flex; align-items: center; gap: 11px; background: var(--surface); border-radius: 16px; padding: 12px 13px; box-shadow: 0 1px 3px rgba(0,0,0,.06); border-left: 3px solid var(--accent, var(--primary)); }
+  .check { width: 22px; height: 22px; border-radius: 999px; flex: none; display: flex; align-items: center; justify-content: center; }
+  .check.done { background: var(--accent, var(--primary)); }
+  .check.todo { box-shadow: inset 0 0 0 1.5px var(--ring); }
+  .check svg { width: 12px; height: 12px; }
+  .habit .hname { font-size: 13.5px; color: var(--ink); flex: 1; }
+  .habit.done .hname { color: var(--ink-faint); text-decoration: line-through; }
+
+  .tug-head { font-size: 10px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-faint); margin: 18px 8px 8px; }
+  .tug { display: flex; align-items: center; gap: 11px; border: 1px dashed var(--tug-ring); border-radius: 16px; padding: 11px 13px; margin: 0 2px; }
+  .tug .tcheck { width: 20px; height: 20px; border-radius: 999px; box-shadow: inset 0 0 0 1.5px var(--tug-ring); flex: none; }
+  .tug .tname { font-size: 13px; color: var(--ink); flex: 1; }
+  .tug .ttag { font-size: 9px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-faint); }
+
+  .fab { margin: 18px auto 2px; width: max-content; background: var(--primary); color: var(--on-primary); font-size: 12.5px; font-weight: 600; padding: 9px 18px; border-radius: 999px; box-shadow: 0 6px 16px -6px var(--primary); }
+
+  footer { text-align: center; margin-top: 64px; font-size: 13px; color: #8a7a5e; }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="intro">
+    <p class="eyebrow">Harmony · a major release</p>
+    <h1>Choose your light</h1>
+    <p>Harmony has always been one warm terracotta on cream. This release lets a person pick the mood they open into. The headline is <strong>Mango Sunshine</strong> — a warm, golden, sunflower yellow that should make you smile the moment the app opens. Below: seven explorations of that yellow to choose from, then complementary themes (with terracotta kept as the default). Every theme here is one small set of colour tokens, so adding or tuning one later is a few lines, and a quick toggle or feature flag can gate them.</p>
+  </div>
+
+  <div class="section-head">
+    <p class="eyebrow">The headline · 7 explorations</p>
+    <h2>Mango Sunshine</h2>
+    <p>“A warm welcoming yellow, cream palette. A sunshine yellow. Something that makes you happy when you open the app, a nice warm golden yellow that makes the app pop, like a sunflower.” The yellow carries the joy through petals, buttons and the done-state; text stays a deep warm cocoa so everything is readable on cream.</p>
+  </div>
+  <div class="grid" id="grid-mango"></div>
+
+  <div class="section-head">
+    <p class="eyebrow">Complementary · the supporting cast</p>
+    <h2>The other themes</h2>
+    <p>Candidates for the remaining slots alongside Mango Sunshine. Terracotta is the current look and stays the default. Indigo Night shows the same token system handling a dark theme, so the palette can grow in any direction later.</p>
+  </div>
+  <div class="grid" id="grid-other"></div>
+
+  <footer>Harmony theme mockups · Mango Sunshine and friends</footer>
+</div>
+
+<script>
+// One theme = one token set. This is the exact shape the app would carry: swap
+// the values behind the CSS variables and the whole UI re-skins. Scalable by
+// design — new themes are just another entry, gated by a flag or a toggle.
+const THEMES_MANGO = [
+  { id:'sunflower', name:'Sunflower', focus:true, badge:'★ Mango Sunshine',
+    tag:'The signature. A true golden sunflower on warm cream. Joyful, sunny, unmistakably the hit of the release.',
+    bg:'#FFF7E6', bgDeep:'#F4E6C4', surface:'#FFFDF6', ink:'#3A2C16', inkSoft:'#7A6743', inkFaint:'#A8946C',
+    primary:'#EFA417', onPrimary:'#3A2C16', ring:'#E6D2A6', tugRing:'#B6A079',
+    petals:['#F2A900','#E8911E','#D98C2B','#C98A3B','#E0A52E','#F4B83C'] },
+  { id:'goldenhour', name:'Golden Hour', focus:true, badge:'★ Mango Sunshine',
+    tag:'Warmer and deeper, the light just before dusk. Amber-gold on toasted cream.',
+    bg:'#FBEFD6', bgDeep:'#F0DEB4', surface:'#FFF8E9', ink:'#3D2C14', inkSoft:'#7E6840', inkFaint:'#AB9468',
+    primary:'#E0962A', onPrimary:'#3D2C14', ring:'#E5CF9E', tugRing:'#B59E72',
+    petals:['#E0962A','#D2842A','#E8A53A','#C97E2E','#D99230','#EDB152'] },
+  { id:'lemoncream', name:'Lemon Cream', focus:true, badge:'★ Mango Sunshine',
+    tag:'Brighter and lighter, the airiest of the set. Lemon yellow on the palest cream.',
+    bg:'#FFFBF0', bgDeep:'#F7EDCB', surface:'#FFFFFB', ink:'#403615', inkSoft:'#857440', inkFaint:'#B0A06A',
+    primary:'#F4C430', onPrimary:'#403615', ring:'#EFE0A6', tugRing:'#B8A878',
+    petals:['#F4C430','#EBB52A','#F2CB46','#E0AE2C','#F0C53A','#F8D659'] },
+  { id:'honey', name:'Honey', focus:true, badge:'★ Mango Sunshine',
+    tag:'Softer and rounder, a calmer golden. Honey on oat cream for a gentler glow.',
+    bg:'#F7EFDD', bgDeep:'#ECDDBE', surface:'#FDF7EA', ink:'#3C2F1B', inkSoft:'#7C6A48', inkFaint:'#A89571',
+    primary:'#D9A63A', onPrimary:'#3C2F1B', ring:'#E2D0A4', tugRing:'#B19C75',
+    petals:['#D9A63A','#CC9636','#E0B14C','#C58E38','#D6A540','#E8C062'] },
+  { id:'marigold', name:'Marigold Pop', focus:true, badge:'★ Mango Sunshine',
+    tag:'The most saturated, maximum pop. A bold marigold on crisp cream for the brightest open.',
+    bg:'#FFF6E0', bgDeep:'#F6E4B6', surface:'#FFFDF7', ink:'#382A12', inkSoft:'#7C673C', inkFaint:'#AC9460',
+    primary:'#F59E00', onPrimary:'#3A2A0E', ring:'#EBD49C', tugRing:'#B49C6E',
+    petals:['#F59E00','#EA8E12','#F7AE1F','#DD8A1B','#F0A012','#FBBC3A'] },
+  { id:'apricot', name:'Apricot Gold', focus:true, badge:'★ Mango Sunshine',
+    tag:'A touch toward orange, like a ripe mango. Apricot-gold on peach cream, warm and fruity.',
+    bg:'#FEF1DD', bgDeep:'#F6DFBC', surface:'#FFF8EC', ink:'#3E2C18', inkSoft:'#82663F', inkFaint:'#AE9166',
+    primary:'#EE9F3A', onPrimary:'#3E2C18', ring:'#E9CFA2', tugRing:'#B59B72',
+    petals:['#EE9F3A','#E68A34','#F0AB4C','#DC8233','#EC9A3C','#F4B860'] },
+  { id:'softsun', name:'Soft Sun', focus:true, badge:'★ Mango Sunshine',
+    tag:'The most grounded, never loud. A muted golden on warm linen for an all-day calm.',
+    bg:'#F5ECD8', bgDeep:'#E9D9B8', surface:'#FBF4E4', ink:'#3B2F1C', inkSoft:'#796847', inkFaint:'#A6936E',
+    primary:'#D2A23E', onPrimary:'#3B2F1C', ring:'#DFCEA2', tugRing:'#AE9970',
+    petals:['#D2A23E','#C5933A','#DCAF50','#BE8C3A','#D09E40','#E2B95E'] },
+];
+
+const THEMES_OTHER = [
+  { id:'terracotta', name:'Terracotta', badge:'Current default', badgeClass:'def',
+    tag:'The Harmony you know, kept as the default. Warm terracotta and iris on soft parchment.',
+    bg:'#FBF1E4', bgDeep:'#F0E2CC', surface:'#FFFAF1', ink:'#2A1E12', inkSoft:'#6E5C44', inkFaint:'#A08C70',
+    primary:'#574887', onPrimary:'#FBF1E4', ring:'#E6D6BC', tugRing:'#A99B86',
+    petals:['#B5532F','#B7902A','#5B7A35','#7A3B6E','#3A7CA8','#944021'] },
+  { id:'sage', name:'Sage Grove',
+    tag:'Quiet and green. Soft sage on warm paper, the most restful of the set.',
+    bg:'#F2F1E4', bgDeep:'#E2E4CF', surface:'#FBFBF2', ink:'#23291C', inkSoft:'#566049', inkFaint:'#8B9577',
+    primary:'#4A7038', onPrimary:'#F2F1E4', ring:'#D4D9BE', tugRing:'#98A085',
+    petals:['#4A7038','#5E9434','#2B7558','#6F7032','#267A7A','#94405E'] },
+  { id:'ocean', name:'Ocean Calm',
+    tag:'Cool and clear. Teal and ocean blue on a misty paper.',
+    bg:'#EDF2F2', bgDeep:'#D6E2E2', surface:'#F8FBFB', ink:'#16282B', inkSoft:'#456066', inkFaint:'#7C969C',
+    primary:'#2E6F89', onPrimary:'#EDF2F2', ring:'#CBDCDC', tugRing:'#88A0A4',
+    petals:['#2E6F89','#267A7A','#2E8C8C','#3A7CA8','#2B7558','#3556A8'] },
+  { id:'plum', name:'Plum Dusk',
+    tag:'Soft and twilit. Plum and violet on a pale lilac paper.',
+    bg:'#F3EEF2', bgDeep:'#E5DAE4', surface:'#FBF8FB', ink:'#281E27', inkSoft:'#5E4F5C', inkFaint:'#998A97',
+    primary:'#7A3B6E', onPrimary:'#F3EEF2', ring:'#DECEDC', tugRing:'#A294A0',
+    petals:['#7A3B6E','#94405E','#A83C7E','#574887','#7A4FB0','#404780'] },
+  { id:'rose', name:'Rose Quartz',
+    tag:'Tender and warm. A blush rose on warm white.',
+    bg:'#F8EFEC', bgDeep:'#EFDCD7', surface:'#FFFAF8', ink:'#2C1E1C', inkSoft:'#6E544F', inkFaint:'#A88E88',
+    primary:'#94405E', onPrimary:'#F8EFEC', ring:'#E8D2CC', tugRing:'#B49A94',
+    petals:['#94405E','#A83C7E','#B5532F','#7A3B6E','#C0392B','#9E343C'] },
+  { id:'slate', name:'Slate Quiet',
+    tag:'Understated and neutral. Graphite and storm on a cool paper, for focus.',
+    bg:'#EEEEEC', bgDeep:'#DCDCD8', surface:'#F9F9F7', ink:'#23262A', inkSoft:'#535860', inkFaint:'#888E96',
+    primary:'#5A636F', onPrimary:'#EEEEEC', ring:'#D2D3CF', tugRing:'#9AA0A6',
+    petals:['#5A636F','#404040','#2E6F89','#6F7032','#7A3B6E','#9E343C'] },
+  { id:'indigonight', name:'Indigo Night', badge:'Dark', badgeClass:'dark',
+    tag:'Proof the system handles dark too. Soft indigo light on a deep night ground.',
+    bg:'#1C1F2E', bgDeep:'#171A26', surface:'#262A3C', ink:'#ECEAF4', inkSoft:'#AAA8C2', inkFaint:'#6E6E8A',
+    primary:'#8C7CE0', onPrimary:'#16182A', ring:'#3A3E55', tugRing:'#54586E',
+    petals:['#8C7CE0','#5E9AD0','#5FB59A','#C58AD0','#E0A55A','#D97A8E'] },
+  { id:'lavender', name:'Lavender Mist',
+    tag:'Gentle and airy. A pale lavender on cream, soft as morning.',
+    bg:'#F4F1F8', bgDeep:'#E5DEEF', surface:'#FBFAFE', ink:'#262232', inkSoft:'#5C5470', inkFaint:'#938CA8',
+    primary:'#7A4FB0', onPrimary:'#F4F1F8', ring:'#DDD3EC', tugRing:'#A096B4',
+    petals:['#7A4FB0','#574887','#404780','#94405E','#3A7CA8','#7A3B6E'] },
+];
+
+function polar(cx, cy, r, deg) {
+  const a = (deg - 90) * Math.PI / 180;
+  return [cx + r * Math.cos(a), cy + r * Math.sin(a)];
+}
+function donut(cx, cy, rIn, rOut, s, e) {
+  const [x1,y1]=polar(cx,cy,rOut,s),[x2,y2]=polar(cx,cy,rOut,e);
+  const [x3,y3]=polar(cx,cy,rIn,e),[x4,y4]=polar(cx,cy,rIn,s);
+  const big = e - s <= 180 ? 0 : 1;
+  return `M${x1} ${y1} A${rOut} ${rOut} 0 ${big} 1 ${x2} ${y2} L${x3} ${y3} A${rIn} ${rIn} 0 ${big} 0 ${x4} ${y4} Z`;
+}
+function bloom(t) {
+  const cx=60, cy=60, rIn=20, rMax=52, gap=5;
+  const acts=[0.95,0.55,0.8,0.35,0.7,0.5];
+  let petals='';
+  petals += `<circle cx="${cx}" cy="${cy}" r="34" fill="none" stroke="${t.ring}" stroke-dasharray="2 4"/>`;
+  petals += `<circle cx="${cx}" cy="${cy}" r="46" fill="none" stroke="${t.ring}" stroke-dasharray="2 4"/>`;
+  for (let i=0;i<6;i++){
+    const s=i*60+gap/2, e=(i+1)*60-gap/2;
+    const rOut=rIn+(rMax-rIn)*acts[i];
+    petals += `<path d="${donut(cx,cy,rIn,rMax,s,e)}" fill="${t.petals[i]}" opacity="0.14"/>`;
+    petals += `<path d="${donut(cx,cy,rIn,rOut,s,e)}" fill="${t.petals[i]}" opacity="0.9"/>`;
+  }
+  petals += `<circle cx="${cx}" cy="${cy}" r="16" fill="${t.surface}"/>`;
+  petals += `<text x="${cx}" y="${cy+6}" text-anchor="middle" font-family="Fraunces, serif" font-size="20" fill="${t.primary}">h</text>`;
+  return `<svg viewBox="0 0 120 120" width="148" height="148" aria-hidden="true">${petals}</svg>`;
+}
+function check(color){ return `<svg viewBox="0 0 24 24" fill="none" stroke="${color}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg>`; }
+
+function chip(name, color, soft) {
+  return `<span class="chip" style="background:${color}1f;color:${color}"><span class="cdot" style="background:${color}"></span>${name}</span>`;
+}
+
+function render(t) {
+  const vars = `--bg:${t.bg};--bg-deep:${t.bgDeep};--surface:${t.surface};--ink:${t.ink};--ink-soft:${t.inkSoft};--ink-faint:${t.inkFaint};--primary:${t.primary};--on-primary:${t.onPrimary};--ring:${t.ring};--tug-ring:${t.tugRing}`;
+  const badge = t.badge ? `<span class="badge ${t.badgeClass||''}">${t.badge}</span>` : '';
+  return `
+  <div class="card ${t.focus?'focus':''}">
+    <div class="label">
+      <div class="name">${t.name} ${badge}</div>
+      <div class="tag">${t.tag}</div>
+    </div>
+    <div class="phone" style="${vars}">
+      <div class="statusbar"><span>9:41</span><span class="dots"><span class="syncdot"></span></span></div>
+      <div class="greet-date">Tuesday, June 30</div>
+      <div class="greet">Good morning, Noor.</div>
+      <div class="bloom-wrap">${bloom(t)}<div class="bloom-cap">In a good rhythm today.</div></div>
+      <div class="chips">
+        ${chip('Body', t.petals[0])}
+        ${chip('Mind', t.petals[2])}
+        ${chip('Connection', t.petals[4])}
+      </div>
+      <div class="toggle"><span class="on">Today</span><span>All</span></div>
+      <div class="count">2 of 3 tended to</div>
+      <div class="habits">
+        <div class="habit done" style="--accent:${t.petals[0]}">
+          <span class="check done">${check('#fff')}</span><span class="hname">Morning walk</span>
+        </div>
+        <div class="habit" style="--accent:${t.petals[2]}">
+          <span class="check todo"></span><span class="hname">Read a few pages</span>
+        </div>
+        <div class="habit done" style="--accent:${t.petals[4]}">
+          <span class="check done">${check('#fff')}</span><span class="hname">Message a friend</span>
+        </div>
+      </div>
+      <div class="tug-head">Tugs</div>
+      <div class="tug"><span class="tcheck"></span><span class="tname">Late-night scrolling</span><span class="ttag">tug</span></div>
+      <div class="fab">＋ Add habit</div>
+    </div>
+  </div>`;
+}
+
+document.getElementById('grid-mango').innerHTML = THEMES_MANGO.map(render).join('');
+document.getElementById('grid-other').innerHTML = THEMES_OTHER.map(render).join('');
+</script>
+</body>
+</html>

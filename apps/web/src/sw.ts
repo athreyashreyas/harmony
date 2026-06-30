@@ -29,12 +29,16 @@ interface PushPayload {
 self.addEventListener('push', (event) => {
   const data: PushPayload = event.data?.json() ?? {};
   const { title, body, areaId, url } = data;
-  // The OS already shows the app name ("Harmony") as the banner header, so the
-  // notification's own heading should be the message itself, not "Harmony"
-  // again. Use the message (body) as the heading and omit the second line.
-  const heading = body || title || 'Harmony';
+  // Standard structure, the way native apps do it: a short bold heading that is
+  // just the app name ("Harmony"), and the message in the body. The body wraps
+  // to several lines, so a longer message is read in full rather than cropped to
+  // one line. Keeping the heading as the app name also stops iOS from adding its
+  // own "from Harmony" subtitle, which only appears when the body is empty.
+  const heading = title || 'Harmony';
+  const message = body && body !== heading ? body : undefined;
   event.waitUntil(
     self.registration.showNotification(heading, {
+      body: message,
       icon: '/icons/icon-192.png',
       badge: '/icons/badge.png',
       tag: areaId ? `area-${areaId}` : undefined, // coalesce per-area nudges

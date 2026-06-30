@@ -62,3 +62,9 @@ export const SUGGESTED_AREAS: SuggestedArea[] = [
 
 // Default do-not-disturb window (local time), section 14.
 export const DEFAULT_DND = { start: '21:00', end: '07:00' };
+
+// How many areas of life a person may keep. Enforced both in onboarding and in
+// the day-to-day Areas screen so the Bloom's petals never shrink past legible.
+// A domain rule, so it lives here rather than in any one screen's module.
+export const MIN_AREAS = 3;
+export const MAX_AREAS = 20;

@@ -73,10 +73,6 @@ function withinDnd(now: Date, timezone: string, start: string, end: string): boo
   return cur >= start || cur < end;
 }
 
-function sameUtcDay(a: number, b: number): boolean {
-  return new Date(a).toISOString().slice(0, 10) === new Date(b).toISOString().slice(0, 10);
-}
-
 // The user's local calendar date ("YYYY-MM-DD"), matching how the app stamps
 // log.date. Used to tell "due today" and "logged today" from the worker.
 function localDateISO(date: Date, timezone: string): string {
@@ -260,9 +256,15 @@ async function sendDailySummary(env: Env, user: UserProfile, now: Date, bundle: 
 async function sendDriftNudges(env: Env, user: UserProfile, now: Date, bundle: UserBundle): Promise<void> {
   const muted = new Set(bundle.settings.mutedAreaIds);
 
-  // Daily cap: how many push drift nudges already went out today.
+  // Daily cap: how many push drift nudges already went out today, by the user's
+  // local calendar day (the same basis the reminders and summary dedup on), so
+  // the cap doesn't reset at UTC midnight for users far from UTC.
+  const today = localDateISO(now, user.timezone);
   const sentToday = bundle.nudgeHistory.filter(
-    (n) => n.channel === 'push' && isDriftTemplate(n.templateId) && sameUtcDay(n.sentAt, now.getTime()),
+    (n) =>
+      n.channel === 'push' &&
+      isDriftTemplate(n.templateId) &&
+      localDateISO(new Date(n.sentAt), user.timezone) === today,
   ).length;
   let remaining = MAX_PER_USER_PER_DAY - sentToday;
   if (remaining <= 0) return;

@@ -21,5 +21,7 @@ export interface DraftHabit {
 // One optional starter habit per area, keyed by area id.
 export type DraftHabits = Record<string, DraftHabit>;
 
-export const MIN_AREAS = 3;
-export const MAX_AREAS = 12;
+// The area-count bounds are a domain rule, kept in @harmony/shared so the
+// onboarding wizard and the Areas screen agree. Re-exported here so the existing
+// `../onboardingTypes` import sites keep working.
+export { MIN_AREAS, MAX_AREAS } from '@harmony/shared';

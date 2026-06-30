@@ -190,6 +190,7 @@ export default function HomeScreen() {
               areas={areas}
               habits={habits}
               logs={logs}
+              activities={activities}
               selectedAreaId={activeFilter}
               onSelectArea={toggleAreaFilter}
             />

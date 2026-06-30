@@ -1,14 +1,18 @@
 import type { Table } from 'dexie';
 import type { Area, Habit, Log, NotificationSettings, NudgeHistory, UserProfile } from '@harmony/shared';
 import { supabase } from './client';
-import { db, type OutboxItem } from '../db/schema';
+import { db, NOTIFICATION_SETTINGS_KEY, type OutboxItem } from '../db/schema';
 import { withSync } from '../sync/status';
 
-// Getting a profile row to and from Supabase, with Dexie as the on-device
-// cache, plus best-effort mirroring of areas, habits, and logs. Full
-// bi-directional reconciliation for multi-device use is a later phase; for
-// now writes go to Dexie first (source of truth) and mirror out, fire and
-// forget.
+// The cloud side of the data layer. Dexie is the source of truth on device;
+// this module moves data between it and Supabase three ways:
+//   - mirror: every local write is queued in a durable outbox and drained up
+//     in order, so a write made offline (or one that fails) is retried, not lost;
+//   - pull: fetch the account's rows and reconcile them into Dexie, with the
+//     server authoritative (a grace window shields just-made local writes);
+//   - realtime: apply each remote change as it happens for instant cross-device
+//     updates, with the pull above as the backstop.
+// Account deletion and a local wipe (sign-out) live at the bottom.
 
 interface ProfileRow {
   id: string;
@@ -312,8 +316,6 @@ interface SettingsRow {
   daily_summary: boolean | null;
 }
 
-const NOTIFICATION_SETTINGS_KEY = 'notificationSettings';
-
 function rowToArea(r: AreaRow): Area {
   return {
     id: r.id,
@@ -414,34 +416,42 @@ export async function pullUserData(userId: string): Promise<boolean> {
   if (!client) return false;
 
   return withSync(async () => {
-    const [areasRes, habitsRes, logsRes, settingsRes] = await Promise.all([
-      client.from('areas').select('*').eq('user_id', userId),
-      client.from('habits').select('*').eq('user_id', userId),
-      client.from('logs').select('*').eq('user_id', userId),
-      client.from('notification_settings').select('*').eq('user_id', userId).maybeSingle(),
-    ]);
-    if (areasRes.error || habitsRes.error || logsRes.error) {
-      console.warn('Pull from Supabase failed.', areasRes.error ?? habitsRes.error ?? logsRes.error);
+    try {
+      const [areasRes, habitsRes, logsRes, settingsRes] = await Promise.all([
+        client.from('areas').select('*').eq('user_id', userId),
+        client.from('habits').select('*').eq('user_id', userId),
+        client.from('logs').select('*').eq('user_id', userId),
+        client.from('notification_settings').select('*').eq('user_id', userId).maybeSingle(),
+      ]);
+      if (areasRes.error || habitsRes.error || logsRes.error) {
+        console.warn('Pull from Supabase failed.', areasRes.error ?? habitsRes.error ?? logsRes.error);
+        return false;
+      }
+
+      const areas = (areasRes.data as AreaRow[]).map(rowToArea);
+      const habits = (habitsRes.data as HabitRow[]).map(rowToHabit);
+      const logs = (logsRes.data as LogRow[]).map(rowToLog);
+
+      await db.transaction('rw', db.areas, db.habits, db.logs, async () => {
+        await reconcileTable(db.areas, userId, areas, (a) => a.createdAt);
+        await reconcileTable(db.habits, userId, habits, (h) => h.createdAt);
+        await reconcileTable(db.logs, userId, logs, (l) => l.loggedAt);
+      });
+
+      // Notification settings: mirror the cloud copy down so per-device config
+      // (mute, quiet hours, the reminder toggles) stays in agreement.
+      const s = settingsRes.data as SettingsRow | null;
+      if (s) {
+        await db.settings.put({ key: NOTIFICATION_SETTINGS_KEY, value: rowToSettings(s) });
+      }
+      return true;
+    } catch (err) {
+      // A network failure (notably an offline background pull) rejects here;
+      // return false so callers can carry on with local data instead of an
+      // unhandled rejection.
+      console.warn('Pull from Supabase threw.', err);
       return false;
     }
-
-    const areas = (areasRes.data as AreaRow[]).map(rowToArea);
-    const habits = (habitsRes.data as HabitRow[]).map(rowToHabit);
-    const logs = (logsRes.data as LogRow[]).map(rowToLog);
-
-    await db.transaction('rw', db.areas, db.habits, db.logs, async () => {
-      await reconcileTable(db.areas, userId, areas, (a) => a.createdAt);
-      await reconcileTable(db.habits, userId, habits, (h) => h.createdAt);
-      await reconcileTable(db.logs, userId, logs, (l) => l.loggedAt);
-    });
-
-    // Notification settings: mirror the cloud copy down so per-device config
-    // (mute, quiet hours, the reminder toggles) stays in agreement.
-    const s = settingsRes.data as SettingsRow | null;
-    if (s) {
-      await db.settings.put({ key: NOTIFICATION_SETTINGS_KEY, value: rowToSettings(s) });
-    }
-    return true;
   });
 }
 

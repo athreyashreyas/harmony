@@ -83,17 +83,23 @@ export default function LogScreen() {
   const today = todayISO();
   const isCurrentMonth = startOfMonthISO(viewedMonth) === startOfMonthISO(new Date());
 
+  // The week strip and count mean "tended", so tug logs don't count, the same
+  // as the calendar dots below.
   const last7 = useMemo(() => {
-    const tendedDates = new Set(weekLogs.map((l) => l.date));
+    const tendedDates = new Set(weekLogs.filter((l) => !easeIds.has(l.habitId)).map((l) => l.date));
     return Array.from({ length: 7 }, (_, i) => {
       const date = isoDaysAgo(6 - i);
       return { date, tended: tendedDates.has(date) };
     });
-  }, [weekLogs]);
-  const weekTendedCount = useMemo(
-    () => new Set(weekLogs.filter((l) => l.date >= isoDaysAgo(6)).map((l) => `${l.habitId}:${l.date}`)).size,
-    [weekLogs],
-  );
+  }, [weekLogs, easeIds]);
+  const weekTendedCount = useMemo(() => {
+    const since = isoDaysAgo(6);
+    return new Set(
+      weekLogs
+        .filter((l) => l.date >= since && !easeIds.has(l.habitId))
+        .map((l) => `${l.habitId}:${l.date}`),
+    ).size;
+  }, [weekLogs, easeIds]);
 
   // Habits you can log for the selected day: those that existed then, with the
   // ones actually scheduled that day shown first.

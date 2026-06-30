@@ -10,6 +10,11 @@ export interface Setting {
   value: unknown;
 }
 
+// Well-known keys in the `settings` table (one row each). These are per-device,
+// not per-user, so they are cleared at sign-out (see store/useUser).
+export const NOTIFICATION_SETTINGS_KEY = 'notificationSettings';
+export const PUSH_PROMPT_DISMISSED_KEY = 'pushPromptDismissed';
+
 // One queued write waiting to reach Supabase. Writes go to Dexie first and are
 // enqueued here; a flusher drains them in order, so an edit made offline (or
 // when a mirror call fails) is retried instead of lost. Auto-incrementing id

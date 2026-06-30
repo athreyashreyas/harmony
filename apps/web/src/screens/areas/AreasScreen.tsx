@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Reorder } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import type { Area, Habit } from '@harmony/shared';
+import { MAX_AREAS } from '@harmony/shared';
 import AreaRow from '../../components/AreaRow/AreaRow';
 import FAB from '../../components/FAB/FAB';
 import HabitReorderSheet from '../../components/HabitReorderSheet/HabitReorderSheet';
@@ -134,7 +135,13 @@ export default function AreasScreen() {
         )}
       </div>
 
-      <FAB label="Add area" onClick={openCreate} />
+      {loaded && orderedAreas.length >= MAX_AREAS && (
+        <p className="mt-6 text-center text-xs text-ink-300">
+          You're keeping the most areas Harmony holds ({MAX_AREAS}). Delete one to add another.
+        </p>
+      )}
+
+      {orderedAreas.length < MAX_AREAS && <FAB label="Add area" onClick={openCreate} />}
 
       <AreaSheet
         open={sheetOpen}

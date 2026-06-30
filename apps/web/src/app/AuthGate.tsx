@@ -124,16 +124,20 @@ export default function AuthGate() {
     void ensureSubscribed(userId);
 
     // Backstops for anything realtime might miss (dropped socket, sleep): pull
-    // on foreground, on reconnect, and a gentle poll while visible.
+    // on foreground, on reconnect, and a slow safety-net poll while visible.
+    // Realtime carries live updates, and foreground/reconnect catch the common
+    // gaps, so this only needs to be the rare-miss net; a long interval keeps it
+    // from re-fetching the whole account every minute.
     const onVisible = () => {
       if (document.visibilityState === 'visible') void syncNow(userId);
     };
     const onOnline = () => void syncNow(userId);
     document.addEventListener('visibilitychange', onVisible);
     window.addEventListener('online', onOnline);
+    const POLL_MS = 5 * 60_000;
     const interval = window.setInterval(() => {
       if (document.visibilityState === 'visible') void syncNow(userId);
-    }, 60_000);
+    }, POLL_MS);
 
     return () => {
       unsubscribe();

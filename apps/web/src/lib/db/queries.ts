@@ -1,6 +1,6 @@
 import type { Area, Habit, Log, NotificationSettings } from '@harmony/shared';
 import { DEFAULT_DND } from '@harmony/shared';
-import { db } from './schema';
+import { db, NOTIFICATION_SETTINGS_KEY } from './schema';
 import { isoDaysAgo, todayISO } from '../time/dates';
 import {
   mirrorAreaUpsert,
@@ -184,8 +184,6 @@ export async function setLogNote(
   void mirrorLogUpsert(log);
   return log;
 }
-
-const NOTIFICATION_SETTINGS_KEY = 'notificationSettings';
 
 export async function loadNotificationSettings(): Promise<NotificationSettings> {
   const defaults: NotificationSettings = {

@@ -1,5 +1,5 @@
 import { supabase } from '../supabase/client';
-import { db } from '../db/schema';
+import { db, PUSH_PROMPT_DISMISSED_KEY } from '../db/schema';
 import { detectPlatform, isStandalone } from './install';
 
 // Permission and subscription flow (section 17.1). The composer and worker do
@@ -8,7 +8,7 @@ import { detectPlatform, isStandalone } from './install';
 
 const VAPID_PUBLIC_KEY = import.meta.env.VITE_VAPID_PUBLIC_KEY;
 const WORKER_URL = import.meta.env.VITE_PUSH_WORKER_URL;
-const DISMISSED_KEY = 'pushPromptDismissed';
+const DISMISSED_KEY = PUSH_PROMPT_DISMISSED_KEY;
 
 export type PushReadiness =
   | 'ready' // supported, permission can be requested

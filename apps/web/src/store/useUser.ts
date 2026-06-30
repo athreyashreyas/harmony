@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import type { UserProfile } from '@harmony/shared';
-import { db } from '../lib/db/schema';
+import { db, NOTIFICATION_SETTINGS_KEY, PUSH_PROMPT_DISMISSED_KEY } from '../lib/db/schema';
 
 export type AuthStatus = 'loading' | 'signed-out' | 'signed-in';
 
@@ -36,8 +36,8 @@ function clearOnboardingStorage() {
 // inherit the previous person's notification preferences and dismissed prompt.
 // A returning user re-hydrates their own from the cloud on sign-in.
 function clearPerDeviceSettings() {
-  void db.settings.delete('notificationSettings');
-  void db.settings.delete('pushPromptDismissed');
+  void db.settings.delete(NOTIFICATION_SETTINGS_KEY);
+  void db.settings.delete(PUSH_PROMPT_DISMISSED_KEY);
 }
 
 // Holds the current auth status, the local profile, and the account email.

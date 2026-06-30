@@ -92,21 +92,27 @@ export default function Bloom({
   areas,
   habits,
   logs,
+  activities: activitiesProp,
   selectedAreaId,
   onSelectArea,
 }: {
   areas: Area[];
   habits: Habit[];
   logs: Log[];
+  // Optional: the per-area fill values, when the caller already computed them
+  // (Home does, for the caption), so the same pass isn't run twice per render.
+  activities?: number[];
   selectedAreaId?: string | null;
   onSelectArea: (areaId: string) => void;
 }) {
   const sliceAngle = areas.length > 0 ? 360 / areas.length : 0;
   const [magnified, setMagnified] = useState<Area | null>(null);
 
+  // Use the caller's values when given; only compute here as a fallback, so the
+  // map doesn't run a second time when Home already has it.
   const activities = useMemo(
-    () => areas.map((area) => computeAreaActivity(area, habits, logs)),
-    [areas, habits, logs],
+    () => activitiesProp ?? areas.map((area) => computeAreaActivity(area, habits, logs)),
+    [activitiesProp, areas, habits, logs],
   );
 
   // Responsive and prominent: fills the column up to a generous cap, so the

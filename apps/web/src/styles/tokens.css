@@ -60,27 +60,29 @@
   --keyboard-height: 0px;
 }
 
-/* Mango Sunshine — a golden sunflower yellow on warm cream. The hit. */
+/* Mango Sunshine — a vivid marigold gold (#f5a623, picked from the sunflower
+   reference) on warm sunlit cream with near-white cards, so the gold pops
+   instead of the whole screen reading as flat butter yellow. */
 :root[data-theme='mango-sunshine'] {
-  --parchment-50: #fffcf0;  --parchment-50-rgb: 255 252 240;
-  --parchment-100: #fff1c9; --parchment-100-rgb: 255 241 201;
-  --parchment-200: #fbe39e; --parchment-200-rgb: 251 227 158;
-  --parchment-300: #f4cf72; --parchment-300-rgb: 244 207 114;
+  --parchment-50: #fffcf5;  --parchment-50-rgb: 255 252 245;
+  --parchment-100: #fceac8; --parchment-100-rgb: 252 234 200;
+  --parchment-200: #f6dcae; --parchment-200-rgb: 246 220 174;
+  --parchment-300: #eccb8e; --parchment-300-rgb: 236 203 142;
 
   --ink-900: #3a2a0e; --ink-900-rgb: 58 42 14;
-  --ink-700: #5e4a1e; --ink-700-rgb: 94 74 30;
-  --ink-500: #876c2c; --ink-500-rgb: 135 108 44;
-  --ink-300: #b59a5c; --ink-300-rgb: 181 154 92;
-  --ink-100: #e1d2a6; --ink-100-rgb: 225 210 166;
+  --ink-700: #5e481e; --ink-700-rgb: 94 72 30;
+  --ink-500: #8a6a30; --ink-500-rgb: 138 106 48;
+  --ink-300: #b89860; --ink-300-rgb: 184 152 96;
+  --ink-100: #e6d4a8; --ink-100-rgb: 230 212 168;
 
-  --iris-700: #b06e08; --iris-700-rgb: 176 110 8;
-  --iris-600: #d9870a; --iris-600-rgb: 217 135 10;
-  --iris-500: #f59e00; --iris-500-rgb: 245 158 0;
-  --iris-400: #f8b23a; --iris-400-rgb: 248 178 58;
-  --iris-100: #fbe6be; --iris-100-rgb: 251 230 190;
-  --iris-50: #fef6e0;  --iris-50-rgb: 254 246 224;
+  --iris-700: #b26c0a; --iris-700-rgb: 178 108 10;
+  --iris-600: #dd8c12; --iris-600-rgb: 221 140 18;
+  --iris-500: #f5a623; --iris-500-rgb: 245 166 35;
+  --iris-400: #f9bc4e; --iris-400-rgb: 249 188 78;
+  --iris-100: #fce2b8; --iris-100-rgb: 252 226 184;
+  --iris-50: #fef3da;  --iris-50-rgb: 254 243 218;
 
-  /* Bright gold needs dark ink on top to stay readable. */
+  /* The bright gold needs dark ink on top to stay readable. */
   --on-primary: #3a2a0e; --on-primary-rgb: 58 42 14;
 }
 

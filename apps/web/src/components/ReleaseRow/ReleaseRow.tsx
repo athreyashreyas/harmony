@@ -58,24 +58,43 @@ export default function ReleaseRow({ release, defaultOpen }: { release: Release;
             transition={{ duration: 0.2 }}
             className="overflow-hidden"
           >
-            <ul className="space-y-2 px-3.5">
-              {release.notes.map((note, i) => (
-                <li key={i} className="flex gap-2 text-sm leading-relaxed text-ink-700">
-                  <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-iris-400" />
-                  <span>{note}</span>
-                </li>
-              ))}
-            </ul>
-            {release.art && release.art.length > 0 && (
-              <div className="mt-3 flex flex-wrap items-center justify-center gap-4 px-3.5">
-                {release.art.map((kind) => (
-                  <div key={kind} className="flex items-center justify-center rounded-card bg-parchment-50/70 px-4 py-4 shadow-card">
-                    <GuideArt kind={kind} />
-                  </div>
+            <div className="px-3.5">
+              <p className="text-[10px] font-medium uppercase tracking-[0.1em] text-ink-300">Release notes</p>
+              <ul className="mt-2 space-y-2">
+                {release.notes.map((note, i) => (
+                  <li key={i} className="flex gap-2 text-sm leading-relaxed text-ink-700">
+                    <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-iris-400" />
+                    <span>{note}</span>
+                  </li>
                 ))}
+              </ul>
+            </div>
+
+            {release.howTo && release.howTo.length > 0 && (
+              <div className="mt-5 px-3.5">
+                <p className="text-[10px] font-medium uppercase tracking-[0.1em] text-ink-300">How to find it</p>
+                <ol className="mt-2 space-y-2">
+                  {release.howTo.map((step, i) => (
+                    <li key={i} className="flex gap-2.5 text-sm leading-relaxed text-ink-700">
+                      <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-iris-100 text-[11px] font-semibold text-iris-700">
+                        {i + 1}
+                      </span>
+                      <span>{step}</span>
+                    </li>
+                  ))}
+                </ol>
+                {release.art && release.art.length > 0 && (
+                  <div className="mt-4 flex flex-wrap items-center justify-center gap-4">
+                    {release.art.map((kind) => (
+                      <div key={kind} className="flex items-center justify-center rounded-card bg-parchment-50/70 px-4 py-4 shadow-card">
+                        <GuideArt kind={kind} />
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             )}
-            <div className="h-3.5" />
+            <div className="h-4" />
           </motion.div>
         )}
       </AnimatePresence>

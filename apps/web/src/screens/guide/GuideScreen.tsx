@@ -52,11 +52,13 @@ export default function GuideScreen() {
 
   return (
     <div className="relative flex h-full flex-col overflow-hidden bg-parchment-100">
-      <header className="flex items-center justify-between px-4 pt-safe pl-safe pr-safe">
+      <header className="flex items-center justify-between px-4 pt-safe">
         <div className="flex h-14 items-center">
           <BackButton onClick={() => navigate(-1)} />
         </div>
-        <span className="pr-2 text-xs text-ink-300">Harmony {APP_VERSION}</span>
+        <div className="flex h-14 items-center">
+          <span className="text-xs text-ink-300">Harmony {APP_VERSION}</span>
+        </div>
       </header>
 
       <div className="scroll-ios min-h-0 flex-1 overflow-y-auto pb-safe pl-safe pr-safe">

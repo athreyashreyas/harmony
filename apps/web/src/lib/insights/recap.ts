@@ -115,8 +115,10 @@ export function composeWeeklyRecap(input: {
     lines.push({
       areaId: strong.area.id,
       text: render('recap-strong', {
+        // Quote the habit name so it reads as a name, not part of the sentence
+        // (e.g. "Read", "Walk" can otherwise blur into the prose).
         areaName: strong.area.name,
-        habitName: detail?.habit.name ?? '',
+        habitName: detail ? `“${detail.habit.name}”` : '',
         countPhrase: detail ? countPhrase(detail.count) : '',
       }),
     });
@@ -128,7 +130,7 @@ export function composeWeeklyRecap(input: {
       areaId: steady.area.id,
       text: render('recap-steady', {
         areaName: steady.area.name,
-        habitName: detail?.habit.name ?? '',
+        habitName: detail ? `“${detail.habit.name}”` : '',
         lastDayName: detail ? weekdayLong(detail.lastDate) : '',
       }),
     });

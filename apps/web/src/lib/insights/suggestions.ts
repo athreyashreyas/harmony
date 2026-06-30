@@ -49,7 +49,7 @@ function strongestDaySuggestion(habits: Habit[], logs: Log[]): Suggestion | null
   return {
     kind: 'move-habit',
     habitId: best.habit.id,
-    text: `${best.habit.name} comes most easily on ${WEEKDAY_NAMES[best.day]}. Maybe let it live there.`,
+    text: `“${best.habit.name}” comes most easily on ${WEEKDAY_NAMES[best.day]}. Maybe let it live there.`,
   };
 }
 

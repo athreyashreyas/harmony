@@ -68,7 +68,7 @@ function mostConsistentTimeObservation(habits: Habit[], logs: Log[]): string | n
   if (!best) return null;
   const dayName = WEEKDAY_NAMES[best.day];
   const segmentWord = best.segment === 'night' ? 'nights' : `${best.segment}s`;
-  return `${best.habit.name} has found its home on ${dayName} ${segmentWord}. That's a rhythm worth keeping.`;
+  return `“${best.habit.name}” has found its home on ${dayName} ${segmentWord}. That's a rhythm worth keeping.`;
 }
 
 function quieterThanUsualObservation(areas: Area[], habits: Habit[], logs: Log[], now: Date): string | null {

@@ -6,273 +6,325 @@
 <title>Harmony — Theme mockups</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
 <style>
   :root { color-scheme: light; }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
-    background: #ece6dc;
-    color: #2b2218;
-    padding: 40px 20px 80px;
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    background: var(--canvas, #e9e9ec);
+    color: var(--canvas-ink, #2a2a2e);
+    padding: 32px 22px 90px;
     -webkit-font-smoothing: antialiased;
+    transition: background .25s ease, color .25s ease;
   }
-  .page { max-width: 1240px; margin: 0 auto; }
-  .intro { max-width: 760px; margin: 0 auto 8px; text-align: center; }
-  .intro h1 { font-family: 'Fraunces', serif; font-size: 40px; font-weight: 600; letter-spacing: -0.01em; }
-  .intro p { margin-top: 14px; font-size: 15px; line-height: 1.6; color: #6a5e4c; }
-  .eyebrow { font-size: 11px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: #a08d70; }
-  .section-head { max-width: 1240px; margin: 56px auto 22px; }
-  .section-head h2 { font-family: 'Fraunces', serif; font-size: 26px; font-weight: 600; margin-top: 6px; }
-  .section-head p { margin-top: 6px; font-size: 14px; color: #6a5e4c; max-width: 720px; }
-  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 30px; }
+  .page { max-width: 1320px; margin: 0 auto; }
+  .topbar { position: sticky; top: 0; z-index: 5; display: flex; flex-wrap: wrap; gap: 14px; align-items: center; justify-content: space-between;
+    background: color-mix(in srgb, var(--canvas, #e9e9ec) 85%, transparent); backdrop-filter: blur(8px);
+    margin: -10px -10px 10px; padding: 12px 10px; border-radius: 14px; }
+  .topbar .brand { font-family: 'DM Serif Display', serif; font-size: 20px; }
+  .switch { display: flex; gap: 6px; align-items: center; }
+  .switch .lbl { font-size: 11px; letter-spacing: .12em; text-transform: uppercase; opacity: .6; margin-right: 4px; }
+  .switch button { font: inherit; font-size: 12px; font-weight: 600; cursor: pointer; border: 1px solid rgba(128,128,128,.3);
+    background: rgba(255,255,255,.5); color: inherit; padding: 6px 12px; border-radius: 999px; }
+  .switch button.on { background: #2a2a2e; color: #fff; border-color: #2a2a2e; }
 
-  /* A phone frame. All colours come from CSS variables set per theme, the same
-     token model the app would use (one set of vars, swapped by theme id). */
+  .intro { max-width: 800px; margin: 18px auto 6px; text-align: center; }
+  .intro h1 { font-family: 'DM Serif Display', serif; font-size: 44px; letter-spacing: -0.01em; }
+  .intro p { margin-top: 14px; font-size: 15px; line-height: 1.65; opacity: .75; }
+  .eyebrow { font-size: 11px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; opacity: .5; }
+
+  .section-head { margin: 60px auto 24px; }
+  .section-head h2 { font-family: 'DM Serif Display', serif; font-size: 30px; margin-top: 6px; }
+  .section-head p { margin-top: 8px; font-size: 14px; line-height: 1.6; opacity: .7; max-width: 760px; }
+
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 40px 34px; }
+
   .card { display: flex; flex-direction: column; }
-  .label { margin: 0 4px 12px; }
-  .label .name { font-family: 'Fraunces', serif; font-size: 19px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
-  .label .tag { margin-top: 3px; font-size: 12.5px; line-height: 1.5; color: #6a5e4c; }
-  .badge { font-size: 10px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: #fff; background: #E0962A; border-radius: 999px; padding: 3px 8px; }
+  .label { margin: 0 4px 14px; }
+  .label .name { font-family: 'DM Serif Display', serif; font-size: 20px; display: flex; align-items: center; gap: 9px; flex-wrap: wrap; }
+  .label .tag { margin-top: 5px; font-size: 12.5px; line-height: 1.55; opacity: .72; }
+  .badge { font-size: 9.5px; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; color: #fff; background: #E0962A; border-radius: 999px; padding: 3px 9px; }
   .badge.def { background: #8a7a5e; }
   .badge.dark { background: #3a3f57; }
 
+  /* The phone. Every colour is a CSS var set per theme: the exact token model
+     the app uses (parchment / ink / iris), so these previews equal the build. */
   .phone {
-    position: relative;
-    border-radius: 34px;
-    padding: 14px 14px 18px;
-    background: var(--bg);
-    color: var(--ink);
-    box-shadow: 0 1px 1px rgba(0,0,0,.04), 0 18px 40px -18px rgba(40,30,15,.45);
-    border: 1px solid rgba(0,0,0,.05);
-    overflow: hidden;
-    aspect-ratio: 9 / 19;
+    position: relative; border-radius: 38px; padding: 0 0 20px;
+    background: var(--p100); color: var(--ink900);
+    box-shadow: 0 1px 1px rgba(0,0,0,.05), 0 26px 50px -22px rgba(20,20,30,.5);
+    overflow: hidden; aspect-ratio: 9 / 19.2; border: 1px solid rgba(0,0,0,.06);
   }
-  .card.focus .phone { box-shadow: 0 1px 1px rgba(0,0,0,.04), 0 22px 48px -16px rgba(180,120,20,.5); outline: 2px solid var(--primary); outline-offset: 3px; }
+  .card.focus .phone { outline: 2.5px solid var(--iris); outline-offset: 4px; }
+  .notch { position: absolute; top: 9px; left: 50%; transform: translateX(-50%); width: 90px; height: 22px; background: #00000020; border-radius: 999px; }
 
-  .statusbar { display: flex; justify-content: space-between; align-items: center; padding: 2px 8px 10px; font-size: 12px; font-weight: 600; color: var(--ink); }
-  .statusbar .dots { display: flex; gap: 4px; align-items: center; }
-  .statusbar .syncdot { width: 8px; height: 8px; border-radius: 999px; background: var(--primary); }
+  .scr { padding: 0 16px; }
+  .statusbar { display: flex; justify-content: space-between; align-items: center; padding: 13px 12px 8px; font-size: 12px; font-weight: 700; color: var(--ink900); }
+  .statusbar .right { display: flex; gap: 5px; align-items: center; font-size: 11px; }
+  .syncdot { width: 9px; height: 9px; border-radius: 999px; background: var(--sync); box-shadow: 0 0 0 3px color-mix(in srgb, var(--sync) 22%, transparent); }
 
-  .greet-date { font-size: 11.5px; color: var(--ink-faint); padding: 0 6px; }
-  .greet { font-family: 'Fraunces', serif; font-size: 21px; font-weight: 600; padding: 2px 6px 0; color: var(--ink); }
+  .greet-date { font-size: 12px; color: var(--ink300); padding: 6px 4px 0; }
+  .greet { font-family: 'DM Serif Display', serif; font-size: 23px; padding: 3px 4px 0; color: var(--ink900); }
 
-  .bloom-wrap { display: flex; flex-direction: column; align-items: center; margin-top: 12px; }
-  .bloom-cap { margin-top: 8px; font-size: 12px; color: var(--ink-soft); }
+  .bloom-wrap { display: flex; flex-direction: column; align-items: center; margin-top: 14px; }
+  .bloom-cap { margin-top: 10px; font-size: 12.5px; color: var(--ink500); }
 
-  .chips { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; margin-top: 16px; padding: 0 4px; }
-  .chip { display: inline-flex; align-items: center; gap: 6px; font-size: 11.5px; font-weight: 500; border-radius: 999px; padding: 5px 11px; }
+  .chips { display: flex; flex-wrap: wrap; justify-content: center; gap: 7px; margin-top: 18px; }
+  .chip { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; border-radius: 999px; padding: 6px 12px; }
   .chip .cdot { width: 6px; height: 6px; border-radius: 999px; }
 
-  .toggle { display: flex; margin: 18px 4px 0; background: var(--bg-deep); border-radius: 999px; padding: 3px; }
-  .toggle span { flex: 1; text-align: center; font-size: 12px; font-weight: 500; padding: 6px 0; border-radius: 999px; color: var(--ink-soft); }
-  .toggle span.on { background: var(--surface); color: var(--ink); box-shadow: 0 1px 3px rgba(0,0,0,.1); }
+  .toggle { display: flex; margin: 20px 2px 0; background: var(--p200); border-radius: 999px; padding: 3px; }
+  .toggle span { flex: 1; text-align: center; font-size: 12.5px; font-weight: 600; padding: 7px 0; border-radius: 999px; color: var(--ink500); }
+  .toggle span.on { background: var(--p50); color: var(--ink900); box-shadow: 0 1px 3px rgba(0,0,0,.12); }
 
-  .count { text-align: right; font-size: 11px; color: var(--ink-faint); margin: 8px 6px 0; }
+  .count { text-align: right; font-size: 11.5px; color: var(--ink300); margin: 9px 4px 0; }
 
-  .habits { display: flex; flex-direction: column; gap: 9px; margin-top: 10px; padding: 0 2px; }
-  .habit { display: flex; align-items: center; gap: 11px; background: var(--surface); border-radius: 16px; padding: 12px 13px; box-shadow: 0 1px 3px rgba(0,0,0,.06); border-left: 3px solid var(--accent, var(--primary)); }
+  .habits { display: flex; flex-direction: column; gap: 9px; margin-top: 10px; }
+  .habit { display: flex; align-items: center; gap: 11px; background: var(--p50); border-radius: 13px; padding: 11px 14px 11px 11px;
+    box-shadow: 0 1px 2px rgba(0,0,0,.06); border-left: 3px solid var(--accent); }
   .check { width: 22px; height: 22px; border-radius: 999px; flex: none; display: flex; align-items: center; justify-content: center; }
-  .check.done { background: var(--accent, var(--primary)); }
-  .check.todo { box-shadow: inset 0 0 0 1.5px var(--ring); }
+  .check.done { background: var(--accent); }
+  .check.todo { box-shadow: inset 0 0 0 1.5px var(--p300); }
   .check svg { width: 12px; height: 12px; }
-  .habit .hname { font-size: 13.5px; color: var(--ink); flex: 1; }
-  .habit.done .hname { color: var(--ink-faint); text-decoration: line-through; }
+  .hbody { min-width: 0; flex: 1; }
+  .hname { font-size: 13.5px; color: var(--ink900); display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .habit.done .hname { color: var(--ink300); text-decoration: line-through; }
+  .harea { font-size: 11px; display: block; margin-top: 1px; }
+  .htime { font-size: 11px; color: var(--ink300); flex: none; }
 
-  .tug-head { font-size: 10px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-faint); margin: 18px 8px 8px; }
-  .tug { display: flex; align-items: center; gap: 11px; border: 1px dashed var(--tug-ring); border-radius: 16px; padding: 11px 13px; margin: 0 2px; }
-  .tug .tcheck { width: 20px; height: 20px; border-radius: 999px; box-shadow: inset 0 0 0 1.5px var(--tug-ring); flex: none; }
-  .tug .tname { font-size: 13px; color: var(--ink); flex: 1; }
-  .tug .ttag { font-size: 9px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-faint); }
+  .tug-head { font-size: 10px; font-weight: 700; letter-spacing: 0.13em; text-transform: uppercase; color: var(--ink300); margin: 20px 4px 9px; }
+  .tug { display: flex; align-items: center; gap: 11px; border: 1px dashed var(--tugring); border-radius: 13px; padding: 11px 14px; }
+  .tug .tcheck { width: 20px; height: 20px; border-radius: 999px; box-shadow: inset 0 0 0 1.5px var(--tugring); flex: none; }
+  .tug .tname { font-size: 13px; color: var(--ink900); flex: 1; }
+  .tug .ttag { font-size: 9px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink300); }
 
-  .fab { margin: 18px auto 2px; width: max-content; background: var(--primary); color: var(--on-primary); font-size: 12.5px; font-weight: 600; padding: 9px 18px; border-radius: 999px; box-shadow: 0 6px 16px -6px var(--primary); }
+  .fab { margin: 20px auto 0; width: max-content; background: var(--iris); color: var(--on-iris); font-size: 13px; font-weight: 700;
+    padding: 11px 20px; border-radius: 999px; box-shadow: 0 8px 20px -8px var(--iris); }
 
-  footer { text-align: center; margin-top: 64px; font-size: 13px; color: #8a7a5e; }
+  footer { text-align: center; margin-top: 70px; font-size: 13px; opacity: .55; }
 </style>
 </head>
 <body>
 <div class="page">
+  <div class="topbar">
+    <span class="brand">Harmony · themes</span>
+    <div class="switch">
+      <span class="lbl">View on</span>
+      <button data-c="grey" class="on">Studio grey</button>
+      <button data-c="white">White</button>
+      <button data-c="charcoal">Charcoal</button>
+      <button data-c="warm">Warm</button>
+    </div>
+  </div>
+
   <div class="intro">
-    <p class="eyebrow">Harmony · a major release</p>
+    <p class="eyebrow">A major release</p>
     <h1>Choose your light</h1>
-    <p>Harmony has always been one warm terracotta on cream. This release lets a person pick the mood they open into. The headline is <strong>Mango Sunshine</strong> — a warm, golden, sunflower yellow that should make you smile the moment the app opens. Below: seven explorations of that yellow to choose from, then complementary themes (with terracotta kept as the default). Every theme here is one small set of colour tokens, so adding or tuning one later is a few lines, and a quick toggle or feature flag can gate them.</p>
+    <p>Every preview below is built from the app's real colour tokens and the real Home layout, so a theme here is what the app actually becomes. A theme reskins the chrome — background, surfaces, text, and the brand accent (the bloom's heart, the buttons). The colours of your areas stay your own, so the bloom keeps your meaning while the whole room changes light. Use the switcher above to view any theme on a neutral, white, or dark backdrop.</p>
   </div>
 
   <div class="section-head">
-    <p class="eyebrow">The headline · 7 explorations</p>
+    <p class="eyebrow">The headline · 12 explorations</p>
     <h2>Mango Sunshine</h2>
-    <p>“A warm welcoming yellow, cream palette. A sunshine yellow. Something that makes you happy when you open the app, a nice warm golden yellow that makes the app pop, like a sunflower.” The yellow carries the joy through petals, buttons and the done-state; text stays a deep warm cocoa so everything is readable on cream.</p>
+    <p>“A warm welcoming yellow and cream. A sunshine yellow that makes you happy the moment you open the app — a golden, sunflower yellow that makes it pop.” From the brightest sunbeam to a grounded turmeric, ordered roughly bright → warm → earthy. Text stays a deep cocoa so cream never glares.</p>
   </div>
-  <div class="grid" id="grid-mango"></div>
+  <div class="grid" id="g-mango"></div>
 
   <div class="section-head">
-    <p class="eyebrow">Complementary · the supporting cast</p>
-    <h2>The other themes</h2>
-    <p>Candidates for the remaining slots alongside Mango Sunshine. Terracotta is the current look and stays the default. Indigo Night shows the same token system handling a dark theme, so the palette can grow in any direction later.</p>
+    <p class="eyebrow">You liked this · 4 greens</p>
+    <h2>Sage Grove &amp; the greens</h2>
+    <p>Restful and natural, from a brighter fern to a deep moss and a cooler eucalyptus.</p>
   </div>
-  <div class="grid" id="grid-other"></div>
+  <div class="grid" id="g-sage"></div>
 
-  <footer>Harmony theme mockups · Mango Sunshine and friends</footer>
+  <div class="section-head">
+    <p class="eyebrow">You liked this · 4 blues</p>
+    <h2>Ocean Calm &amp; the blues</h2>
+    <p>Cool and clear, from a vivid lagoon to a deep tidewater and an airy sky.</p>
+  </div>
+  <div class="grid" id="g-ocean"></div>
+
+  <div class="section-head">
+    <p class="eyebrow">You liked this · 4 darks</p>
+    <h2>Indigo Night &amp; the darks</h2>
+    <p>The same tokens, after dark. Each pairs a deep ground with one luminous accent — indigo, plum, forest, or a warm ember. Area colours lift slightly so they stay legible on dark.</p>
+  </div>
+  <div class="grid" id="g-dark"></div>
+
+  <div class="section-head">
+    <p class="eyebrow">The default &amp; friends</p>
+    <h2>Terracotta &amp; others</h2>
+    <p>Terracotta is the current app, pixel-for-pixel, and stays the default. A few more light options round things out.</p>
+  </div>
+  <div class="grid" id="g-other"></div>
+
+  <footer>Harmony theme mockups · built from the app's real tokens</footer>
 </div>
 
 <script>
-// One theme = one token set. This is the exact shape the app would carry: swap
-// the values behind the CSS variables and the whole UI re-skins. Scalable by
-// design — new themes are just another entry, gated by a flag or a toggle.
-const THEMES_MANGO = [
-  { id:'sunflower', name:'Sunflower', focus:true, badge:'★ Mango Sunshine',
-    tag:'The signature. A true golden sunflower on warm cream. Joyful, sunny, unmistakably the hit of the release.',
-    bg:'#FFF7E6', bgDeep:'#F4E6C4', surface:'#FFFDF6', ink:'#3A2C16', inkSoft:'#7A6743', inkFaint:'#A8946C',
-    primary:'#EFA417', onPrimary:'#3A2C16', ring:'#E6D2A6', tugRing:'#B6A079',
-    petals:['#F2A900','#E8911E','#D98C2B','#C98A3B','#E0A52E','#F4B83C'] },
-  { id:'goldenhour', name:'Golden Hour', focus:true, badge:'★ Mango Sunshine',
-    tag:'Warmer and deeper, the light just before dusk. Amber-gold on toasted cream.',
-    bg:'#FBEFD6', bgDeep:'#F0DEB4', surface:'#FFF8E9', ink:'#3D2C14', inkSoft:'#7E6840', inkFaint:'#AB9468',
-    primary:'#E0962A', onPrimary:'#3D2C14', ring:'#E5CF9E', tugRing:'#B59E72',
-    petals:['#E0962A','#D2842A','#E8A53A','#C97E2E','#D99230','#EDB152'] },
-  { id:'lemoncream', name:'Lemon Cream', focus:true, badge:'★ Mango Sunshine',
-    tag:'Brighter and lighter, the airiest of the set. Lemon yellow on the palest cream.',
-    bg:'#FFFBF0', bgDeep:'#F7EDCB', surface:'#FFFFFB', ink:'#403615', inkSoft:'#857440', inkFaint:'#B0A06A',
-    primary:'#F4C430', onPrimary:'#403615', ring:'#EFE0A6', tugRing:'#B8A878',
-    petals:['#F4C430','#EBB52A','#F2CB46','#E0AE2C','#F0C53A','#F8D659'] },
-  { id:'honey', name:'Honey', focus:true, badge:'★ Mango Sunshine',
-    tag:'Softer and rounder, a calmer golden. Honey on oat cream for a gentler glow.',
-    bg:'#F7EFDD', bgDeep:'#ECDDBE', surface:'#FDF7EA', ink:'#3C2F1B', inkSoft:'#7C6A48', inkFaint:'#A89571',
-    primary:'#D9A63A', onPrimary:'#3C2F1B', ring:'#E2D0A4', tugRing:'#B19C75',
-    petals:['#D9A63A','#CC9636','#E0B14C','#C58E38','#D6A540','#E8C062'] },
-  { id:'marigold', name:'Marigold Pop', focus:true, badge:'★ Mango Sunshine',
-    tag:'The most saturated, maximum pop. A bold marigold on crisp cream for the brightest open.',
-    bg:'#FFF6E0', bgDeep:'#F6E4B6', surface:'#FFFDF7', ink:'#382A12', inkSoft:'#7C673C', inkFaint:'#AC9460',
-    primary:'#F59E00', onPrimary:'#3A2A0E', ring:'#EBD49C', tugRing:'#B49C6E',
-    petals:['#F59E00','#EA8E12','#F7AE1F','#DD8A1B','#F0A012','#FBBC3A'] },
-  { id:'apricot', name:'Apricot Gold', focus:true, badge:'★ Mango Sunshine',
-    tag:'A touch toward orange, like a ripe mango. Apricot-gold on peach cream, warm and fruity.',
-    bg:'#FEF1DD', bgDeep:'#F6DFBC', surface:'#FFF8EC', ink:'#3E2C18', inkSoft:'#82663F', inkFaint:'#AE9166',
-    primary:'#EE9F3A', onPrimary:'#3E2C18', ring:'#E9CFA2', tugRing:'#B59B72',
-    petals:['#EE9F3A','#E68A34','#F0AB4C','#DC8233','#EC9A3C','#F4B860'] },
-  { id:'softsun', name:'Soft Sun', focus:true, badge:'★ Mango Sunshine',
-    tag:'The most grounded, never loud. A muted golden on warm linen for an all-day calm.',
-    bg:'#F5ECD8', bgDeep:'#E9D9B8', surface:'#FBF4E4', ink:'#3B2F1C', inkSoft:'#796847', inkFaint:'#A6936E',
-    primary:'#D2A23E', onPrimary:'#3B2F1C', ring:'#DFCEA2', tugRing:'#AE9970',
-    petals:['#D2A23E','#C5933A','#DCAF50','#BE8C3A','#D09E40','#E2B95E'] },
+// Area colours are the user's data, not the theme, so they stay constant across
+// every theme (the bloom keeps its meaning). Dark themes lift them for legibility.
+const AREAS = [
+  { n:'Body', c:'#C0392B' }, { n:'Mind', c:'#3556A8' }, { n:'Creativity', c:'#7A4FB0' },
+  { n:'Connection', c:'#C66A2C' }, { n:'Movement', c:'#2B7558' }, { n:'Rest', c:'#B7902A' },
+];
+const AREAS_DARK = [
+  { n:'Body', c:'#EA6A5E' }, { n:'Mind', c:'#7E98E4' }, { n:'Creativity', c:'#B98EE6' },
+  { n:'Connection', c:'#E89A56' }, { n:'Movement', c:'#5FBE92' }, { n:'Rest', c:'#E6C64E' },
 ];
 
-const THEMES_OTHER = [
-  { id:'terracotta', name:'Terracotta', badge:'Current default', badgeClass:'def',
-    tag:'The Harmony you know, kept as the default. Warm terracotta and iris on soft parchment.',
-    bg:'#FBF1E4', bgDeep:'#F0E2CC', surface:'#FFFAF1', ink:'#2A1E12', inkSoft:'#6E5C44', inkFaint:'#A08C70',
-    primary:'#574887', onPrimary:'#FBF1E4', ring:'#E6D6BC', tugRing:'#A99B86',
-    petals:['#B5532F','#B7902A','#5B7A35','#7A3B6E','#3A7CA8','#944021'] },
-  { id:'sage', name:'Sage Grove',
-    tag:'Quiet and green. Soft sage on warm paper, the most restful of the set.',
-    bg:'#F2F1E4', bgDeep:'#E2E4CF', surface:'#FBFBF2', ink:'#23291C', inkSoft:'#566049', inkFaint:'#8B9577',
-    primary:'#4A7038', onPrimary:'#F2F1E4', ring:'#D4D9BE', tugRing:'#98A085',
-    petals:['#4A7038','#5E9434','#2B7558','#6F7032','#267A7A','#94405E'] },
-  { id:'ocean', name:'Ocean Calm',
-    tag:'Cool and clear. Teal and ocean blue on a misty paper.',
-    bg:'#EDF2F2', bgDeep:'#D6E2E2', surface:'#F8FBFB', ink:'#16282B', inkSoft:'#456066', inkFaint:'#7C969C',
-    primary:'#2E6F89', onPrimary:'#EDF2F2', ring:'#CBDCDC', tugRing:'#88A0A4',
-    petals:['#2E6F89','#267A7A','#2E8C8C','#3A7CA8','#2B7558','#3556A8'] },
-  { id:'plum', name:'Plum Dusk',
-    tag:'Soft and twilit. Plum and violet on a pale lilac paper.',
-    bg:'#F3EEF2', bgDeep:'#E5DAE4', surface:'#FBF8FB', ink:'#281E27', inkSoft:'#5E4F5C', inkFaint:'#998A97',
-    primary:'#7A3B6E', onPrimary:'#F3EEF2', ring:'#DECEDC', tugRing:'#A294A0',
-    petals:['#7A3B6E','#94405E','#A83C7E','#574887','#7A4FB0','#404780'] },
-  { id:'rose', name:'Rose Quartz',
-    tag:'Tender and warm. A blush rose on warm white.',
-    bg:'#F8EFEC', bgDeep:'#EFDCD7', surface:'#FFFAF8', ink:'#2C1E1C', inkSoft:'#6E544F', inkFaint:'#A88E88',
-    primary:'#94405E', onPrimary:'#F8EFEC', ring:'#E8D2CC', tugRing:'#B49A94',
-    petals:['#94405E','#A83C7E','#B5532F','#7A3B6E','#C0392B','#9E343C'] },
-  { id:'slate', name:'Slate Quiet',
-    tag:'Understated and neutral. Graphite and storm on a cool paper, for focus.',
-    bg:'#EEEEEC', bgDeep:'#DCDCD8', surface:'#F9F9F7', ink:'#23262A', inkSoft:'#535860', inkFaint:'#888E96',
-    primary:'#5A636F', onPrimary:'#EEEEEC', ring:'#D2D3CF', tugRing:'#9AA0A6',
-    petals:['#5A636F','#404040','#2E6F89','#6F7032','#7A3B6E','#9E343C'] },
-  { id:'indigonight', name:'Indigo Night', badge:'Dark', badgeClass:'dark',
-    tag:'Proof the system handles dark too. Soft indigo light on a deep night ground.',
-    bg:'#1C1F2E', bgDeep:'#171A26', surface:'#262A3C', ink:'#ECEAF4', inkSoft:'#AAA8C2', inkFaint:'#6E6E8A',
-    primary:'#8C7CE0', onPrimary:'#16182A', ring:'#3A3E55', tugRing:'#54586E',
-    petals:['#8C7CE0','#5E9AD0','#5FB59A','#C58AD0','#E0A55A','#D97A8E'] },
-  { id:'lavender', name:'Lavender Mist',
-    tag:'Gentle and airy. A pale lavender on cream, soft as morning.',
-    bg:'#F4F1F8', bgDeep:'#E5DEEF', surface:'#FBFAFE', ink:'#262232', inkSoft:'#5C5470', inkFaint:'#938CA8',
-    primary:'#7A4FB0', onPrimary:'#F4F1F8', ring:'#DDD3EC', tugRing:'#A096B4',
-    petals:['#7A4FB0','#574887','#404780','#94405E','#3A7CA8','#7A3B6E'] },
+// Each theme is one token set behind the app's vars (parchment p*, ink*, iris=
+// brand accent). Swap these and the whole UI re-skins.
+const MANGO = [
+  { id:'sunbeam', name:'Sunbeam', focus:1, badge:'★ Mango', tag:'Brightest and cleanest. A vivid sun on near-white, maximum lift and contrast.',
+    p50:'#FFFFFF', p100:'#FFFCEF', p200:'#FBEFC6', p300:'#F4E2A0', ink900:'#3A2A0E', ink500:'#8C7440', ink300:'#BBA468', iris:'#FFB400', onIris:'#3A2A0E', sync:'#6E8B2E' },
+  { id:'lemon', name:'Lemon Cream', focus:1, badge:'★ Mango', tag:'Airy and zesty. A bright lemon on the palest cream.',
+    p50:'#FFFFF8', p100:'#FFFBEA', p200:'#FBEFBE', p300:'#F2E199', ink900:'#42380F', ink500:'#8C7838', ink300:'#BCA866', iris:'#F4C20D', onIris:'#42380F', sync:'#6E8B2E' },
+  { id:'marigold', name:'Marigold Pop', focus:1, badge:'★ Mango', tag:'Saturated and joyful. The boldest yellow for the brightest open.',
+    p50:'#FFFCF0', p100:'#FFF1C9', p200:'#FBE39E', p300:'#F4CF72', ink900:'#3A2A0E', ink500:'#876C2C', ink300:'#B59A5C', iris:'#F59E00', onIris:'#3A2A0E', sync:'#6E8B2E' },
+  { id:'sunflower', name:'Sunflower', focus:1, badge:'★ Mango · pick', tag:'The signature. A true golden sunflower on warm cream — sunny, happy, unmistakable.',
+    p50:'#FFFCF2', p100:'#FFF4D6', p200:'#FBE7B0', p300:'#F1D78C', ink900:'#3A2A0E', ink500:'#8A7038', ink300:'#BBA268', iris:'#F2A900', onIris:'#3A2A0E', sync:'#6E8B2E' },
+  { id:'mango', name:'Mango', focus:1, badge:'★ Mango', tag:'A ripe-mango lean toward orange. Fruity and warm, the most playful gold.',
+    p50:'#FFF8E6', p100:'#FFEDC2', p200:'#FBDB95', p300:'#F6C868', ink900:'#3D260C', ink500:'#8A6630', ink300:'#BC9A5E', iris:'#F58A1F', onIris:'#3D260C', sync:'#6E8B2E' },
+  { id:'apricot', name:'Apricot Gold', focus:1, badge:'★ Mango', tag:'Soft orange-gold on peach cream. Warm and welcoming.',
+    p50:'#FFF8EA', p100:'#FEEFCF', p200:'#F8DDAE', p300:'#EFC98C', ink900:'#3E2C18', ink500:'#856840', ink300:'#B4986C', iris:'#EE9A2E', onIris:'#3E2C18', sync:'#6E8B2E' },
+  { id:'goldenhour', name:'Golden Hour', focus:1, badge:'★ Mango', tag:'The light just before dusk. A deep amber-gold on toasted cream.',
+    p50:'#FFF7E4', p100:'#FBEAC6', p200:'#F4DCA6', p300:'#E9CB86', ink900:'#3D2C10', ink500:'#806838', ink300:'#B09662', iris:'#E0902A', onIris:'#3D2C10', sync:'#6E8B2E' },
+  { id:'saffron', name:'Saffron', focus:1, badge:'★ Mango', tag:'Rich and spiced. A deep saffron-orange, the most characterful of the warm set.',
+    p50:'#FEF5DE', p100:'#FBE7BE', p200:'#F4D596', p300:'#ECC079', ink900:'#3C2810', ink500:'#7E5E2E', ink300:'#B0905C', iris:'#E8841C', onIris:'#3C2810', sync:'#6E8B2E' },
+  { id:'honey', name:'Honey', focus:1, badge:'★ Mango', tag:'Softer and rounder, a calmer glow. Honey on oat cream.',
+    p50:'#FEF8E8', p100:'#F8EFD3', p200:'#EEDDB0', p300:'#E4CE92', ink900:'#3C2F1B', ink500:'#7C6638', ink300:'#AD9468', iris:'#D9A521', onIris:'#3C2F1B', sync:'#6E8B2E' },
+  { id:'butter', name:'Butter', focus:1, badge:'★ Mango', tag:'The gentlest. A pale, creamy butter yellow, soft and unhurried.',
+    p50:'#FFFDF3', p100:'#FFF8DD', p200:'#FBEFBF', p300:'#F3E3A0', ink900:'#403410', ink500:'#88743E', ink300:'#B9A66E', iris:'#F0C53D', onIris:'#403410', sync:'#6E8B2E' },
+  { id:'softsun', name:'Soft Sun', focus:1, badge:'★ Mango', tag:'Grounded and all-day calm. A muted golden on warm linen.',
+    p50:'#FBF4DF', p100:'#F4EAD0', p200:'#E9D7AE', p300:'#DECB9E', ink900:'#3B2F1C', ink500:'#796744', ink300:'#A6926A', iris:'#D2A33C', onIris:'#3B2F1C', sync:'#6E8B2E' },
+  { id:'turmeric', name:'Turmeric', focus:1, badge:'★ Mango', tag:'Earthy and deep. A grounded golden-ochre with real warmth.',
+    p50:'#FBF1D2', p100:'#F3E3B6', p200:'#E8D199', p300:'#DCC082', ink900:'#3A2A0E', ink500:'#7C6228', ink300:'#AC9054', iris:'#C8901C', onIris:'#3A2A0E', sync:'#6E8B2E' },
 ];
 
-function polar(cx, cy, r, deg) {
-  const a = (deg - 90) * Math.PI / 180;
-  return [cx + r * Math.cos(a), cy + r * Math.sin(a)];
-}
-function donut(cx, cy, rIn, rOut, s, e) {
-  const [x1,y1]=polar(cx,cy,rOut,s),[x2,y2]=polar(cx,cy,rOut,e);
-  const [x3,y3]=polar(cx,cy,rIn,e),[x4,y4]=polar(cx,cy,rIn,s);
-  const big = e - s <= 180 ? 0 : 1;
+const SAGE = [
+  { id:'sage', name:'Sage Grove', tag:'The restful original. Soft sage on warm paper.',
+    p50:'#FAFBEF', p100:'#EEF1DE', p200:'#DDE3C4', p300:'#CDD6A8', ink900:'#20271A', ink500:'#54603F', ink300:'#8A9670', iris:'#5B7A35', onIris:'#F4F7E6', sync:'#5B7A35' },
+  { id:'fern', name:'Fern', tag:'Brighter and livelier. A fresh fern green with more pop.',
+    p50:'#F8FCEE', p100:'#EAF3DB', p200:'#D6E6B8', p300:'#C2DA9C', ink900:'#1E2A16', ink500:'#506439', ink300:'#869868', iris:'#5E9434', onIris:'#F4FAE6', sync:'#5E9434' },
+  { id:'moss', name:'Moss', tag:'Deeper and earthier. A grounded forest moss.',
+    p50:'#F6F8EA', p100:'#E8ECD8', p200:'#D4DBBC', p300:'#C2CBA2', ink900:'#1E2618', ink500:'#4E5C38', ink300:'#869066', iris:'#47602A', onIris:'#EFF3E2', sync:'#47602A' },
+  { id:'eucalyptus', name:'Eucalyptus', tag:'Cooler and misty. A green leaning to teal, calm and clean.',
+    p50:'#F7FBF8', p100:'#E8F0EC', p200:'#D2E2DA', p300:'#BFD6CC', ink900:'#172722', ink500:'#46605A', ink300:'#7E9690', iris:'#3E7A5E', onIris:'#EEF6F2', sync:'#3E7A5E' },
+];
+
+const OCEAN = [
+  { id:'ocean', name:'Ocean Calm', tag:'The original. Teal-blue on a soft mist.',
+    p50:'#F6FBFB', p100:'#E7F0F1', p200:'#D0E0E2', p300:'#BBD4D6', ink900:'#142529', ink500:'#435C63', ink300:'#7C969C', iris:'#2E6F89', onIris:'#EEF6F7', sync:'#2E8C8C' },
+  { id:'lagoon', name:'Lagoon', tag:'Brighter and tropical. A vivid lagoon teal that pops.',
+    p50:'#F4FCFB', p100:'#E2F2F1', p200:'#C8E5E2', p300:'#ABD8D3', ink900:'#0F2826', ink500:'#3C605C', ink300:'#789C98', iris:'#1FA0A0', onIris:'#EAFAF8', sync:'#1FA0A0' },
+  { id:'tidewater', name:'Tidewater', tag:'Deeper and steadier. A navy-leaning blue with weight.',
+    p50:'#F5FAFD', p100:'#E5ECF0', p200:'#CCDCE6', p300:'#B2C9D6', ink900:'#13212B', ink500:'#42566A', ink300:'#7C8EA0', iris:'#2A5A86', onIris:'#EDF4FA', sync:'#2E8C8C' },
+  { id:'sky', name:'Sky', tag:'Airy and light. An open sky blue, the brightest of the blues.',
+    p50:'#F8FCFE', p100:'#ECF3F8', p200:'#D6E6F0', p300:'#BFD8E8', ink900:'#16242E', ink500:'#44586A', ink300:'#7C92A6', iris:'#3A7CC0', onIris:'#EEF5FC', sync:'#3A7CC0' },
+];
+
+const DARK = [
+  { id:'indigonight', name:'Indigo Night', dark:1, badge:'Dark', badgeClass:'dark', tag:'Soft indigo light on a deep night ground. The calm one.',
+    p50:'#262A3C', p100:'#1B1E2C', p200:'#2E3346', p300:'#3F4459', ink900:'#ECEAF4', ink500:'#ABA9C4', ink300:'#6E6E8A', iris:'#8C7CE0', onIris:'#16182A', sync:'#8FBF5A' },
+  { id:'midnightplum', name:'Midnight Plum', dark:1, badge:'Dark', badgeClass:'dark', tag:'A plum-magenta glow on aubergine. The most expressive dark.',
+    p50:'#2E2438', p100:'#221A2A', p200:'#382C44', p300:'#4A3A56', ink900:'#F0E8F2', ink500:'#BBA8C2', ink300:'#7E6E86', iris:'#C77DD0', onIris:'#1E1226', sync:'#8FBF5A' },
+  { id:'deepforest', name:'Deep Forest', dark:1, badge:'Dark', badgeClass:'dark', tag:'A mint accent on deep pine. Quiet and grounding.',
+    p50:'#213029', p100:'#16201B', p200:'#27362D', p300:'#37463B', ink900:'#E8F0E8', ink500:'#A8C0AE', ink300:'#6E8674', iris:'#5FB58A', onIris:'#0E1812', sync:'#7CC06A' },
+  { id:'charcoalember', name:'Charcoal Ember', dark:1, badge:'Dark', badgeClass:'dark', tag:'A warm amber ember on charcoal. Elegant and cosy, a dark cousin of Mango.',
+    p50:'#2C2926', p100:'#201E1C', p200:'#34302B', p300:'#46403A', ink900:'#F2EEE8', ink500:'#BEB6AA', ink300:'#847C70', iris:'#E0962A', onIris:'#1E1812', sync:'#9FBF5A' },
+];
+
+const OTHER = [
+  { id:'terracotta', name:'Terracotta', badge:'Current default', badgeClass:'def', tag:'The Harmony you know, exactly. Warm terracotta on soft parchment. Stays the default.',
+    p50:'#FFFAF1', p100:'#FBF1E4', p200:'#F3E4CF', p300:'#E7D3B4', ink900:'#23190F', ink500:'#76654C', ink300:'#AB977A', iris:'#B5532F', onIris:'#FFFAF1', sync:'#5B7A35' },
+  { id:'plum', name:'Plum Dusk', tag:'Soft and twilit. Plum on a pale lilac paper.',
+    p50:'#FBF8FB', p100:'#F3EEF2', p200:'#E5DAE4', p300:'#D6C7D4', ink900:'#281E27', ink500:'#5E4F5C', ink300:'#998A97', iris:'#7A3B6E', onIris:'#F7F0F5', sync:'#5B7A35' },
+  { id:'rose', name:'Rose Quartz', tag:'Tender and warm. A blush rose on warm white.',
+    p50:'#FFFAF8', p100:'#F8EFEC', p200:'#EFDCD7', p300:'#E4C8C1', ink900:'#2C1E1C', ink500:'#6E544F', ink300:'#A88E88', iris:'#94405E', onIris:'#FAF0EE', sync:'#5B7A35' },
+  { id:'lavender', name:'Lavender Mist', tag:'Gentle and airy. A pale lavender on cream.',
+    p50:'#FBFAFE', p100:'#F4F1F8', p200:'#E5DEEF', p300:'#D5C9E6', ink900:'#262232', ink500:'#5C5470', ink300:'#938CA8', iris:'#7A4FB0', onIris:'#F6F2FB', sync:'#5B7A35' },
+  { id:'slate', name:'Slate Quiet', tag:'Understated and neutral. Graphite on a cool paper, for focus.',
+    p50:'#F9F9F7', p100:'#EEEEEC', p200:'#DCDCD8', p300:'#CACAC4', ink900:'#23262A', ink500:'#535860', ink300:'#888E96', iris:'#5A636F', onIris:'#F4F4F2', sync:'#5B7A35' },
+];
+
+function polar(cx, cy, r, deg){ const a=(deg-90)*Math.PI/180; return [cx+r*Math.cos(a), cy+r*Math.sin(a)]; }
+function donut(cx, cy, rIn, rOut, s, e){
+  const [x1,y1]=polar(cx,cy,rOut,s),[x2,y2]=polar(cx,cy,rOut,e),[x3,y3]=polar(cx,cy,rIn,e),[x4,y4]=polar(cx,cy,rIn,s);
+  const big = e-s<=180?0:1;
   return `M${x1} ${y1} A${rOut} ${rOut} 0 ${big} 1 ${x2} ${y2} L${x3} ${y3} A${rIn} ${rIn} 0 ${big} 0 ${x4} ${y4} Z`;
 }
-function bloom(t) {
-  const cx=60, cy=60, rIn=20, rMax=52, gap=5;
-  const acts=[0.95,0.55,0.8,0.35,0.7,0.5];
-  let petals='';
-  petals += `<circle cx="${cx}" cy="${cy}" r="34" fill="none" stroke="${t.ring}" stroke-dasharray="2 4"/>`;
-  petals += `<circle cx="${cx}" cy="${cy}" r="46" fill="none" stroke="${t.ring}" stroke-dasharray="2 4"/>`;
+function bloom(t, areas){
+  const cx=60, cy=60, rIn=20, rMax=52, gap=5, acts=[0.96,0.55,0.82,0.34,0.7,0.48];
+  let s = `<circle cx="${cx}" cy="${cy}" r="34" fill="none" stroke="${t.p300}" stroke-dasharray="2 4"/>`;
+  s += `<circle cx="${cx}" cy="${cy}" r="46" fill="none" stroke="${t.p300}" stroke-dasharray="2 4"/>`;
   for (let i=0;i<6;i++){
-    const s=i*60+gap/2, e=(i+1)*60-gap/2;
-    const rOut=rIn+(rMax-rIn)*acts[i];
-    petals += `<path d="${donut(cx,cy,rIn,rMax,s,e)}" fill="${t.petals[i]}" opacity="0.14"/>`;
-    petals += `<path d="${donut(cx,cy,rIn,rOut,s,e)}" fill="${t.petals[i]}" opacity="0.9"/>`;
+    const a=i*60+gap/2, b=(i+1)*60-gap/2, rOut=rIn+(rMax-rIn)*acts[i];
+    s += `<path d="${donut(cx,cy,rIn,rMax,a,b)}" fill="${areas[i].c}" opacity="0.14"/>`;
+    s += `<path d="${donut(cx,cy,rIn,rOut,a,b)}" fill="${areas[i].c}" opacity="0.92"/>`;
   }
-  petals += `<circle cx="${cx}" cy="${cy}" r="16" fill="${t.surface}"/>`;
-  petals += `<text x="${cx}" y="${cy+6}" text-anchor="middle" font-family="Fraunces, serif" font-size="20" fill="${t.primary}">h</text>`;
-  return `<svg viewBox="0 0 120 120" width="148" height="148" aria-hidden="true">${petals}</svg>`;
+  s += `<circle cx="${cx}" cy="${cy}" r="16" fill="${t.p50}"/>`;
+  s += `<text x="${cx}" y="${cy+6}" text-anchor="middle" font-family="'DM Serif Display', serif" font-size="20" fill="${t.iris}">h</text>`;
+  return `<svg viewBox="0 0 120 120" width="156" height="156" aria-hidden="true">${s}</svg>`;
 }
-function check(color){ return `<svg viewBox="0 0 24 24" fill="none" stroke="${color}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg>`; }
+const tick = c => `<svg viewBox="0 0 24 24" fill="none" stroke="${c}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg>`;
+const chip = a => `<span class="chip" style="background:${a.c}24;color:${a.c}"><span class="cdot" style="background:${a.c}"></span>${a.n}</span>`;
 
-function chip(name, color, soft) {
-  return `<span class="chip" style="background:${color}1f;color:${color}"><span class="cdot" style="background:${color}"></span>${name}</span>`;
-}
-
-function render(t) {
-  const vars = `--bg:${t.bg};--bg-deep:${t.bgDeep};--surface:${t.surface};--ink:${t.ink};--ink-soft:${t.inkSoft};--ink-faint:${t.inkFaint};--primary:${t.primary};--on-primary:${t.onPrimary};--ring:${t.ring};--tug-ring:${t.tugRing}`;
+function render(t){
+  const areas = t.dark ? AREAS_DARK : AREAS;
+  const vars = `--p50:${t.p50};--p100:${t.p100};--p200:${t.p200};--p300:${t.p300};--ink900:${t.ink900};--ink500:${t.ink500};--ink300:${t.ink300};--iris:${t.iris};--on-iris:${t.onIris};--sync:${t.sync};--tugring:${t.dark?'#8A8FA0':'#A99B86'}`;
   const badge = t.badge ? `<span class="badge ${t.badgeClass||''}">${t.badge}</span>` : '';
+  const rows = [
+    { a:areas[0], name:'Morning walk', time:'Morning', done:1 },
+    { a:areas[1], name:'Read a few pages', time:'Evening', done:0 },
+    { a:areas[3], name:'Message a friend', time:'Anytime', done:1 },
+  ];
+  const habits = rows.map(r => `
+    <div class="habit ${r.done?'done':''}" style="--accent:${r.a.c}">
+      <span class="check ${r.done?'done':'todo'}">${r.done?tick('#fff'):''}</span>
+      <span class="hbody"><span class="hname">${r.name}</span><span class="harea" style="color:${r.a.c}">${r.a.n}</span></span>
+      <span class="htime">${r.time}</span>
+    </div>`).join('');
   return `
   <div class="card ${t.focus?'focus':''}">
-    <div class="label">
-      <div class="name">${t.name} ${badge}</div>
-      <div class="tag">${t.tag}</div>
-    </div>
+    <div class="label"><div class="name">${t.name} ${badge}</div><div class="tag">${t.tag}</div></div>
     <div class="phone" style="${vars}">
-      <div class="statusbar"><span>9:41</span><span class="dots"><span class="syncdot"></span></span></div>
-      <div class="greet-date">Tuesday, June 30</div>
-      <div class="greet">Good morning, Noor.</div>
-      <div class="bloom-wrap">${bloom(t)}<div class="bloom-cap">In a good rhythm today.</div></div>
-      <div class="chips">
-        ${chip('Body', t.petals[0])}
-        ${chip('Mind', t.petals[2])}
-        ${chip('Connection', t.petals[4])}
+      <div class="notch"></div>
+      <div class="statusbar"><span>9:41</span><span class="right"><span class="syncdot"></span></span></div>
+      <div class="scr">
+        <div class="greet-date">Tuesday, June 30</div>
+        <div class="greet">Good morning, Noor.</div>
+        <div class="bloom-wrap">${bloom(t, areas)}<div class="bloom-cap">In a good rhythm today.</div></div>
+        <div class="chips">${chip(areas[0])}${chip(areas[1])}${chip(areas[3])}</div>
+        <div class="toggle"><span class="on">Today</span><span>All</span></div>
+        <div class="count">2 of 3 tended to</div>
+        <div class="habits">${habits}</div>
+        <div class="tug-head">Tugs</div>
+        <div class="tug"><span class="tcheck"></span><span class="tname">Late-night scrolling</span><span class="ttag">tug</span></div>
+        <div class="fab">＋ Add habit</div>
       </div>
-      <div class="toggle"><span class="on">Today</span><span>All</span></div>
-      <div class="count">2 of 3 tended to</div>
-      <div class="habits">
-        <div class="habit done" style="--accent:${t.petals[0]}">
-          <span class="check done">${check('#fff')}</span><span class="hname">Morning walk</span>
-        </div>
-        <div class="habit" style="--accent:${t.petals[2]}">
-          <span class="check todo"></span><span class="hname">Read a few pages</span>
-        </div>
-        <div class="habit done" style="--accent:${t.petals[4]}">
-          <span class="check done">${check('#fff')}</span><span class="hname">Message a friend</span>
-        </div>
-      </div>
-      <div class="tug-head">Tugs</div>
-      <div class="tug"><span class="tcheck"></span><span class="tname">Late-night scrolling</span><span class="ttag">tug</span></div>
-      <div class="fab">＋ Add habit</div>
     </div>
   </div>`;
 }
 
-document.getElementById('grid-mango').innerHTML = THEMES_MANGO.map(render).join('');
-document.getElementById('grid-other').innerHTML = THEMES_OTHER.map(render).join('');
+const put = (id, list) => document.getElementById(id).innerHTML = list.map(render).join('');
+put('g-mango', MANGO); put('g-sage', SAGE); put('g-ocean', OCEAN); put('g-dark', DARK); put('g-other', OTHER);
+
+// Backdrop switcher: view any theme against neutral, white, dark, or warm space.
+const CANVAS = {
+  grey:    { '--canvas':'#e9e9ec', '--canvas-ink':'#2a2a2e' },
+  white:   { '--canvas':'#ffffff', '--canvas-ink':'#2a2a2e' },
+  charcoal:{ '--canvas':'#1c1c20', '--canvas-ink':'#e8e8ec' },
+  warm:    { '--canvas':'#ece6dc', '--canvas-ink':'#2b2218' },
+};
+const sw = document.querySelector('.switch');
+sw.addEventListener('click', (e) => {
+  const btn = e.target.closest('button'); if (!btn) return;
+  sw.querySelectorAll('button').forEach(b => b.classList.toggle('on', b === btn));
+  const c = CANVAS[btn.dataset.c];
+  for (const k in c) document.body.style.setProperty(k, c[k]);
+});
 </script>
 </body>
 </html>

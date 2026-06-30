@@ -111,14 +111,17 @@ export default function GuideArt({ kind }: { kind: GuideArtKind }) {
         </div>
       );
     case 'logo':
+      // The real app icon, the same one that sits on the home screen.
       return (
         <div className="flex flex-col items-center gap-3">
-          <div
-            className="flex h-20 w-20 items-center justify-center shadow-card"
-            style={{ backgroundColor: 'var(--iris-500)', borderRadius: '22px' }}
-          >
-            <span className="font-serif text-5xl leading-none text-on-primary">h</span>
-          </div>
+          <img
+            src="/icons/icon-192.png"
+            alt="Harmony"
+            width={80}
+            height={80}
+            className="shadow-card"
+            style={{ borderRadius: '20px' }}
+          />
           <span className="font-serif text-lg text-ink-900">Harmony</span>
         </div>
       );

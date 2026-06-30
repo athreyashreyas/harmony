@@ -4,6 +4,11 @@ compatibility_date = "2024-09-23"
 # web-push relies on Node's crypto for payload encryption and VAPID signing.
 compatibility_flags = ["nodejs_compat"]
 
+# Workers Logs. On by default for the deployed worker; mirrored here so local
+# dev and the dashboard stay in sync (this is the change Cloudflare prompts for).
+[observability]
+enabled = true
+
 # Runs every minute (Cloudflare cron's finest granularity) so habit reminders
 # fire within about a minute of their set time. Drift and the daily summary are
 # self-throttled, so the extra runs don't mean extra notifications.

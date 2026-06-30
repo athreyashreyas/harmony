@@ -419,6 +419,11 @@ export default {
 
     const url = new URL(request.url);
     try {
+      // Lightweight liveness check: handy for uptime monitoring and for
+      // confirming a fresh deploy is live (curl /health).
+      if (request.method === 'GET' && (url.pathname === '/health' || url.pathname === '/')) {
+        return json({ ok: true, service: 'harmony-push-worker' });
+      }
       if (url.pathname === '/subscribe' && request.method === 'POST') {
         return await handleSubscribe(request, env);
       }

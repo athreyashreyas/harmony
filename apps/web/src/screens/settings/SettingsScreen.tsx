@@ -237,6 +237,7 @@ export default function SettingsScreen() {
                 type="button"
                 onClick={() => chooseTheme(theme.id)}
                 aria-pressed={active}
+                aria-label={`Use the ${theme.name} theme`}
                 className={`flex items-center gap-3 rounded-card bg-parchment-50 px-3 py-3 text-left shadow-card ring-2 transition-shadow ${
                   active ? 'ring-iris-500' : 'ring-transparent'
                 }`}

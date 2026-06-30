@@ -12,6 +12,17 @@ export interface Release {
 // plain, the same voice as the rest of the app.
 export const CHANGELOG: Release[] = [
   {
+    version: '0.12.0',
+    date: '2026-06-30',
+    major: true,
+    title: 'A guide to it all',
+    notes: [
+      'A new guide, How Harmony works, with what is new up top and a gentle walk-through of everything: the Bloom, tending, areas and weights, tugs, the Log, insights, reminders, and syncing across your devices.',
+      'It greets you once after setting up, so your first moments have a friendly hand to hold.',
+      'Find it any time under Me, where the release notes used to live.',
+    ],
+  },
+  {
     version: '0.11.0',
     date: '2026-06-30',
     major: true,

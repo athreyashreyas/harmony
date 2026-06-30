@@ -17,6 +17,7 @@ const SignUpScreen = lazy(() => import('../screens/auth/SignUpScreen'));
 const ResetPasswordScreen = lazy(() => import('../screens/auth/ResetPasswordScreen'));
 const OnboardingFlow = lazy(() => import('../screens/onboarding/OnboardingFlow'));
 const HabitDetailScreen = lazy(() => import('../screens/habit/HabitDetailScreen'));
+const GuideScreen = lazy(() => import('../screens/guide/GuideScreen'));
 const HomeScreen = lazy(() => import('../screens/home/HomeScreen'));
 const AreasScreen = lazy(() => import('../screens/areas/AreasScreen'));
 const LogScreen = lazy(() => import('../screens/log/LogScreen'));
@@ -39,6 +40,7 @@ export default function Router() {
 
         <Route element={<AuthGate />}>
           <Route path="onboarding" element={<OnboardingFlow />} />
+          <Route path="guide" element={<GuideScreen />} />
           <Route path="habit/:habitId" element={<HabitDetailScreen />} />
 
           <Route element={<Shell />}>

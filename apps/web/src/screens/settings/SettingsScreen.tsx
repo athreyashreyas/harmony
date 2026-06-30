@@ -4,9 +4,9 @@ import type { Area } from '@harmony/shared';
 import { DEFAULT_DND } from '@harmony/shared';
 import AreaRow from '../../components/AreaRow/AreaRow';
 import Modal from '../../components/Modal/Modal';
-import ReleaseRow from '../../components/ReleaseRow/ReleaseRow';
+import { useNavigate } from 'react-router-dom';
 import Switch from '../../components/Switch/Switch';
-import { APP_VERSION, CHANGELOG } from '../../lib/changelog';
+import { APP_VERSION } from '../../lib/changelog';
 import { reorderAreas, saveArea } from '../../lib/db/queries';
 import { enablePush, pushReadiness, type PushReadiness } from '../../lib/push/subscribe';
 import { supabase } from '../../lib/supabase/client';
@@ -303,12 +303,22 @@ export default function SettingsScreen() {
       </section>
 
       <section className="mt-9">
-        <p className={eyebrow}>What's new</p>
-        <div className="mt-3 space-y-2">
-          {CHANGELOG.map((release, i) => (
-            <ReleaseRow key={release.version} release={release} defaultOpen={i === 0} />
-          ))}
-        </div>
+        <p className={eyebrow}>Guide</p>
+        <button
+          type="button"
+          onClick={() => navigate('/guide')}
+          className="mt-3 flex w-full items-center justify-between rounded-card bg-parchment-50 px-4 py-3.5 text-left shadow-card"
+        >
+          <span className="min-w-0 pr-3">
+            <span className="block text-sm text-ink-900">How Harmony works</span>
+            <span className="block text-xs text-ink-300">What's new, and how to use everything.</span>
+          </span>
+          <span className="shrink-0 text-ink-300">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M9 5l7 7-7 7" />
+            </svg>
+          </span>
+        </button>
       </section>
 
       <section className="mt-9">

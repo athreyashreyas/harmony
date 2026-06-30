@@ -17,7 +17,12 @@ export type Cadence =
   | { kind: 'weekends' }
   | { kind: 'specific-days'; days: number[] }
   | { kind: 'times-per-week'; times: number }
-  | { kind: 'every-n-days'; n: number };
+  | { kind: 'every-n-days'; n: number }
+  // Every n weeks on the habit's start weekday (n=1 weekly, 2 fortnightly, ...).
+  | { kind: 'every-n-weeks'; n: number }
+  // Every n months on the habit's start day-of-month, clamped to month length
+  // (n=1 monthly, 2 bi-monthly, 3 quarterly, 12 yearly, ...).
+  | { kind: 'every-n-months'; n: number };
 
 export interface UserProfile {
   id: string;

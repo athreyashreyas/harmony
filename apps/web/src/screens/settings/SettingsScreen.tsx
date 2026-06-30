@@ -235,14 +235,17 @@ export default function SettingsScreen() {
             </div>
 
             <div className="mt-4 rounded-card bg-parchment-50 p-4 shadow-card">
-              <p className="text-sm text-ink-900">Quiet hours</p>
-              <p className="mt-0.5 text-xs text-ink-300">No reminders arrive during this window.</p>
+              <p className="text-sm text-ink-900">Do not disturb</p>
+              <p className="mt-0.5 text-xs text-ink-300">
+                Drift nudges and the evening summary pause during this window. Reminders you set a time
+                for still come through.
+              </p>
               <div className="mt-3 flex items-center gap-3">
                 <input
                   type="time"
                   value={dnd.dndStart}
                   onChange={(e) => profile && void updateNotifications(profile.id, { dndStart: e.target.value })}
-                  aria-label="Quiet hours start"
+                  aria-label="Do not disturb start"
                   className="rounded-card bg-parchment-100 px-3 py-2 text-sm text-ink-900 ring-1 ring-inset ring-parchment-300"
                 />
                 <span className="text-sm text-ink-300">to</span>
@@ -250,7 +253,7 @@ export default function SettingsScreen() {
                   type="time"
                   value={dnd.dndEnd}
                   onChange={(e) => profile && void updateNotifications(profile.id, { dndEnd: e.target.value })}
-                  aria-label="Quiet hours end"
+                  aria-label="Do not disturb end"
                   className="rounded-card bg-parchment-100 px-3 py-2 text-sm text-ink-900 ring-1 ring-inset ring-parchment-300"
                 />
               </div>
@@ -271,7 +274,7 @@ export default function SettingsScreen() {
             <div className="mt-2 flex items-center justify-between rounded-card bg-parchment-50 px-4 py-3 shadow-card">
               <span className="min-w-0 pr-3">
                 <span className="block text-sm text-ink-900">Evening summary</span>
-                <span className="block text-xs text-ink-300">One quiet round-up of anything still unlogged that day.</span>
+                <span className="block text-xs text-ink-300">One gentle round-up of anything still unlogged that day.</span>
               </span>
               <Switch
                 checked={dnd.dailySummary}

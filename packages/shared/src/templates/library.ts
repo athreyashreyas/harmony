@@ -19,7 +19,7 @@ export const TEMPLATES: Template[] = [
   {
     id: 'drift-quiet-days',
     type: 'drift',
-    body: `{areaName} has been quiet for {daysSince} days. Your words from then: "{whySentence}"`,
+    body: `It's been {daysSince} days for {areaName}. Your words from then: "{whySentence}"`,
   },
   {
     id: 'drift-since-said',
@@ -50,7 +50,7 @@ export const TEMPLATES: Template[] = [
   {
     id: 'drift-on-pause',
     type: 'drift',
-    body: `Quietly, {areaName} has been on pause for {daysSince} days. "{whySentence}"`,
+    body: `{areaName} has been on pause for {daysSince} days. "{whySentence}"`,
   },
   {
     id: 'drift-fortnight',
@@ -79,7 +79,7 @@ export const TEMPLATES: Template[] = [
     id: 'drift-quiet-while',
     type: 'drift',
     weight: 0.5,
-    body: `{areaName} has been quiet for a little while. You wrote: "{whySentence}"`,
+    body: `{areaName} hasn't had a moment in a little while. You wrote: "{whySentence}"`,
   },
 
   // Morning greeting: the small line under the Bloom.
@@ -105,10 +105,10 @@ export const TEMPLATES: Template[] = [
   // recap.ts supplies directly.
   { id: 'recap-strong', type: 'weekly-recap-sentence', body: `Your {areaName} had a strong week. You tended to {habitName} {countPhrase}.` },
   { id: 'recap-steady', type: 'weekly-recap-sentence', body: `{areaName} was steady. You tended to {habitName} on {lastDayName}.` },
-  { id: 'recap-quiet', type: 'weekly-recap-sentence', body: `{areaName} has been quiet for {daysSince} days. You wrote: "{whySentence}"` },
+  { id: 'recap-quiet', type: 'weekly-recap-sentence', body: `{areaName} has rested for {daysSince} days. You wrote: "{whySentence}"` },
   { id: 'recap-nice-single', type: 'weekly-recap-sentence', body: `Nice to have areas can wait. {areaNames} is okay where it is.` },
   { id: 'recap-nice-multi', type: 'weekly-recap-sentence', body: `Nice to have areas can wait. {areaNames} are okay where they are.` },
-  { id: 'recap-fresh', type: 'weekly-recap-sentence', body: `Sunday's a fresh week. No need to catch up.` },
+  { id: 'recap-fresh', type: 'weekly-recap-sentence', body: `A new week is ahead. There's nothing to catch up on.` },
 
   // Install nudge.
   { id: 'install-home', type: 'install-nudge', body: `Add Harmony to your home screen for gentle reminders.` },

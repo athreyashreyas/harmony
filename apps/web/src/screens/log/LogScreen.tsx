@@ -73,7 +73,7 @@ export default function LogScreen() {
   return (
     <div className="mx-auto w-full max-w-2xl px-5 pt-8 pb-28 md:pb-12">
       <h1 className="font-serif text-3xl text-ink-900">Log</h1>
-      <p className="mt-2 text-sm text-ink-300">A quiet record of what you tended to.</p>
+      <p className="mt-2 text-sm text-ink-300">A record of what you tended to.</p>
 
       <section className="mt-7">
         <div className="flex items-center justify-between">
@@ -165,7 +165,7 @@ export default function LogScreen() {
       >
         <div className="space-y-2 pb-4">
           {selectedLogs.length === 0 ? (
-            <p className="text-sm text-ink-300">Quiet that day.</p>
+            <p className="text-sm text-ink-300">Nothing logged that day.</p>
           ) : (
             selectedLogs.map((log) => {
               const habit = habitById.get(log.habitId);

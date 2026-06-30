@@ -13,6 +13,8 @@ const KIND_OPTIONS: { value: Kind; label: string }[] = [
   { value: 'specific-days', label: 'Certain days' },
   { value: 'times-per-week', label: 'A number of times a week' },
   { value: 'every-n-days', label: 'Every few days' },
+  { value: 'every-n-weeks', label: 'Every few weeks' },
+  { value: 'every-n-months', label: 'Every few months' },
 ];
 
 // 0 = Sunday, matching the cadence model's day numbering.
@@ -35,6 +37,10 @@ function defaultFor(kind: Kind, current: Cadence): Cadence {
       return { kind: 'times-per-week', times: current.kind === 'times-per-week' ? current.times : 3 };
     case 'every-n-days':
       return { kind: 'every-n-days', n: current.kind === 'every-n-days' ? current.n : 2 };
+    case 'every-n-weeks':
+      return { kind: 'every-n-weeks', n: current.kind === 'every-n-weeks' ? current.n : 2 };
+    case 'every-n-months':
+      return { kind: 'every-n-months', n: current.kind === 'every-n-months' ? current.n : 1 };
   }
 }
 
@@ -151,6 +157,31 @@ export default function CadenceEditor({
           onChange={(n) => onChange({ kind: 'every-n-days', n })}
           suffix="days apart"
         />
+      )}
+
+      {value.kind === 'every-n-weeks' && (
+        <Stepper
+          value={value.n}
+          min={1}
+          max={12}
+          onChange={(n) => onChange({ kind: 'every-n-weeks', n })}
+          suffix={value.n === 1 ? 'week apart' : 'weeks apart'}
+        />
+      )}
+
+      {value.kind === 'every-n-months' && (
+        <>
+          <Stepper
+            value={value.n}
+            min={1}
+            max={24}
+            onChange={(n) => onChange({ kind: 'every-n-months', n })}
+            suffix={value.n === 1 ? 'month apart' : 'months apart'}
+          />
+          <p className="mt-2 text-xs text-ink-300">
+            Repeats on the same date each time, set by the start date below.
+          </p>
+        </>
       )}
     </div>
   );

@@ -17,6 +17,10 @@ export function cadenceGapDays(c: Cadence): number {
       return c.times ? 7 / c.times : 7;
     case 'every-n-days':
       return Math.max(1, c.n);
+    case 'every-n-weeks':
+      return 7 * Math.max(1, c.n);
+    case 'every-n-months':
+      return 30 * Math.max(1, c.n);
   }
 }
 

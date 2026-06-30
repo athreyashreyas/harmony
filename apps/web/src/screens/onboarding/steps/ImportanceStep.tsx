@@ -8,7 +8,7 @@ import { PrimaryButton } from '../ui';
 
 const BUCKETS: { id: Importance; label: string; hint: string }[] = [
   { id: 'core', label: 'Really matters', hint: 'We pay the most attention here.' },
-  { id: 'matters', label: 'Matters', hint: 'Gentle reminders when it goes quiet.' },
+  { id: 'matters', label: 'Matters', hint: 'Gentle reminders when it slips.' },
   { id: 'optional', label: 'Nice to have', hint: 'Only the reminders you schedule.' },
 ];
 

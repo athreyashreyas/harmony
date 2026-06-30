@@ -1,16 +1,19 @@
 import { useEffect, useState } from 'react';
 import { Reorder } from 'framer-motion';
-import type { Area } from '@harmony/shared';
+import { useNavigate } from 'react-router-dom';
+import type { Area, Habit } from '@harmony/shared';
 import AreaRow from '../../components/AreaRow/AreaRow';
 import FAB from '../../components/FAB/FAB';
 import Skeleton from '../../components/Skeleton/Skeleton';
-import { archiveArea, reorderAreas, saveArea } from '../../lib/db/queries';
+import { archiveArea, reorderAreas, reorderHabits, saveArea } from '../../lib/db/queries';
 import { createArea } from '../../lib/domain';
 import { useUserData } from '../../lib/useUserData';
 import { useAreas } from '../../store/useAreas';
+import { useHabits } from '../../store/useHabits';
 import AreaSheet, { type AreaFields } from './AreaSheet';
 
 export default function AreasScreen() {
+  const navigate = useNavigate();
   const { profile, areas, habits, logs, loaded, reloadAreas, reloadHabits } = useUserData();
 
   const [orderedAreas, setOrderedAreas] = useState<Area[]>(areas);
@@ -25,6 +28,14 @@ export default function AreasScreen() {
     setOrderedAreas(next);
     const persisted = await reorderAreas(next);
     useAreas.setState({ areas: persisted });
+  }
+
+  // Persist a new order for the habits within one area, then merge the updated
+  // rows back into the habits store so the list stays put.
+  async function handleReorderHabits(next: Habit[]) {
+    const persisted = await reorderHabits(next);
+    const byId = new Map(persisted.map((h) => [h.id, h]));
+    useHabits.setState((s) => ({ habits: s.habits.map((h) => byId.get(h.id) ?? h) }));
   }
 
   function openCreate() {
@@ -72,7 +83,16 @@ export default function AreasScreen() {
         ) : (
           <Reorder.Group axis="y" values={orderedAreas} onReorder={handleReorder} className="space-y-2.5">
             {orderedAreas.map((area) => (
-              <AreaRow key={area.id} area={area} habits={habits} logs={logs} onOpen={() => openEdit(area)} />
+              <AreaRow
+                key={area.id}
+                area={area}
+                habits={habits}
+                logs={logs}
+                onOpen={() => openEdit(area)}
+                expandable
+                onReorderHabits={handleReorderHabits}
+                onOpenHabit={(habitId) => navigate(`/habit/${habitId}`)}
+              />
             ))}
           </Reorder.Group>
         )}

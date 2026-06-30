@@ -129,6 +129,15 @@ export async function saveHabit(habit: Habit): Promise<void> {
   void mirrorHabitUpsert(habit);
 }
 
+// Persists a new priority order for a set of habits (their array order is the
+// new order). Used to reorder the habits within one area.
+export async function reorderHabits(orderedHabits: Habit[]): Promise<Habit[]> {
+  const updated = orderedHabits.map((habit, i) => ({ ...habit, order: i }));
+  await db.habits.bulkPut(updated);
+  for (const habit of updated) void mirrorHabitUpsert(habit);
+  return updated;
+}
+
 export async function archiveHabit(habitId: string): Promise<void> {
   const habit = await db.habits.get(habitId);
   if (!habit) return;

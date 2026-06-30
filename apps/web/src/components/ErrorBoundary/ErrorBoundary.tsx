@@ -26,7 +26,7 @@ export default class ErrorBoundary extends Component<Props, State> {
     if (this.state.error) {
       return (
         <main className="flex min-h-full flex-col items-center justify-center gap-4 px-6 pt-safe pb-safe text-center">
-          <h1 className="font-serif text-2xl text-ink-900">Something quietly broke.</h1>
+          <h1 className="font-serif text-2xl text-ink-900">Something broke.</h1>
           <p className="max-w-sm text-sm text-ink-500">
             That is on us, not you. Reloading usually sorts it out.
           </p>

@@ -18,7 +18,7 @@ const PREVIEW_TEMPLATE = getTemplate('drift-quiet-while');
 function previewNudge(areaName: string, whySentence: string): string {
   const sentence = whySentence.trim();
   if (!sentence || !PREVIEW_TEMPLATE) {
-    return `${areaName} has been quiet for a little while. You wrote: ...`;
+    return `${areaName} hasn't had a moment in a little while. You wrote: ...`;
   }
   return renderTemplate(PREVIEW_TEMPLATE.body, { areaName, whySentence: sentence });
 }

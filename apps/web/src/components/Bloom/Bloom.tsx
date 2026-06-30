@@ -94,14 +94,12 @@ export default function Bloom({
   logs,
   selectedAreaId,
   onSelectArea,
-  size = SIZE,
 }: {
   areas: Area[];
   habits: Habit[];
   logs: Log[];
   selectedAreaId?: string | null;
   onSelectArea: (areaId: string) => void;
-  size?: number;
 }) {
   const sliceAngle = areas.length > 0 ? 360 / areas.length : 0;
   const [magnified, setMagnified] = useState<Area | null>(null);
@@ -111,9 +109,11 @@ export default function Bloom({
     [areas, habits, logs],
   );
 
+  // Responsive and prominent: fills the column up to a generous cap, so the
+  // Bloom reads as the centrepiece on phones and tablets alike.
   return (
-    <div className="relative mx-auto" style={{ width: size, height: size }}>
-      <svg viewBox={`0 0 ${SIZE} ${SIZE}`} width={size} height={size} role="img" aria-label="Your bloom">
+    <div className="relative mx-auto aspect-square w-full max-w-[320px]">
+      <svg viewBox={`0 0 ${SIZE} ${SIZE}`} className="h-full w-full" role="img" aria-label="Your bloom">
         <circle cx={CENTER} cy={CENTER} r={RING_1} fill="none" stroke="var(--parchment-300)" strokeDasharray="2 4" />
         <circle cx={CENTER} cy={CENTER} r={RING_2} fill="none" stroke="var(--parchment-300)" strokeDasharray="2 4" />
 
@@ -162,8 +162,8 @@ export default function Bloom({
             transition={{ duration: 0.15 }}
           >
             <motion.div
-              className="flex flex-col items-center justify-center rounded-full p-6 text-center shadow-sheet"
-              style={{ width: size * 0.92, height: size * 0.92, backgroundColor: magnified.color }}
+              className="flex h-[92%] w-[92%] flex-col items-center justify-center rounded-full p-6 text-center shadow-sheet"
+              style={{ backgroundColor: magnified.color }}
               initial={{ scale: 0.45, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.45, opacity: 0 }}

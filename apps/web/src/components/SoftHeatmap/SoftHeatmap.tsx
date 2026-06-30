@@ -77,7 +77,7 @@ export default function SoftHeatmap({
           {selected.note ? (
             <p className="mt-1 italic text-ink-500">&ldquo;{selected.note}&rdquo;</p>
           ) : (
-            <p className="mt-1 text-ink-300">{selected.tended ? 'Tended.' : 'Quiet.'}</p>
+            <p className="mt-1 text-ink-300">{selected.tended ? 'Tended.' : 'Untended.'}</p>
           )}
         </div>
       )}

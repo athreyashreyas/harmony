@@ -146,7 +146,7 @@ async function processUser(env: Env, user: UserProfile, now: Date): Promise<void
 // A small, warm set of reminder phrasings, picked deterministically per
 // habit-and-day so it stays put within a day but varies across days.
 const REMINDER_LINES = [
-  (name: string) => `A quiet moment for ${name}?`,
+  (name: string) => `A small moment for ${name}?`,
   (name: string) => `${name}, whenever you're ready.`,
   (name: string) => `Now might be a good time for ${name}.`,
   (name: string) => `${name} is here when you are.`,
@@ -394,7 +394,7 @@ async function handleTestPush(request: Request, env: Env): Promise<Response> {
   const subscriptions = await subscriptionsForUser(env, body.userId);
   const payload: PushPayload = {
     title: 'Harmony',
-    body: 'A quiet hello from Harmony.',
+    body: 'A hello from Harmony.',
     url: NOTIFICATION_URL,
   };
   let delivered = 0;

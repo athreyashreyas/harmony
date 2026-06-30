@@ -48,6 +48,7 @@ export default function HomeScreen() {
   const [composeOpen, setComposeOpen] = useState(false);
   const [noteHabit, setNoteHabit] = useState<Habit | null>(null);
   const [banner, setBanner] = useState<Banner | null>(null);
+  const [selectedAreaId, setSelectedAreaId] = useState<string | null>(null);
   const composeLock = useRef<string | null>(null);
 
   // Drift banner (sections 9.3, 16). Runs once everything has loaded and again
@@ -120,11 +121,23 @@ export default function HomeScreen() {
     () => habits.filter((h) => isHabitDueToday(h)),
     [habits],
   );
+  // Tapping an area chip (or a Bloom petal) filters today's list to that area;
+  // self-heals if the selected area is gone.
+  const activeFilter =
+    selectedAreaId && areas.some((a) => a.id === selectedAreaId) ? selectedAreaId : null;
+  const shownHabits = useMemo(
+    () => (activeFilter ? todaysHabits.filter((h) => h.areaId === activeFilter) : todaysHabits),
+    [todaysHabits, activeFilter],
+  );
   const doneIds = useMemo(
     () => new Set(logs.filter((l) => l.date === today).map((l) => l.habitId)),
     [logs, today],
   );
-  const doneCount = todaysHabits.filter((h) => doneIds.has(h.id)).length;
+  const doneCount = shownHabits.filter((h) => doneIds.has(h.id)).length;
+
+  function toggleAreaFilter(id: string) {
+    setSelectedAreaId((prev) => (prev === id ? null : id));
+  }
 
   const activities = useMemo(
     () => areas.map((area) => computeAreaActivity(area, habits, logs)),
@@ -167,7 +180,8 @@ export default function HomeScreen() {
               areas={areas}
               habits={habits}
               logs={logs}
-              onSelectArea={() => navigate('/areas')}
+              selectedAreaId={activeFilter}
+              onSelectArea={toggleAreaFilter}
             />
             <p className="mt-4 text-center text-sm text-ink-500">{bloomCaption(activities)}</p>
           </>
@@ -180,25 +194,28 @@ export default function HomeScreen() {
       </div>
 
       {loaded && areas.length > 0 && (
-        // Full-bleed to the screen edges with matching padding, gentle snap, and
-        // no visible scrollbar, so chips glide in and out instead of hard-
-        // cropping at the container edge.
-        <div className="no-scrollbar scroll-ios -mx-5 mt-7 flex snap-x snap-proximity gap-2 overflow-x-auto px-5">
+        // A wrapping, centred cloud of area chips: every area shows on any
+        // screen size, no sideways scrolling. Tap one to filter today's habits.
+        <div className="mt-7 flex flex-wrap justify-center gap-2">
           {areas.map((area) => (
-            <div key={area.id} className="snap-start">
-              <AreaChip area={area} onClick={() => navigate('/areas')} />
-            </div>
+            <AreaChip
+              key={area.id}
+              area={area}
+              selected={activeFilter === area.id}
+              onClick={() => toggleAreaFilter(area.id)}
+            />
           ))}
-          <span aria-hidden="true" className="w-1 shrink-0" />
         </div>
       )}
 
       <div className="mt-9">
         <div className="flex items-baseline justify-between">
-          <p className="text-xs font-medium uppercase tracking-[0.1em] text-ink-300">Today</p>
-          {loaded && todaysHabits.length > 0 && (
+          <p className="text-xs font-medium uppercase tracking-[0.1em] text-ink-300">
+            {activeFilter ? areaById.get(activeFilter)?.name ?? 'Today' : 'Today'}
+          </p>
+          {loaded && shownHabits.length > 0 && (
             <p className="text-xs text-ink-300">
-              {doneCount} of {todaysHabits.length} tended
+              {doneCount} of {shownHabits.length} tended
             </p>
           )}
         </div>
@@ -211,8 +228,12 @@ export default function HomeScreen() {
             </div>
           ) : habits.length === 0 ? (
             <p className="text-sm text-ink-300">Your habits will appear here once you add one.</p>
-          ) : todaysHabits.length === 0 ? (
-            <p className="text-sm text-ink-300">Nothing scheduled for today. Rest counts too.</p>
+          ) : shownHabits.length === 0 ? (
+            <p className="text-sm text-ink-300">
+              {activeFilter
+                ? 'Nothing here today. Tap the area again to see everything.'
+                : 'Nothing scheduled for today. Rest counts too.'}
+            </p>
           ) : (
             <motion.div
               variants={listContainer}
@@ -220,7 +241,7 @@ export default function HomeScreen() {
               animate="animate"
               className="space-y-2.5"
             >
-              {todaysHabits.map((habit) => {
+              {shownHabits.map((habit) => {
                 const area = areaById.get(habit.areaId);
                 if (!area) return null;
                 return (

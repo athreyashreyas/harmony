@@ -1,10 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { motion, useSpring, useTransform } from 'framer-motion';
+import { AnimatePresence, motion, useSpring, useTransform } from 'framer-motion';
 import type { Area, Habit, Log } from '@harmony/shared';
 import { hexToRgba } from '../../lib/color';
 import { softSpring } from '../../lib/motion';
 import { computeAreaActivity } from './activity';
-import { describeDonutSegment, petalCenter } from './geometry';
+import { describeDonutSegment } from './geometry';
 
 const SIZE = 220;
 const CENTER = SIZE / 2;
@@ -12,33 +12,34 @@ const MIN_RADIUS = 22;
 const MAX_RADIUS = 80;
 const CENTER_RADIUS = 20;
 const GAP_DEGREES = 4;
-// Reference rings mark progress through the min-to-max fill band, at a third
-// and two thirds of the way, rather than at a fixed radius (section 9.2 gives
-// percentages without a stated reference, so this reads them against the band
-// the petals actually fill).
 const RING_1 = MIN_RADIUS + (MAX_RADIUS - MIN_RADIUS) * 0.33;
 const RING_2 = MIN_RADIUS + (MAX_RADIUS - MIN_RADIUS) * 0.66;
-const LONG_PRESS_MS = 500;
+// A press held this long magnifies the petal; a quicker tap selects (filters).
+const HOLD_MS = 240;
 
 function Petal({
   area,
   activity,
   startAngle,
   endAngle,
+  dimmed,
   onTap,
-  onLongPress,
+  onHoldStart,
+  onHoldEnd,
 }: {
   area: Area;
   activity: number;
   startAngle: number;
   endAngle: number;
+  dimmed: boolean;
   onTap: () => void;
-  onLongPress: () => void;
+  onHoldStart: () => void;
+  onHoldEnd: () => void;
 }) {
   const target = MIN_RADIUS + (MAX_RADIUS - MIN_RADIUS) * activity;
   const radius = useSpring(MIN_RADIUS, softSpring);
-  const pressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const pressedWasLong = useRef(false);
+  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const held = useRef(false);
 
   useEffect(() => {
     radius.set(target);
@@ -50,24 +51,24 @@ function Petal({
   const trackPath = describeDonutSegment(CENTER, CENTER, MIN_RADIUS, MAX_RADIUS, startAngle, endAngle);
 
   function startPress() {
-    pressedWasLong.current = false;
-    pressTimer.current = setTimeout(() => {
-      pressedWasLong.current = true;
-      onLongPress();
-    }, LONG_PRESS_MS);
+    held.current = false;
+    timer.current = setTimeout(() => {
+      held.current = true;
+      onHoldStart();
+    }, HOLD_MS);
   }
-
   function endPress() {
-    if (pressTimer.current) clearTimeout(pressTimer.current);
-    if (!pressedWasLong.current) onTap();
+    if (timer.current) clearTimeout(timer.current);
+    if (held.current) onHoldEnd();
+    else onTap();
   }
-
   function cancelPress() {
-    if (pressTimer.current) clearTimeout(pressTimer.current);
+    if (timer.current) clearTimeout(timer.current);
+    if (held.current) onHoldEnd();
   }
 
   return (
-    <g
+    <motion.g
       role="button"
       tabIndex={0}
       aria-label={area.name}
@@ -77,11 +78,13 @@ function Petal({
       onKeyDown={(e) => {
         if (e.key === 'Enter' || e.key === ' ') onTap();
       }}
+      animate={{ opacity: dimmed ? 0.22 : 1 }}
+      transition={{ duration: 0.25 }}
       style={{ cursor: 'pointer' }}
     >
       <path d={trackPath} fill={hexToRgba(area.color, 0.13)} />
       <motion.path d={fillPath} fill={hexToRgba(area.color, 0.87)} />
-    </g>
+    </motion.g>
   );
 }
 
@@ -89,44 +92,24 @@ export default function Bloom({
   areas,
   habits,
   logs,
+  selectedAreaId,
   onSelectArea,
   size = SIZE,
 }: {
   areas: Area[];
   habits: Habit[];
   logs: Log[];
+  selectedAreaId?: string | null;
   onSelectArea: (areaId: string) => void;
   size?: number;
 }) {
   const sliceAngle = areas.length > 0 ? 360 / areas.length : 0;
-  const [tooltipArea, setTooltipArea] = useState<Area | null>(null);
-
-  useEffect(() => {
-    if (!tooltipArea) return;
-    function dismiss() {
-      setTooltipArea(null);
-    }
-    window.addEventListener('pointerdown', dismiss);
-    window.addEventListener('scroll', dismiss, true);
-    return () => {
-      window.removeEventListener('pointerdown', dismiss);
-      window.removeEventListener('scroll', dismiss, true);
-    };
-  }, [tooltipArea]);
+  const [magnified, setMagnified] = useState<Area | null>(null);
 
   const activities = useMemo(
     () => areas.map((area) => computeAreaActivity(area, habits, logs)),
     [areas, habits, logs],
   );
-
-  const tooltipPos = useMemo(() => {
-    if (!tooltipArea) return null;
-    const i = areas.findIndex((a) => a.id === tooltipArea.id);
-    if (i === -1) return null;
-    const start = i * sliceAngle + GAP_DEGREES / 2;
-    const end = (i + 1) * sliceAngle - GAP_DEGREES / 2;
-    return petalCenter(CENTER, CENTER, (MIN_RADIUS + MAX_RADIUS) / 2, start, end);
-  }, [tooltipArea, areas, sliceAngle]);
 
   return (
     <div className="relative mx-auto" style={{ width: size, height: size }}>
@@ -137,6 +120,8 @@ export default function Bloom({
         {areas.map((area, i) => {
           const start = i * sliceAngle + GAP_DEGREES / 2;
           const end = (i + 1) * sliceAngle - GAP_DEGREES / 2;
+          // Dim petals that aren't the active filter (or the one being held).
+          const focusId = magnified?.id ?? selectedAreaId ?? null;
           return (
             <Petal
               key={area.id}
@@ -144,8 +129,10 @@ export default function Bloom({
               activity={activities[i]}
               startAngle={start}
               endAngle={end}
+              dimmed={focusId != null && focusId !== area.id}
               onTap={() => onSelectArea(area.id)}
-              onLongPress={() => setTooltipArea(area)}
+              onHoldStart={() => setMagnified(area)}
+              onHoldEnd={() => setMagnified(null)}
             />
           );
         })}
@@ -164,17 +151,34 @@ export default function Bloom({
         </text>
       </svg>
 
-      {tooltipArea && tooltipPos && (
-        <div
-          className="absolute z-10 w-44 -translate-x-1/2 rounded-card bg-parchment-50 p-3 text-center shadow-sheet"
-          style={{ left: tooltipPos.x, top: tooltipPos.y, transform: 'translate(-50%, -100%)' }}
-        >
-          <p className="text-sm font-medium text-ink-900">{tooltipArea.name}</p>
-          {tooltipArea.whySentence && (
-            <p className="mt-1 text-xs italic text-ink-500">&ldquo;{tooltipArea.whySentence}&rdquo;</p>
-          )}
-        </div>
-      )}
+      {/* Hold a petal to lift the area out of the wheel with its own words. */}
+      <AnimatePresence>
+        {magnified && (
+          <motion.div
+            className="pointer-events-none absolute inset-0 flex items-center justify-center"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.15 }}
+          >
+            <motion.div
+              className="flex flex-col items-center justify-center rounded-full p-6 text-center shadow-sheet"
+              style={{ width: size * 0.92, height: size * 0.92, backgroundColor: magnified.color }}
+              initial={{ scale: 0.45, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.45, opacity: 0 }}
+              transition={{ type: 'spring', stiffness: 420, damping: 30 }}
+            >
+              <p className="font-serif text-xl text-parchment-50">{magnified.name}</p>
+              {magnified.whySentence && (
+                <p className="mt-2 line-clamp-4 px-2 text-sm italic leading-snug text-parchment-50/90">
+                  &ldquo;{magnified.whySentence}&rdquo;
+                </p>
+              )}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

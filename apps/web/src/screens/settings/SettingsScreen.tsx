@@ -21,6 +21,7 @@ import { PrimaryButton } from '../onboarding/ui';
 const eyebrow = 'text-[10px] font-medium uppercase tracking-[0.1em] text-ink-300';
 
 export default function SettingsScreen() {
+  const navigate = useNavigate();
   const { profile, areas, habits, logs, reloadAreas } = useUserData();
   const setSignedOut = useUser((s) => s.setSignedOut);
   const email = useUser((s) => s.email);

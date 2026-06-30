@@ -54,7 +54,10 @@ function HabitRow({
       value={habit}
       dragListener={false}
       dragControls={controls}
-      transition={{ duration: 0 }}
+      dragElastic={0}
+      dragMomentum={false}
+      whileDrag={{ scale: 1.03, zIndex: 1 }}
+      transition={{ duration: 0.16, ease: 'easeOut' }}
       className="flex select-none items-center gap-2 rounded-lg bg-parchment-100 px-2 py-2"
     >
       <button
@@ -143,9 +146,12 @@ export default function AreaRow({
       value={area}
       dragListener={false}
       dragControls={dragControls}
-      whileDrag={{ scale: 1.02, boxShadow: '0 10px 26px rgba(35, 25, 15, 0.18)' }}
-      // No reflow animation: items snap into place the instant you release.
-      transition={{ duration: 0 }}
+      // Follow the finger exactly, no rubber-band or fling, so touch feels
+      // precise; neighbours do a quick live card-swap as the row passes them.
+      dragElastic={0}
+      dragMomentum={false}
+      whileDrag={{ scale: 1.03, boxShadow: '0 10px 26px rgba(35, 25, 15, 0.18)', zIndex: 1 }}
+      transition={{ duration: 0.16, ease: 'easeOut' }}
       className="select-none rounded-card bg-parchment-50 px-3 py-3 shadow-card"
     >
       <div className="flex items-center gap-3">

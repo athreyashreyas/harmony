@@ -12,6 +12,17 @@ export interface Release {
 // plain, the same voice as the rest of the app.
 export const CHANGELOG: Release[] = [
   {
+    version: '0.9.0',
+    date: '2026-06-30',
+    major: true,
+    title: 'Fix the past, sync on demand, see beyond today',
+    notes: [
+      'Tap any past day in the Log to set the record straight: mark something you forgot to log, or unmark something you tapped by mistake.',
+      'A new Sync popup behind the status dot: sync your data on demand, see at a glance whether you are offline, syncing, or up to date, and pick up a new version without closing the app.',
+      'On the home screen, switch between Today and All to see every habit, not only the ones due today.',
+    ],
+  },
+  {
     version: '0.8.0',
     date: '2026-06-30',
     major: true,

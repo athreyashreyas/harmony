@@ -26,3 +26,20 @@ export async function syncNow(userId: string): Promise<void> {
   const ok = await pullUserData(userId);
   if (ok) refreshStores(userId);
 }
+
+// Explicit, user-initiated sync (the Sync data popup): push queued writes, pull
+// the latest from the source database, and ask the service worker to check for
+// a new app version. Resolves when it has done what it can.
+export async function manualRefresh(userId: string | null): Promise<void> {
+  if (userId && navigator.onLine) {
+    await flushOutbox();
+    const ok = await pullUserData(userId);
+    if (ok) refreshStores(userId);
+  }
+  try {
+    const reg = await navigator.serviceWorker?.getRegistration();
+    await reg?.update();
+  } catch {
+    // A failed update check should never make the sync feel broken.
+  }
+}

@@ -49,6 +49,7 @@ export default function HomeScreen() {
   const [noteHabit, setNoteHabit] = useState<Habit | null>(null);
   const [banner, setBanner] = useState<Banner | null>(null);
   const [selectedAreaId, setSelectedAreaId] = useState<string | null>(null);
+  const [view, setView] = useState<'today' | 'all'>('today');
   const composeLock = useRef<string | null>(null);
 
   // Drift banner (sections 9.3, 16). Runs once everything has loaded and again
@@ -125,10 +126,10 @@ export default function HomeScreen() {
   // self-heals if the selected area is gone.
   const activeFilter =
     selectedAreaId && areas.some((a) => a.id === selectedAreaId) ? selectedAreaId : null;
-  const shownHabits = useMemo(
-    () => (activeFilter ? todaysHabits.filter((h) => h.areaId === activeFilter) : todaysHabits),
-    [todaysHabits, activeFilter],
-  );
+  const shownHabits = useMemo(() => {
+    const base = view === 'today' ? todaysHabits : habits;
+    return activeFilter ? base.filter((h) => h.areaId === activeFilter) : base;
+  }, [view, todaysHabits, habits, activeFilter]);
   const doneIds = useMemo(
     () => new Set(logs.filter((l) => l.date === today).map((l) => l.habitId)),
     [logs, today],
@@ -209,10 +210,23 @@ export default function HomeScreen() {
       )}
 
       <div className="mt-9">
-        <div className="flex items-baseline justify-between">
-          <p className="text-xs font-medium uppercase tracking-[0.1em] text-ink-300">
-            {activeFilter ? areaById.get(activeFilter)?.name ?? 'Today' : 'Today'}
-          </p>
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex rounded-full bg-parchment-200 p-0.5">
+            {(['today', 'all'] as const).map((v) => (
+              <button
+                key={v}
+                type="button"
+                onClick={() => setView(v)}
+                aria-pressed={view === v}
+                className={[
+                  'rounded-full px-3.5 py-1 text-xs font-medium capitalize transition-colors',
+                  view === v ? 'bg-parchment-50 text-ink-900 shadow-card' : 'text-ink-500',
+                ].join(' ')}
+              >
+                {v}
+              </button>
+            ))}
+          </div>
           {loaded && shownHabits.length > 0 && (
             <p className="text-xs text-ink-300">
               {doneCount} of {shownHabits.length} tended
@@ -231,8 +245,10 @@ export default function HomeScreen() {
           ) : shownHabits.length === 0 ? (
             <p className="text-sm text-ink-300">
               {activeFilter
-                ? 'Nothing here today. Tap the area again to see everything.'
-                : 'Nothing scheduled for today. Rest counts too.'}
+                ? 'Nothing here. Tap the area again to see everything.'
+                : view === 'today'
+                  ? 'Nothing scheduled for today. Rest counts too.'
+                  : 'No habits yet.'}
             </p>
           ) : (
             <motion.div

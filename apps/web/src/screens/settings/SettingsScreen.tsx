@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Reorder } from 'framer-motion';
 import type { Area } from '@harmony/shared';
 import { DEFAULT_DND } from '@harmony/shared';
@@ -41,8 +41,15 @@ export default function SettingsScreen() {
     void loadNotifications();
   }, [loadNotifications]);
 
+  // Persist the area order on drag end only, and don't re-sync from the store
+  // mid-drag, so the live list never fights framer's in-progress reorder.
+  const dragging = useRef(false);
+  const latestOrder = useRef<Area[]>(areas);
+
   useEffect(() => {
+    if (dragging.current) return;
     setOrderedAreas(areas);
+    latestOrder.current = areas;
   }, [areas]);
 
   const dnd = notifications ?? {
@@ -65,9 +72,14 @@ export default function SettingsScreen() {
     setSignedOut();
   }
 
-  async function handleReorder(next: Area[]) {
+  function handleReorder(next: Area[]) {
+    latestOrder.current = next;
     setOrderedAreas(next);
-    const persisted = await reorderAreas(next);
+  }
+
+  async function persistAreaOrder() {
+    dragging.current = false;
+    const persisted = await reorderAreas(latestOrder.current);
     useAreas.setState({ areas: persisted });
   }
 
@@ -194,6 +206,10 @@ export default function SettingsScreen() {
                   setEditingArea(area);
                   setSheetOpen(true);
                 }}
+                onDragStart={() => {
+                  dragging.current = true;
+                }}
+                onDragEnd={() => void persistAreaOrder()}
               />
             ))}
           </Reorder.Group>

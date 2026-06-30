@@ -1,14 +1,13 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { AnimatePresence, motion, Reorder, useDragControls } from 'framer-motion';
 import type { Area, Habit, Log } from '@harmony/shared';
 import { isoDaysAgo, startOfWeekISO } from '../../lib/time/dates';
 
 const SPARKLINE_DAYS = 14;
 
-function GripIcon({ small = false }: { small?: boolean }) {
-  const s = small ? 12 : 14;
+function GripIcon() {
   return (
-    <svg width={s} height={(s / 14) * 20} viewBox="0 0 14 20" fill="currentColor" aria-hidden="true">
+    <svg width="14" height="20" viewBox="0 0 14 20" fill="currentColor" aria-hidden="true">
       {[3, 9, 15].map((y) => [3, 11].map((x) => <circle key={`${x}-${y}`} cx={x} cy={y} r="1.4" />))}
     </svg>
   );
@@ -37,52 +36,10 @@ const IMPORTANCE_LABEL: Record<Area['importance'], string> = {
   optional: 'Nice to have',
 };
 
-// One reorderable habit inside an expanded area. Its own drag handle, so it
-// never conflicts with the area's drag.
-function HabitRow({
-  habit,
-  color,
-  onOpen,
-}: {
-  habit: Habit;
-  color: string;
-  onOpen?: () => void;
-}) {
-  const controls = useDragControls();
-  return (
-    <Reorder.Item
-      value={habit}
-      dragListener={false}
-      dragControls={controls}
-      dragElastic={0}
-      dragMomentum={false}
-      whileDrag={{ scale: 1.03, zIndex: 1 }}
-      transition={{ duration: 0.16, ease: 'easeOut' }}
-      className="flex select-none items-center gap-2 rounded-lg bg-parchment-100 px-2 py-2"
-    >
-      <button
-        type="button"
-        onPointerDown={(e) => {
-          e.preventDefault();
-          controls.start(e);
-        }}
-        aria-label={`Reorder ${habit.name}`}
-        style={{ touchAction: 'none' }}
-        className="-m-1 shrink-0 cursor-grab touch-none p-1 text-ink-300 active:cursor-grabbing"
-      >
-        <GripIcon small />
-      </button>
-      <button type="button" onClick={onOpen} className="flex min-w-0 flex-1 items-center gap-2 text-left">
-        <span className="h-1.5 w-1.5 shrink-0 rounded-full" style={{ backgroundColor: habit.color ?? color }} />
-        <span className="min-w-0 flex-1 truncate text-sm text-ink-800">{habit.name}</span>
-      </button>
-    </Reorder.Item>
-  );
-}
-
-// One row in the Areas list. Drag handle reorders. When `expandable`, tapping
-// the row reveals the area's habits as a reorderable list, and the pencil on the
-// right edits the area; otherwise (Settings' priority list) the whole row edits.
+// One row in the Areas list. The grip reorders the area. When `expandable`,
+// tapping the row reveals the area's habits (tap one to open it), with a button
+// to reorder them in a focused sheet, and the pencil edits the area; otherwise
+// (Settings' priority list) the whole row edits.
 export default function AreaRow({
   area,
   habits,
@@ -90,8 +47,10 @@ export default function AreaRow({
   onOpen,
   showImportance = false,
   expandable = false,
-  onReorderHabits,
   onOpenHabit,
+  onRequestReorder,
+  onDragStart,
+  onDragEnd,
 }: {
   area: Area;
   habits: Habit[];
@@ -99,8 +58,10 @@ export default function AreaRow({
   onOpen: () => void;
   showImportance?: boolean;
   expandable?: boolean;
-  onReorderHabits?: (next: Habit[]) => void;
   onOpenHabit?: (habitId: string) => void;
+  onRequestReorder?: () => void;
+  onDragStart?: () => void;
+  onDragEnd?: () => void;
 }) {
   const dragControls = useDragControls();
   const [expanded, setExpanded] = useState(false);
@@ -112,10 +73,6 @@ export default function AreaRow({
         .sort((a, b) => a.order - b.order),
     [habits, area.id],
   );
-  const [ordered, setOrdered] = useState<Habit[]>(areaHabits);
-  useEffect(() => {
-    setOrdered(areaHabits);
-  }, [areaHabits]);
 
   const tendedDatesThisWeek = useMemo(() => {
     const weekStart = startOfWeekISO();
@@ -136,18 +93,15 @@ export default function AreaRow({
     return days;
   }, [logs, area.id]);
 
-  function handleReorder(next: Habit[]) {
-    setOrdered(next);
-    onReorderHabits?.(next);
-  }
-
   return (
     <Reorder.Item
       value={area}
       dragListener={false}
       dragControls={dragControls}
-      // Follow the finger exactly, no rubber-band or fling, so touch feels
-      // precise; neighbours do a quick live card-swap as the row passes them.
+      onDragStart={onDragStart}
+      onDragEnd={onDragEnd}
+      // Follow the finger exactly (no rubber-band or fling); neighbours do a
+      // quick live card-swap as the row passes them.
       dragElastic={0}
       dragMomentum={false}
       whileDrag={{ scale: 1.03, boxShadow: '0 10px 26px rgba(35, 25, 15, 0.18)', zIndex: 1 }}
@@ -238,20 +192,35 @@ export default function AreaRow({
               transition={{ duration: 0.2 }}
               className="overflow-hidden"
             >
-              <div className="mt-3 pl-1">
-                {ordered.length === 0 ? (
+              <div className="mt-3 space-y-1.5 pl-1">
+                {areaHabits.length === 0 ? (
                   <p className="px-2 pb-1 text-xs text-ink-300">No habits in this area yet.</p>
                 ) : (
-                  <Reorder.Group axis="y" values={ordered} onReorder={handleReorder} className="space-y-2">
-                    {ordered.map((habit) => (
-                      <HabitRow
+                  <>
+                    {areaHabits.map((habit) => (
+                      <button
                         key={habit.id}
-                        habit={habit}
-                        color={area.color}
-                        onOpen={onOpenHabit ? () => onOpenHabit(habit.id) : undefined}
-                      />
+                        type="button"
+                        onClick={() => onOpenHabit?.(habit.id)}
+                        className="flex w-full items-center gap-2.5 rounded-lg bg-parchment-100 px-3 py-2 text-left"
+                      >
+                        <span
+                          className="h-1.5 w-1.5 shrink-0 rounded-full"
+                          style={{ backgroundColor: habit.color ?? area.color }}
+                        />
+                        <span className="min-w-0 flex-1 truncate text-sm text-ink-800">{habit.name}</span>
+                      </button>
                     ))}
-                  </Reorder.Group>
+                    {areaHabits.length > 1 && onRequestReorder && (
+                      <button
+                        type="button"
+                        onClick={onRequestReorder}
+                        className="px-2 pt-1 text-xs font-medium text-iris-500"
+                      >
+                        Reorder habits
+                      </button>
+                    )}
+                  </>
                 )}
               </div>
             </motion.div>

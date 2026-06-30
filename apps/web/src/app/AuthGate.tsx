@@ -175,8 +175,12 @@ export default function AuthGate() {
     return <Navigate to="/onboarding" replace />;
   }
 
+  // Just-finished (or already) onboarded but still on /onboarding: send them to
+  // the guide, the intended first stop after setup. This is also the redirect
+  // that wins the brief race in finish() between the profile update and the
+  // navigation, so a new user reliably lands on the guide, not home.
   if (profile?.onboardedAt != null && location.pathname === '/onboarding') {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/guide?pane=guide" replace />;
   }
 
   return <Outlet />;

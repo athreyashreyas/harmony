@@ -43,8 +43,16 @@ export default function GuideScreen() {
   const [params] = useSearchParams();
   // Onboarding sends people to the full walk-through; Settings opens What's new.
   // Anything else lands on What's new, the more common "what changed" check.
-  const initial: Pane = params.get('pane') === 'guide' ? 'guide' : 'new';
+  const entryPane = params.get('pane'); // the entry intent, fixed (toggling tabs
+  // changes `pane` below but not the URL, so this stays the original source).
+  const initial: Pane = entryPane === 'guide' ? 'guide' : 'new';
   const [pane, setPane] = useState<Pane>(initial);
+
+  // Back depends on where they came from. After onboarding (pane=guide) there is
+  // no useful history behind this screen, so back enters the app. From Settings
+  // (pane=new) back returns to where they were. "Back to Harmony" always goes home.
+  const fromOnboarding = entryPane === 'guide';
+  const goBack = () => (fromOnboarding ? navigate('/', { replace: true }) : navigate(-1));
 
   const latest = CHANGELOG[0];
   const earlier = CHANGELOG.slice(1);
@@ -54,7 +62,7 @@ export default function GuideScreen() {
     <div className="relative flex h-full flex-col overflow-hidden bg-parchment-100">
       <header className="flex items-center justify-between px-4 pt-safe">
         <div className="flex h-14 items-center">
-          <BackButton onClick={() => navigate(-1)} />
+          <BackButton onClick={goBack} />
         </div>
         <div className="flex h-14 items-center">
           <span className="text-xs text-ink-300">Harmony {APP_VERSION}</span>

@@ -115,4 +115,7 @@ export interface NotificationSettings {
   habitReminders: boolean;
   // One evening round-up of habits still unlogged that day (default on).
   dailySummary: boolean;
+  // The chosen theme id (lib/theme/themes.ts). Carried on this synced settings
+  // row so the look follows the person across their devices. Null = default.
+  theme?: string | null;
 }

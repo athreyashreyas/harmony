@@ -4,6 +4,7 @@ import { supabase, isSupabaseConfigured } from '../lib/supabase/client';
 import { ensureSubscribed } from '../lib/push/subscribe';
 import { flushOutbox, hasLocalData, pullProfile, pullUserData, subscribeUserRealtime, type SyncTable } from '../lib/supabase/sync';
 import { refreshStores, syncNow } from '../lib/sync/refresh';
+import { useTheme } from '../lib/theme/theme';
 import { useAreas } from '../store/useAreas';
 import { useHabits } from '../store/useHabits';
 import { useLogs } from '../store/useLogs';
@@ -20,7 +21,16 @@ export default function AuthGate() {
   const setSignedIn = useUser((s) => s.setSignedIn);
   const setSignedOut = useUser((s) => s.setSignedOut);
   const setEmail = useUser((s) => s.setEmail);
+  // The theme carried on the synced settings row. When it arrives from another
+  // device (via pull or realtime), apply it here so the look stays in step.
+  const syncedTheme = useSettings((s) => s.notifications?.theme);
   const location = useLocation();
+
+  useEffect(() => {
+    if (syncedTheme && syncedTheme !== useTheme.getState().themeId) {
+      useTheme.getState().setTheme(syncedTheme);
+    }
+  }, [syncedTheme]);
 
   useEffect(() => {
     if (!supabase) {

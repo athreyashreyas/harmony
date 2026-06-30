@@ -111,9 +111,14 @@ async function sendToAllSubscriptions(
     try {
       const status = await sendPush(sub, payload, vapidFrom(env));
       if (status === 404 || status === 410) {
+        // The subscription is gone (unsubscribed / expired); stop sending to it.
         await deleteSubscription(env, sub.endpoint);
       } else if (status >= 200 && status < 300) {
         anyDelivered = true;
+      } else {
+        // 429, 5xx, etc.: a transient or push-service issue. Keep the
+        // subscription, but surface it instead of dropping it silently.
+        console.warn('Push send returned an unexpected status', status, sub.endpoint);
       }
     } catch (err) {
       console.warn('Push send failed', err);

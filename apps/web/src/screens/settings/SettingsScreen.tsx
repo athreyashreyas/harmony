@@ -203,7 +203,13 @@ export default function SettingsScreen() {
               <button
                 key={theme.id}
                 type="button"
-                onClick={() => setTheme(theme.id)}
+                onClick={() => {
+                  setTheme(theme.id); // instant, on this device
+                  // Also save it to the synced settings row so the choice
+                  // follows the person to their other devices, like the rest
+                  // of their preferences.
+                  if (profile) void updateNotifications(profile.id, { theme: theme.id });
+                }}
                 aria-pressed={active}
                 className={`flex items-center gap-3 rounded-card bg-parchment-50 px-3 py-3 text-left shadow-card ring-2 transition-shadow ${
                   active ? 'ring-iris-500' : 'ring-transparent'

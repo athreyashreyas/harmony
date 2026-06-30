@@ -46,6 +46,38 @@ export default function SettingsScreen() {
     void loadNotifications();
   }, [loadNotifications]);
 
+  // Theme: switch on this device instantly, but debounce the cloud save. Saving
+  // on every tap during rapid toggling spams the synced settings row, whose
+  // realtime echoes (of intermediate themes, possibly out of order) would flip
+  // the selection back and forth. Debouncing means one save of the settled
+  // choice: one echo, equal to what's already showing, so no flicker.
+  const themeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const pendingTheme = useRef<{ uid: string; id: string } | null>(null);
+
+  function chooseTheme(id: string) {
+    setTheme(id); // instant, local
+    if (!profile) return;
+    pendingTheme.current = { uid: profile.id, id };
+    if (themeTimer.current) clearTimeout(themeTimer.current);
+    themeTimer.current = setTimeout(() => {
+      if (pendingTheme.current) {
+        void updateNotifications(pendingTheme.current.uid, { theme: pendingTheme.current.id });
+        pendingTheme.current = null;
+      }
+    }, 500);
+  }
+
+  // Flush any pending theme save if they leave before the debounce fires.
+  useEffect(
+    () => () => {
+      if (themeTimer.current) clearTimeout(themeTimer.current);
+      if (pendingTheme.current) {
+        void updateNotifications(pendingTheme.current.uid, { theme: pendingTheme.current.id });
+      }
+    },
+    [updateNotifications],
+  );
+
   // Persist the area order on drag end only, and don't re-sync from the store
   // mid-drag, so the live list never fights framer's in-progress reorder.
   const dragging = useRef(false);
@@ -203,13 +235,7 @@ export default function SettingsScreen() {
               <button
                 key={theme.id}
                 type="button"
-                onClick={() => {
-                  setTheme(theme.id); // instant, on this device
-                  // Also save it to the synced settings row so the choice
-                  // follows the person to their other devices, like the rest
-                  // of their preferences.
-                  if (profile) void updateNotifications(profile.id, { theme: theme.id });
-                }}
+                onClick={() => chooseTheme(theme.id)}
                 aria-pressed={active}
                 className={`flex items-center gap-3 rounded-card bg-parchment-50 px-3 py-3 text-left shadow-card ring-2 transition-shadow ${
                   active ? 'ring-iris-500' : 'ring-transparent'

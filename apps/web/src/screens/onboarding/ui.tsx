@@ -18,7 +18,7 @@ export function PrimaryButton({
       whileTap={{ scale: 0.97 }}
       onClick={onClick}
       disabled={disabled}
-      className="w-full rounded-full bg-iris-500 py-3 text-sm font-medium text-parchment-50 transition-opacity disabled:opacity-40"
+      className="w-full rounded-full bg-iris-500 py-3 text-sm font-medium text-on-primary transition-opacity disabled:opacity-40"
     >
       {children}
     </motion.button>

@@ -23,13 +23,13 @@ export default function AreaChip({
       className="flex items-center gap-2 rounded-full px-3.5 py-1.5 text-sm font-medium transition-colors"
       style={
         selected
-          ? { backgroundColor: area.color, color: 'var(--parchment-50)' }
+          ? { backgroundColor: area.color, color: '#fff' }
           : { backgroundColor: hexToRgba(area.color, 0.12), color: area.color }
       }
     >
       <span
         className="h-1.5 w-1.5 rounded-full"
-        style={{ backgroundColor: selected ? 'var(--parchment-50)' : area.color }}
+        style={{ backgroundColor: selected ? '#fff' : area.color }}
       />
       {area.name}
     </motion.button>

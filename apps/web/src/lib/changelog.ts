@@ -21,6 +21,23 @@ export interface Release {
 // plain, the same voice as the rest of the app.
 export const CHANGELOG: Release[] = [
   {
+    version: '0.13.0',
+    date: '2026-06-30',
+    major: true,
+    title: 'Choose your light',
+    notes: [
+      'Themes are here. Five lights to open into: the warm Terracotta you know, a golden Mango Sunshine, a restful Sage Grove, a clear Ocean Blue, and a soft Indigo Night for after dark.',
+      'Your areas keep their own colours, so the bloom still means what it means. The theme just changes the light around it.',
+      'The weekly recap and the little observations read warmer and more human now, with gentler nudges on where to go next.',
+    ],
+    howTo: [
+      'Open Me, then find Appearance near the top.',
+      'Tap any theme to try it on. It changes the whole app at once.',
+      'Terracotta stays the default, and your choice is remembered on this device.',
+    ],
+    art: ['guide'],
+  },
+  {
     version: '0.12.0',
     date: '2026-06-30',
     major: true,

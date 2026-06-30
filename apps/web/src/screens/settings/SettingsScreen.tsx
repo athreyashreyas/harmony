@@ -9,6 +9,8 @@ import Switch from '../../components/Switch/Switch';
 import { APP_VERSION } from '../../lib/changelog';
 import { reorderAreas, saveArea } from '../../lib/db/queries';
 import { enablePush, pushReadiness, type PushReadiness } from '../../lib/push/subscribe';
+import { useTheme } from '../../lib/theme/theme';
+import { THEMES } from '../../lib/theme/themes';
 import { supabase } from '../../lib/supabase/client';
 import { deleteAccount, flushOutbox, wipeLocalData } from '../../lib/supabase/sync';
 import { useUserData } from '../../lib/useUserData';
@@ -28,6 +30,8 @@ export default function SettingsScreen() {
   const notifications = useSettings((s) => s.notifications);
   const loadNotifications = useSettings((s) => s.load);
   const updateNotifications = useSettings((s) => s.update);
+  const themeId = useTheme((s) => s.themeId);
+  const setTheme = useTheme((s) => s.setTheme);
 
   const [orderedAreas, setOrderedAreas] = useState<Area[]>(areas);
   const [editingArea, setEditingArea] = useState<Area | null>(null);
@@ -153,7 +157,7 @@ export default function SettingsScreen() {
             type="button"
             onClick={handleEnablePush}
             disabled={pushBusy}
-            className="mt-3 rounded-full bg-iris-500 px-4 py-2 text-sm font-medium text-parchment-50 disabled:opacity-40"
+            className="mt-3 rounded-full bg-iris-500 px-4 py-2 text-sm font-medium text-on-primary disabled:opacity-40"
           >
             {pushBusy ? 'Turning on...' : 'Turn on reminders on this device'}
           </button>
@@ -186,6 +190,50 @@ export default function SettingsScreen() {
           >
             Delete account
           </button>
+        </div>
+      </section>
+
+      <section className="mt-9">
+        <p className={eyebrow}>Appearance</p>
+        <p className="mt-2 text-xs text-ink-300">Pick the light you want to open into.</p>
+        <div className="mt-4 grid grid-cols-1 gap-2.5 sm:grid-cols-2">
+          {THEMES.map((theme) => {
+            const active = theme.id === themeId;
+            return (
+              <button
+                key={theme.id}
+                type="button"
+                onClick={() => setTheme(theme.id)}
+                aria-pressed={active}
+                className={`flex items-center gap-3 rounded-card bg-parchment-50 px-3 py-3 text-left shadow-card ring-2 transition-shadow ${
+                  active ? 'ring-iris-500' : 'ring-transparent'
+                }`}
+              >
+                {/* A little swatch: the theme's paper with its accent and surface. */}
+                <span
+                  className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-full"
+                  style={{ backgroundColor: theme.bg, boxShadow: 'inset 0 0 0 1px rgba(0,0,0,0.06)' }}
+                >
+                  <span className="h-5 w-5 rounded-full" style={{ backgroundColor: theme.primary }} />
+                  <span
+                    className="absolute bottom-1 right-1 h-2.5 w-2.5 rounded-full"
+                    style={{ backgroundColor: theme.surface, boxShadow: 'inset 0 0 0 1px rgba(0,0,0,0.06)' }}
+                  />
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="flex items-center gap-2">
+                    <span className="text-sm font-medium text-ink-900">{theme.name}</span>
+                    {active && (
+                      <span className="text-iris-500" aria-hidden="true">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M5 13l4 4L19 7" /></svg>
+                      </span>
+                    )}
+                  </span>
+                  <span className="mt-0.5 block text-xs text-ink-300">{theme.description}</span>
+                </span>
+              </button>
+            );
+          })}
         </div>
       </section>
 

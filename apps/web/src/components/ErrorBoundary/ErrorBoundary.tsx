@@ -33,7 +33,7 @@ export default class ErrorBoundary extends Component<Props, State> {
           <button
             type="button"
             onClick={() => window.location.reload()}
-            className="rounded-full bg-iris-500 px-5 py-2.5 text-sm font-medium text-parchment-50"
+            className="rounded-full bg-iris-500 px-5 py-2.5 text-sm font-medium text-on-primary"
           >
             Reload Harmony
           </button>

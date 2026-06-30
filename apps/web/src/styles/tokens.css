@@ -1,38 +1,51 @@
-/* Design tokens as CSS variables (section 4). The same values live in
-   tailwind.config.ts; these mirror them for any non-utility usage (SVG fills,
-   inline styles). Fonts are loaded via <link> in index.html. */
+/* Design tokens as CSS variables (section 4) — now the single source of truth
+   for theming. Each colour token has two forms:
 
-:root {
-  /* Warm paper surfaces and ink (Terracotta + Amber theme). The token names
-     are kept (parchment / ink / iris) so every existing class and var picks up
-     the new palette without renaming anything across the app. */
-  --parchment-50: #fffaf1;
-  --parchment-100: #fbf1e4;
-  --parchment-200: #f3e4cf;
-  --parchment-300: #e7d3b4;
+     --x       a hex value, used by inline styles and SVG fills (var(--x))
+     --x-rgb   the same colour as "r g b" channels, which Tailwind consumes as
+               rgb(var(--x-rgb) / <alpha-value>) so utility classes AND their
+               opacity modifiers (bg-iris-500/20) re-theme too.
 
-  --ink-900: #23190f;
-  --ink-700: #483a27;
-  --ink-500: #76654c;
-  --ink-300: #ab977a;
-  --ink-100: #dcccb4;
+   A theme is one block below. Switching themes = setting data-theme on <html>
+   (see lib/theme). ADDING A THEME: add a :root[data-theme="id"] block here and
+   one entry in lib/theme/themes.ts. Nothing else needs to change — every class
+   and var across the app cascades from these. Area colours are user data and
+   are never themed. */
 
-  /* Brand primary, now terracotta (still named iris in the token system) */
-  --iris-700: #7a3318;
-  --iris-600: #944021;
-  --iris-500: #b5532f;
-  --iris-400: #c9714a;
-  --iris-100: #f6e0cf;
-  --iris-50: #fbf0e4;
+:root,
+:root[data-theme='terracotta'] {
+  /* Terracotta + Amber — the default. */
+  --parchment-50: #fffaf1;  --parchment-50-rgb: 255 250 241;
+  --parchment-100: #fbf1e4; --parchment-100-rgb: 251 241 228;
+  --parchment-200: #f3e4cf; --parchment-200-rgb: 243 228 207;
+  --parchment-300: #e7d3b4; --parchment-300-rgb: 231 211 180;
 
-  /* Status colours, used sparingly. Sage warmed to an olive that sits on the
-     cream; rose kept distinct from the terracotta primary for "quiet/below". */
-  --rose-600: #a14a5e;
-  --rose-500: #b85c72;
-  --rose-100: #f3e2e6;
-  --sage-600: #47602a;
-  --sage-500: #5b7a35;
-  --sage-100: #eaf0dd;
+  --ink-900: #23190f; --ink-900-rgb: 35 25 15;
+  --ink-700: #483a27; --ink-700-rgb: 72 58 39;
+  --ink-500: #76654c; --ink-500-rgb: 118 101 76;
+  --ink-300: #ab977a; --ink-300-rgb: 171 151 122;
+  --ink-100: #dcccb4; --ink-100-rgb: 220 204 180;
+
+  /* Brand primary (terracotta), still named iris across the token system. */
+  --iris-700: #7a3318; --iris-700-rgb: 122 51 24;
+  --iris-600: #944021; --iris-600-rgb: 148 64 33;
+  --iris-500: #b5532f; --iris-500-rgb: 181 83 47;
+  --iris-400: #c9714a; --iris-400-rgb: 201 113 74;
+  --iris-100: #f6e0cf; --iris-100-rgb: 246 224 207;
+  --iris-50: #fbf0e4;  --iris-50-rgb: 251 240 228;
+
+  /* Text colour that sits on a primary-filled surface (buttons, the bloom's
+     heart). On light themes this is near-white; on bright/light themes it goes
+     dark so it stays readable on the accent. */
+  --on-primary: #fffaf1; --on-primary-rgb: 255 250 241;
+
+  /* Status colours, used sparingly. */
+  --rose-600: #a14a5e; --rose-600-rgb: 161 74 94;
+  --rose-500: #b85c72; --rose-500-rgb: 184 92 114;
+  --rose-100: #f3e2e6; --rose-100-rgb: 243 226 230;
+  --sage-600: #47602a; --sage-600-rgb: 71 96 42;
+  --sage-500: #5b7a35; --sage-500-rgb: 91 122 53;
+  --sage-100: #eaf0dd; --sage-100-rgb: 234 240 221;
 
   /* Type */
   --font-serif: 'DM Serif Display', Georgia, serif;
@@ -45,4 +58,107 @@
 
   /* Keyboard lift, updated from visualViewport in later phases */
   --keyboard-height: 0px;
+}
+
+/* Mango Sunshine — a golden sunflower yellow on warm cream. The hit. */
+:root[data-theme='mango-sunshine'] {
+  --parchment-50: #fffcf0;  --parchment-50-rgb: 255 252 240;
+  --parchment-100: #fff1c9; --parchment-100-rgb: 255 241 201;
+  --parchment-200: #fbe39e; --parchment-200-rgb: 251 227 158;
+  --parchment-300: #f4cf72; --parchment-300-rgb: 244 207 114;
+
+  --ink-900: #3a2a0e; --ink-900-rgb: 58 42 14;
+  --ink-700: #5e4a1e; --ink-700-rgb: 94 74 30;
+  --ink-500: #876c2c; --ink-500-rgb: 135 108 44;
+  --ink-300: #b59a5c; --ink-300-rgb: 181 154 92;
+  --ink-100: #e1d2a6; --ink-100-rgb: 225 210 166;
+
+  --iris-700: #b06e08; --iris-700-rgb: 176 110 8;
+  --iris-600: #d9870a; --iris-600-rgb: 217 135 10;
+  --iris-500: #f59e00; --iris-500-rgb: 245 158 0;
+  --iris-400: #f8b23a; --iris-400-rgb: 248 178 58;
+  --iris-100: #fbe6be; --iris-100-rgb: 251 230 190;
+  --iris-50: #fef6e0;  --iris-50-rgb: 254 246 224;
+
+  /* Bright gold needs dark ink on top to stay readable. */
+  --on-primary: #3a2a0e; --on-primary-rgb: 58 42 14;
+}
+
+/* Sage Grove — a deep, restful moss green on warm paper. */
+:root[data-theme='sage-grove'] {
+  --parchment-50: #f6f8ea;  --parchment-50-rgb: 246 248 234;
+  --parchment-100: #e8ecd8; --parchment-100-rgb: 232 236 216;
+  --parchment-200: #d4dbbc; --parchment-200-rgb: 212 219 188;
+  --parchment-300: #c2cba2; --parchment-300-rgb: 194 203 162;
+
+  --ink-900: #1e2618; --ink-900-rgb: 30 38 24;
+  --ink-700: #34402a; --ink-700-rgb: 52 64 42;
+  --ink-500: #4e5c38; --ink-500-rgb: 78 92 56;
+  --ink-300: #869066; --ink-300-rgb: 134 144 102;
+  --ink-100: #c9d1b0; --ink-100-rgb: 201 209 176;
+
+  --iris-700: #31441c; --iris-700-rgb: 49 68 28;
+  --iris-600: #3c5222; --iris-600-rgb: 60 82 34;
+  --iris-500: #47602a; --iris-500-rgb: 71 96 42;
+  --iris-400: #5e7a3c; --iris-400-rgb: 94 122 60;
+  --iris-100: #dce6c6; --iris-100-rgb: 220 230 198;
+  --iris-50: #eef3e0;  --iris-50-rgb: 238 243 224;
+
+  --on-primary: #eff3e2; --on-primary-rgb: 239 243 226;
+}
+
+/* Ocean Blue — a vivid lagoon teal on a soft mist. */
+:root[data-theme='ocean-blue'] {
+  --parchment-50: #f4fcfb;  --parchment-50-rgb: 244 252 251;
+  --parchment-100: #e2f2f1; --parchment-100-rgb: 226 242 241;
+  --parchment-200: #c8e5e2; --parchment-200-rgb: 200 229 226;
+  --parchment-300: #abd8d3; --parchment-300-rgb: 171 216 211;
+
+  --ink-900: #0f2826; --ink-900-rgb: 15 40 38;
+  --ink-700: #1e423e; --ink-700-rgb: 30 66 62;
+  --ink-500: #3c605c; --ink-500-rgb: 60 96 92;
+  --ink-300: #789c98; --ink-300-rgb: 120 156 152;
+  --ink-100: #b0d0cc; --ink-100-rgb: 176 208 204;
+
+  --iris-700: #126e6e; --iris-700-rgb: 18 110 110;
+  --iris-600: #178585; --iris-600-rgb: 23 133 133;
+  --iris-500: #1fa0a0; --iris-500-rgb: 31 160 160;
+  --iris-400: #3db5b5; --iris-400-rgb: 61 181 181;
+  --iris-100: #c2e8e6; --iris-100-rgb: 194 232 230;
+  --iris-50: #def4f2;  --iris-50-rgb: 222 244 242;
+
+  --on-primary: #eafaf8; --on-primary-rgb: 234 250 248;
+}
+
+/* Indigo Night — soft lights on a deep night ground. Proof the system handles
+   dark too: surfaces invert and the status colours lift for legibility. */
+:root[data-theme='indigo-night'] {
+  color-scheme: dark;
+
+  --parchment-50: #262a3c;  --parchment-50-rgb: 38 42 60;
+  --parchment-100: #1b1e2c; --parchment-100-rgb: 27 30 44;
+  --parchment-200: #2e3346; --parchment-200-rgb: 46 51 70;
+  --parchment-300: #3f4459; --parchment-300-rgb: 63 68 89;
+
+  --ink-900: #eceaf4; --ink-900-rgb: 236 234 244;
+  --ink-700: #c4c2d8; --ink-700-rgb: 196 194 216;
+  --ink-500: #aba9c4; --ink-500-rgb: 171 169 196;
+  --ink-300: #6e6e8a; --ink-300-rgb: 110 110 138;
+  --ink-100: #44485e; --ink-100-rgb: 68 72 94;
+
+  --iris-700: #c9c0f4; --iris-700-rgb: 201 192 244;
+  --iris-600: #a99cec; --iris-600-rgb: 169 156 236;
+  --iris-500: #8c7ce0; --iris-500-rgb: 140 124 224;
+  --iris-400: #7b6ad4; --iris-400-rgb: 123 106 212;
+  --iris-100: #3a3a57; --iris-100-rgb: 58 58 87;
+  --iris-50: #2a2b42;  --iris-50-rgb: 42 43 66;
+
+  --on-primary: #16182a; --on-primary-rgb: 22 24 42;
+
+  --rose-600: #e89aac; --rose-600-rgb: 232 154 172;
+  --rose-500: #d98598; --rose-500-rgb: 217 133 152;
+  --rose-100: #3a2a30; --rose-100-rgb: 58 42 48;
+  --sage-600: #7cae48; --sage-600-rgb: 124 174 72;
+  --sage-500: #8fbf5a; --sage-500-rgb: 143 191 90;
+  --sage-100: #2c3a24; --sage-100-rgb: 44 58 36;
 }

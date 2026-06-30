@@ -103,12 +103,12 @@ export const TEMPLATES: Template[] = [
   // weekly facts rather than through the random composer, so a few carry
   // extra placeholders (habitName, countPhrase, lastDayName, areaNames) that
   // recap.ts supplies directly.
-  { id: 'recap-strong', type: 'weekly-recap-sentence', body: `Your {areaName} had a strong week. You tended to {habitName} {countPhrase}.` },
-  { id: 'recap-steady', type: 'weekly-recap-sentence', body: `{areaName} was steady. You tended to {habitName} on {lastDayName}.` },
-  { id: 'recap-quiet', type: 'weekly-recap-sentence', body: `{areaName} has rested for {daysSince} days. You wrote: "{whySentence}"` },
-  { id: 'recap-nice-single', type: 'weekly-recap-sentence', body: `Nice to have areas can wait. {areaNames} is okay where it is.` },
-  { id: 'recap-nice-multi', type: 'weekly-recap-sentence', body: `Nice to have areas can wait. {areaNames} are okay where they are.` },
-  { id: 'recap-fresh', type: 'weekly-recap-sentence', body: `A new week is ahead. There's nothing to catch up on.` },
+  { id: 'recap-strong', type: 'weekly-recap-sentence', body: `What a week for {areaName}. You came back to {habitName} {countPhrase}, and it shows. Let that carry you into the next one.` },
+  { id: 'recap-steady', type: 'weekly-recap-sentence', body: `{areaName} kept a gentle rhythm. You last tended {habitName} on {lastDayName}, and one more moment this week would feel just right.` },
+  { id: 'recap-quiet', type: 'weekly-recap-sentence', body: `{areaName} has been resting these past {daysSince} days, and that is completely okay. You once said why it matters: "{whySentence}". Maybe this is the week to wander back, no pressure at all.` },
+  { id: 'recap-nice-single', type: 'weekly-recap-sentence', body: `And {areaNames} is there for you whenever you feel like it, no catching up needed.` },
+  { id: 'recap-nice-multi', type: 'weekly-recap-sentence', body: `And {areaNames} are there for you whenever you feel like it, no catching up needed.` },
+  { id: 'recap-fresh', type: 'weekly-recap-sentence', body: `A new week is opening up, with nothing to catch up on. Take it gently, whatever it holds.` },
 
   // Install nudge.
   { id: 'install-home', type: 'install-nudge', body: `Add Harmony to your home screen for gentle reminders.` },

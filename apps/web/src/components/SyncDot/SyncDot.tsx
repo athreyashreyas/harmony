@@ -86,7 +86,7 @@ export default function SyncDot() {
               type="button"
               onClick={handleSync}
               disabled={syncing}
-              className="w-full rounded-full bg-iris-500 py-3 text-sm font-medium text-parchment-50 transition-opacity disabled:opacity-40"
+              className="w-full rounded-full bg-iris-500 py-3 text-sm font-medium text-on-primary transition-opacity disabled:opacity-40"
             >
               {syncing ? 'Syncing...' : key === 'synced' ? 'Sync again' : 'Sync now'}
             </button>

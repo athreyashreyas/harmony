@@ -6,20 +6,43 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Warm paper system (Terracotta + Amber theme). Token names kept so the
-        // whole app re-themes without renaming classes.
-        parchment: { 50: '#FFFAF1', 100: '#FBF1E4', 200: '#F3E4CF', 300: '#E7D3B4' },
-        ink: { 900: '#23190F', 700: '#483A27', 500: '#76654C', 300: '#AB977A', 100: '#DCCCB4' },
+        // Colours resolve from CSS variables (styles/tokens.css), as RGB
+        // channels so opacity modifiers (bg-iris-500/20) still work. Swapping
+        // data-theme on <html> re-themes every utility class. Token names are
+        // kept (parchment / ink / iris) so nothing has to be renamed.
+        parchment: {
+          50: 'rgb(var(--parchment-50-rgb) / <alpha-value>)',
+          100: 'rgb(var(--parchment-100-rgb) / <alpha-value>)',
+          200: 'rgb(var(--parchment-200-rgb) / <alpha-value>)',
+          300: 'rgb(var(--parchment-300-rgb) / <alpha-value>)',
+        },
+        ink: {
+          900: 'rgb(var(--ink-900-rgb) / <alpha-value>)',
+          700: 'rgb(var(--ink-700-rgb) / <alpha-value>)',
+          500: 'rgb(var(--ink-500-rgb) / <alpha-value>)',
+          300: 'rgb(var(--ink-300-rgb) / <alpha-value>)',
+          100: 'rgb(var(--ink-100-rgb) / <alpha-value>)',
+        },
         iris: {
-          700: '#7A3318',
-          600: '#944021',
-          500: '#B5532F',
-          400: '#C9714A',
-          100: '#F6E0CF',
-          50: '#FBF0E4',
-        }, // brand primary (terracotta)
-        rose: { 600: '#A14A5E', 500: '#B85C72', 100: '#F3E2E6' }, // gentle "below" status
-        sage: { 600: '#47602A', 500: '#5B7A35', 100: '#EAF0DD' }, // "in a good rhythm" status
+          700: 'rgb(var(--iris-700-rgb) / <alpha-value>)',
+          600: 'rgb(var(--iris-600-rgb) / <alpha-value>)',
+          500: 'rgb(var(--iris-500-rgb) / <alpha-value>)',
+          400: 'rgb(var(--iris-400-rgb) / <alpha-value>)',
+          100: 'rgb(var(--iris-100-rgb) / <alpha-value>)',
+          50: 'rgb(var(--iris-50-rgb) / <alpha-value>)',
+        }, // brand primary, themed
+        // Text that sits on a primary-filled surface (buttons, the bloom heart).
+        'on-primary': 'rgb(var(--on-primary-rgb) / <alpha-value>)',
+        rose: {
+          600: 'rgb(var(--rose-600-rgb) / <alpha-value>)',
+          500: 'rgb(var(--rose-500-rgb) / <alpha-value>)',
+          100: 'rgb(var(--rose-100-rgb) / <alpha-value>)',
+        }, // gentle "below" status
+        sage: {
+          600: 'rgb(var(--sage-600-rgb) / <alpha-value>)',
+          500: 'rgb(var(--sage-500-rgb) / <alpha-value>)',
+          100: 'rgb(var(--sage-100-rgb) / <alpha-value>)',
+        }, // "in a good rhythm" status
       },
       fontFamily: {
         serif: ['"DM Serif Display"', 'Georgia', 'serif'],

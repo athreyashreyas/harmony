@@ -99,7 +99,7 @@ export default function ResetPasswordScreen() {
       >
         <Link
           to="/sign-in"
-          className="inline-block rounded-full bg-iris-500 px-6 py-3 text-sm font-medium text-parchment-50"
+          className="inline-block rounded-full bg-iris-500 px-6 py-3 text-sm font-medium text-on-primary"
         >
           Back to sign in
         </Link>
@@ -113,7 +113,7 @@ export default function ResetPasswordScreen() {
         <button
           type="button"
           onClick={() => navigate('/sign-in', { replace: true })}
-          className="rounded-full bg-iris-500 px-6 py-3 text-sm font-medium text-parchment-50"
+          className="rounded-full bg-iris-500 px-6 py-3 text-sm font-medium text-on-primary"
         >
           Sign in
         </button>

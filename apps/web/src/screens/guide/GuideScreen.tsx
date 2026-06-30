@@ -142,7 +142,7 @@ export default function GuideScreen() {
           <button
             type="button"
             onClick={() => navigate('/')}
-            className="mt-10 w-full rounded-full bg-iris-500 py-3 text-sm font-medium text-parchment-50"
+            className="mt-10 w-full rounded-full bg-iris-500 py-3 text-sm font-medium text-on-primary"
           >
             Back to Harmony
           </button>

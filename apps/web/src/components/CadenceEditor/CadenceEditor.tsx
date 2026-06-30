@@ -129,7 +129,7 @@ export default function CadenceEditor({
                 aria-label={label}
                 className={[
                   'flex h-10 flex-1 items-center justify-center rounded-card text-xs font-medium transition-colors',
-                  on ? 'bg-iris-500 text-parchment-50' : 'bg-parchment-200 text-ink-500',
+                  on ? 'bg-iris-500 text-on-primary' : 'bg-parchment-200 text-ink-500',
                 ].join(' ')}
               >
                 {label}

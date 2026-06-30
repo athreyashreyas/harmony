@@ -38,7 +38,7 @@ function weeklyRecordObservation(areas: Area[], habits: Habit[], logs: Log[], no
 
   if (!best) return null;
   const times = best.count === 1 ? 'once' : `${best.count} times`;
-  return `You came back to ${best.area.name} ${times} this week, more than any week in the last month. Something's taking root there.`;
+  return `You came back to ${best.area.name} ${times} this week, more than any week this past month. Something good is really taking root.`;
 }
 
 function mostConsistentTimeObservation(habits: Habit[], logs: Log[]): string | null {
@@ -97,7 +97,7 @@ function quieterThanUsualObservation(areas: Area[], habits: Habit[], logs: Log[]
   }
 
   return best
-    ? `${best.area.name} has been softer than its usual lately. The reason you gave: "${best.area.whySentence}"`
+    ? `${best.area.name} has slowed a little this week. You once told yourself why it matters: "${best.area.whySentence}". A gentle return whenever you're ready.`
     : null;
 }
 

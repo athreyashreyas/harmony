@@ -66,7 +66,7 @@ export default function PushPrompt({ userId }: { userId: string }) {
             type="button"
             onClick={turnOn}
             disabled={busy}
-            className="rounded-full bg-iris-500 px-4 py-2 text-sm font-medium text-parchment-50 disabled:opacity-40"
+            className="rounded-full bg-iris-500 px-4 py-2 text-sm font-medium text-on-primary disabled:opacity-40"
           >
             Turn on reminders
           </button>

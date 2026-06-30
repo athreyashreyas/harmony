@@ -175,9 +175,9 @@ export default function Bloom({
               exit={{ scale: 0.45, opacity: 0 }}
               transition={{ type: 'spring', stiffness: 420, damping: 30 }}
             >
-              <p className="font-serif text-xl text-parchment-50">{magnified.name}</p>
+              <p className="font-serif text-xl text-white">{magnified.name}</p>
               {magnified.whySentence && (
-                <p className="mt-2 line-clamp-4 px-2 text-sm italic leading-snug text-parchment-50/90">
+                <p className="mt-2 line-clamp-4 px-2 text-sm italic leading-snug text-white/90">
                   &ldquo;{magnified.whySentence}&rdquo;
                 </p>
               )}

@@ -31,7 +31,7 @@ export default function ReleaseRow({ release, defaultOpen }: { release: Release;
           <span className="mt-0.5 flex flex-wrap items-center gap-2">
             <span className="text-xs text-ink-500">{formatDateMedium(release.date)}</span>
             {release.major && (
-              <span className="rounded-full bg-iris-500 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-parchment-50">
+              <span className="rounded-full bg-iris-500 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-on-primary">
                 Major
               </span>
             )}

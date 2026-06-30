@@ -98,6 +98,18 @@ export const GUIDE: GuideSection[] = [
     ],
   },
   {
+    id: 'themes',
+    title: 'Make it yours',
+    body: [
+      'Harmony comes in a few different lights. Choose the one that makes you happy to open the app: the warm Terracotta, a golden Mango Sunshine, a restful Sage Grove, a clear Ocean Blue, or a soft Indigo Night for the evening.',
+      'A theme changes the colours around your habits, never the colours of your areas, so your bloom always means the same thing.',
+    ],
+    steps: [
+      'Open Me, then Appearance, and tap any theme to switch instantly.',
+      'Terracotta is the default, and your choice is remembered on this device.',
+    ],
+  },
+  {
     id: 'sync',
     title: 'Across your devices',
     body: [

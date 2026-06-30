@@ -192,7 +192,7 @@ export default function ComposeHabitSheet({
                     className="flex-1 rounded-card py-2 text-sm font-medium transition-colors"
                     style={
                       tugWeight === o.w
-                        ? { backgroundColor: '#5a636f', color: 'var(--parchment-50)' }
+                        ? { backgroundColor: '#5a636f', color: '#fff' }
                         : { backgroundColor: 'var(--parchment-200)', color: 'var(--ink-700)' }
                     }
                   >

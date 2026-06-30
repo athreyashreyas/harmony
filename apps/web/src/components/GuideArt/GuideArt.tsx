@@ -103,7 +103,7 @@ export default function GuideArt({ kind }: { kind: GuideArtKind }) {
       return (
         <div className="w-full max-w-[240px] rounded-card bg-parchment-50 px-3.5 py-3 shadow-card">
           <div className="flex items-center gap-2">
-            <span className="flex h-6 w-6 items-center justify-center rounded-[7px] bg-iris-500 font-serif text-sm text-parchment-50">h</span>
+            <span className="flex h-6 w-6 items-center justify-center rounded-[7px] bg-iris-500 font-serif text-sm text-on-primary">h</span>
             <span className="text-xs font-semibold text-ink-900">Harmony</span>
             <span className="ml-auto text-[10px] text-ink-300">now</span>
           </div>

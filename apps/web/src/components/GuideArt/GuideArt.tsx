@@ -130,7 +130,7 @@ export default function GuideArt({ kind }: { kind: GuideArtKind }) {
         <div className="flex items-end gap-2.5">
           {[
             ['#b5532f', '#fbf1e4'],
-            ['#ee5a2e', '#ffc42e'],
+            ['#f2a900', '#fff4d6'],
             ['#47602a', '#e8ecd8'],
             ['#1fa0a0', '#e2f2f1'],
             ['#8c7ce0', '#1b1e2c'],

@@ -32,10 +32,10 @@ export const THEMES: ThemeMeta[] = [
   {
     id: 'mango-sunshine',
     name: 'Mango Sunshine',
-    description: 'Bright summer sunshine with a coral pop. Pure joy on open.',
-    bg: '#FFC42E',
-    surface: '#FFFDF6',
-    primary: '#EE5A2E',
+    description: 'A golden sunflower on warm sunlit cream. Sunny and unmistakable.',
+    bg: '#FFF4D6',
+    surface: '#FFFCF2',
+    primary: '#F2A900',
   },
   {
     id: 'sage-grove',

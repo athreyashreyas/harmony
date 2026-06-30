@@ -6,12 +6,12 @@ import AreaRow from '../../components/AreaRow/AreaRow';
 import FAB from '../../components/FAB/FAB';
 import HabitReorderSheet from '../../components/HabitReorderSheet/HabitReorderSheet';
 import Skeleton from '../../components/Skeleton/Skeleton';
-import { archiveArea, reorderAreas, reorderHabits, saveArea } from '../../lib/db/queries';
+import { archiveArea, reorderAreas, reorderHabits, saveArea, saveHabit } from '../../lib/db/queries';
 import { createArea } from '../../lib/domain';
 import { useUserData } from '../../lib/useUserData';
 import { useAreas } from '../../store/useAreas';
 import { useHabits } from '../../store/useHabits';
-import AreaSheet, { type AreaFields } from './AreaSheet';
+import AreaSheet, { type AreaFields, type HabitWeight } from './AreaSheet';
 
 export default function AreasScreen() {
   const navigate = useNavigate();
@@ -50,6 +50,17 @@ export default function AreasScreen() {
       const byId = new Map(persisted.map((h) => [h.id, h]));
       useHabits.setState((s) => ({ habits: s.habits.map((h) => byId.get(h.id) ?? h) }));
     });
+  }
+
+  async function handleSaveWeights(weights: HabitWeight[]) {
+    const byId = new Map(weights.map((w) => [w.id, w.weight]));
+    const updated = habits
+      .filter((h) => byId.has(h.id))
+      .map((h) => ({ ...h, weight: byId.get(h.id)! }));
+    for (const h of updated) await saveHabit(h);
+    useHabits.setState((s) => ({
+      habits: s.habits.map((h) => (byId.has(h.id) ? { ...h, weight: byId.get(h.id)! } : h)),
+    }));
   }
 
   function openCreate() {
@@ -128,8 +139,16 @@ export default function AreasScreen() {
       <AreaSheet
         open={sheetOpen}
         area={editingArea}
+        habits={
+          editingArea
+            ? habits
+                .filter((h) => h.areaId === editingArea.id && h.archivedAt == null && h.polarity !== 'ease')
+                .sort((a, b) => a.order - b.order)
+            : []
+        }
         onClose={() => setSheetOpen(false)}
         onSave={handleSave}
+        onSaveWeights={handleSaveWeights}
         onArchive={handleArchive}
       />
 

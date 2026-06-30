@@ -30,7 +30,7 @@ const STATES = {
     color: 'var(--sage-500)',
     label: 'Synced',
     heading: "Everything's up to date",
-    body: 'Your habits are in step across your devices.',
+    body: 'Your habits are in sync across your devices.',
   },
 } as const;
 

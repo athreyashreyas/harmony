@@ -122,6 +122,7 @@ function habitToRow(h: Habit) {
     color: h.color ?? null,
     polarity: h.polarity ?? 'tend',
     tug_weight: h.tugWeight ?? null,
+    weight: h.weight ?? null,
   };
 }
 
@@ -289,6 +290,7 @@ interface HabitRow {
   color: string | null;
   polarity: Habit['polarity'] | null;
   tug_weight: number | null;
+  weight: number | null;
 }
 
 interface LogRow {
@@ -345,6 +347,7 @@ function rowToHabit(r: HabitRow): Habit {
     color: r.color ?? undefined,
     polarity: r.polarity ?? 'tend',
     tugWeight: r.tug_weight ?? undefined,
+    weight: r.weight ?? undefined,
   };
 }
 

@@ -72,12 +72,14 @@ export default function HabitDetailScreen() {
     if (!habit) return [];
     const weekAgo = isoDaysAgo(6);
     return habits
-      .filter((h) => h.areaId === habit.areaId && h.id !== habit.id)
+      .filter((h) => h.areaId === habit.areaId && h.id !== habit.id && h.archivedAt == null)
       .map((h) => ({
         habit: h,
         recent: windowLogs.some((l) => l.habitId === h.id && l.date >= weekAgo),
       }));
   }, [habit, habits, windowLogs]);
+  const tendNeighbours = neighbours.filter((n) => n.habit.polarity !== 'ease');
+  const tugNeighbours = neighbours.filter((n) => n.habit.polarity === 'ease');
 
   // Pattern observations (section 11.3), computed from the recent all-habits
   // window so adjacency (pairing with another habit) can be detected. Returns
@@ -156,15 +158,24 @@ export default function HabitDetailScreen() {
           )}
 
           <section className="mt-8">
-            <SoftHeatmap habit={habit} logs={habitLogs} color={accent ?? area.color} />
+            <SoftHeatmap
+              habit={habit}
+              logs={habitLogs}
+              color={accent ?? area.color}
+              variant={isTug ? 'tug' : 'tend'}
+            />
             <p className="mt-3 text-xs text-ink-500">
               {lastLog
-                ? `Last tended ${lastTendedPhrase(lastLog.date, lastLog.loggedAt)}.`
-                : 'Not tended yet.'}
+                ? isTug
+                  ? `Last noted ${lastTendedPhrase(lastLog.date, lastLog.loggedAt)}.`
+                  : `Last tended ${lastTendedPhrase(lastLog.date, lastLog.loggedAt)}.`
+                : isTug
+                  ? 'Not tugged yet. Long may it last.'
+                  : 'Not tended yet.'}
             </p>
           </section>
 
-          {patterns.length > 0 && (
+          {!isTug && patterns.length > 0 && (
             <section className="mt-9 space-y-1.5">
               {patterns.map((p) => (
                 <p key={p} className="text-sm text-ink-700">
@@ -188,20 +199,42 @@ export default function HabitDetailScreen() {
             </section>
           )}
 
-          {neighbours.length > 0 && (
+          {tendNeighbours.length > 0 && (
             <section className="mt-9">
-              <p className={eyebrow}>Neighbours in {area.name}</p>
+              <p className={eyebrow}>Also in {area.name}</p>
               <div className="no-scrollbar scroll-ios mt-3 flex gap-2 overflow-x-auto pb-1">
-                {neighbours.map(({ habit: n, recent }) => (
+                {tendNeighbours.map(({ habit: n, recent }) => (
                   <button
                     key={n.id}
                     type="button"
-                    onClick={() => navigate(`/habit/${n.id}`)}
+                    onClick={() => navigate(`/habit/${n.id}`, { replace: true })}
                     className="flex shrink-0 items-center gap-2 rounded-full bg-parchment-50 px-3.5 py-1.5 text-sm text-ink-700 shadow-card"
                   >
                     <span
                       className="h-1.5 w-1.5 rounded-full"
                       style={{ backgroundColor: recent ? area.color : 'var(--parchment-300)' }}
+                    />
+                    {n.name}
+                  </button>
+                ))}
+              </div>
+            </section>
+          )}
+
+          {tugNeighbours.length > 0 && (
+            <section className="mt-9">
+              <p className={eyebrow}>Tugs in {area.name}</p>
+              <div className="no-scrollbar scroll-ios mt-3 flex gap-2 overflow-x-auto pb-1">
+                {tugNeighbours.map(({ habit: n, recent }) => (
+                  <button
+                    key={n.id}
+                    type="button"
+                    onClick={() => navigate(`/habit/${n.id}`, { replace: true })}
+                    className="flex shrink-0 items-center gap-2 rounded-full border border-dashed border-[#5a636f]/45 px-3.5 py-1.5 text-sm text-ink-700"
+                  >
+                    <span
+                      className="h-1.5 w-1.5 rounded-full"
+                      style={{ backgroundColor: recent ? '#5a636f' : 'var(--parchment-300)' }}
                     />
                     {n.name}
                   </button>
@@ -217,7 +250,7 @@ export default function HabitDetailScreen() {
               className="w-full rounded-full py-3 text-sm font-medium"
               style={{ backgroundColor: hexToRgba(accent ?? area.color, 0.12), color: accent ?? area.color }}
             >
-              Edit habit
+              {isTug ? 'Edit tug' : 'Edit habit'}
             </button>
           </div>
         </main>

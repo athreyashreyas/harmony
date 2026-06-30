@@ -1,10 +1,15 @@
-import { useEffect, useState } from 'react';
-import type { Area, DriftSensitivity, Importance, TimeOfDay } from '@harmony/shared';
+import { useEffect, useMemo, useState } from 'react';
+import type { Area, DriftSensitivity, Habit, Importance, TimeOfDay } from '@harmony/shared';
 import { AREA_PALETTE } from '@harmony/shared';
 import BottomSheet from '../../components/BottomSheet/BottomSheet';
 import { TIME_OF_DAY_OPTIONS } from '../../lib/cadenceOptions';
 import type { AreaFields } from '../../lib/domain';
 import { PrimaryButton, QuietLink } from '../onboarding/ui';
+
+export interface HabitWeight {
+  id: string;
+  weight: number;
+}
 
 const IMPORTANCE_OPTIONS: { value: Importance; label: string }[] = [
   { value: 'core', label: 'Really matters' },
@@ -33,14 +38,19 @@ const inputClass =
 export default function AreaSheet({
   open,
   area,
+  habits = [],
   onClose,
   onSave,
+  onSaveWeights,
   onArchive,
 }: {
   open: boolean;
   area: Area | null;
+  // The area's tend habits, for the weighting editor (edit mode only).
+  habits?: Habit[];
   onClose: () => void;
   onSave: (next: AreaFields) => void;
+  onSaveWeights?: (weights: HabitWeight[]) => void;
   onArchive?: () => void;
 }) {
   const isEdit = area != null;
@@ -50,6 +60,7 @@ export default function AreaSheet({
   const [whySentence, setWhySentence] = useState('');
   const [driftSensitivity, setDriftSensitivity] = useState<DriftSensitivity>('default');
   const [reminderTimeOfDay, setReminderTimeOfDay] = useState<TimeOfDay>('anytime');
+  const [weights, setWeights] = useState<Record<string, number>>({});
 
   useEffect(() => {
     if (!open) return;
@@ -59,11 +70,21 @@ export default function AreaSheet({
     setWhySentence(area?.whySentence ?? '');
     setDriftSensitivity(area?.driftSensitivity ?? 'default');
     setReminderTimeOfDay(area?.reminderTimeOfDay ?? 'anytime');
+    setWeights(Object.fromEntries(habits.map((h) => [h.id, h.weight ?? 1])));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, area]);
+
+  const totalWeight = useMemo(
+    () => habits.reduce((sum, h) => sum + (weights[h.id] ?? 1), 0) || 1,
+    [habits, weights],
+  );
 
   function handleSave() {
     if (!name.trim()) return;
     onSave({ name: name.trim(), color, importance, whySentence, driftSensitivity, reminderTimeOfDay });
+    if (onSaveWeights && habits.length > 1) {
+      onSaveWeights(habits.map((h) => ({ id: h.id, weight: weights[h.id] ?? 1 })));
+    }
   }
 
   return (
@@ -125,6 +146,55 @@ export default function AreaSheet({
             ))}
           </div>
         </div>
+
+        {isEdit && habits.length > 1 && (
+          <div>
+            <p className="mb-1 text-sm font-medium text-ink-700">How much each habit counts</p>
+            <p className="mb-3 text-xs text-ink-300">
+              Their shares of this area's bloom. Slide to lean it toward what matters most here.
+            </p>
+            {/* Live stacked bar of the shares. */}
+            <div className="mb-3 flex h-2.5 overflow-hidden rounded-full bg-parchment-200">
+              {habits.map((h) => (
+                <span
+                  key={h.id}
+                  style={{
+                    width: `${((weights[h.id] ?? 1) / totalWeight) * 100}%`,
+                    backgroundColor: h.color ?? color,
+                  }}
+                />
+              ))}
+            </div>
+            <div className="space-y-3">
+              {habits.map((h) => {
+                const pct = Math.round(((weights[h.id] ?? 1) / totalWeight) * 100);
+                return (
+                  <div key={h.id}>
+                    <div className="mb-1 flex items-center justify-between gap-2">
+                      <span className="flex min-w-0 items-center gap-2">
+                        <span className="h-1.5 w-1.5 shrink-0 rounded-full" style={{ backgroundColor: h.color ?? color }} />
+                        <span className="truncate text-sm text-ink-700">{h.name}</span>
+                      </span>
+                      <span className="shrink-0 text-xs font-medium text-ink-500">{pct}%</span>
+                    </div>
+                    <input
+                      type="range"
+                      min={1}
+                      max={10}
+                      step={1}
+                      value={weights[h.id] ?? 1}
+                      onChange={(e) =>
+                        setWeights((w) => ({ ...w, [h.id]: Number(e.target.value) }))
+                      }
+                      aria-label={`Weight for ${h.name}`}
+                      className="w-full accent-iris-500"
+                    />
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
 
         <div>
           <label htmlFor="area-why" className="mb-1.5 block text-sm font-medium text-ink-700">

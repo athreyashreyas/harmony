@@ -70,6 +70,9 @@ export interface Habit {
   // how much one logged tug sets you back (in equivalent missed sessions).
   polarity?: 'tend' | 'ease';
   tugWeight?: number;
+  // Relative weight of this habit within its area's Bloom (default 1 = equal
+  // share). Normalised against the area's other tend habits at compute time.
+  weight?: number;
 }
 
 export interface Log {

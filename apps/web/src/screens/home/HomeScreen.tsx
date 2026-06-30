@@ -132,21 +132,13 @@ export default function HomeScreen() {
     return activeFilter ? base.filter((h) => h.areaId === activeFilter) : base;
   }, [view, todaysHabits, habits, activeFilter]);
 
-  // Tugs: ease habits, optionally narrowed to the selected area. Ones the user
-  // has stayed clear of for a good while graduate out of view so we stop
-  // bringing up something they've moved past.
-  const TUG_GRADUATE_DAYS = 30;
-  const tugs = useMemo(() => {
-    const ease = habits.filter(
-      (h) => h.polarity === 'ease' && (!activeFilter || h.areaId === activeFilter),
-    );
-    return ease.filter((h) => {
-      const dates = logs.filter((l) => l.habitId === h.id).map((l) => l.date);
-      if (dates.length === 0) return true; // newly tracked, nothing logged yet
-      const last = dates.reduce((a, b) => (a > b ? a : b));
-      return daysBetween(last, today) < TUG_GRADUATE_DAYS;
-    });
-  }, [habits, logs, activeFilter, today]);
+  // Tugs: ease habits, optionally narrowed to the selected area. They stay
+  // visible regardless of how long it's been; "days since" only ever
+  // encourages, it never hides them.
+  const tugs = useMemo(
+    () => habits.filter((h) => h.polarity === 'ease' && (!activeFilter || h.areaId === activeFilter)),
+    [habits, activeFilter],
+  );
   const doneIds = useMemo(
     () => new Set(logs.filter((l) => l.date === today).map((l) => l.habitId)),
     [logs, today],

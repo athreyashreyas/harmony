@@ -22,11 +22,14 @@ export default function SoftHeatmap({
   habit,
   logs,
   color,
+  variant = 'tend',
 }: {
   habit: Habit;
   logs: Log[];
   color: string;
+  variant?: 'tend' | 'tug';
 }) {
+  const isTug = variant === 'tug';
   const today = todayISO();
   const [selected, setSelected] = useState<DayCell | null>(null);
 
@@ -47,10 +50,19 @@ export default function SoftHeatmap({
     return out;
   }, [habit, logs, today]);
 
-  function dotColor(cell: DayCell): string {
-    if (cell.tended) return hexToRgba(color, 0.87);
-    if (cell.scheduled) return 'var(--parchment-300)';
-    return 'var(--parchment-200)';
+  // A logged day. For a tug it reads as a hollow ash ring (outlined, "on
+  // theme but clearly different") rather than a solid, warm fill.
+  function dotStyle(cell: DayCell): { backgroundColor: string; boxShadow?: string } {
+    const todayRing = cell.isToday ? '0 0 0 1.5px var(--iris-500)' : '';
+    if (cell.tended) {
+      if (isTug) {
+        const ring = `inset 0 0 0 2px ${color}`;
+        return { backgroundColor: 'transparent', boxShadow: [ring, todayRing].filter(Boolean).join(', ') };
+      }
+      return { backgroundColor: hexToRgba(color, 0.87), boxShadow: todayRing || undefined };
+    }
+    const bg = cell.scheduled ? 'var(--parchment-300)' : 'var(--parchment-200)';
+    return { backgroundColor: bg, boxShadow: todayRing || undefined };
   }
 
   return (
@@ -63,10 +75,7 @@ export default function SoftHeatmap({
             onClick={() => setSelected((s) => (s?.date === cell.date ? null : cell))}
             aria-label={formatDateMedium(cell.date)}
             className="h-3.5 w-3.5 rounded-full"
-            style={{
-              backgroundColor: dotColor(cell),
-              boxShadow: cell.isToday ? '0 0 0 1.5px var(--iris-500)' : undefined,
-            }}
+            style={dotStyle(cell)}
           />
         ))}
       </div>
@@ -77,7 +86,9 @@ export default function SoftHeatmap({
           {selected.note ? (
             <p className="mt-1 italic text-ink-500">&ldquo;{selected.note}&rdquo;</p>
           ) : (
-            <p className="mt-1 text-ink-300">{selected.tended ? 'Tended.' : 'Untended.'}</p>
+            <p className="mt-1 text-ink-300">
+              {isTug ? (selected.tended ? 'A tug.' : 'No tug.') : selected.tended ? 'Tended.' : 'Untended.'}
+            </p>
           )}
         </div>
       )}

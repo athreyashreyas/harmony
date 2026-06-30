@@ -12,6 +12,18 @@ export interface Release {
 // plain, the same voice as the rest of the app.
 export const CHANGELOG: Release[] = [
   {
+    version: '0.11.0',
+    date: '2026-06-30',
+    major: true,
+    title: 'Weight what matters',
+    notes: [
+      'Give each habit its share of an area. Open an area to slide how much each habit counts toward its bloom, with a live split that always adds to a hundred. Equal by default, yours to shape.',
+      'The bloom now reads on two levels: how much an area matters to you, where lower-stakes areas fill more readily so your eye is drawn to what you said matters most, and how you are doing on each habit by its weight.',
+      "Tugs are clearer on a habit's page: their own heading among an area's habits, an outlined streak, and 'not tugged yet' rather than 'not tended'.",
+      'Going back from a habit now returns you home, instead of retracing every neighbour you looked at along the way.',
+    ],
+  },
+  {
     version: '0.10.0',
     date: '2026-06-30',
     major: true,

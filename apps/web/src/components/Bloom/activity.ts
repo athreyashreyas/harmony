@@ -22,20 +22,28 @@ export function computeAreaActivity(
   if (areaHabits.length === 0) return 0;
 
   const from = isoDaysAgo(windowDays - 1);
-  const habitIds = new Set(areaHabits.map((h) => h.id));
+  const tendIds = new Set(areaHabits.filter((h) => h.polarity !== 'ease').map((h) => h.id));
+  const easeById = new Map(areaHabits.filter((h) => h.polarity === 'ease').map((h) => [h.id, h]));
 
   const completedDates = new Set<string>();
+  let penalty = 0; // tugs eat into completions, in equivalent missed sessions
   for (const log of logs) {
-    if (!habitIds.has(log.habitId) || log.date < from) continue;
-    completedDates.add(`${log.habitId}:${log.date}`);
+    if (log.date < from) continue;
+    if (tendIds.has(log.habitId)) {
+      completedDates.add(`${log.habitId}:${log.date}`);
+    } else {
+      const ease = easeById.get(log.habitId);
+      if (ease) penalty += ease.tugWeight ?? 1;
+    }
   }
 
-  const expected = areaHabits.reduce(
-    (sum, h) => sum + expectedCompletionsInWindow(h.cadence, windowDays),
-    0,
-  );
+  const expected = areaHabits
+    .filter((h) => h.polarity !== 'ease')
+    .reduce((sum, h) => sum + expectedCompletionsInWindow(h.cadence, windowDays), 0);
   if (expected <= 0) return 0;
 
-  const ratio = completedDates.size / expected;
-  return Math.min(1, ratio * TYPICAL_RATIO_TARGET);
+  // Tugs subtract from completions: honest, but floored at zero so a single slip
+  // can never push a petal "negative" or punitively erase the whole window.
+  const effective = Math.max(0, completedDates.size - penalty);
+  return Math.min(1, (effective / expected) * TYPICAL_RATIO_TARGET);
 }

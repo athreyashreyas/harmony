@@ -64,14 +64,21 @@ export default function LogScreen() {
 
   const areaById = useMemo(() => new Map(areas.map((a) => [a.id, a])), [areas]);
 
+  const easeIds = useMemo(
+    () => new Set(habits.filter((h) => h.polarity === 'ease').map((h) => h.id)),
+    [habits],
+  );
+
+  // Calendar dots mean "tended", so tug logs don't earn one.
   const dotsByDate = useMemo(() => {
     const map = new Map<string, Set<string>>();
     for (const log of monthLogs) {
+      if (easeIds.has(log.habitId)) continue;
       if (!map.has(log.date)) map.set(log.date, new Set());
       map.get(log.date)!.add(log.areaId);
     }
     return map;
-  }, [monthLogs]);
+  }, [monthLogs, easeIds]);
 
   const today = todayISO();
   const isCurrentMonth = startOfMonthISO(viewedMonth) === startOfMonthISO(new Date());
@@ -223,7 +230,8 @@ export default function LogScreen() {
               <p className="pb-1 text-xs text-ink-300">Tap to mark or unmark what you tended to.</p>
               {dayHabits.map((habit) => {
                 const area = areaById.get(habit.areaId);
-                const accent = habit.color ?? area?.color ?? 'var(--iris-500)';
+                const isTug = habit.polarity === 'ease';
+                const accent = isTug ? '#5a636f' : habit.color ?? area?.color ?? 'var(--iris-500)';
                 const log = dayLogByHabit.get(habit.id);
                 const done = log != null;
                 const due = selectedDate ? isHabitDueOn(habit, selectedDate) : false;
@@ -233,7 +241,11 @@ export default function LogScreen() {
                     type="button"
                     onClick={() => void toggleForDay(habit)}
                     aria-pressed={done}
-                    className="flex w-full items-center gap-3 rounded-card bg-parchment-100 px-3 py-2.5 text-left"
+                    className={
+                      isTug
+                        ? 'flex w-full items-center gap-3 rounded-card border border-dashed border-[#5a636f]/45 px-3 py-2.5 text-left'
+                        : 'flex w-full items-center gap-3 rounded-card bg-parchment-100 px-3 py-2.5 text-left'
+                    }
                   >
                     <CheckCircle done={done} color={accent} />
                     <span className="min-w-0 flex-1">
@@ -243,10 +255,14 @@ export default function LogScreen() {
                       {log?.note ? (
                         <span className="block truncate text-xs italic text-ink-500">&ldquo;{log.note}&rdquo;</span>
                       ) : (
-                        !due && <span className="block text-xs text-ink-300">Not scheduled that day</span>
+                        !isTug && !due && <span className="block text-xs text-ink-300">Not scheduled that day</span>
                       )}
                     </span>
-                    <span className="h-1.5 w-1.5 shrink-0 rounded-full" style={{ backgroundColor: area?.color ?? 'var(--parchment-300)' }} />
+                    {isTug ? (
+                      <span className="shrink-0 text-[10px] uppercase tracking-wide text-ink-300">tug</span>
+                    ) : (
+                      <span className="h-1.5 w-1.5 shrink-0 rounded-full" style={{ backgroundColor: area?.color ?? 'var(--parchment-300)' }} />
+                    )}
                   </button>
                 );
               })}

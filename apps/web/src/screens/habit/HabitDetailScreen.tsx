@@ -90,7 +90,8 @@ export default function HabitDetailScreen() {
 
   // Tint the status bar to match the top of the wash so it blends seamlessly
   // into this screen instead of leaving a strip of plain paper above it.
-  const accent = (habit?.color || area?.color) ?? null;
+  const isTug = habit?.polarity === 'ease';
+  const accent = isTug ? '#5a636f' : (habit?.color || area?.color) ?? null;
   useThemeColor(accent ? blendOver(accent, 0.18, '#FBF1E4') : null);
 
   if (!habit || !area) {
@@ -120,7 +121,7 @@ export default function HabitDetailScreen() {
 
   return (
     <div className="relative flex h-full flex-col overflow-hidden bg-parchment-100">
-      <WatercolorWash color={habit.color ?? area.color} from="top" height={360} />
+      <WatercolorWash color={accent ?? area.color} from="top" height={360} />
 
       <div className="scroll-ios relative z-10 min-h-0 flex-1 overflow-y-auto pb-safe">
         <header className="flex items-center justify-between px-4 pt-safe">
@@ -155,7 +156,7 @@ export default function HabitDetailScreen() {
           )}
 
           <section className="mt-8">
-            <SoftHeatmap habit={habit} logs={habitLogs} color={habit.color ?? area.color} />
+            <SoftHeatmap habit={habit} logs={habitLogs} color={accent ?? area.color} />
             <p className="mt-3 text-xs text-ink-500">
               {lastLog
                 ? `Last tended ${lastTendedPhrase(lastLog.date, lastLog.loggedAt)}.`
@@ -214,7 +215,7 @@ export default function HabitDetailScreen() {
               type="button"
               onClick={() => setSheetOpen(true)}
               className="w-full rounded-full py-3 text-sm font-medium"
-              style={{ backgroundColor: hexToRgba(habit.color ?? area.color, 0.12), color: habit.color ?? area.color }}
+              style={{ backgroundColor: hexToRgba(accent ?? area.color, 0.12), color: accent ?? area.color }}
             >
               Edit habit
             </button>
@@ -235,6 +236,8 @@ export default function HabitDetailScreen() {
           reminderTime: habit.reminderTime,
           startDate: habit.startDate,
           endDate: habit.endDate,
+          polarity: habit.polarity,
+          tugWeight: habit.tugWeight,
         }}
         onClose={() => setSheetOpen(false)}
         onSave={handleSave}

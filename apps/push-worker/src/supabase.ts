@@ -72,6 +72,8 @@ interface HabitRow {
   created_at: string;
   archived_at: string | null;
   color: string | null;
+  polarity: Habit['polarity'] | null;
+  tug_weight: number | null;
 }
 
 interface LogRow {
@@ -144,6 +146,8 @@ function toHabit(r: HabitRow): Habit {
     createdAt: Date.parse(r.created_at),
     archivedAt: r.archived_at ? Date.parse(r.archived_at) : null,
     color: r.color ?? undefined,
+    polarity: r.polarity ?? 'tend',
+    tugWeight: r.tug_weight ?? undefined,
   };
 }
 

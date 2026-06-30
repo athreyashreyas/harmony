@@ -14,6 +14,9 @@ export interface HabitDraft {
   // i.e. it runs indefinitely).
   startDate: string;
   endDate: string | null;
+  // 'tend' (default) or 'ease' (a tug); tugWeight applies to ease habits.
+  polarity?: 'tend' | 'ease';
+  tugWeight?: number;
 }
 
 // The editable shape of an area, as the area sheet collects it. Re-exported

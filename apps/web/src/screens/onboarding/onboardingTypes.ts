@@ -22,4 +22,4 @@ export interface DraftHabit {
 export type DraftHabits = Record<string, DraftHabit>;
 
 export const MIN_AREAS = 3;
-export const MAX_AREAS = 7;
+export const MAX_AREAS = 12;

@@ -12,6 +12,18 @@ export interface Release {
 // plain, the same voice as the rest of the app.
 export const CHANGELOG: Release[] = [
   {
+    version: '0.10.0',
+    date: '2026-06-30',
+    major: true,
+    title: 'Tugs: the whole, honest picture',
+    notes: [
+      'Add a tug for something you want to ease off. There is no schedule; you note it on the days it happens, and it gently eats into that area of your bloom, so a week shows the lift and the drag, not just the wins.',
+      'A Tugs section on the home screen for a one-tap note, with how many days since the last one to keep you going. Stay clear of one for a while and it quietly steps aside, no nagging about something you have moved past.',
+      'Added Socialising to the starting areas, and you can now keep up to twelve.',
+      '"Archive" is now "Delete", since that is what it really does.',
+    ],
+  },
+  {
     version: '0.9.0',
     date: '2026-06-30',
     major: true,

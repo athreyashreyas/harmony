@@ -120,6 +120,8 @@ function habitToRow(h: Habit) {
     created_at: new Date(h.createdAt).toISOString(),
     archived_at: h.archivedAt ? new Date(h.archivedAt).toISOString() : null,
     color: h.color ?? null,
+    polarity: h.polarity ?? 'tend',
+    tug_weight: h.tugWeight ?? null,
   };
 }
 
@@ -285,6 +287,8 @@ interface HabitRow {
   created_at: string;
   archived_at: string | null;
   color: string | null;
+  polarity: Habit['polarity'] | null;
+  tug_weight: number | null;
 }
 
 interface LogRow {
@@ -339,6 +343,8 @@ function rowToHabit(r: HabitRow): Habit {
     createdAt: new Date(r.created_at).getTime(),
     archivedAt: r.archived_at ? new Date(r.archived_at).getTime() : null,
     color: r.color ?? undefined,
+    polarity: r.polarity ?? 'tend',
+    tugWeight: r.tug_weight ?? undefined,
   };
 }
 

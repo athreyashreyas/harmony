@@ -83,7 +83,7 @@ export default function AreasScreen() {
   const reorderingHabits =
     reorderingArea != null
       ? habits
-          .filter((h) => h.areaId === reorderingArea.id && h.archivedAt == null)
+          .filter((h) => h.areaId === reorderingArea.id && h.archivedAt == null && h.polarity !== 'ease')
           .sort((a, b) => a.order - b.order)
       : [];
 

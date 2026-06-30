@@ -19,7 +19,7 @@ import { compose } from '../../lib/templates/composer';
 import { isDriftTemplate } from '../../lib/templates/library';
 import { nudgeHistoryForUser, recentTemplateIdsFor, recordNudge } from '../../lib/templates/history';
 import { isHabitDueToday } from '../../lib/time/cadence';
-import { formatLongDate, greetingWord, todayISO } from '../../lib/time/dates';
+import { daysBetween, formatLongDate, greetingWord, todayISO } from '../../lib/time/dates';
 import { listContainer, listItem } from '../../lib/motion';
 import { useUserData } from '../../lib/useUserData';
 import { useLogs } from '../../store/useLogs';
@@ -127,9 +127,26 @@ export default function HomeScreen() {
   const activeFilter =
     selectedAreaId && areas.some((a) => a.id === selectedAreaId) ? selectedAreaId : null;
   const shownHabits = useMemo(() => {
-    const base = view === 'today' ? todaysHabits : habits;
+    // Tugs live in their own section; the Today/All list is tend habits only.
+    const base = view === 'today' ? todaysHabits : habits.filter((h) => h.polarity !== 'ease');
     return activeFilter ? base.filter((h) => h.areaId === activeFilter) : base;
   }, [view, todaysHabits, habits, activeFilter]);
+
+  // Tugs: ease habits, optionally narrowed to the selected area. Ones the user
+  // has stayed clear of for a good while graduate out of view so we stop
+  // bringing up something they've moved past.
+  const TUG_GRADUATE_DAYS = 30;
+  const tugs = useMemo(() => {
+    const ease = habits.filter(
+      (h) => h.polarity === 'ease' && (!activeFilter || h.areaId === activeFilter),
+    );
+    return ease.filter((h) => {
+      const dates = logs.filter((l) => l.habitId === h.id).map((l) => l.date);
+      if (dates.length === 0) return true; // newly tracked, nothing logged yet
+      const last = dates.reduce((a, b) => (a > b ? a : b));
+      return daysBetween(last, today) < TUG_GRADUATE_DAYS;
+    });
+  }, [habits, logs, activeFilter, today]);
   const doneIds = useMemo(
     () => new Set(logs.filter((l) => l.date === today).map((l) => l.habitId)),
     [logs, today],
@@ -210,29 +227,27 @@ export default function HomeScreen() {
       )}
 
       <div className="mt-9">
-        <div className="flex items-center justify-between gap-3">
-          <div className="flex rounded-full bg-parchment-200 p-0.5">
-            {(['today', 'all'] as const).map((v) => (
-              <button
-                key={v}
-                type="button"
-                onClick={() => setView(v)}
-                aria-pressed={view === v}
-                className={[
-                  'rounded-full px-3.5 py-1 text-xs font-medium capitalize transition-colors',
-                  view === v ? 'bg-parchment-50 text-ink-900 shadow-card' : 'text-ink-500',
-                ].join(' ')}
-              >
-                {v}
-              </button>
-            ))}
-          </div>
-          {loaded && shownHabits.length > 0 && (
-            <p className="text-xs text-ink-300">
-              {doneCount} of {shownHabits.length} tended
-            </p>
-          )}
+        <div className="flex w-full rounded-full bg-parchment-200 p-0.5">
+          {(['today', 'all'] as const).map((v) => (
+            <button
+              key={v}
+              type="button"
+              onClick={() => setView(v)}
+              aria-pressed={view === v}
+              className={[
+                'flex-1 rounded-full py-1.5 text-sm font-medium capitalize transition-colors',
+                view === v ? 'bg-parchment-50 text-ink-900 shadow-card' : 'text-ink-500',
+              ].join(' ')}
+            >
+              {v}
+            </button>
+          ))}
         </div>
+        {loaded && shownHabits.length > 0 && (
+          <p className="mt-2 text-right text-xs text-ink-300">
+            {doneCount} of {shownHabits.length} tended to
+          </p>
+        )}
 
         <div className="mt-3">
           {!loaded ? (
@@ -277,6 +292,56 @@ export default function HomeScreen() {
           )}
         </div>
       </div>
+
+      {loaded && tugs.length > 0 && (
+        <div className="mt-9">
+          <p className="text-xs font-medium uppercase tracking-[0.1em] text-ink-300">Tugs</p>
+          <p className="mt-1 text-xs text-ink-300">The pulls you're easing off. Tap one if it happened today.</p>
+          <div className="mt-3 space-y-2.5">
+            {tugs.map((habit) => {
+              const loggedToday = doneIds.has(habit.id);
+              const pastDates = logs.filter((l) => l.habitId === habit.id).map((l) => l.date);
+              const last = pastDates.length ? pastDates.reduce((a, b) => (a > b ? a : b)) : null;
+              const daysSince = last ? daysBetween(last, today) : null;
+              const note = loggedToday
+                ? 'Noted for today. Tomorrow is a clean slate.'
+                : daysSince != null
+                  ? daysSince === 0
+                    ? 'Noted earlier today.'
+                    : `${daysSince} day${daysSince === 1 ? '' : 's'} since the last one. Keep going.`
+                  : 'Tap if it happened today.';
+              return (
+                <button
+                  key={habit.id}
+                  type="button"
+                  onClick={() => void toggle(habit)}
+                  aria-pressed={loggedToday}
+                  className="flex w-full items-center gap-3 rounded-card border border-dashed border-[#5a636f]/45 bg-parchment-50 px-3 py-3 text-left"
+                >
+                  <span
+                    className="flex h-[22px] w-[22px] shrink-0 items-center justify-center rounded-full"
+                    style={
+                      loggedToday
+                        ? { backgroundColor: '#5a636f' }
+                        : { boxShadow: 'inset 0 0 0 1.5px #5a636f55' }
+                    }
+                  >
+                    {loggedToday && (
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                        <path d="M5 13l4 4L19 7" />
+                      </svg>
+                    )}
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block truncate text-sm text-ink-900">{habit.name}</span>
+                    <span className="block truncate text-xs text-ink-400">{note}</span>
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {loaded && areas.length > 0 && <FAB label="Add habit" onClick={() => setComposeOpen(true)} />}
 

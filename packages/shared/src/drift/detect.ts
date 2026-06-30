@@ -75,8 +75,13 @@ export function detectDrift(input: {
   nudgeHistory: NudgeHistory[];
   now: Date;
 }): DriftCandidate[] {
-  const { areas, habits, logs, nudgeHistory, now } = input;
+  const { areas, habits, nudgeHistory, now } = input;
   const candidates: DriftCandidate[] = [];
+
+  // Tugs (ease habits) are not "tending", so their logs must not reset an
+  // area's drift clock or shape its cadence. Only tend-habit logs count here.
+  const easeIds = new Set(habits.filter((h) => h.polarity === 'ease').map((h) => h.id));
+  const logs = input.logs.filter((l) => !easeIds.has(l.habitId));
 
   for (const area of areas) {
     if (area.archivedAt != null) continue;

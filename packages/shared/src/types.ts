@@ -64,6 +64,12 @@ export interface Habit {
   // Optional per-habit colour override (section: colour-coding). When unset,
   // the habit inherits its area's colour.
   color?: string;
+  // 'tend' (default) is a normal habit you want to do, scheduled by cadence.
+  // 'ease' is a "tug": something you want to ease off, never scheduled, logged
+  // manually when it happens, and it eats into the area's Bloom. tugWeight is
+  // how much one logged tug sets you back (in equivalent missed sessions).
+  polarity?: 'tend' | 'ease';
+  tugWeight?: number;
 }
 
 export interface Log {

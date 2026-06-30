@@ -108,12 +108,15 @@ export function gentleObservations(
   now: Date = new Date(),
 ): string[] {
   const activeAreas = areas.filter((a) => a.archivedAt == null);
-  const activeHabits = habits.filter((h) => h.archivedAt == null);
+  // Observations are about tending; tugs and their logs don't belong here.
+  const activeHabits = habits.filter((h) => h.archivedAt == null && h.polarity !== 'ease');
+  const easeIds = new Set(habits.filter((h) => h.polarity === 'ease').map((h) => h.id));
+  const tendLogs = logs.filter((l) => !easeIds.has(l.habitId));
 
   const candidates = [
-    weeklyRecordObservation(activeAreas, activeHabits, logs, now),
-    quieterThanUsualObservation(activeAreas, activeHabits, logs, now),
-    mostConsistentTimeObservation(activeHabits, logs),
+    weeklyRecordObservation(activeAreas, activeHabits, tendLogs, now),
+    quieterThanUsualObservation(activeAreas, activeHabits, tendLogs, now),
+    mostConsistentTimeObservation(activeHabits, tendLogs),
   ].filter((o): o is string => o != null);
 
   return candidates.slice(0, MAX_OBSERVATIONS);

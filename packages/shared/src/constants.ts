@@ -49,6 +49,7 @@ export const SUGGESTED_AREAS: SuggestedArea[] = [
   { name: 'Mind', color: '#404780' }, // Indigo
   { name: 'Creativity', color: '#574887' }, // Iris
   { name: 'Connection', color: '#94405E' }, // Rose
+  { name: 'Socialising', color: '#C66A2C' }, // Tangerine
   { name: 'Play', color: '#A88820' }, // Marigold
   { name: 'Spirit', color: '#7A3B6E' }, // Plum
   { name: 'Home', color: '#9E4E37' }, // Terracotta

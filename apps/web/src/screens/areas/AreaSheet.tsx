@@ -186,7 +186,7 @@ export default function AreaSheet({
 
         {isEdit && onArchive && (
           <div className="text-center">
-            <QuietLink onClick={onArchive}>Archive this area</QuietLink>
+            <QuietLink onClick={onArchive}>Delete this area</QuietLink>
           </div>
         )}
       </div>

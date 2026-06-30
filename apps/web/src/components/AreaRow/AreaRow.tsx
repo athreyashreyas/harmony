@@ -73,6 +73,7 @@ export default function AreaRow({
         .sort((a, b) => a.order - b.order),
     [habits, area.id],
   );
+  const tendCount = areaHabits.filter((h) => h.polarity !== 'ease').length;
 
   const tendedDatesThisWeek = useMemo(() => {
     const weekStart = startOfWeekISO();
@@ -133,7 +134,10 @@ export default function AreaRow({
           <span className="min-w-0 flex-1">
             <span className="block truncate text-sm font-medium text-ink-900">{area.name}</span>
             <span className="block truncate text-xs text-ink-500">
-              {areaHabits.length} habit{areaHabits.length === 1 ? '' : 's'}, {tendedDatesThisWeek} tended this week
+              {tendCount} habit{tendCount === 1 ? '' : 's'} ·{' '}
+              {tendedDatesThisWeek > 0
+                ? `tended ${tendedDatesThisWeek} day${tendedDatesThisWeek === 1 ? '' : 's'} this week`
+                : 'not tended yet this week'}
             </span>
           </span>
 
@@ -197,21 +201,29 @@ export default function AreaRow({
                   <p className="px-2 pb-1 text-xs text-ink-300">No habits in this area yet.</p>
                 ) : (
                   <>
-                    {areaHabits.map((habit) => (
-                      <button
-                        key={habit.id}
-                        type="button"
-                        onClick={() => onOpenHabit?.(habit.id)}
-                        className="flex w-full items-center gap-2.5 rounded-lg bg-parchment-100 px-3 py-2 text-left"
-                      >
-                        <span
-                          className="h-1.5 w-1.5 shrink-0 rounded-full"
-                          style={{ backgroundColor: habit.color ?? area.color }}
-                        />
-                        <span className="min-w-0 flex-1 truncate text-sm text-ink-800">{habit.name}</span>
-                      </button>
-                    ))}
-                    {areaHabits.length > 1 && onRequestReorder && (
+                    {areaHabits.map((habit) => {
+                      const isTug = habit.polarity === 'ease';
+                      return (
+                        <button
+                          key={habit.id}
+                          type="button"
+                          onClick={() => onOpenHabit?.(habit.id)}
+                          className={
+                            isTug
+                              ? 'flex w-full items-center gap-2.5 rounded-lg border border-dashed border-[#5a636f]/45 px-3 py-2 text-left'
+                              : 'flex w-full items-center gap-2.5 rounded-lg bg-parchment-100 px-3 py-2 text-left'
+                          }
+                        >
+                          <span
+                            className="h-1.5 w-1.5 shrink-0 rounded-full"
+                            style={{ backgroundColor: isTug ? '#5a636f' : habit.color ?? area.color }}
+                          />
+                          <span className="min-w-0 flex-1 truncate text-sm text-ink-800">{habit.name}</span>
+                          {isTug && <span className="shrink-0 text-[10px] uppercase tracking-wide text-ink-300">tug</span>}
+                        </button>
+                      );
+                    })}
+                    {tendCount > 1 && onRequestReorder && (
                       <button
                         type="button"
                         onClick={onRequestReorder}

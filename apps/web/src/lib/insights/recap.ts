@@ -86,8 +86,13 @@ export function composeWeeklyRecap(input: {
   profile: UserProfile;
   now?: Date;
 }): RecapLine[] {
-  const { habits, logs, now = new Date() } = input;
+  const { now = new Date() } = input;
   const areas = input.areas.filter((a) => a.archivedAt == null);
+  // The recap is about tending. Tugs (ease habits) and their logs are excluded
+  // so a slip never reads as a win or resets an area's "how long since" line.
+  const habits = input.habits.filter((h) => h.polarity !== 'ease');
+  const easeIds = new Set(input.habits.filter((h) => h.polarity === 'ease').map((h) => h.id));
+  const logs = input.logs.filter((l) => !easeIds.has(l.habitId));
   const lines: RecapLine[] = [];
 
   const attentive = areas.filter((a) => a.importance !== 'optional');

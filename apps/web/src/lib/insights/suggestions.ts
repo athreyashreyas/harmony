@@ -55,11 +55,13 @@ function strongestDaySuggestion(habits: Habit[], logs: Log[]): Suggestion | null
 
 export function whatToDoNext(areas: Area[], habits: Habit[], logs: Log[]): Suggestion[] {
   const activeAreas = areas.filter((a) => a.archivedAt == null);
-  const activeHabits = habits.filter((h) => h.archivedAt == null);
+  const activeHabits = habits.filter((h) => h.archivedAt == null && h.polarity !== 'ease');
+  const easeIds = new Set(habits.filter((h) => h.polarity === 'ease').map((h) => h.id));
+  const tendLogs = logs.filter((l) => !easeIds.has(l.habitId));
 
   const suggestions = [
     needsAHabitSuggestion(activeAreas, activeHabits),
-    strongestDaySuggestion(activeHabits, logs),
+    strongestDaySuggestion(activeHabits, tendLogs),
   ].filter((s): s is Suggestion => s != null);
 
   return suggestions.slice(0, MAX_SUGGESTIONS);

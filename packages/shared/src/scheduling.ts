@@ -8,6 +8,8 @@ import { daysBetween, todayISO } from './time';
 // builds today's list.
 export function isHabitDueOn(habit: Habit, dateISO: string): boolean {
   if (habit.archivedAt != null) return false;
+  // Tugs are never scheduled; they're logged manually when they happen.
+  if (habit.polarity === 'ease') return false;
   if (dateISO < habit.startDate) return false;
   if (habit.endDate != null && dateISO > habit.endDate) return false;
 

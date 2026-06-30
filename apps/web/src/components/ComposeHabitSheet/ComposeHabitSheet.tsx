@@ -37,6 +37,8 @@ export default function ComposeHabitSheet({
   onSave: (draft: HabitDraft) => void;
   onArchive?: () => void;
 }) {
+  const [polarity, setPolarity] = useState<'tend' | 'ease'>('tend');
+  const [tugWeight, setTugWeight] = useState<number>(1);
   const [areaId, setAreaId] = useState<string | null>(null);
   const [name, setName] = useState('');
   const [cadence, setCadence] = useState<Cadence>({ kind: 'times-per-week', times: 3 });
@@ -48,6 +50,8 @@ export default function ComposeHabitSheet({
 
   useEffect(() => {
     if (!open) return;
+    setPolarity(initial?.polarity ?? 'tend');
+    setTugWeight(initial?.tugWeight ?? 1);
     setAreaId(initial?.areaId ?? null);
     setName(initial?.name ?? '');
     setCadence(initial?.cadence ?? { kind: 'times-per-week', times: 3 });
@@ -58,12 +62,29 @@ export default function ComposeHabitSheet({
     setEndDate(initial?.endDate ?? null);
   }, [open, initial]);
 
+  const isEase = polarity === 'ease';
   const selectedArea = areas.find((a) => a.id === areaId) ?? null;
-  const accent = color ?? selectedArea?.color ?? null;
+  // Tugs read in a muted slate, distinct from the warm, filled tend habits.
+  const accent = isEase ? '#5a636f' : (color ?? selectedArea?.color ?? null);
   const canSave = name.trim().length > 0 && areaId != null;
 
   function handleSave() {
     if (!canSave || !areaId) return;
+    if (isEase) {
+      // Tugs aren't scheduled: store sane placeholders for the unused fields.
+      onSave({
+        areaId,
+        name: name.trim(),
+        cadence: { kind: 'daily' },
+        timeOfDay: 'anytime',
+        reminderTime: null,
+        startDate,
+        endDate: null,
+        polarity: 'ease',
+        tugWeight,
+      });
+      return;
+    }
     onSave({
       areaId,
       name: name.trim(),
@@ -74,15 +95,47 @@ export default function ComposeHabitSheet({
       startDate,
       // Guard against an end date that drifted before the start.
       endDate: endDate && endDate >= startDate ? endDate : null,
+      polarity: 'tend',
     });
   }
 
+  const title = isEdit ? (isEase ? 'Edit tug' : 'Edit habit') : isEase ? 'Add a tug' : 'Add habit';
+
   return (
-    <BottomSheet open={open} onClose={onClose} title={isEdit ? 'Edit habit' : 'Add habit'}>
+    <BottomSheet open={open} onClose={onClose} title={title}>
       <div className="relative -mx-5 -mt-4 overflow-hidden px-5 pt-4">
         {accent && <WatercolorWash color={accent} height={320} />}
 
         <div className="relative space-y-5 pb-4">
+          {!isEdit && (
+            <div className="flex rounded-full bg-parchment-200 p-0.5">
+              {(
+                [
+                  { v: 'tend', label: 'Tend to' },
+                  { v: 'ease', label: 'Ease off' },
+                ] as const
+              ).map((o) => (
+                <button
+                  key={o.v}
+                  type="button"
+                  onClick={() => setPolarity(o.v)}
+                  aria-pressed={polarity === o.v}
+                  className={[
+                    'flex-1 rounded-full py-1.5 text-sm font-medium transition-colors',
+                    polarity === o.v ? 'bg-parchment-50 text-ink-900 shadow-card' : 'text-ink-500',
+                  ].join(' ')}
+                >
+                  {o.label}
+                </button>
+              ))}
+            </div>
+          )}
+          {isEase && (
+            <p className="text-xs text-ink-500">
+              A tug is something you'd like to ease off. There's no schedule. Log it on the days it
+              happens, and it gently eats into the area's bloom. No shame, just an honest picture.
+            </p>
+          )}
           <div>
             <p className="mb-2 text-sm font-medium text-ink-700">Area</p>
             <div className="flex flex-wrap gap-2">
@@ -120,26 +173,59 @@ export default function ComposeHabitSheet({
             />
           </div>
 
-          <CadenceEditor value={cadence} onChange={setCadence} />
+          {isEase && (
+            <div>
+              <p className="mb-2 text-sm font-medium text-ink-700">How much does it set you back?</p>
+              <div className="flex gap-2">
+                {(
+                  [
+                    { w: 0.5, label: 'A little' },
+                    { w: 1, label: 'Some' },
+                    { w: 2, label: 'A lot' },
+                  ] as const
+                ).map((o) => (
+                  <button
+                    key={o.w}
+                    type="button"
+                    onClick={() => setTugWeight(o.w)}
+                    aria-pressed={tugWeight === o.w}
+                    className="flex-1 rounded-card py-2 text-sm font-medium transition-colors"
+                    style={
+                      tugWeight === o.w
+                        ? { backgroundColor: '#5a636f', color: 'var(--parchment-50)' }
+                        : { backgroundColor: 'var(--parchment-200)', color: 'var(--ink-700)' }
+                    }
+                  >
+                    {o.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
 
-          <div>
-            <label htmlFor="habit-time" className="mb-1.5 block text-sm font-medium text-ink-700">
-              Time of day
-            </label>
-            <select
-              id="habit-time"
-              value={timeOfDay}
-              onChange={(e) => setTimeOfDay(e.target.value as TimeOfDay)}
-              className={selectClass}
-            >
-              {TIME_OF_DAY_OPTIONS.map((o) => (
-                <option key={o.value} value={o.value}>
-                  {o.label}
-                </option>
-              ))}
-            </select>
-          </div>
+          {!isEase && <CadenceEditor value={cadence} onChange={setCadence} />}
 
+          {!isEase && (
+            <div>
+              <label htmlFor="habit-time" className="mb-1.5 block text-sm font-medium text-ink-700">
+                Time of day
+              </label>
+              <select
+                id="habit-time"
+                value={timeOfDay}
+                onChange={(e) => setTimeOfDay(e.target.value as TimeOfDay)}
+                className={selectClass}
+              >
+                {TIME_OF_DAY_OPTIONS.map((o) => (
+                  <option key={o.value} value={o.value}>
+                    {o.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+
+          {!isEase && (
           <div>
             <p className="mb-1.5 text-sm font-medium text-ink-700">Duration</p>
             <div className="flex items-center gap-3">
@@ -187,7 +273,9 @@ export default function ComposeHabitSheet({
               )}
             </div>
           </div>
+          )}
 
+          {!isEase && (
           <div>
             <label htmlFor="habit-reminder" className="mb-1.5 block text-sm font-medium text-ink-700">
               Remind me at
@@ -214,7 +302,9 @@ export default function ComposeHabitSheet({
               Optional. A gentle nudge at this time on the days it's due.
             </p>
           </div>
+          )}
 
+          {!isEase && (
           <div>
             <p className="mb-3 text-center text-sm font-medium text-ink-700">Colour</p>
             <div className="mb-3 flex justify-center">
@@ -251,14 +341,15 @@ export default function ComposeHabitSheet({
               ))}
             </div>
           </div>
+          )}
 
           <PrimaryButton onClick={handleSave} disabled={!canSave}>
-            {isEdit ? 'Save changes' : 'Add habit'}
+            {isEdit ? 'Save changes' : isEase ? 'Add tug' : 'Add habit'}
           </PrimaryButton>
 
           {isEdit && onArchive && (
             <div className="text-center">
-              <QuietLink onClick={onArchive}>Archive this habit</QuietLink>
+              <QuietLink onClick={onArchive}>{isEase ? 'Delete this tug' : 'Delete this habit'}</QuietLink>
             </div>
           )}
         </div>

@@ -110,6 +110,38 @@ export default function GuideArt({ kind }: { kind: GuideArtKind }) {
           <p className="mt-1.5 text-sm text-ink-700">A little time for your morning walk.</p>
         </div>
       );
+    case 'logo':
+      return (
+        <div className="flex flex-col items-center gap-3">
+          <div
+            className="flex h-20 w-20 items-center justify-center shadow-card"
+            style={{ backgroundColor: 'var(--iris-500)', borderRadius: '22px' }}
+          >
+            <span className="font-serif text-5xl leading-none text-on-primary">h</span>
+          </div>
+          <span className="font-serif text-lg text-ink-900">Harmony</span>
+        </div>
+      );
+    case 'themes':
+      return (
+        <div className="flex items-end gap-2.5">
+          {[
+            ['#b5532f', '#fbf1e4'],
+            ['#f5a623', '#fceac8'],
+            ['#47602a', '#e8ecd8'],
+            ['#1fa0a0', '#e2f2f1'],
+            ['#8c7ce0', '#1b1e2c'],
+          ].map(([accent, paper], i) => (
+            <span
+              key={accent}
+              className="flex w-9 flex-col overflow-hidden rounded-[10px] shadow-card"
+              style={{ height: i === 2 ? 56 : 48, backgroundColor: paper, border: '1px solid rgba(0,0,0,0.06)' }}
+            >
+              <span className="mt-auto h-3.5 w-full" style={{ backgroundColor: accent }} />
+            </span>
+          ))}
+        </div>
+      );
     case 'guide':
       return (
         <div className="w-full max-w-[240px]">

@@ -35,7 +35,7 @@ export const CHANGELOG: Release[] = [
       'Tap any theme to try it on. It changes the whole app at once.',
       'Terracotta stays the default, and your choice is remembered on this device.',
     ],
-    art: ['guide'],
+    art: ['themes'],
   },
   {
     version: '0.12.0',

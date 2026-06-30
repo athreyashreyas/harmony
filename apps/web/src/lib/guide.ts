@@ -5,7 +5,7 @@
 //
 // Each section may name one illustration, drawn by GuideScreen's GuideArt.
 
-export type GuideArtKind = 'bloom' | 'habit' | 'areas' | 'weights' | 'tug' | 'log' | 'sync' | 'guide' | 'reminder';
+export type GuideArtKind = 'bloom' | 'habit' | 'areas' | 'weights' | 'tug' | 'log' | 'sync' | 'guide' | 'reminder' | 'logo' | 'themes';
 
 export interface GuideSection {
   id: string;
@@ -21,9 +21,9 @@ export const GUIDE: GuideSection[] = [
     title: 'The idea',
     body: [
       'Harmony is built around the parts of life that matter to you, not a wall of streaks. You name those areas in your own words, tend small habits inside them, and watch a living Bloom reflect how your weeks are going.',
-      'There is nothing to break and nothing to lose. A quiet day is just a quiet day.',
+      'There is nothing to break and nothing to lose. A slow day is just a slow day.',
     ],
-    art: 'bloom',
+    art: 'logo',
   },
   {
     id: 'bloom',

@@ -6,6 +6,7 @@ import { areasForUser, saveOnboarding } from '../../lib/db/queries';
 import { createArea, createHabit } from '../../lib/domain';
 import { markOnboarded, mirrorOnboarding } from '../../lib/supabase/sync';
 import { APP_VERSION } from '../../lib/changelog';
+import { setSeenVersionLocal } from '../../lib/whatsNew';
 import { useSettings } from '../../store/useSettings';
 import { useUser } from '../../store/useUser';
 import { OnboardingProvider, useOnboarding } from './OnboardingContext';
@@ -134,8 +135,9 @@ function OnboardingInner() {
     await markOnboarded(profile.id);
     updateProfile({ ...profile, onboardedAt: Date.now() });
     // A brand-new user has just seen the full guide, so mark this version as
-    // already seen. That way the "What's new" pop-up (shown to existing users on
-    // an update) never greets someone the moment they finish setting up.
+    // already seen (both markers) so the "What's new" pop-up never greets
+    // someone the moment they finish setting up.
+    setSeenVersionLocal(APP_VERSION);
     void useSettings.getState().update(profile.id, { lastSeenVersion: APP_VERSION });
     // The draft has served its purpose; clear it so a future visit to
     // onboarding (e.g. a second account) starts clean.

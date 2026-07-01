@@ -1,34 +1,25 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Navigate, Outlet, useLocation, useNavigate } from 'react-router-dom';
+import { AnimatePresence } from 'framer-motion';
 import { supabase, isSupabaseConfigured } from '../lib/supabase/client';
 import { APP_VERSION } from '../lib/changelog';
 import { ensureSubscribed } from '../lib/push/subscribe';
 import { flushOutbox, hasLocalData, pullProfile, pullUserData, subscribeUserRealtime, type SyncTable } from '../lib/supabase/sync';
 import { refreshStores, syncNow } from '../lib/sync/refresh';
 import { useTheme } from '../lib/theme/theme';
+import { getSeenVersionLocal, isNewerVersion, setSeenVersionLocal } from '../lib/whatsNew';
+import Splash from '../components/Splash/Splash';
 import { useAreas } from '../store/useAreas';
 import { useHabits } from '../store/useHabits';
 import { useLogs } from '../store/useLogs';
 import { useSettings } from '../store/useSettings';
 import { useUser } from '../store/useUser';
 
-// True if `a` is a strictly newer semver ("x.y.z") than `b`.
-function isNewerVersion(a: string, b: string): boolean {
-  const pa = a.split('.').map((n) => parseInt(n, 10) || 0);
-  const pb = b.split('.').map((n) => parseInt(n, 10) || 0);
-  for (let i = 0; i < Math.max(pa.length, pb.length); i++) {
-    const x = pa[i] ?? 0;
-    const y = pb[i] ?? 0;
-    if (x > y) return true;
-    if (x < y) return false;
-  }
-  return false;
-}
-
 // Gates the protected routes (onboarding and the main shell). Listens for
 // Supabase auth changes, hydrates the local profile, and redirects based on
-// auth status and onboardedAt. Full-screen loading is allowed here only,
-// since it is the first-auth case called out in section 20.
+// auth status and onboardedAt. A calm Splash covers the whole boot (auth, the
+// first cloud pull, theme, and the "What's new" decision) so the sync churn is
+// never seen; the app is revealed only once it looks right.
 export default function AuthGate() {
   const status = useUser((s) => s.status);
   const profile = useUser((s) => s.profile);
@@ -42,30 +33,20 @@ export default function AuthGate() {
   const updateSettings = useSettings((s) => s.update);
   const navigate = useNavigate();
   const location = useLocation();
-  const whatsNewHandled = useRef(false);
+
+  // `synced` flips once this session's first cloud pull has landed, so the
+  // "What's new" decision reads a fresh (not stale) lastSeenVersion. `ready`
+  // drops the splash once the boot has fully settled. `booted` guards the
+  // one-time decision.
+  const [synced, setSynced] = useState(false);
+  const [ready, setReady] = useState(false);
+  const booted = useRef(false);
 
   useEffect(() => {
     if (syncedTheme && syncedTheme !== useTheme.getState().themeId) {
       useTheme.getState().setTheme(syncedTheme);
     }
   }, [syncedTheme]);
-
-  // Show "What's new" once when the account first meets a newer app version, then
-  // record that version on the synced settings row so it isn't shown again, on
-  // this device or any other. Handled once per app session.
-  useEffect(() => {
-    if (whatsNewHandled.current) return;
-    if (status !== 'signed-in' || !profile?.onboardedAt) return;
-    if (!settings) return; // wait for settings to hydrate
-    if (location.pathname === '/onboarding' || location.pathname === '/guide') return;
-
-    const seen = settings.lastSeenVersion ?? null;
-    if (seen && !isNewerVersion(APP_VERSION, seen)) return; // already seen this (or newer)
-
-    whatsNewHandled.current = true;
-    void updateSettings(profile.id, { lastSeenVersion: APP_VERSION });
-    navigate('/guide?pane=new');
-  }, [status, profile, settings, location.pathname, navigate, updateSettings]);
 
   useEffect(() => {
     if (!supabase) {
@@ -75,9 +56,9 @@ export default function AuthGate() {
 
     let active = true;
 
-    // Hydrate the local cache from the cloud. On a fresh context (empty local
-    // DB, e.g. a newly installed PWA) block so Home does not flash empty;
-    // otherwise refresh in the background so an active device stays current.
+    // Hydrate the local cache from the cloud, then flag `synced` so the boot can
+    // decide on fresh data. A returning device shows its cached data under the
+    // splash while the pull lands; a fresh device waits for it.
     const hydrate = async (userId: string) => {
       try {
         // Send any writes queued offline before pulling, so the authoritative
@@ -85,13 +66,24 @@ export default function AuthGate() {
         await flushOutbox();
         if (await hasLocalData(userId)) {
           void pullUserData(userId).then((ok) => {
-            if (ok && active) refreshStores(userId);
+            if (!active) return;
+            if (ok) refreshStores(userId);
+            else void useSettings.getState().load();
+            setSynced(true);
           });
         } else {
-          await pullUserData(userId);
+          const ok = await pullUserData(userId);
+          if (!active) return;
+          if (ok) refreshStores(userId);
+          else void useSettings.getState().load();
+          setSynced(true);
         }
       } catch (err) {
         console.warn('Failed to hydrate local data from the cloud.', err);
+        if (active) {
+          void useSettings.getState().load();
+          setSynced(true);
+        }
       }
     };
 
@@ -147,6 +139,57 @@ export default function AuthGate() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Load settings from the local cache as soon as we're signed in, so they are
+  // never null for long (the fresh pull then updates them, and `synced` gates the
+  // decision on that fresh value).
+  useEffect(() => {
+    if (status === 'signed-in') void useSettings.getState().load();
+  }, [status]);
+
+  // Safety net: never let the splash hang if a pull never resolves.
+  useEffect(() => {
+    if (status !== 'signed-in') return;
+    const t = window.setTimeout(() => setSynced(true), 6000);
+    return () => window.clearTimeout(t);
+  }, [status]);
+
+  // The one-time boot decision: once auth + the fresh pull + settings have
+  // settled, show "What's new" if this is genuinely a newer version for this
+  // account AND this device (checked against both the synced marker and a
+  // per-device one, so a pull that briefly resets the synced value can't
+  // re-trigger it), then reveal the app.
+  useEffect(() => {
+    if (booted.current) return;
+    if (status === 'signed-out') {
+      setReady(true);
+      return;
+    }
+    if (status !== 'signed-in' || !profile) return;
+    if (!profile.onboardedAt) {
+      // Onboarding presents its own screens; no splash over them.
+      setReady(true);
+      return;
+    }
+    if (!synced || !settings) return; // keep the splash until fresh settings are in
+
+    booted.current = true;
+    const onAppRoute = location.pathname !== '/onboarding' && location.pathname !== '/guide';
+    const seenLocal = getSeenVersionLocal();
+    const seenSynced = settings.lastSeenVersion ?? null;
+    const isNew = isNewerVersion(APP_VERSION, seenLocal) && isNewerVersion(APP_VERSION, seenSynced);
+
+    if (isNew) {
+      setSeenVersionLocal(APP_VERSION);
+      void updateSettings(profile.id, { lastSeenVersion: APP_VERSION });
+      if (onAppRoute) navigate('/guide?pane=new');
+    } else {
+      // Seen elsewhere already: quietly bring both markers up to date.
+      if (isNewerVersion(APP_VERSION, seenLocal)) setSeenVersionLocal(APP_VERSION);
+      if (isNewerVersion(APP_VERSION, seenSynced)) void updateSettings(profile.id, { lastSeenVersion: APP_VERSION });
+    }
+    setReady(true);
+  }, [status, profile, synced, settings, location.pathname, navigate, updateSettings]);
+
   // Re-sync from the cloud whenever a signed-in device is brought back to the
   // foreground or reconnects, so opening another device (or returning to this
   // one) reflects writes made elsewhere, including deletes and un-logs.
@@ -170,9 +213,6 @@ export default function AuthGate() {
 
     // Backstops for anything realtime might miss (dropped socket, sleep): pull
     // on foreground, on reconnect, and a slow safety-net poll while visible.
-    // Realtime carries live updates, and foreground/reconnect catch the common
-    // gaps, so this only needs to be the rare-miss net; a long interval keeps it
-    // from re-fetching the whole account every minute.
     const onVisible = () => {
       if (document.visibilityState === 'visible') void syncNow(userId);
     };
@@ -205,11 +245,7 @@ export default function AuthGate() {
   }
 
   if (status === 'loading') {
-    return (
-      <main className="flex min-h-full items-center justify-center pt-safe pb-safe">
-        <span className="font-serif text-xl text-iris-500">Harmony</span>
-      </main>
-    );
+    return <Splash />;
   }
 
   if (status === 'signed-out') {
@@ -228,5 +264,13 @@ export default function AuthGate() {
     return <Navigate to="/guide?pane=guide" replace />;
   }
 
-  return <Outlet />;
+  // The app renders underneath; the splash covers it until the boot has settled,
+  // then fades to reveal the right screen (home, or What's new) with the theme
+  // already applied.
+  return (
+    <>
+      <Outlet />
+      <AnimatePresence>{!ready && <Splash />}</AnimatePresence>
+    </>
+  );
 }

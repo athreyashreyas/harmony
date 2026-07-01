@@ -31,10 +31,19 @@ function restHeaders(env: Env): Record<string, string> {
 }
 
 async function rest<T>(env: Env, path: string, init?: RequestInit): Promise<T> {
-  const res = await fetch(`${env.SUPABASE_URL}/rest/v1/${path}`, {
-    ...init,
-    headers: { ...restHeaders(env), ...(init?.headers ?? {}) },
-  });
+  // A slow Supabase call must not stall the every-minute pass. Abort after 10s.
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 10_000);
+  let res: Response;
+  try {
+    res = await fetch(`${env.SUPABASE_URL}/rest/v1/${path}`, {
+      ...init,
+      headers: { ...restHeaders(env), ...(init?.headers ?? {}) },
+      signal: controller.signal,
+    });
+  } finally {
+    clearTimeout(timer);
+  }
   if (!res.ok) {
     throw new Error(`Supabase ${path} failed: ${res.status} ${await res.text()}`);
   }
@@ -205,6 +214,14 @@ export async function getActiveUsers(env: Env): Promise<UserProfile[]> {
     timezone: r.timezone,
     onboardedAt: 1,
   }));
+}
+
+// The set of user ids that have at least one push subscription. Only these
+// users can receive anything, so the every-minute pass can skip the rest
+// instead of fetching a full bundle for each of them.
+export async function usersWithSubscriptions(env: Env): Promise<Set<string>> {
+  const rows = await rest<{ user_id: string }[]>(env, 'push_subscriptions?select=user_id');
+  return new Set(rows.map((r) => r.user_id));
 }
 
 export async function getUserBundle(env: Env, userId: string): Promise<UserBundle> {

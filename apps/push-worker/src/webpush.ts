@@ -143,17 +143,26 @@ export async function sendPush(
   const body = await encryptPayload(enc.encode(JSON.stringify(payload)), subscription);
   const authorization = await vapidAuthHeader(subscription.endpoint, vapid);
 
-  const res = await fetch(subscription.endpoint, {
-    method: 'POST',
-    headers: {
-      Authorization: authorization,
-      'Content-Encoding': 'aes128gcm',
-      'Content-Type': 'application/octet-stream',
-      TTL: String(12 * 60 * 60),
-    },
-    // Workers fetch accepts a typed array at runtime; the lib's BodyInit type
-    // omits it, so cast.
-    body: body as unknown as BodyInit,
-  });
-  return res.status;
+  // A hung push endpoint must never stall the minute's whole pass. Abort after
+  // 10s; the caller treats a throw as "not delivered" and retries next run.
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 10_000);
+  try {
+    const res = await fetch(subscription.endpoint, {
+      method: 'POST',
+      headers: {
+        Authorization: authorization,
+        'Content-Encoding': 'aes128gcm',
+        'Content-Type': 'application/octet-stream',
+        TTL: String(12 * 60 * 60),
+      },
+      // Workers fetch accepts a typed array at runtime; the lib's BodyInit type
+      // omits it, so cast.
+      body: body as unknown as BodyInit,
+      signal: controller.signal,
+    });
+    return res.status;
+  } finally {
+    clearTimeout(timer);
+  }
 }

@@ -12,6 +12,7 @@ import {
   subscriptionsForUser,
   upsertSubscription,
   userIdFromToken,
+  usersWithSubscriptions,
   type Env,
   type UserBundle,
 } from './supabase';
@@ -23,10 +24,12 @@ import { sendPush, type PushPayload, type VapidConfig } from './webpush';
 const MAX_PER_USER_PER_DAY = 2;
 const NOTIFICATION_URL = '/';
 
-// The cron runs every minute, so a reminder fires within about a minute of its
-// set time. A tiny catch-up (2 minutes) only guards against a single skipped or
-// delayed run; the once-per-habit-per-day guard prevents repeats.
-const REMINDER_CATCHUP_MIN = 2;
+// The cron runs every minute, so on a normal run a reminder fires right at its
+// set minute. Cron is best-effort, though, and a run can be delayed or skipped;
+// this catch-up window lets a later run still deliver (a few minutes late rather
+// than never) as long as the habit is still unlogged. The once-per-habit-per-day
+// guard keeps it to a single reminder.
+const REMINDER_CATCHUP_MIN = 10;
 // Local time the evening round-up of unlogged habits goes out (before the
 // default 21:00 quiet hours, so it isn't suppressed), with a small catch-up.
 const SUMMARY_TIME = '20:00';
@@ -106,25 +109,27 @@ async function sendToAllSubscriptions(
   bundle: UserBundle,
   payload: PushPayload,
 ): Promise<boolean> {
-  let anyDelivered = false;
-  for (const sub of bundle.subscriptions) {
-    try {
+  // Send to every device at once: total time is the slowest single send, not the
+  // sum, so one slow endpoint can't delay the others (or the rest of the pass).
+  const results = await Promise.allSettled(
+    bundle.subscriptions.map(async (sub) => {
       const status = await sendPush(sub, payload, vapidFrom(env));
       if (status === 404 || status === 410) {
         // The subscription is gone (unsubscribed / expired); stop sending to it.
         await deleteSubscription(env, sub.endpoint);
-      } else if (status >= 200 && status < 300) {
-        anyDelivered = true;
-      } else {
-        // 429, 5xx, etc.: a transient or push-service issue. Keep the
-        // subscription, but surface it instead of dropping it silently.
-        console.warn('Push send returned an unexpected status', status, sub.endpoint);
+        return false;
       }
-    } catch (err) {
-      console.warn('Push send failed', err);
-    }
+      if (status >= 200 && status < 300) return true;
+      // 429, 5xx, etc.: a transient or push-service issue. Keep the subscription,
+      // but surface it instead of dropping it silently.
+      console.warn('Push send returned an unexpected status', status, sub.endpoint);
+      return false;
+    }),
+  );
+  for (const r of results) {
+    if (r.status === 'rejected') console.warn('Push send failed', r.reason);
   }
-  return anyDelivered;
+  return results.some((r) => r.status === 'fulfilled' && r.value === true);
 }
 
 async function processUser(env: Env, user: UserProfile, now: Date): Promise<void> {
@@ -171,43 +176,46 @@ async function sendHabitReminders(env: Env, user: UserProfile, now: Date, bundle
   const today = localDateISO(now, tz);
   const nowMin = minutesOfDay(localHHmm(now, tz));
 
-  for (const habit of bundle.habits) {
-    if (!habit.reminderTime) continue;
-    if (!isHabitDueOn(habit, today)) continue;
-    if (!isDue(nowMin, minutesOfDay(habit.reminderTime), REMINDER_CATCHUP_MIN)) continue;
-
-    const loggedToday = bundle.logs.some((l) => l.habitId === habit.id && l.date === today);
-    if (loggedToday) continue;
-
-    const alreadyReminded = bundle.nudgeHistory.some(
+  // The habits whose reminder is due this minute, still unlogged and not already
+  // reminded today.
+  const due = bundle.habits.filter((habit) => {
+    if (!habit.reminderTime) return false;
+    if (!isHabitDueOn(habit, today)) return false;
+    if (!isDue(nowMin, minutesOfDay(habit.reminderTime), REMINDER_CATCHUP_MIN)) return false;
+    if (bundle.logs.some((l) => l.habitId === habit.id && l.date === today)) return false;
+    return !bundle.nudgeHistory.some(
       (n) =>
         n.templateId === REMINDER_TEMPLATE_ID &&
         n.habitId === habit.id &&
         localDateISO(new Date(n.sentAt), tz) === today,
     );
-    if (alreadyReminded) continue;
+  });
 
-    const payload: PushPayload = {
-      title: 'Harmony',
-      body: reminderText(habit.name, `${habit.id}:${today}`),
-      url: NOTIFICATION_URL,
-    };
-    const delivered = await sendToAllSubscriptions(env, bundle, payload);
-    if (!delivered) continue;
+  // Send them together, so one habit's send can't delay another's.
+  await Promise.allSettled(
+    due.map(async (habit) => {
+      const payload: PushPayload = {
+        title: 'Harmony',
+        body: reminderText(habit.name, `${habit.id}:${today}`),
+        url: NOTIFICATION_URL,
+      };
+      const delivered = await sendToAllSubscriptions(env, bundle, payload);
+      if (!delivered) return;
 
-    const nudge: NudgeHistory = {
-      id: crypto.randomUUID(),
-      userId: user.id,
-      templateId: REMINDER_TEMPLATE_ID,
-      areaId: habit.areaId,
-      habitId: habit.id,
-      composedText: payload.body,
-      sentAt: Date.now(),
-      channel: 'push',
-    };
-    await recordNudge(env, nudge);
-    bundle.nudgeHistory.push(nudge);
-  }
+      const nudge: NudgeHistory = {
+        id: crypto.randomUUID(),
+        userId: user.id,
+        templateId: REMINDER_TEMPLATE_ID,
+        areaId: habit.areaId,
+        habitId: habit.id,
+        composedText: payload.body,
+        sentAt: Date.now(),
+        channel: 'push',
+      };
+      await recordNudge(env, nudge);
+      bundle.nudgeHistory.push(nudge);
+    }),
+  );
 }
 
 function summaryText(unlogged: Habit[]): string {
@@ -330,14 +338,27 @@ async function sendDriftNudges(env: Env, user: UserProfile, now: Date, bundle: U
 
 async function runDriftPass(env: Env): Promise<void> {
   const now = new Date();
-  const users = await getActiveUsers(env);
-  for (const user of users) {
-    try {
-      await processUser(env, user, now);
-    } catch (err) {
-      console.warn(`Drift pass failed for user ${user.id}`, err);
-    }
+
+  // Fetch the active users and the set of users who actually have a device
+  // subscribed, together. If either lookup fails, log and bail for this minute
+  // rather than throwing (the next run, a minute later, retries).
+  let users: UserProfile[];
+  let subscribed: Set<string>;
+  try {
+    [users, subscribed] = await Promise.all([getActiveUsers(env), usersWithSubscriptions(env)]);
+  } catch (err) {
+    console.error('Drift pass could not load users', err);
+    return;
   }
+
+  // Only users with a subscription can receive anything, so skip the rest before
+  // paying for a full bundle each. Process everyone in parallel and isolate
+  // failures, so one user (or one slow request) never delays or drops another's.
+  const recipients = users.filter((u) => subscribed.has(u.id));
+  const results = await Promise.allSettled(recipients.map((user) => processUser(env, user, now)));
+  results.forEach((r, i) => {
+    if (r.status === 'rejected') console.warn(`Drift pass failed for user ${recipients[i].id}`, r.reason);
+  });
 }
 
 async function handleSubscribe(request: Request, env: Env): Promise<Response> {

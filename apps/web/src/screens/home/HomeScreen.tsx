@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import type { Area, Habit } from '@harmony/shared';
+import type { Area, Habit, TimeOfDay } from '@harmony/shared';
 import AreaChip from '../../components/AreaChip/AreaChip';
 import { computeAreaActivity } from '../../components/Bloom/activity';
 import Bloom from '../../components/Bloom/Bloom';
@@ -31,6 +31,28 @@ interface Banner {
   areaId: string;
 }
 
+// How the Home habit list can be ordered. Default is by time of day, then by
+// priority (area order, then habit order) within each time bucket.
+type SortKey = 'time' | 'priority' | 'name' | 'todo';
+const SORT_OPTIONS: { value: SortKey; label: string }[] = [
+  { value: 'time', label: 'Time of day' },
+  { value: 'priority', label: 'Priority' },
+  { value: 'name', label: 'Name' },
+  { value: 'todo', label: 'To do first' },
+];
+const TIME_RANK: Record<TimeOfDay, number> = { anytime: 0, morning: 1, afternoon: 2, evening: 3 };
+const SORT_STORAGE_KEY = 'harmony.homeSort';
+
+function loadSort(): SortKey {
+  try {
+    const v = localStorage.getItem(SORT_STORAGE_KEY);
+    if (v && SORT_OPTIONS.some((o) => o.value === v)) return v as SortKey;
+  } catch {
+    // ignore
+  }
+  return 'time';
+}
+
 function bloomCaption(activities: number[]): string {
   if (activities.length === 0) return 'Tend to yourself today.';
   const avg = activities.reduce((sum, a) => sum + a, 0) / activities.length;
@@ -49,6 +71,15 @@ export default function HomeScreen() {
   const [composeOpen, setComposeOpen] = useState(false);
   const [noteHabit, setNoteHabit] = useState<Habit | null>(null);
   const [editingArea, setEditingArea] = useState<Area | null>(null);
+  const [sortBy, setSortBy] = useState<SortKey>(loadSort);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(SORT_STORAGE_KEY, sortBy);
+    } catch {
+      // ignore
+    }
+  }, [sortBy]);
   const [banner, setBanner] = useState<Banner | null>(null);
   const [selectedAreaId, setSelectedAreaId] = useState<string | null>(null);
   const [view, setView] = useState<'today' | 'all'>('today');
@@ -157,6 +188,30 @@ export default function HomeScreen() {
   );
 
   const areaById = useMemo(() => new Map(areas.map((a) => [a.id, a])), [areas]);
+
+  // The list in the chosen order. Priority = area order, then habit order.
+  const sortedHabits = useMemo(() => {
+    const byPriority = (a: Habit, b: Habit) => {
+      const ao = (areaById.get(a.areaId)?.order ?? 1e9) - (areaById.get(b.areaId)?.order ?? 1e9);
+      return ao !== 0 ? ao : a.order - b.order;
+    };
+    const byTime = (a: Habit, b: Habit) => {
+      const t = TIME_RANK[a.timeOfDay] - TIME_RANK[b.timeOfDay];
+      return t !== 0 ? t : byPriority(a, b);
+    };
+    const cmp =
+      sortBy === 'priority'
+        ? byPriority
+        : sortBy === 'name'
+          ? (a: Habit, b: Habit) => a.name.localeCompare(b.name)
+          : sortBy === 'todo'
+            ? (a: Habit, b: Habit) => {
+                const d = (doneIds.has(a.id) ? 1 : 0) - (doneIds.has(b.id) ? 1 : 0);
+                return d !== 0 ? d : byTime(a, b);
+              }
+            : byTime;
+    return [...shownHabits].sort(cmp);
+  }, [shownHabits, sortBy, areaById, doneIds]);
 
   const noteForToday = noteHabit
     ? (logs.find((l) => l.habitId === noteHabit.id && l.date === today)?.note ?? '')
@@ -270,9 +325,28 @@ export default function HomeScreen() {
           ))}
         </div>
         {loaded && shownHabits.length > 0 && (
-          <p className="mt-2 text-right text-xs text-ink-300">
-            {doneCount} of {shownHabits.length} tended to
-          </p>
+          <div className="mt-2 flex items-center justify-between gap-3">
+            <div className="flex items-center gap-1.5 text-ink-300">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M4 6h13M4 12h9M4 18h5" />
+              </svg>
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value as SortKey)}
+                aria-label="Sort habits"
+                className="bg-transparent text-xs font-medium text-ink-500 focus:outline-none"
+              >
+                {SORT_OPTIONS.map((o) => (
+                  <option key={o.value} value={o.value}>
+                    {o.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <p className="text-xs text-ink-300">
+              {doneCount} of {shownHabits.length} tended to
+            </p>
+          </div>
         )}
 
         <div className="mt-3">
@@ -298,7 +372,7 @@ export default function HomeScreen() {
               animate="animate"
               className="space-y-2.5"
             >
-              {shownHabits.map((habit) => {
+              {sortedHabits.map((habit) => {
                 const area = areaById.get(habit.areaId);
                 if (!area) return null;
                 return (

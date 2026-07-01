@@ -142,6 +142,30 @@ export default function GuideArt({ kind }: { kind: GuideArtKind }) {
           ))}
         </div>
       );
+    case 'sort':
+      return (
+        <div className="w-full max-w-[240px]">
+          <div className="mb-2.5 flex items-center gap-1.5" style={{ color: 'var(--ink-300)' }}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M4 6h13M4 12h9M4 18h5" />
+            </svg>
+            <span className="rounded-full bg-parchment-200 px-2.5 py-1 text-[11px] font-medium text-ink-700">Time of day</span>
+          </div>
+          <div className="space-y-1.5">
+            {[
+              ['Anytime', '#8a8f98'],
+              ['Morning', '#e0962a'],
+              ['Afternoon', '#3a7ca8'],
+              ['Evening', '#7a3b6e'],
+            ].map(([label, c]) => (
+              <div key={label} className="flex items-center gap-2 rounded-card bg-parchment-50 px-3 py-2 shadow-card">
+                <span className="h-2 w-2 rounded-full" style={{ backgroundColor: c }} />
+                <span className="text-xs text-ink-700">{label}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      );
     case 'guide':
       return (
         <div className="w-full max-w-[240px]">

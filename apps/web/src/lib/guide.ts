@@ -5,7 +5,7 @@
 //
 // Each section may name one illustration, drawn by GuideScreen's GuideArt.
 
-export type GuideArtKind = 'bloom' | 'habit' | 'areas' | 'weights' | 'tug' | 'log' | 'sync' | 'guide' | 'reminder' | 'logo' | 'themes';
+export type GuideArtKind = 'bloom' | 'habit' | 'areas' | 'weights' | 'tug' | 'log' | 'sync' | 'guide' | 'reminder' | 'logo' | 'themes' | 'sort';
 
 export interface GuideSection {
   id: string;

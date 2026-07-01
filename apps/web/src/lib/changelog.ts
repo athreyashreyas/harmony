@@ -39,7 +39,7 @@ export const CHANGELOG: Release[] = [
       'Add a tug for something to ease off; note it in a tap, or open it for its history.',
       'Make it yours in Me: choose a theme, set reminders and quiet hours, and reread this guide any time.',
     ],
-    art: ['logo'],
+    art: ['logo', 'sort'],
   },
   {
     version: '0.13.0',

@@ -21,6 +21,24 @@ export interface Release {
 // plain, the same voice as the rest of the app.
 export const CHANGELOG: Release[] = [
   {
+    version: '1.0.0',
+    date: '2026-07-01',
+    major: true,
+    title: 'Harmony 1.0',
+    notes: [
+      'Harmony is all grown up. This is the first full release, with everything in place: your areas and the living Bloom, tends and tugs, the Log, weekly insights, reminders, five themes, and sync across your devices.',
+      'Hold an area under the Bloom to edit it on the spot; a quick tap still focuses your day on it.',
+      'Tugs now open their own page, just like habits: tap the circle to note one, tap the row to see its history and edit it.',
+      'When Harmony updates, you will see What is new once, then it steps aside so opening the app stays as calm as ever.',
+    ],
+    howTo: [
+      'Press and hold an area chip on Home to edit it; a quick tap filters your day to it.',
+      'On a tug, tap the circle to note it for today, or tap its name to open its page.',
+      'After an update, What is new opens once on its own. Read it, then carry on as usual.',
+    ],
+    art: ['logo'],
+  },
+  {
     version: '0.13.0',
     date: '2026-06-30',
     major: true,
@@ -33,7 +51,7 @@ export const CHANGELOG: Release[] = [
     howTo: [
       'Open Me, then find Appearance near the top.',
       'Tap any theme to try it on. It changes the whole app at once.',
-      'Terracotta stays the default, and your choice is remembered on this device.',
+      'Terracotta stays the default, and your choice is remembered across all devices.',
     ],
     art: ['themes'],
   },

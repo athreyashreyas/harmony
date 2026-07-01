@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import type { Habit } from '@harmony/shared';
+import type { Area, Habit } from '@harmony/shared';
 import AreaChip from '../../components/AreaChip/AreaChip';
 import { computeAreaActivity } from '../../components/Bloom/activity';
 import Bloom from '../../components/Bloom/Bloom';
@@ -12,8 +12,9 @@ import HabitCard from '../../components/HabitCard/HabitCard';
 import NoteSheet from '../../components/NoteSheet/NoteSheet';
 import PushPrompt from '../../components/PushPrompt/PushPrompt';
 import Skeleton from '../../components/Skeleton/Skeleton';
-import { saveHabit } from '../../lib/db/queries';
+import { archiveArea, saveArea, saveHabit } from '../../lib/db/queries';
 import { createHabit } from '../../lib/domain';
+import AreaSheet, { type AreaFields, type HabitWeight } from '../areas/AreaSheet';
 import { detectDrift } from '../../lib/drift/detect';
 import { compose } from '../../lib/templates/composer';
 import { isDriftTemplate } from '../../lib/templates/library';
@@ -41,12 +42,13 @@ function bloomCaption(activities: number[]): string {
 
 export default function HomeScreen() {
   const navigate = useNavigate();
-  const { profile, areas, habits, logs, loaded, reloadHabits } = useUserData();
+  const { profile, areas, habits, logs, loaded, reloadHabits, reloadAreas } = useUserData();
   const toggle = useLogs((s) => s.toggle);
   const setNote = useLogs((s) => s.setNote);
 
   const [composeOpen, setComposeOpen] = useState(false);
   const [noteHabit, setNoteHabit] = useState<Habit | null>(null);
+  const [editingArea, setEditingArea] = useState<Area | null>(null);
   const [banner, setBanner] = useState<Banner | null>(null);
   const [selectedAreaId, setSelectedAreaId] = useState<string | null>(null);
   const [view, setView] = useState<'today' | 'all'>('today');
@@ -167,6 +169,36 @@ export default function HomeScreen() {
     setComposeOpen(false);
   }
 
+  // Long-pressing an area chip opens its edit pane, reusing the same sheet as
+  // the Areas screen.
+  async function handleSaveArea(fields: AreaFields) {
+    if (!editingArea || !profile) return;
+    await saveArea({ ...editingArea, ...fields });
+    await reloadAreas(profile.id);
+    setEditingArea(null);
+  }
+  async function handleArchiveArea() {
+    if (!editingArea || !profile) return;
+    await archiveArea(editingArea.id);
+    await reloadAreas(profile.id);
+    await reloadHabits(profile.id);
+    setEditingArea(null);
+  }
+  async function handleSaveWeights(weights: HabitWeight[]) {
+    if (!profile) return;
+    const byId = new Map(weights.map((w) => [w.id, w.weight]));
+    const updated = habits.filter((h) => byId.has(h.id)).map((h) => ({ ...h, weight: byId.get(h.id)! }));
+    for (const h of updated) await saveHabit(h);
+    await reloadHabits(profile.id);
+  }
+
+  const editingAreaHabits =
+    editingArea != null
+      ? habits
+          .filter((h) => h.areaId === editingArea.id && h.archivedAt == null && h.polarity !== 'ease')
+          .sort((a, b) => a.order - b.order)
+      : [];
+
   return (
     <div className="mx-auto w-full max-w-2xl px-5 pt-6 pb-36 md:pb-16">
       <p className="text-sm text-ink-300">{formatLongDate()}</p>
@@ -214,6 +246,7 @@ export default function HomeScreen() {
               area={area}
               selected={activeFilter === area.id}
               onClick={() => toggleAreaFilter(area.id)}
+              onLongPress={() => setEditingArea(area)}
             />
           ))}
         </div>
@@ -304,14 +337,18 @@ export default function HomeScreen() {
                     : `${daysSince} day${daysSince === 1 ? '' : 's'} since the last one. Keep going.`
                   : 'Tap if it happened today.';
               return (
-                <button
+                // Same interaction as a tend habit: the circle toggles it noted
+                // for today; the rest of the row opens the tug's own page (streak
+                // + edit), reached the same way you'd open a habit.
+                <div
                   key={habit.id}
-                  type="button"
-                  onClick={() => void toggle(habit)}
-                  aria-pressed={loggedToday}
-                  className="flex w-full items-center gap-3 rounded-card border border-dashed border-[#5a636f]/45 bg-parchment-50 px-3 py-3 text-left"
+                  className="flex w-full items-center gap-3 rounded-card border border-dashed border-[#5a636f]/45 bg-parchment-50 px-3 py-3"
                 >
-                  <span
+                  <button
+                    type="button"
+                    onClick={() => void toggle(habit)}
+                    aria-pressed={loggedToday}
+                    aria-label={loggedToday ? `Unmark ${habit.name}` : `Note ${habit.name} for today`}
                     className="flex h-[22px] w-[22px] shrink-0 items-center justify-center rounded-full"
                     style={
                       loggedToday
@@ -324,12 +361,19 @@ export default function HomeScreen() {
                         <path d="M5 13l4 4L19 7" />
                       </svg>
                     )}
-                  </span>
-                  <span className="min-w-0 flex-1">
-                    <span className="block truncate text-sm text-ink-900">{habit.name}</span>
-                    <span className="block truncate text-xs text-ink-400">{note}</span>
-                  </span>
-                </button>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => navigate(`/habit/${habit.id}`)}
+                    className="flex min-w-0 flex-1 items-center gap-3 text-left"
+                  >
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate text-sm text-ink-900">{habit.name}</span>
+                      <span className="block truncate text-xs text-ink-500">{note}</span>
+                    </span>
+                    <span className="shrink-0 text-[10px] uppercase tracking-wide text-ink-300">tug</span>
+                  </button>
+                </div>
               );
             })}
           </div>
@@ -356,6 +400,16 @@ export default function HomeScreen() {
           if (noteHabit) void setNote(noteHabit, note);
           setNoteHabit(null);
         }}
+      />
+
+      <AreaSheet
+        open={editingArea != null}
+        area={editingArea}
+        habits={editingAreaHabits}
+        onClose={() => setEditingArea(null)}
+        onSave={handleSaveArea}
+        onSaveWeights={handleSaveWeights}
+        onArchive={handleArchiveArea}
       />
     </div>
   );

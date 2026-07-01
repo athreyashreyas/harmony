@@ -1,6 +1,7 @@
-import { useEffect } from 'react';
-import { Navigate, Outlet, useLocation } from 'react-router-dom';
+import { useEffect, useRef } from 'react';
+import { Navigate, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { supabase, isSupabaseConfigured } from '../lib/supabase/client';
+import { APP_VERSION } from '../lib/changelog';
 import { ensureSubscribed } from '../lib/push/subscribe';
 import { flushOutbox, hasLocalData, pullProfile, pullUserData, subscribeUserRealtime, type SyncTable } from '../lib/supabase/sync';
 import { refreshStores, syncNow } from '../lib/sync/refresh';
@@ -10,6 +11,19 @@ import { useHabits } from '../store/useHabits';
 import { useLogs } from '../store/useLogs';
 import { useSettings } from '../store/useSettings';
 import { useUser } from '../store/useUser';
+
+// True if `a` is a strictly newer semver ("x.y.z") than `b`.
+function isNewerVersion(a: string, b: string): boolean {
+  const pa = a.split('.').map((n) => parseInt(n, 10) || 0);
+  const pb = b.split('.').map((n) => parseInt(n, 10) || 0);
+  for (let i = 0; i < Math.max(pa.length, pb.length); i++) {
+    const x = pa[i] ?? 0;
+    const y = pb[i] ?? 0;
+    if (x > y) return true;
+    if (x < y) return false;
+  }
+  return false;
+}
 
 // Gates the protected routes (onboarding and the main shell). Listens for
 // Supabase auth changes, hydrates the local profile, and redirects based on
@@ -24,13 +38,34 @@ export default function AuthGate() {
   // The theme carried on the synced settings row. When it arrives from another
   // device (via pull or realtime), apply it here so the look stays in step.
   const syncedTheme = useSettings((s) => s.notifications?.theme);
+  const settings = useSettings((s) => s.notifications);
+  const updateSettings = useSettings((s) => s.update);
+  const navigate = useNavigate();
   const location = useLocation();
+  const whatsNewHandled = useRef(false);
 
   useEffect(() => {
     if (syncedTheme && syncedTheme !== useTheme.getState().themeId) {
       useTheme.getState().setTheme(syncedTheme);
     }
   }, [syncedTheme]);
+
+  // Show "What's new" once when the account first meets a newer app version, then
+  // record that version on the synced settings row so it isn't shown again, on
+  // this device or any other. Handled once per app session.
+  useEffect(() => {
+    if (whatsNewHandled.current) return;
+    if (status !== 'signed-in' || !profile?.onboardedAt) return;
+    if (!settings) return; // wait for settings to hydrate
+    if (location.pathname === '/onboarding' || location.pathname === '/guide') return;
+
+    const seen = settings.lastSeenVersion ?? null;
+    if (seen && !isNewerVersion(APP_VERSION, seen)) return; // already seen this (or newer)
+
+    whatsNewHandled.current = true;
+    void updateSettings(profile.id, { lastSeenVersion: APP_VERSION });
+    navigate('/guide?pane=new');
+  }, [status, profile, settings, location.pathname, navigate, updateSettings]);
 
   useEffect(() => {
     if (!supabase) {

@@ -118,4 +118,7 @@ export interface NotificationSettings {
   // The chosen theme id (lib/theme/themes.ts). Carried on this synced settings
   // row so the look follows the person across their devices. Null = default.
   theme?: string | null;
+  // The app version whose "What's new" the person has already seen. Synced so a
+  // release is shown once per account, not once per device. Null = not yet set.
+  lastSeenVersion?: string | null;
 }

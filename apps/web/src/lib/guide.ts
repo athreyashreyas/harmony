@@ -106,7 +106,7 @@ export const GUIDE: GuideSection[] = [
     ],
     steps: [
       'Open Me, then Appearance, and tap any theme to switch instantly.',
-      'Terracotta is the default, and your choice is remembered on this device.',
+      'Terracotta is the default, and your choice is remembered across all devices.',
     ],
   },
   {

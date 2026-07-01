@@ -165,6 +165,7 @@ function notificationSettingsToRow(userId: string, s: NotificationSettings) {
     habit_reminders: s.habitReminders,
     daily_summary: s.dailySummary,
     theme: s.theme ?? null,
+    last_seen_version: s.lastSeenVersion ?? null,
   };
 }
 
@@ -316,6 +317,7 @@ interface SettingsRow {
   habit_reminders: boolean | null;
   daily_summary: boolean | null;
   theme: string | null;
+  last_seen_version: string | null;
 }
 
 function rowToArea(r: AreaRow): Area {
@@ -376,6 +378,7 @@ function rowToSettings(s: SettingsRow): NotificationSettings {
     habitReminders: s.habit_reminders ?? true,
     dailySummary: s.daily_summary ?? true,
     theme: s.theme ?? null,
+    lastSeenVersion: s.last_seen_version ?? null,
   };
 }
 

@@ -21,7 +21,7 @@ export interface Release {
 // plain, the same voice as the rest of the app.
 export const CHANGELOG: Release[] = [
   {
-    version: '1.0.1',
+    version: '1.0.0',
     date: '2026-07-01',
     major: true,
     title: 'Harmony 1.0',

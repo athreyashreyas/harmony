@@ -16,10 +16,9 @@ import { useSettings } from '../store/useSettings';
 import { useUser } from '../store/useUser';
 
 // How long the splash stays at minimum, so a fast boot doesn't flash-and-vanish.
-// Long enough to read as an intentional, consistent moment; short enough to stay
-// out of the way. If the boot takes longer, the splash simply stays until it's
-// done.
-const MIN_SPLASH_MS = 800;
+// Long enough to clearly register as one calm screen; if the boot takes longer,
+// the splash simply stays until it's done.
+const MIN_SPLASH_MS = 1500;
 
 // Gates the protected routes (onboarding and the main shell). Listens for
 // Supabase auth changes, hydrates the local profile, and redirects based on

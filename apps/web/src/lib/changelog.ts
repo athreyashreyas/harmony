@@ -21,6 +21,20 @@ export interface Release {
 // plain, the same voice as the rest of the app.
 export const CHANGELOG: Release[] = [
   {
+    version: '1.0.1',
+    date: '2026-07-01',
+    major: true,
+    title: 'A calmer open',
+    notes: [
+      'A gentle loading screen now holds the moment while the app settles and your theme comes through, then reveals everything already in place, no flicker.',
+      'What is new now greets you just once per update, across all your devices, and then steps aside, so opening the app stays as calm as ever.',
+    ],
+    howTo: [
+      'Nothing to do. This note is shown once; open the app again and it goes straight home.',
+    ],
+    art: ['sync'],
+  },
+  {
     version: '1.0.0',
     date: '2026-07-01',
     major: true,
@@ -29,8 +43,7 @@ export const CHANGELOG: Release[] = [
       'Harmony is all grown up. This is the first full release, with everything in place: your areas and the living Bloom, tends and tugs, the Log, weekly insights, reminders, five themes, and sync across your devices.',
       'Hold an area under the Bloom to edit it on the spot; a quick tap still focuses your day on it.',
       'Tugs now open their own page, just like habits: tap the circle to note one, tap the row to see its history and edit it.',
-      'A calm opening: when the app is settling or a theme is coming through, a gentle loading screen holds the moment, then reveals everything in place, no flicker.',
-      'What is new now greets you just once per update, across all your devices, then steps aside so opening the app stays as calm as ever.',
+      'When Harmony updates, you will see What is new once, then it steps aside so opening the app stays as calm as ever.',
     ],
     howTo: [
       'Press and hold an area chip on Home to edit it; a quick tap filters your day to it.',

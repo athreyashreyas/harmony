@@ -12,6 +12,7 @@ import HabitCard from '../../components/HabitCard/HabitCard';
 import NoteSheet from '../../components/NoteSheet/NoteSheet';
 import PushPrompt from '../../components/PushPrompt/PushPrompt';
 import Skeleton from '../../components/Skeleton/Skeleton';
+import SortMenu, { type SortOption } from '../../components/SortMenu/SortMenu';
 import { archiveArea, saveArea, saveHabit } from '../../lib/db/queries';
 import { createHabit } from '../../lib/domain';
 import AreaSheet, { type AreaFields, type HabitWeight } from '../areas/AreaSheet';
@@ -24,6 +25,7 @@ import { daysBetween, formatLongDate, greetingWord, todayISO } from '../../lib/t
 import { listContainer, listItem } from '../../lib/motion';
 import { useUserData } from '../../lib/useUserData';
 import { useLogs } from '../../store/useLogs';
+import { useSettings } from '../../store/useSettings';
 
 interface Banner {
   text: string;
@@ -31,22 +33,28 @@ interface Banner {
   areaId: string;
 }
 
-// How the Home habit list can be ordered. Default is by time of day, then by
-// priority (area order, then habit order) within each time bucket.
-type SortKey = 'time' | 'priority' | 'name' | 'todo';
-const SORT_OPTIONS: { value: SortKey; label: string }[] = [
-  { value: 'time', label: 'Time of day' },
-  { value: 'priority', label: 'Priority' },
-  { value: 'name', label: 'Name' },
-  { value: 'todo', label: 'To do first' },
+// How the Home habit list can be ordered. Default is by time of day (morning
+// through evening, with unscheduled "anytime" habits after), and within each
+// bucket by priority (area order, then habit order).
+type SortKey = 'time' | 'priority' | 'todo';
+const SORT_OPTIONS: SortOption<SortKey>[] = [
+  { value: 'time', label: 'Time of day', description: 'Morning to evening, anytime last' },
+  { value: 'priority', label: 'Priority', description: 'Your most important areas first' },
+  { value: 'todo', label: 'Still to do', description: 'Unfinished habits rise to the top' },
 ];
-const TIME_RANK: Record<TimeOfDay, number> = { anytime: 0, morning: 1, afternoon: 2, evening: 3 };
+// Anytime (unscheduled) habits sort after the timed ones, so the day reads in
+// order and the loose ones settle at the end.
+const TIME_RANK: Record<TimeOfDay, number> = { morning: 0, afternoon: 1, evening: 2, anytime: 3 };
 const SORT_STORAGE_KEY = 'harmony.homeSort';
+
+function isSortKey(v: unknown): v is SortKey {
+  return typeof v === 'string' && SORT_OPTIONS.some((o) => o.value === v);
+}
 
 function loadSort(): SortKey {
   try {
     const v = localStorage.getItem(SORT_STORAGE_KEY);
-    if (v && SORT_OPTIONS.some((o) => o.value === v)) return v as SortKey;
+    if (isSortKey(v)) return v;
   } catch {
     // ignore
   }
@@ -68,11 +76,18 @@ export default function HomeScreen() {
   const toggle = useLogs((s) => s.toggle);
   const setNote = useLogs((s) => s.setNote);
 
+  const syncedSort = useSettings((s) => s.notifications?.homeSort);
+  const updateSettings = useSettings((s) => s.update);
+
   const [composeOpen, setComposeOpen] = useState(false);
   const [noteHabit, setNoteHabit] = useState<Habit | null>(null);
   const [editingArea, setEditingArea] = useState<Area | null>(null);
+  // Seed from localStorage for an instant, offline-safe choice; the synced
+  // setting then reconciles it so the order follows the person across devices.
   const [sortBy, setSortBy] = useState<SortKey>(loadSort);
 
+  // Persist every settled choice locally (fast seed on next open), whether it
+  // came from a tap here or arrived from another device.
   useEffect(() => {
     try {
       localStorage.setItem(SORT_STORAGE_KEY, sortBy);
@@ -80,6 +95,26 @@ export default function HomeScreen() {
       // ignore
     }
   }, [sortBy]);
+
+  // Adopt the order chosen on another device when it pulls in (or echoes over
+  // realtime), the same way the theme follows the account.
+  useEffect(() => {
+    if (isSortKey(syncedSort) && syncedSort !== sortBy) setSortBy(syncedSort);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [syncedSort]);
+
+  // Switch instantly on this device, but debounce the cloud save so a quick
+  // change of mind writes the synced row once, not on every tap.
+  const sortTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  function chooseSort(next: SortKey) {
+    setSortBy(next);
+    if (!profile) return;
+    const uid = profile.id;
+    if (sortTimer.current) clearTimeout(sortTimer.current);
+    sortTimer.current = setTimeout(() => {
+      void updateSettings(uid, { homeSort: next });
+    }, 500);
+  }
   const [banner, setBanner] = useState<Banner | null>(null);
   const [selectedAreaId, setSelectedAreaId] = useState<string | null>(null);
   const [view, setView] = useState<'today' | 'all'>('today');
@@ -202,14 +237,13 @@ export default function HomeScreen() {
     const cmp =
       sortBy === 'priority'
         ? byPriority
-        : sortBy === 'name'
-          ? (a: Habit, b: Habit) => a.name.localeCompare(b.name)
-          : sortBy === 'todo'
-            ? (a: Habit, b: Habit) => {
-                const d = (doneIds.has(a.id) ? 1 : 0) - (doneIds.has(b.id) ? 1 : 0);
-                return d !== 0 ? d : byTime(a, b);
-              }
-            : byTime;
+        : sortBy === 'todo'
+          ? (a: Habit, b: Habit) => {
+              // Unfinished first, then the normal time-of-day order within each.
+              const d = (doneIds.has(a.id) ? 1 : 0) - (doneIds.has(b.id) ? 1 : 0);
+              return d !== 0 ? d : byTime(a, b);
+            }
+          : byTime;
     return [...shownHabits].sort(cmp);
   }, [shownHabits, sortBy, areaById, doneIds]);
 
@@ -326,23 +360,7 @@ export default function HomeScreen() {
         </div>
         {loaded && shownHabits.length > 0 && (
           <div className="mt-2 flex items-center justify-between gap-3">
-            <div className="flex items-center gap-1.5 text-ink-300">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                <path d="M4 6h13M4 12h9M4 18h5" />
-              </svg>
-              <select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value as SortKey)}
-                aria-label="Sort habits"
-                className="bg-transparent text-xs font-medium text-ink-500 focus:outline-none"
-              >
-                {SORT_OPTIONS.map((o) => (
-                  <option key={o.value} value={o.value}>
-                    {o.label}
-                  </option>
-                ))}
-              </select>
-            </div>
+            <SortMenu value={sortBy} options={SORT_OPTIONS} onChange={chooseSort} />
             <p className="text-xs text-ink-300">
               {doneCount} of {shownHabits.length} tended to
             </p>

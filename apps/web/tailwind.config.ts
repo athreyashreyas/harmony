@@ -57,6 +57,8 @@ export default {
         // Warm-tinted shadows to match the paper. The FAB carries a terracotta
         // glow rather than the old violet one.
         card: '0 1px 2px rgba(35, 25, 15, 0.05), 0 1px 3px rgba(35, 25, 15, 0.04)',
+        // A touch more lift for floating menus/popovers that sit above the page.
+        lift: '0 6px 20px rgba(35, 25, 15, 0.12), 0 2px 6px rgba(35, 25, 15, 0.06)',
         sheet: '0 -4px 24px rgba(35, 25, 15, 0.10)',
         fab: '0 4px 16px rgba(148, 64, 33, 0.28)',
       },

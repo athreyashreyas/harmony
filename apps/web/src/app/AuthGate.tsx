@@ -48,9 +48,18 @@ export default function AuthGate() {
   const [floorPassed, setFloorPassed] = useState(false);
   const booted = useRef(false);
 
-  // The splash stays for at least MIN_SPLASH_MS from open, so a fast boot still
-  // reads as a calm, deliberate moment rather than a flash.
+  // Is this open a genuinely new version for this device? Decided synchronously
+  // from the locally-remembered seen version (no network), so the common case —
+  // reopening on a version already seen — never shows the update screen and never
+  // waits on the floor. It lands straight on Home; the cloud pull still runs in
+  // the background. The update screen (with its floor) is reserved for an actual
+  // version bump, where the calm wait covers the fresh sync.
+  const updatePending = useRef(isNewerVersion(APP_VERSION, getSeenVersionLocal()));
+
+  // On an update, the update screen stays for at least MIN_SPLASH_MS so the fresh
+  // sync doesn't flash-and-vanish; if the boot takes longer, it simply stays.
   useEffect(() => {
+    if (!updatePending.current) return;
     const t = window.setTimeout(() => setFloorPassed(true), MIN_SPLASH_MS);
     return () => window.clearTimeout(t);
   }, []);
@@ -183,7 +192,18 @@ export default function AuthGate() {
       setReady(true);
       return;
     }
-    if (!synced || !settings) return; // keep the splash until fresh settings are in
+
+    // No new version for this device: reveal Home right away and let the cloud
+    // pull catch up in the background. This is the common reopen, kept lag-free.
+    if (!updatePending.current) {
+      booted.current = true;
+      setReady(true);
+      return;
+    }
+
+    // A genuine new version: hold the update screen until the fresh pull lands,
+    // so the "What's new" decision reads a current lastSeenVersion.
+    if (!synced || !settings) return;
 
     booted.current = true;
     const onAppRoute = location.pathname !== '/onboarding' && location.pathname !== '/guide';
@@ -258,7 +278,9 @@ export default function AuthGate() {
   }
 
   if (status === 'loading') {
-    return <Splash />;
+    // Just the launch logo while auth resolves (usually instant from the cached
+    // session); the "Updating" label is reserved for an actual version bump.
+    return <Splash label={updatePending.current ? 'Updating Harmony' : undefined} />;
   }
 
   if (status === 'signed-out') {
@@ -277,13 +299,16 @@ export default function AuthGate() {
     return <Navigate to="/guide?pane=guide" replace />;
   }
 
-  // The app renders underneath; the splash covers it until the boot has settled,
-  // then fades to reveal the right screen (home, or What's new) with the theme
-  // already applied.
+  // On a version bump, the update screen covers the app until the boot has
+  // settled (and the floor has passed), then fades to reveal the right screen
+  // (Home, or What's new). On an ordinary reopen there's no overlay at all, so
+  // Home shows immediately with no wait.
   return (
     <>
       <Outlet />
-      <AnimatePresence>{(!ready || !floorPassed) && <Splash />}</AnimatePresence>
+      <AnimatePresence>
+        {updatePending.current && (!ready || !floorPassed) && <Splash label="Updating Harmony" />}
+      </AnimatePresence>
     </>
   );
 }

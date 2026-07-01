@@ -121,4 +121,8 @@ export interface NotificationSettings {
   // The app version whose "What's new" the person has already seen. Synced so a
   // release is shown once per account, not once per device. Null = not yet set.
   lastSeenVersion?: string | null;
+  // How the Home habit list is ordered (a SortKey id: 'time' | 'priority' |
+  // 'todo'). Carried on this synced row so the chosen order follows the person
+  // across their devices. Null = default (time of day).
+  homeSort?: string | null;
 }

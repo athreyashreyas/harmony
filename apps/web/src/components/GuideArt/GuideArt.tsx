@@ -153,10 +153,10 @@ export default function GuideArt({ kind }: { kind: GuideArtKind }) {
           </div>
           <div className="space-y-1.5">
             {[
-              ['Anytime', '#8a8f98'],
               ['Morning', '#e0962a'],
               ['Afternoon', '#3a7ca8'],
               ['Evening', '#7a3b6e'],
+              ['Anytime', '#8a8f98'],
             ].map(([label, c]) => (
               <div key={label} className="flex items-center gap-2 rounded-card bg-parchment-50 px-3 py-2 shadow-card">
                 <span className="h-2 w-2 rounded-full" style={{ backgroundColor: c }} />

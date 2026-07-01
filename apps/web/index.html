@@ -27,6 +27,22 @@
     <title>Harmony</title>
   </head>
   <body>
+    <!-- Pre-React boot cover, identical to the in-app splash, so the first paint
+         (and the paint after an update reload) already shows the one calm screen
+         instead of a blank flash. main.tsx removes it once React is up. -->
+    <div
+      id="boot-splash"
+      style="position:fixed;inset:0;z-index:90;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;background:var(--parchment-100,#FBF1E4);font-family:'Plus Jakarta Sans',system-ui,sans-serif;color:var(--ink-500,#76654C);font-size:14px;font-weight:500"
+    >
+      <img
+        src="/icons/icon-192.png"
+        width="80"
+        height="80"
+        alt=""
+        style="border-radius:20px;box-shadow:0 1px 3px rgba(35,25,15,0.08)"
+      />
+      <div style="opacity:0.6">Updating Harmony</div>
+    </div>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

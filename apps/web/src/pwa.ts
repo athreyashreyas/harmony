@@ -5,6 +5,9 @@ import { registerSW } from 'virtual:pwa-register';
 // control, controllerchange fires and we show a brief "Updating Harmony"
 // overlay before reloading, so the swap never looks like a glitch.
 
+// The same one screen as the boot splash (app icon + "Updating Harmony"), so the
+// version swap and the reload that follows look like a single continuous screen.
+// Themed via the CSS variables, with terracotta fallbacks.
 function showUpdatingOverlay() {
   const overlay = document.createElement('div');
   overlay.setAttribute('aria-busy', 'true');
@@ -16,30 +19,29 @@ function showUpdatingOverlay() {
     'flex-direction:column',
     'align-items:center',
     'justify-content:center',
-    'gap:16px',
-    'background:#FBF1E4',
+    'gap:20px',
+    'background:var(--parchment-100,#FBF1E4)',
     'font-family:"Plus Jakarta Sans",system-ui,sans-serif',
-    'color:#6B6960',
+    'color:var(--ink-500,#76654C)',
     'font-size:14px',
+    'font-weight:500',
   ].join(';');
 
-  const dot = document.createElement('div');
-  dot.style.cssText = [
-    'width:14px',
-    'height:14px',
-    'border-radius:9999px',
-    'background:#B5532F',
-    'animation:harmony-pulse 0.9s ease-in-out infinite',
-  ].join(';');
+  const logo = document.createElement('img');
+  logo.src = '/icons/icon-192.png';
+  logo.width = 80;
+  logo.height = 80;
+  logo.style.cssText =
+    'border-radius:20px;box-shadow:0 1px 2px rgba(35,25,15,0.05),0 1px 3px rgba(35,25,15,0.04)';
 
   const label = document.createElement('div');
   label.textContent = 'Updating Harmony';
+  label.style.cssText = 'animation:harmony-pulse 1.6s ease-in-out infinite';
 
   const style = document.createElement('style');
-  style.textContent =
-    '@keyframes harmony-pulse{0%,100%{opacity:0.3;transform:scale(0.85)}50%{opacity:1;transform:scale(1)}}';
+  style.textContent = '@keyframes harmony-pulse{0%,100%{opacity:0.4}50%{opacity:0.85}}';
 
-  overlay.append(style, dot, label);
+  overlay.append(style, logo, label);
   document.body.append(overlay);
 }
 

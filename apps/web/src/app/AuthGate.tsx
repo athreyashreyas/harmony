@@ -15,6 +15,12 @@ import { useLogs } from '../store/useLogs';
 import { useSettings } from '../store/useSettings';
 import { useUser } from '../store/useUser';
 
+// How long the splash stays at minimum, so a fast boot doesn't flash-and-vanish.
+// Long enough to read as an intentional, consistent moment; short enough to stay
+// out of the way. If the boot takes longer, the splash simply stays until it's
+// done.
+const MIN_SPLASH_MS = 800;
+
 // Gates the protected routes (onboarding and the main shell). Listens for
 // Supabase auth changes, hydrates the local profile, and redirects based on
 // auth status and onboardedAt. A calm Splash covers the whole boot (auth, the
@@ -40,7 +46,15 @@ export default function AuthGate() {
   // one-time decision.
   const [synced, setSynced] = useState(false);
   const [ready, setReady] = useState(false);
+  const [floorPassed, setFloorPassed] = useState(false);
   const booted = useRef(false);
+
+  // The splash stays for at least MIN_SPLASH_MS from open, so a fast boot still
+  // reads as a calm, deliberate moment rather than a flash.
+  useEffect(() => {
+    const t = window.setTimeout(() => setFloorPassed(true), MIN_SPLASH_MS);
+    return () => window.clearTimeout(t);
+  }, []);
 
   useEffect(() => {
     if (syncedTheme && syncedTheme !== useTheme.getState().themeId) {
@@ -270,7 +284,7 @@ export default function AuthGate() {
   return (
     <>
       <Outlet />
-      <AnimatePresence>{!ready && <Splash />}</AnimatePresence>
+      <AnimatePresence>{(!ready || !floorPassed) && <Splash />}</AnimatePresence>
     </>
   );
 }

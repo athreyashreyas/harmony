@@ -35,3 +35,9 @@ createRoot(document.getElementById('root')!).render(
     </MotionConfig>
   </StrictMode>,
 );
+
+// The React splash (AuthGate) now covers the boot, so retire the static pre-React
+// cover from index.html once the app has painted. A frame's delay avoids any gap.
+requestAnimationFrame(() => {
+  requestAnimationFrame(() => document.getElementById('boot-splash')?.remove());
+});

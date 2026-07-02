@@ -1,50 +1,59 @@
 import { useLayoutEffect, useRef, useState } from 'react';
-import { useDismiss } from '../../lib/useDismiss';
 
-// A one-line label that stays truncated, but becomes tappable to reveal the full
-// text in a small popover ONLY when it is actually cropped. When the text fits,
-// it is inert and taps fall through to whatever the row does (e.g. opening the
-// habit). Touch-first: no hover needed. The reveal tap stops propagation so it
-// doesn't also trigger the row.
+// A one-line label that stays truncated, but ONLY when it is actually cropped it
+// gains a small chevron and becomes tappable to expand in place: the name
+// un-truncates and wraps to full, growing the card to fit the text (no floating
+// popover, no hover). Tap again to collapse. When the text fits, it is inert and
+// taps fall through to whatever the row does (e.g. opening the habit).
 export default function TruncatedText({ text, className = '' }: { text: string; className?: string }) {
-  const spanRef = useRef<HTMLSpanElement>(null);
-  const rootRef = useRef<HTMLSpanElement>(null);
+  const ref = useRef<HTMLSpanElement>(null);
   const [cropped, setCropped] = useState(false);
-  const [open, setOpen] = useState(false);
-  useDismiss(open, rootRef, () => setOpen(false));
+  const [expanded, setExpanded] = useState(false);
 
   useLayoutEffect(() => {
+    if (expanded) return; // only measure overflow while collapsed
     const measure = () => {
-      const el = spanRef.current;
+      const el = ref.current;
       if (el) setCropped(el.scrollWidth > el.clientWidth + 1);
     };
     measure();
     window.addEventListener('resize', measure);
     return () => window.removeEventListener('resize', measure);
-  }, [text]);
+  }, [text, expanded]);
+
+  const interactive = cropped || expanded;
 
   return (
-    <span ref={rootRef} className="relative block">
-      <span
-        ref={spanRef}
-        className={`block truncate ${className}`}
-        title={cropped ? text : undefined}
-        onClick={
-          cropped
-            ? (e) => {
-                e.stopPropagation();
-                e.preventDefault();
-                setOpen((o) => !o);
-              }
-            : undefined
-        }
-      >
+    <span
+      className={`flex items-start gap-1 ${interactive ? 'cursor-pointer' : ''}`}
+      onClick={
+        interactive
+          ? (e) => {
+              e.stopPropagation();
+              e.preventDefault();
+              setExpanded((v) => !v);
+            }
+          : undefined
+      }
+    >
+      <span ref={ref} className={`min-w-0 ${expanded ? 'whitespace-normal break-words' : 'truncate'} ${className}`}>
         {text}
       </span>
-      {open && (
-        <span className="absolute left-0 top-full z-20 mt-1 block max-w-[16rem] rounded-card border border-parchment-300/60 bg-parchment-50 px-3 py-2 text-sm font-normal leading-snug text-ink-900 shadow-lift">
-          {text}
-        </span>
+      {interactive && (
+        <svg
+          className={`mt-[3px] shrink-0 text-ink-300 transition-transform ${expanded ? 'rotate-180' : ''}`}
+          width="12"
+          height="12"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M6 9l6 6 6-6" />
+        </svg>
       )}
     </span>
   );

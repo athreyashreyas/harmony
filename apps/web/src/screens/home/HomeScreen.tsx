@@ -400,7 +400,7 @@ export default function HomeScreen() {
                   // eases it down and lifts the rest up), instead of jumping.
                   <motion.div
                     key={habit.id}
-                    layout="position"
+                    layout
                     variants={listItem}
                     transition={{ layout: { type: 'spring', stiffness: 500, damping: 42 } }}
                   >

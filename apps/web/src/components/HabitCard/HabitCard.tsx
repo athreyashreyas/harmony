@@ -1,6 +1,7 @@
 import { useRef } from 'react';
 import { motion } from 'framer-motion';
 import type { Area, Habit, TimeOfDay } from '@harmony/shared';
+import TruncatedText from '../TruncatedText/TruncatedText';
 
 const TIME_LABEL: Record<TimeOfDay, string> = {
   morning: 'Morning',
@@ -88,16 +89,10 @@ export default function HabitCard({
         className="flex min-w-0 flex-1 items-center gap-3 text-left"
       >
         <span className="min-w-0 flex-1">
-          <span
-            title={habit.name}
-            className={
-              done
-                ? 'block truncate text-sm text-ink-300 line-through'
-                : 'block truncate text-sm text-ink-900'
-            }
-          >
-            {habit.name}
-          </span>
+          <TruncatedText
+            text={habit.name}
+            className={done ? 'text-sm text-ink-300 line-through' : 'text-sm text-ink-900'}
+          />
           <span className="block truncate text-xs" style={{ color: area.color }}>
             {area.name}
           </span>

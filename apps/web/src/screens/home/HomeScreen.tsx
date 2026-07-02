@@ -13,6 +13,7 @@ import NoteSheet from '../../components/NoteSheet/NoteSheet';
 import PushPrompt from '../../components/PushPrompt/PushPrompt';
 import Skeleton from '../../components/Skeleton/Skeleton';
 import SortMenu, { type SortOption } from '../../components/SortMenu/SortMenu';
+import TruncatedText from '../../components/TruncatedText/TruncatedText';
 import { archiveArea, saveArea, saveHabit } from '../../lib/db/queries';
 import { createHabit } from '../../lib/domain';
 import AreaSheet, { type AreaFields, type HabitWeight } from '../areas/AreaSheet';
@@ -468,7 +469,7 @@ export default function HomeScreen() {
                     className="flex min-w-0 flex-1 items-center gap-3 text-left"
                   >
                     <span className="min-w-0 flex-1">
-                      <span className="block truncate text-sm text-ink-900" title={habit.name}>{habit.name}</span>
+                      <TruncatedText text={habit.name} className="text-sm text-ink-900" />
                       {/* The generated status line wraps to two lines rather than
                           cropping mid-sentence, so it always reads in full. */}
                       <span className="line-clamp-2 text-xs text-ink-500">{note}</span>

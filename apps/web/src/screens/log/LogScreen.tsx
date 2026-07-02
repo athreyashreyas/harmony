@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { Habit, Log } from '@harmony/shared';
 import BottomSheet from '../../components/BottomSheet/BottomSheet';
 import Skeleton from '../../components/Skeleton/Skeleton';
+import TruncatedText from '../../components/TruncatedText/TruncatedText';
 import { isoDaysAgo, formatDateMedium, formatMonthYear, monthGrid, startOfMonthISO, endOfMonthISO, todayISO } from '../../lib/time/dates';
 import { isHabitDueOn } from '../../lib/time/cadence';
 import { logsInRange } from '../../lib/db/queries';
@@ -255,9 +256,7 @@ export default function LogScreen() {
                   >
                     <CheckCircle done={done} color={accent} />
                     <span className="min-w-0 flex-1">
-                      <span title={habit.name} className={done ? 'block truncate text-sm text-ink-500 line-through' : 'block truncate text-sm text-ink-900'}>
-                        {habit.name}
-                      </span>
+                      <TruncatedText text={habit.name} className={done ? 'text-sm text-ink-500 line-through' : 'text-sm text-ink-900'} />
                       {log?.note ? (
                         <span className="line-clamp-2 text-xs italic text-ink-500">&ldquo;{log.note}&rdquo;</span>
                       ) : (

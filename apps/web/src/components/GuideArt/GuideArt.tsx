@@ -1,4 +1,5 @@
 import type { GuideArtKind } from '../../lib/guide';
+import MiniBloom from '../MiniBloom/MiniBloom';
 
 const ASH = '#5a636f';
 
@@ -206,6 +207,17 @@ export default function GuideArt({ kind }: { kind: GuideArtKind }) {
           ))}
         </div>
       );
+    case 'garden': {
+      const bloom = (vals: number[]) =>
+        vals.map((value, i) => ({ id: String(i), name: '', color: ['#b5532f', '#3a7ca8', '#5b7a35', '#7a3b6e'][i], value }));
+      return (
+        <div className="flex items-end gap-2.5">
+          <MiniBloom petals={bloom([0.9, 0.7, 0.85, 0.6])} size={64} />
+          <MiniBloom petals={bloom([0.45, 0.6, 0.3, 0.5])} size={64} />
+          <MiniBloom petals={bloom([0.2, 0.12, 0.28, 0.15])} size={64} />
+        </div>
+      );
+    }
     case 'guide':
       return (
         <div className="w-full max-w-[240px]">

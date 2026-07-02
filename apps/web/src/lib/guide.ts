@@ -5,7 +5,7 @@
 //
 // Each section may name one illustration, drawn by GuideScreen's GuideArt.
 
-export type GuideArtKind = 'bloom' | 'habit' | 'areas' | 'weights' | 'tug' | 'log' | 'sync' | 'guide' | 'reminder' | 'logo' | 'themes' | 'sort' | 'insights' | 'palette';
+export type GuideArtKind = 'bloom' | 'habit' | 'areas' | 'weights' | 'tug' | 'log' | 'sync' | 'guide' | 'reminder' | 'logo' | 'themes' | 'sort' | 'insights' | 'palette' | 'garden';
 
 export interface GuideSection {
   id: string;
@@ -91,11 +91,25 @@ export const GUIDE: GuideSection[] = [
       'It is rich with real numbers, but always framed around showing up, never streaks to break. All of it drawn from what you actually did, in plain language.',
     ],
     steps: [
-      'Open Insights and tap Week, Month, Year, or All to change the range.',
-      'Scroll through momentum, rhythm, area balance, habit highlights, and tugs.',
-      'Tap a habit highlight to open its page.',
+      'Open Insights, and use the tabs at the top to switch between Insights and your Garden.',
+      'On Insights, tap Week, Month, Year, or All to change the range.',
+      'Scroll through momentum, rhythm, area balance, habit highlights, and tugs; tap a habit to open its page.',
     ],
     art: 'insights',
+  },
+  {
+    id: 'garden',
+    title: 'The Bloom garden',
+    body: [
+      'Every week of your life is pressed and kept as its own small bloom. Over time they form a garden you can scroll, watching your weeks flower in the full seasons and rest in the quiet ones.',
+      'It is drawn live from what you have done, so it is always honest, and it stores nothing extra as the years go by.',
+    ],
+    steps: [
+      'Open Insights and tap Garden at the top.',
+      'Scroll the grid of weeks, newest first.',
+      'Tap any bloom to see which areas were flowering that week.',
+    ],
+    art: 'garden',
   },
   {
     id: 'reminders',

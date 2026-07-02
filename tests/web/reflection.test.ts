@@ -17,7 +17,7 @@ describe('composeReflection', () => {
     const insights = computeInsights({ areas: [area], habits: [habit], logs: [] }, 'week', { now: NOW });
     const out = composeReflection(insights, { firstName: 'Sam' });
     expect(out.length).toBeGreaterThan(0);
-    expect(out.join(' ').toLowerCase()).toMatch(/okay|no rush|begin|ready/);
+    expect(out.join(' ').toLowerCase()).toMatch(/no problem|ready|catching up|blank|clean slate/);
   });
 
   it('celebrates a strong week with accurate numbers and warmth', () => {
@@ -27,7 +27,15 @@ describe('composeReflection', () => {
     expect(out.length).toBeGreaterThanOrEqual(2);
     expect(text).toMatch(/7 times|7 days/); // reflects the real counts
     // Warm, encouraging closing (a real pat on the back).
-    expect(text.toLowerCase()).toMatch(/credit|keep going|win|game|earned|good to yourself|better/);
+    expect(text.toLowerCase()).toMatch(/credit|keep going|win|earned|proud|rest up|onward|matters|better|good to yourself/);
+  });
+
+  it('reads differently across periods, even with similar numbers', () => {
+    const NOW2 = new Date(2026, 5, 22, 12, 0); // a week later
+    const logs2 = Array.from({ length: 5 }, (_, i) => makeLog({ habitId: 'h', areaId: 'a', date: isoDaysAgo(i, NOW2), loggedAt: MORNING }));
+    const a = composeReflection(computeInsights({ areas: [area], habits: [habit], logs: lastNDays('h', 'a', 5) }, 'week', { now: NOW }), { firstName: 'Sam' }).join(' ');
+    const b = composeReflection(computeInsights({ areas: [area], habits: [habit], logs: logs2 }, 'week', { now: NOW2 }), { firstName: 'Sam' }).join(' ');
+    expect(a).not.toBe(b);
   });
 
   it('is deterministic for the same inputs', () => {

@@ -21,6 +21,21 @@ export interface Release {
 // plain, the same voice as the rest of the app.
 export const CHANGELOG: Release[] = [
   {
+    version: '1.2.0',
+    date: '2026-07-02',
+    major: true,
+    title: 'Your Bloom garden',
+    notes: [
+      'A new Garden lives in Insights: every week of your life, pressed and kept as its own little bloom. Scroll back through the seasons and watch your weeks flower and rest.',
+      'Tap any week to see which areas were in bloom. It is drawn live from what you have done, so nothing extra is stored and it stays true to your history, for years.',
+    ],
+    howTo: [
+      'Open Insights and tap Garden at the top.',
+      'Scroll the grid of weeks, newest first; tap any bloom to see the areas behind it.',
+    ],
+    art: ['garden'],
+  },
+  {
     version: '1.1.0',
     date: '2026-07-02',
     major: true,

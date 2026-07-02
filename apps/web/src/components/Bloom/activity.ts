@@ -1,6 +1,6 @@
 import type { Area, Habit, Log } from '@harmony/shared';
 import { expectedCompletionsInWindow } from '../../lib/time/cadence';
-import { isoDaysAgo } from '../../lib/time/dates';
+import { isoDaysAgo, todayISO } from '../../lib/time/dates';
 
 // How much each logged tug eats off the petal, per "equivalent missed session",
 // and the most tugs can ever take. Honest but never punitive.
@@ -24,25 +24,27 @@ const FILL_GAMMA: Record<Area['importance'], number> = {
 // Tugs (ease habits) subtract, floored at zero. An area with no tend habits
 // reads as 0, the calm "ready to grow" rest state.
 //
-// Defaults to the Bloom's 14 day window; Insights' balance bars pass 30.
+// Defaults to the Bloom's 14 day window ending today; Insights' balance bars
+// pass 30, and the Bloom garden passes an `endISO` to read a past week's bloom.
 export function computeAreaActivity(
   area: Area,
   habits: Habit[],
   logs: Log[],
   windowDays = 14,
+  endISO: string = todayISO(),
 ): number {
   const areaHabits = habits.filter((h) => h.areaId === area.id && h.archivedAt == null);
   const tendHabits = areaHabits.filter((h) => h.polarity !== 'ease');
   if (tendHabits.length === 0) return 0;
 
-  const from = isoDaysAgo(windowDays - 1);
+  const from = isoDaysAgo(windowDays - 1, new Date(`${endISO}T00:00:00`));
 
   // Completed distinct days per tend habit, and total tug penalty, in one pass.
   const completedByHabit = new Map<string, Set<string>>();
   const easeById = new Map(areaHabits.filter((h) => h.polarity === 'ease').map((h) => [h.id, h]));
   let penalty = 0;
   for (const log of logs) {
-    if (log.date < from) continue;
+    if (log.date < from || log.date > endISO) continue;
     const ease = easeById.get(log.habitId);
     if (ease) {
       penalty += ease.tugWeight ?? 1;

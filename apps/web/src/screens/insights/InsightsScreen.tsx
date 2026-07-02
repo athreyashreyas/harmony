@@ -27,6 +27,13 @@ import { composeReflection } from '../../lib/insights/reflection';
 import { whatToDoNext, type Suggestion } from '../../lib/insights/suggestions';
 import { todayISO } from '../../lib/time/dates';
 import { useUserData } from '../../lib/useUserData';
+import Garden from './Garden';
+
+type ViewKey = 'insights' | 'garden';
+const VIEW_OPTIONS: { value: ViewKey; label: string }[] = [
+  { value: 'insights', label: 'Insights' },
+  { value: 'garden', label: 'Garden' },
+];
 
 const eyebrow = 'text-[10px] font-medium uppercase tracking-[0.1em] text-ink-300';
 const card = 'rounded-card bg-parchment-50 p-4 shadow-card';
@@ -53,6 +60,7 @@ export default function InsightsScreen() {
   const navigate = useNavigate();
   const { profile, areas, habits, logs, loaded, reloadHabits } = useUserData();
 
+  const [view, setView] = useState<ViewKey>('insights');
   const [range, setRange] = useState<InsightsRange>('week');
   const [focus, setFocus] = useState<string | null>(null);
   const [openHabit, setOpenHabit] = useState<string | null>(null);
@@ -123,8 +131,16 @@ export default function InsightsScreen() {
       <h1 className="font-serif text-3xl text-ink-900">Insights</h1>
 
       <div className="mt-4">
-        <SegmentedControl value={range} options={RANGE_OPTIONS} onChange={setRange} ariaLabel="Time range" />
+        <SegmentedControl value={view} options={VIEW_OPTIONS} onChange={setView} ariaLabel="Insights view" />
       </div>
+
+      {view === 'garden' && <Garden areas={areas} habits={habits} logs={logs} />}
+
+      {view === 'insights' && (
+        <>
+          <div className="mt-4">
+            <SegmentedControl value={range} options={RANGE_OPTIONS} onChange={setRange} ariaLabel="Time range" />
+          </div>
 
       {/* Focus: the whole page, scoped to one part of life. */}
       {activeAreas.length > 1 && (
@@ -347,6 +363,8 @@ export default function InsightsScreen() {
               </div>
             </section>
           )}
+        </>
+      )}
         </>
       )}
 

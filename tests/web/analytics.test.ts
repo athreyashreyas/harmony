@@ -79,7 +79,16 @@ describe('computeInsights', () => {
   it('builds a calendar cell per day in range', () => {
     const out = computeInsights({ areas: [area], habits: [habit], logs: lastNDays('h', 'a', 7) }, 'week', at(NOW));
     expect(out.calendar).toHaveLength(7);
-    expect(out.calendar.every((c) => c.ratio === 1 && c.count === 1)).toBe(true);
+    expect(out.calendar.every((c) => c.ratio === 1 && c.count === 1 && !c.future)).toBe(true);
+  });
+
+  it('spans the whole calendar year, including future days, for the year range', () => {
+    const out = computeInsights({ areas: [area], habits: [habit], logs: lastNDays('h', 'a', 7) }, 'year', at(NOW));
+    expect(out.calendar).toHaveLength(365); // 2026 is not a leap year
+    expect(out.calendar[0].date).toBe('2026-01-01');
+    expect(out.calendar[out.calendar.length - 1].date).toBe('2026-12-31');
+    expect(out.calendar.some((c) => c.future)).toBe(true); // months still to come
+    expect(out.calendar.filter((c) => c.future).every((c) => c.count === 0)).toBe(true);
   });
 
   it('reports positive momentum when this week beats the previous', () => {

@@ -21,7 +21,7 @@ function needsAHabitSuggestion(areas: Area[], habits: Habit[]): Suggestion | nul
       return {
         kind: 'add-habit',
         areaId: area.id,
-        text: `${area.name} clearly matters to you, and right now it rests on a single habit. Want to add one more small way in?`,
+        text: `${area.name} clearly matters to you, and right now it rests on a single habit. Add one more small way in.`,
       };
     }
   }
@@ -49,7 +49,7 @@ function strongestDaySuggestion(habits: Habit[], logs: Log[]): Suggestion | null
   return {
     kind: 'move-habit',
     habitId: best.habit.id,
-    text: `“${best.habit.name}” comes most easily on ${WEEKDAY_NAMES[best.day]}s. Maybe let it live there for now.`,
+    text: `“${best.habit.name}” comes most easily on ${WEEKDAY_NAMES[best.day]}s. Let it live there.`,
   };
 }
 

@@ -48,11 +48,11 @@ export default function CalendarHeatmap({ cells, color = '#5b7a35' }: { cells: C
   return (
     <div className="-mx-1 overflow-x-auto px-1">
       <div className="flex" style={{ width: 'max-content' }}>
-        {/* Weekday labels down the left (every other row, so they never crowd). */}
-        <div className="mr-1.5 shrink-0" style={{ paddingTop: MONTH_ROW }}>
+        {/* Weekday labels down the left, all seven, so a missed day is easy to place. */}
+        <div className="mr-2 shrink-0" style={{ paddingTop: MONTH_ROW }}>
           {WEEKDAY_SHORT.map((d, r) => (
             <div key={r} className="flex items-center" style={{ height: CELL, marginBottom: r < 6 ? GAP : 0 }}>
-              <span className="text-[9px] leading-none text-ink-300">{r % 2 === 1 ? d : ''}</span>
+              <span className="text-[9px] leading-none text-ink-300">{d}</span>
             </div>
           ))}
         </div>
@@ -73,6 +73,17 @@ export default function CalendarHeatmap({ cells, color = '#5b7a35' }: { cells: C
                 {Array.from({ length: 7 }).map((_, di) => {
                   const cell = week[di];
                   if (!cell) return <span key={di} style={{ height: CELL, width: CELL }} />;
+                  if (cell.future) {
+                    // A day still to come: a faint outline, clearly not a missed day.
+                    return (
+                      <span
+                        key={di}
+                        className="rounded-[3px]"
+                        style={{ height: CELL, width: CELL, boxShadow: 'inset 0 0 0 1px var(--parchment-200)' }}
+                        title={`${cell.date}: still to come`}
+                      />
+                    );
+                  }
                   return (
                     <span
                       key={di}

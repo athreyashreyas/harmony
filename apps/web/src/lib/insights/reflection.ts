@@ -109,7 +109,7 @@ function reflectOverall(insights: Insights, firstName: string): string[] {
     );
   }
   if (runs.current >= 3) {
-    bits.push(pick([`And right now you're on a ${runs.current}-day run. Enjoy that; you built it.`, `You're ${runs.current} days in a row as we speak, which is genuinely great going.`], seed + 3));
+    bits.push(pick([`And right now you're on a ${runs.current}-day run. Enjoy that; you built it.`, `You're ${runs.current} days in a row right now, which is genuinely great going.`], seed + 3));
   } else if (runs.longest >= 4) {
     bits.push(`Your best stretch was ${runs.longest} days straight, so you clearly have it in you.`);
   }
@@ -124,8 +124,8 @@ function reflectOverall(insights: Insights, firstName: string): string[] {
     closingBits.push(
       pick(
         [
-          `${quiet.area.name} has gone a little quiet, and that happens; life pulls us around. You once said it matters because "${quiet.area.whySentence}", so maybe give it a small hello when you can.`,
-          `The one that's been waiting is ${quiet.area.name}. Remember why you chose it: "${quiet.area.whySentence}". No pressure at all, but it would be glad to see you.`,
+          `${quiet.area.name} has gone a little quiet, and that happens; life does that. You said it matters because "${quiet.area.whySentence}", so give it a small hello this ${noun}.`,
+          `The one that's been waiting is ${quiet.area.name}. You chose it for a reason: "${quiet.area.whySentence}". Worth a return this ${noun}.`,
         ],
         seed + 4,
       ),
@@ -151,7 +151,7 @@ function reflectOverall(insights: Insights, firstName: string): string[] {
       [
         `All in all${name ? `, ${name}` : ''}, you're doing better than you give yourself credit for. Keep going.`,
         `Take the win${name ? `, ${name}` : ''}. Showing up for your own life, over and over, is the whole game, and you're playing it.`,
-        `Whatever the next ${noun === 'stretch' ? 'while' : noun} brings, be good to yourself. From where I'm sitting, you've earned it.`,
+        `Whatever the next ${noun === 'stretch' ? 'while' : noun} brings, be good to yourself. You've clearly earned it.`,
       ],
       seed + 6,
     ),
@@ -190,7 +190,7 @@ function reflectArea(insights: Insights, firstName: string, areaName: string): s
   const bits: string[] = [];
   if (strong) bits.push(`"${strong.habit.name}" came easiest${bestSegment ? `, usually in the ${SEGMENT_LABELS[bestSegment].toLowerCase()}` : ''}.`);
   if (runs.current >= 3) bits.push(`You're ${runs.current} days deep here right now, which is great to see.`);
-  if (quietHabit && quietHabit !== strong) bits.push(`"${quietHabit.habit.name}" has been sitting quietly; whenever you fancy it, it's there.`);
+  if (quietHabit && quietHabit !== strong) bits.push(`"${quietHabit.habit.name}" has been sitting quietly; worth picking back up.`);
   if (bits.length) paras.push(bits.join(' '));
 
   paras.push(

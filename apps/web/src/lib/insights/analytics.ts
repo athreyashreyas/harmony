@@ -58,6 +58,7 @@ export interface CalendarCell {
   date: string;
   count: number;
   ratio: number; // 0..1 intensity
+  future: boolean; // a day yet to come (shown empty, styled apart from a missed day)
 }
 
 export interface AreaStat {
@@ -296,8 +297,12 @@ export function computeInsights(
     trendDelta = curRatio - prevRatio;
   }
 
-  // Calendar heatmap (bounded to ~1 year of daily cells).
-  const calFrom = range === 'year' || range === 'all' ? isoDaysAgo(363, now) : from;
+  // Calendar heatmap. Week and month show their rolling window; year and
+  // all-time show the whole calendar year, including the months still to come so
+  // the grid reads as a complete, unfolding year rather than one cut off today.
+  const yyyy = now.getFullYear();
+  const calFrom = range === 'year' ? `${yyyy}-01-01` : range === 'all' ? firstISO : from;
+  const calTo = range === 'year' || range === 'all' ? `${yyyy}-12-31` : today;
   const dayCount = new Map<string, number>();
   for (const l of tendLogs) {
     if (!tendIds.has(l.habitId)) continue;
@@ -305,9 +310,10 @@ export function computeInsights(
     dayCount.set(l.date, (dayCount.get(l.date) ?? 0) + 1);
   }
   const perDayExpected = Math.max(1, expectedFor(tendHabits, 1));
-  const calendar: CalendarCell[] = dailyRange(calFrom, today).map((date) => {
-    const count = dayCount.get(date) ?? 0;
-    return { date, count, ratio: Math.min(1, count / perDayExpected) };
+  const calendar: CalendarCell[] = dailyRange(calFrom, calTo).map((date) => {
+    const future = date > today;
+    const count = future ? 0 : dayCount.get(date) ?? 0;
+    return { date, count, ratio: future ? 0 : Math.min(1, count / perDayExpected), future };
   });
 
   // Per-area stats (whole life, for balance + constellation).

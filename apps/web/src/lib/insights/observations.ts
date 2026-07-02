@@ -97,7 +97,7 @@ function quieterThanUsualObservation(areas: Area[], habits: Habit[], logs: Log[]
   }
 
   return best
-    ? `${best.area.name} has slowed a little this week. You once told yourself why it matters: "${best.area.whySentence}". A gentle return whenever you're ready.`
+    ? `${best.area.name} has slowed a little this week. You told yourself why it matters: "${best.area.whySentence}". Worth a return this week.`
     : null;
 }
 

@@ -87,7 +87,7 @@ export const GUIDE: GuideSection[] = [
     title: 'Insights',
     body: [
       'Insights turns what you have done into a calm picture of how life is going. Choose a range at the top, week, month, year, or all time, and every chart rescopes to match.',
-      'You will find your tending momentum over time, the days and times you show up most, how each area and habit is really doing, and the honest lift and drag of your tugs. There is a weekly recap and a gentle suggestion or two as well.',
+      'You will find your momentum over time, the days and times you show up most, how each area and habit is really doing, a balance constellation of your whole life, and the honest lift and drag of your tugs. It closes with a warm reflection written from your own week.',
       'It is rich with real numbers, but always framed around showing up, never streaks to break. All of it drawn from what you actually did, in plain language.',
     ],
     steps: [

@@ -227,7 +227,7 @@ export default function SettingsScreen() {
 
       <section className="mt-9">
         <p className={eyebrow}>Appearance</p>
-        <p className="mt-2 text-xs text-ink-300">Pick the light you want to open into.</p>
+        <p className="mt-2 text-xs text-ink-300">Pick the theme you want to open into.</p>
         <div className="mt-4 grid grid-cols-1 gap-2.5 sm:grid-cols-2">
           {THEMES.map((theme) => {
             const active = theme.id === themeId;

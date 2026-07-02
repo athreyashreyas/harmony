@@ -5,12 +5,11 @@ import { makeArea, makeHabit, makeLog } from '../fixtures';
 
 const NOW = new Date(2026, 5, 15, 12, 0); // 2026-06-15, local noon
 const MORNING = new Date(2026, 5, 15, 8, 0).getTime(); // a local-morning timestamp
+const at = (now: Date) => ({ now });
 
 // A daily-habit completion on each of the last `n` days.
 function lastNDays(habitId: string, areaId: string, n: number) {
-  return Array.from({ length: n }, (_, i) =>
-    makeLog({ habitId, areaId, date: isoDaysAgo(i, NOW), loggedAt: MORNING }),
-  );
+  return Array.from({ length: n }, (_, i) => makeLog({ habitId, areaId, date: isoDaysAgo(i, NOW), loggedAt: MORNING }));
 }
 
 describe('buildBuckets', () => {
@@ -42,14 +41,13 @@ describe('computeInsights', () => {
   const habit = makeHabit({ id: 'h', areaId: 'a', cadence: { kind: 'daily' } });
 
   it('reports no data when nothing has been logged', () => {
-    const out = computeInsights({ areas: [area], habits: [habit], logs: [] }, 'week', NOW);
+    const out = computeInsights({ areas: [area], habits: [habit], logs: [] }, 'week', at(NOW));
     expect(out.hasData).toBe(false);
     expect(out.summary.tends).toBe(0);
   });
 
   it('scores a fully-tended week at ratio 1 across the trend', () => {
-    const logs = lastNDays('h', 'a', 7);
-    const out = computeInsights({ areas: [area], habits: [habit], logs }, 'week', NOW);
+    const out = computeInsights({ areas: [area], habits: [habit], logs: lastNDays('h', 'a', 7) }, 'week', at(NOW));
     expect(out.trend).toHaveLength(7);
     expect(out.trend.every((p) => p.ratio === 1)).toBe(true);
     expect(out.summary.tends).toBe(7);
@@ -57,34 +55,72 @@ describe('computeInsights', () => {
     expect(out.areas[0].ratio).toBeCloseTo(1, 5);
   });
 
-  it('spreads weekday rhythm across a full consecutive week', () => {
-    const out = computeInsights({ areas: [area], habits: [habit], logs: lastNDays('h', 'a', 7) }, 'week', NOW);
-    expect(out.weekday.reduce((s, n) => s + n, 0)).toBe(7);
-    expect(out.weekday.every((n) => n === 1)).toBe(true);
+  it('computes current and longest runs of consecutive days', () => {
+    const out = computeInsights({ areas: [area], habits: [habit], logs: lastNDays('h', 'a', 7) }, 'week', at(NOW));
+    expect(out.runs.current).toBe(7);
+    expect(out.runs.longest).toBe(7);
   });
 
-  it('buckets completions into the time-of-day they were logged', () => {
-    const out = computeInsights({ areas: [area], habits: [habit], logs: lastNDays('h', 'a', 3) }, 'week', NOW);
-    const morning = out.segments.find((s) => s.segment === 'morning')!;
-    expect(morning.count).toBe(3);
-    expect(out.segments.filter((s) => s.segment !== 'morning').every((s) => s.count === 0)).toBe(true);
+  it('breaks the current run when today has no log', () => {
+    // Logged the 5 days ending yesterday, nothing today.
+    const logs = Array.from({ length: 5 }, (_, i) => makeLog({ habitId: 'h', areaId: 'a', date: isoDaysAgo(i + 1, NOW), loggedAt: MORNING }));
+    const out = computeInsights({ areas: [area], habits: [habit], logs }, 'week', at(NOW));
+    expect(out.runs.current).toBe(0);
+    expect(out.runs.longest).toBe(5);
+  });
+
+  it('spreads weekday rhythm and picks the busiest day/time', () => {
+    const out = computeInsights({ areas: [area], habits: [habit], logs: lastNDays('h', 'a', 7) }, 'week', at(NOW));
+    expect(out.weekday.reduce((s, n) => s + n, 0)).toBe(7);
+    expect(out.bestSegment).toBe('morning');
+    expect(out.bestWeekday).not.toBeNull();
+  });
+
+  it('builds a calendar cell per day in range', () => {
+    const out = computeInsights({ areas: [area], habits: [habit], logs: lastNDays('h', 'a', 7) }, 'week', at(NOW));
+    expect(out.calendar).toHaveLength(7);
+    expect(out.calendar.every((c) => c.ratio === 1 && c.count === 1)).toBe(true);
+  });
+
+  it('reports positive momentum when this week beats the previous', () => {
+    // Full this week; nothing the week before.
+    const out = computeInsights({ areas: [area], habits: [habit], logs: lastNDays('h', 'a', 7) }, 'week', at(NOW));
+    expect(out.trendDelta).toBeGreaterThan(0.5);
+    expect(out.prevTends).toBe(0);
   });
 
   it('counts tugs as drag without inflating tends', () => {
     const tug = makeHabit({ id: 'tug', areaId: 'a', polarity: 'ease', tugWeight: 1 });
-    const logs = [
-      ...lastNDays('h', 'a', 7),
-      makeLog({ habitId: 'tug', areaId: 'a', date: isoDaysAgo(1, NOW), loggedAt: MORNING }),
-    ];
-    const out = computeInsights({ areas: [area], habits: [habit, tug], logs }, 'week', NOW);
-    expect(out.summary.tends).toBe(7); // tug not counted as a tend
+    const logs = [...lastNDays('h', 'a', 7), makeLog({ habitId: 'tug', areaId: 'a', date: isoDaysAgo(1, NOW), loggedAt: MORNING })];
+    const out = computeInsights({ areas: [area], habits: [habit, tug], logs }, 'week', at(NOW));
+    expect(out.summary.tends).toBe(7);
     expect(out.tugTotals).toEqual([{ area, count: 1 }]);
+    expect(out.tugStats.find((t) => t.habit.id === 'tug')?.count).toBe(1);
     expect(out.tugs.some((t) => t.drag > 0)).toBe(true);
   });
 
+  it('scopes everything to a focused area', () => {
+    const areaB = makeArea({ id: 'b', name: 'Mind', importance: 'matters' });
+    const habitB = makeHabit({ id: 'hb', areaId: 'b', cadence: { kind: 'daily' } });
+    const logs = [...lastNDays('h', 'a', 7), ...lastNDays('hb', 'b', 3)];
+    const out = computeInsights({ areas: [area, areaB], habits: [habit, habitB], logs }, 'week', { now: NOW, focusAreaId: 'b' });
+    expect(out.summary.tends).toBe(3); // only area B's habit
+    expect(out.habits).toHaveLength(1);
+    expect(out.habits[0].habit.id).toBe('hb');
+    // Whole-life area stats stay available for context.
+    expect(out.areas).toHaveLength(2);
+  });
+
+  it('gives each habit a sparkline and best weekday', () => {
+    const out = computeInsights({ areas: [area], habits: [habit], logs: lastNDays('h', 'a', 7) }, 'week', at(NOW));
+    const stat = out.habits[0];
+    expect(stat.spark).toHaveLength(7);
+    expect(stat.completed).toBe(7);
+    expect(stat.lastDate).toBe('2026-06-15');
+  });
+
   it('reflects partial adherence in an area ratio', () => {
-    const logs = lastNDays('h', 'a', 3); // 3 of 7 days
-    const out = computeInsights({ areas: [area], habits: [habit], logs }, 'week', NOW);
+    const out = computeInsights({ areas: [area], habits: [habit], logs: lastNDays('h', 'a', 3) }, 'week', at(NOW));
     expect(out.areas[0].ratio).toBeCloseTo(3 / 7, 5);
     expect(out.summary.topAreaName).toBe('Body');
   });

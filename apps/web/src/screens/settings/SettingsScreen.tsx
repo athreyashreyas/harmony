@@ -1,30 +1,24 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Reorder } from 'framer-motion';
-import type { Area } from '@harmony/shared';
 import { DEFAULT_DND } from '@harmony/shared';
-import AreaRow from '../../components/AreaRow/AreaRow';
 import Modal from '../../components/Modal/Modal';
 import { useNavigate } from 'react-router-dom';
 import Switch from '../../components/Switch/Switch';
 import { APP_VERSION } from '../../lib/changelog';
-import { reorderAreas, saveArea } from '../../lib/db/queries';
 import { enablePush, pushReadiness, type PushReadiness } from '../../lib/push/subscribe';
 import { useTheme } from '../../lib/theme/theme';
 import { THEMES } from '../../lib/theme/themes';
 import { supabase } from '../../lib/supabase/client';
 import { deleteAccount, flushOutbox, wipeLocalData } from '../../lib/supabase/sync';
 import { useUserData } from '../../lib/useUserData';
-import { useAreas } from '../../store/useAreas';
 import { useSettings } from '../../store/useSettings';
 import { useUser } from '../../store/useUser';
-import AreaSheet, { type AreaFields } from '../areas/AreaSheet';
 import { PrimaryButton } from '../onboarding/ui';
 
 const eyebrow = 'text-[10px] font-medium uppercase tracking-[0.1em] text-ink-300';
 
 export default function SettingsScreen() {
   const navigate = useNavigate();
-  const { profile, areas, habits, logs, reloadAreas } = useUserData();
+  const { profile, areas } = useUserData();
   const setSignedOut = useUser((s) => s.setSignedOut);
   const email = useUser((s) => s.email);
   const notifications = useSettings((s) => s.notifications);
@@ -33,9 +27,6 @@ export default function SettingsScreen() {
   const themeId = useTheme((s) => s.themeId);
   const setTheme = useTheme((s) => s.setTheme);
 
-  const [orderedAreas, setOrderedAreas] = useState<Area[]>(areas);
-  const [editingArea, setEditingArea] = useState<Area | null>(null);
-  const [sheetOpen, setSheetOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
   // pushReadiness() is synchronous, so seed it on first render to avoid a flash.
@@ -78,17 +69,6 @@ export default function SettingsScreen() {
     [updateNotifications],
   );
 
-  // Persist the area order on drag end only, and don't re-sync from the store
-  // mid-drag, so the live list never fights framer's in-progress reorder.
-  const dragging = useRef(false);
-  const latestOrder = useRef<Area[]>(areas);
-
-  useEffect(() => {
-    if (dragging.current) return;
-    setOrderedAreas(areas);
-    latestOrder.current = areas;
-  }, [areas]);
-
   const dnd = notifications ?? {
     masterEnabled: true,
     mutedAreaIds: [],
@@ -107,24 +87,6 @@ export default function SettingsScreen() {
     await supabase?.auth.signOut();
     await wipeLocalData();
     setSignedOut();
-  }
-
-  function handleReorder(next: Area[]) {
-    latestOrder.current = next;
-    setOrderedAreas(next);
-  }
-
-  async function persistAreaOrder() {
-    dragging.current = false;
-    const persisted = await reorderAreas(latestOrder.current);
-    useAreas.setState({ areas: persisted });
-  }
-
-  async function handleSaveArea(fields: AreaFields) {
-    if (!editingArea) return;
-    await saveArea({ ...editingArea, ...fields });
-    if (profile) await reloadAreas(profile.id);
-    setSheetOpen(false);
   }
 
   function toggleAreaMuted(areaId: string) {
@@ -271,34 +233,6 @@ export default function SettingsScreen() {
       </section>
 
       <section className="mt-9">
-        <p className={eyebrow}>Priority order</p>
-        <p className="mt-2 text-xs text-ink-300">
-          These don't have to be in stone. Drag to reorder, tap to edit.
-        </p>
-        {orderedAreas.length > 0 && (
-          <Reorder.Group axis="y" values={orderedAreas} onReorder={handleReorder} className="mt-4 space-y-2.5">
-            {orderedAreas.map((area) => (
-              <AreaRow
-                key={area.id}
-                area={area}
-                habits={habits}
-                logs={logs}
-                showImportance
-                onOpen={() => {
-                  setEditingArea(area);
-                  setSheetOpen(true);
-                }}
-                onDragStart={() => {
-                  dragging.current = true;
-                }}
-                onDragEnd={() => void persistAreaOrder()}
-              />
-            ))}
-          </Reorder.Group>
-        )}
-      </section>
-
-      <section className="mt-9">
         <p className={eyebrow}>Notifications</p>
         <div className="mt-3 flex items-center justify-between rounded-card bg-parchment-50 px-4 py-3 shadow-card">
           <span className="text-sm text-ink-900">All notifications</span>
@@ -408,14 +342,6 @@ export default function SettingsScreen() {
         <p className="mt-2 text-sm text-ink-500">Harmony, version {APP_VERSION}.</p>
         <p className="mt-1 text-xs text-ink-300">Made with love by Noor's App Dreamland Ltd.</p>
       </section>
-
-      <AreaSheet
-        open={sheetOpen}
-        area={editingArea}
-        usedColors={areas.filter((a) => a.id !== editingArea?.id).map((a) => a.color)}
-        onClose={() => setSheetOpen(false)}
-        onSave={handleSaveArea}
-      />
 
       <Modal open={deleteOpen} onClose={() => setDeleteOpen(false)} title="Delete account">
         <p className="text-sm text-ink-700">

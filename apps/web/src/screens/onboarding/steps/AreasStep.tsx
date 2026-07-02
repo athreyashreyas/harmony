@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { SUGGESTED_AREAS } from '@harmony/shared';
+import { MAX_AREA_NAME, SUGGESTED_AREAS } from '@harmony/shared';
 import ColorPicker from '../../../components/ColorPicker/ColorPicker';
 import Modal from '../../../components/Modal/Modal';
 import { hexToRgba } from '../../../lib/color';
@@ -166,6 +166,7 @@ function CustomAreaModal({
         value={name}
         onChange={(e) => setName(e.target.value)}
         placeholder="Garden, Music, Faith"
+        maxLength={MAX_AREA_NAME}
         className="w-full rounded-card bg-parchment-50 px-3.5 py-2.5 text-sm text-ink-900 ring-1 ring-inset ring-parchment-300 placeholder:text-ink-300 focus:ring-2 focus:ring-iris-500"
       />
 

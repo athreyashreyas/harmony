@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import type { Area, Cadence, TimeOfDay } from '@harmony/shared';
+import { MAX_HABIT_NAME } from '@harmony/shared';
 import BottomSheet from '../BottomSheet/BottomSheet';
 import CadenceEditor from '../CadenceEditor/CadenceEditor';
 import ColorPicker from '../ColorPicker/ColorPicker';
@@ -172,6 +173,7 @@ export default function ComposeHabitSheet({
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="Go for a short walk"
+              maxLength={MAX_HABIT_NAME}
               className={selectClass}
             />
           </div>

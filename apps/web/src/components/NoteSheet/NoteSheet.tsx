@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { MAX_NOTE } from '@harmony/shared';
 import BottomSheet from '../BottomSheet/BottomSheet';
 import { PrimaryButton } from '../../screens/onboarding/ui';
 
@@ -36,8 +37,12 @@ export default function NoteSheet({
             onChange={(e) => setNote(e.target.value)}
             placeholder="Write here."
             rows={4}
+            maxLength={MAX_NOTE}
             className="w-full resize-none rounded-card bg-parchment-100 px-3.5 py-3 text-base text-ink-900 ring-1 ring-inset ring-parchment-300 placeholder:text-ink-300 focus:ring-2 focus:ring-iris-500"
           />
+          {note.length > MAX_NOTE - 80 && (
+            <p className="mt-1 text-right text-xs text-ink-300">{MAX_NOTE - note.length} left</p>
+          )}
         </div>
         <PrimaryButton onClick={() => onSave(note)}>Save note</PrimaryButton>
       </div>

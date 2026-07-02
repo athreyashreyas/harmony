@@ -76,10 +76,11 @@ describe('computeInsights', () => {
     expect(out.bestWeekday).not.toBeNull();
   });
 
-  it('builds a calendar cell per day in range', () => {
+  it('shows the whole calendar year with only the logged days warmed', () => {
     const out = computeInsights({ areas: [area], habits: [habit], logs: lastNDays('h', 'a', 7) }, 'week', at(NOW));
-    expect(out.calendar).toHaveLength(7);
-    expect(out.calendar.every((c) => c.ratio === 1 && c.count === 1 && !c.future)).toBe(true);
+    expect(out.calendar).toHaveLength(365); // an "every day" overview, not the rolling window
+    expect(out.calendar.filter((c) => c.count === 1)).toHaveLength(7);
+    expect(out.calendar.some((c) => c.future)).toBe(true); // months still to come
   });
 
   it('spans the whole calendar year, including future days, for the year range', () => {

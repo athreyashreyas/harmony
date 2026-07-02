@@ -24,17 +24,22 @@ export default function CalendarHeatmap({ cells, color = '#5b7a35' }: { cells: C
   const weeks: (CalendarCell | null)[][] = [];
   for (let i = 0; i < padded.length; i += 7) weeks.push(padded.slice(i, i + 7));
 
-  // A month label above the column where each new month first appears.
+  // A month label above the column where each new month first appears, but never
+  // closer than MIN_LABEL_GAP columns to the last shown label, so short partial
+  // months don't crowd their neighbour (e.g. "JunJul").
+  const MIN_LABEL_GAP = 3;
   const monthLabels: { index: number; label: string }[] = [];
   let prevMonth = '';
+  let lastShown = -Infinity;
   weeks.forEach((week, i) => {
     const firstCell = week.find((c) => c != null);
     if (!firstCell) return;
     const m = firstCell.date.slice(0, 7);
-    if (m !== prevMonth) {
-      monthLabels.push({ index: i, label: monthShort(firstCell.date) });
-      prevMonth = m;
-    }
+    if (m === prevMonth) return;
+    prevMonth = m;
+    if (i - lastShown < MIN_LABEL_GAP) return;
+    monthLabels.push({ index: i, label: monthShort(firstCell.date) });
+    lastShown = i;
   });
 
   const fill = (ratio: number, count: number): string => {
@@ -74,12 +79,12 @@ export default function CalendarHeatmap({ cells, color = '#5b7a35' }: { cells: C
                   const cell = week[di];
                   if (!cell) return <span key={di} style={{ height: CELL, width: CELL }} />;
                   if (cell.future) {
-                    // A day still to come: a faint outline, clearly not a missed day.
+                    // A day still to come: a dashed outline, clearly not a missed day.
                     return (
                       <span
                         key={di}
-                        className="rounded-[3px]"
-                        style={{ height: CELL, width: CELL, boxShadow: 'inset 0 0 0 1px var(--parchment-200)' }}
+                        className="rounded-[3px] border border-dashed"
+                        style={{ height: CELL, width: CELL, borderColor: 'var(--parchment-300)' }}
                         title={`${cell.date}: still to come`}
                       />
                     );
@@ -88,7 +93,9 @@ export default function CalendarHeatmap({ cells, color = '#5b7a35' }: { cells: C
                     <span
                       key={di}
                       className="rounded-[3px]"
-                      style={{ height: CELL, width: CELL, backgroundColor: fill(cell.ratio, cell.count) }}
+                      // A hairline border so each day is discernible: empty ones
+                      // against the card, and filled ones from same-colour neighbours.
+                      style={{ height: CELL, width: CELL, backgroundColor: fill(cell.ratio, cell.count), boxShadow: 'inset 0 0 0 1px rgba(35,25,15,0.10)' }}
                       title={`${cell.date}: ${cell.count === 0 ? 'nothing logged' : `${cell.count} logged`}`}
                     />
                   );

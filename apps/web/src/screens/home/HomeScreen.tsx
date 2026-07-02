@@ -468,8 +468,10 @@ export default function HomeScreen() {
                     className="flex min-w-0 flex-1 items-center gap-3 text-left"
                   >
                     <span className="min-w-0 flex-1">
-                      <span className="block truncate text-sm text-ink-900">{habit.name}</span>
-                      <span className="block truncate text-xs text-ink-500">{note}</span>
+                      <span className="block truncate text-sm text-ink-900" title={habit.name}>{habit.name}</span>
+                      {/* The generated status line wraps to two lines rather than
+                          cropping mid-sentence, so it always reads in full. */}
+                      <span className="line-clamp-2 text-xs text-ink-500">{note}</span>
                     </span>
                     <span className="shrink-0 text-[10px] uppercase tracking-wide text-ink-300">tug</span>
                   </button>

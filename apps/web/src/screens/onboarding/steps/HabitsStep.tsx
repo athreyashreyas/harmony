@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import type { TimeOfDay } from '@harmony/shared';
+import { MAX_HABIT_NAME } from '@harmony/shared';
 import SegmentedControl from '../../../components/SegmentedControl/SegmentedControl';
 import SelectMenu from '../../../components/SelectMenu/SelectMenu';
 import { useOnboarding } from '../OnboardingContext';
@@ -86,6 +87,7 @@ export default function HabitsStep({
               value={habit.name}
               onChange={(e) => setHabitName(area.id, e.target.value)}
               placeholder="Go for a short walk"
+              maxLength={MAX_HABIT_NAME}
               className={selectClass}
             />
           </div>

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { MAX_WHY_SENTENCE } from '@harmony/shared';
 import WatercolorWash from '../../../components/WatercolorWash/WatercolorWash';
 import { renderTemplate } from '../../../lib/templates/composer';
 import { getTemplate } from '../../../lib/templates/library';
@@ -96,8 +97,12 @@ export default function WhyStep({
           onChange={(e) => setWhy(area.id, e.target.value)}
           placeholder="Write here."
           rows={3}
+          maxLength={MAX_WHY_SENTENCE}
           className="mt-6 w-full resize-none rounded-card bg-parchment-50/90 px-3.5 py-3 text-base text-ink-900 ring-1 ring-inset ring-parchment-300 placeholder:text-ink-300 focus:ring-2 focus:ring-iris-500"
         />
+        {value.length > MAX_WHY_SENTENCE - 40 && (
+          <p className="mt-1 text-right text-xs text-ink-300">{MAX_WHY_SENTENCE - value.length} left</p>
+        )}
 
         <div className="mt-2">
           <QuietLink onClick={useStartingPoint}>Need a starting point?</QuietLink>

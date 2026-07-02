@@ -118,3 +118,12 @@ export const DEFAULT_DND = { start: '21:00', end: '07:00' };
 // A domain rule, so it lives here rather than in any one screen's module.
 export const MIN_AREAS = 3;
 export const MAX_AREAS = 20;
+
+// Character limits for user-entered text. Names are titles that show in tight
+// rows, chips, and petals, so they are kept short; the reflective fields get a
+// generous cap and are always shown in full where they live. Enforced at input
+// with maxLength, so nothing absurdly long can ever break a layout.
+export const MAX_HABIT_NAME = 60;
+export const MAX_AREA_NAME = 30;
+export const MAX_WHY_SENTENCE = 240;
+export const MAX_NOTE = 1000;

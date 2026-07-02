@@ -297,12 +297,16 @@ export function computeInsights(
     trendDelta = curRatio - prevRatio;
   }
 
-  // Calendar heatmap. Week and month show their rolling window; year and
-  // all-time show the whole calendar year, including the months still to come so
-  // the grid reads as a complete, unfolding year rather than one cut off today.
+  // Calendar heatmap: always a whole calendar year at a glance (an "every day"
+  // overview, independent of the range that scopes the other charts), running
+  // through 31 December so the months still to come are always projected and the
+  // grid reads as a complete, unfolding year rather than one cut off today.
+  // All-time reaches back to the first day of activity.
   const yyyy = now.getFullYear();
-  const calFrom = range === 'year' ? `${yyyy}-01-01` : range === 'all' ? firstISO : from;
-  const calTo = range === 'year' || range === 'all' ? `${yyyy}-12-31` : today;
+  // Start on the first of a month so the earliest month is full-width (never a
+  // one-column sliver that crowds its label against the next).
+  const calFrom = range === 'all' ? `${firstISO.slice(0, 7)}-01` : `${yyyy}-01-01`;
+  const calTo = `${yyyy}-12-31`;
   const dayCount = new Map<string, number>();
   for (const l of tendLogs) {
     if (!tendIds.has(l.habitId)) continue;

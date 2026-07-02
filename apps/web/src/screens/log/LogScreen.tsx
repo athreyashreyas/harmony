@@ -255,11 +255,11 @@ export default function LogScreen() {
                   >
                     <CheckCircle done={done} color={accent} />
                     <span className="min-w-0 flex-1">
-                      <span className={done ? 'block truncate text-sm text-ink-500 line-through' : 'block truncate text-sm text-ink-900'}>
+                      <span title={habit.name} className={done ? 'block truncate text-sm text-ink-500 line-through' : 'block truncate text-sm text-ink-900'}>
                         {habit.name}
                       </span>
                       {log?.note ? (
-                        <span className="block truncate text-xs italic text-ink-500">&ldquo;{log.note}&rdquo;</span>
+                        <span className="line-clamp-2 text-xs italic text-ink-500">&ldquo;{log.note}&rdquo;</span>
                       ) : (
                         !isTug && !due && <span className="block text-xs text-ink-300">Not scheduled that day</span>
                       )}

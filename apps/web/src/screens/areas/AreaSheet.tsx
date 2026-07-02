@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import type { Area, DriftSensitivity, Habit, Importance, TimeOfDay } from '@harmony/shared';
-import { AREA_PALETTE } from '@harmony/shared';
+import { AREA_PALETTE, MAX_AREA_NAME, MAX_WHY_SENTENCE } from '@harmony/shared';
 import BottomSheet from '../../components/BottomSheet/BottomSheet';
 import ColorPicker from '../../components/ColorPicker/ColorPicker';
 import SegmentedControl from '../../components/SegmentedControl/SegmentedControl';
@@ -106,6 +106,7 @@ export default function AreaSheet({
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="Creativity"
+            maxLength={MAX_AREA_NAME}
             className={inputClass}
           />
         </div>
@@ -196,8 +197,12 @@ export default function AreaSheet({
             onChange={(e) => setWhySentence(e.target.value)}
             placeholder="Write here."
             rows={3}
+            maxLength={MAX_WHY_SENTENCE}
             className={`${inputClass} resize-none`}
           />
+          {whySentence.length > MAX_WHY_SENTENCE - 40 && (
+            <p className="mt-1 text-right text-xs text-ink-300">{MAX_WHY_SENTENCE - whySentence.length} left</p>
+          )}
         </div>
 
         <div>

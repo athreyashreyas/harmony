@@ -125,18 +125,21 @@ export default function GuideArt({ kind }: { kind: GuideArtKind }) {
       );
     case 'themes':
       return (
-        <div className="flex items-end gap-2.5">
+        <div className="grid max-w-[236px] grid-cols-4 gap-2">
           {[
-            ['#b5532f', '#fbf1e4'],
-            ['#f2a900', '#fff4d6'],
-            ['#47602a', '#e8ecd8'],
-            ['#1fa0a0', '#e2f2f1'],
-            ['#8c7ce0', '#1b1e2c'],
-          ].map(([accent, paper], i) => (
+            ['#b5532f', '#fbf1e4'], // Terracotta
+            ['#f2a900', '#fff4d6'], // Mango Sunshine
+            ['#47602a', '#e8ecd8'], // Sage Grove
+            ['#7c6bd0', '#f1eefa'], // Lavender
+            ['#c25072', '#fbeef0'], // Rose Quartz
+            ['#8c7ce0', '#1b1e2c'], // Indigo Night
+            ['#cf9455', '#241d17'], // Espresso
+            ['#74c084', '#16211a'], // Forest Night
+          ].map(([accent, paper]) => (
             <span
               key={accent}
-              className="flex w-9 flex-col overflow-hidden rounded-[10px] shadow-card"
-              style={{ height: i === 2 ? 56 : 48, backgroundColor: paper, border: '1px solid rgba(0,0,0,0.06)' }}
+              className="flex h-[52px] flex-col overflow-hidden rounded-[10px] shadow-card"
+              style={{ backgroundColor: paper, border: '1px solid rgba(0,0,0,0.06)' }}
             >
               <span className="mt-auto h-3.5 w-full" style={{ backgroundColor: accent }} />
             </span>

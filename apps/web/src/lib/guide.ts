@@ -137,7 +137,7 @@ export const GUIDE: GuideSection[] = [
     id: 'themes',
     title: 'Make it yours',
     body: [
-      'Harmony comes in a few different lights. Choose the one that makes you happy to open the app: the warm Terracotta, a golden Mango Sunshine, a restful Sage Grove, a clear Ocean Blue, or a soft Indigo Night for the evening.',
+      'Harmony comes in eight lights. Choose the one that makes you happy to open the app: by day, the warm Terracotta, a golden Mango Sunshine, a restful Sage Grove, a dreamy Lavender, or a tender Rose Quartz; and after dark, Indigo Night, a warm Espresso, or a green Forest Night.',
       'A theme changes the colours around your habits, never the colours of your areas, so your bloom always means the same thing.',
     ],
     steps: [

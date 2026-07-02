@@ -108,29 +108,6 @@
   --on-primary: #eff3e2; --on-primary-rgb: 239 243 226;
 }
 
-/* Ocean Blue — a vivid lagoon teal on a soft mist. */
-:root[data-theme='ocean-blue'] {
-  --parchment-50: #f4fcfb;  --parchment-50-rgb: 244 252 251;
-  --parchment-100: #e2f2f1; --parchment-100-rgb: 226 242 241;
-  --parchment-200: #c8e5e2; --parchment-200-rgb: 200 229 226;
-  --parchment-300: #abd8d3; --parchment-300-rgb: 171 216 211;
-
-  --ink-900: #0f2826; --ink-900-rgb: 15 40 38;
-  --ink-700: #1e423e; --ink-700-rgb: 30 66 62;
-  --ink-500: #3c605c; --ink-500-rgb: 60 96 92;
-  --ink-300: #789c98; --ink-300-rgb: 120 156 152;
-  --ink-100: #b0d0cc; --ink-100-rgb: 176 208 204;
-
-  --iris-700: #126e6e; --iris-700-rgb: 18 110 110;
-  --iris-600: #178585; --iris-600-rgb: 23 133 133;
-  --iris-500: #1fa0a0; --iris-500-rgb: 31 160 160;
-  --iris-400: #3db5b5; --iris-400-rgb: 61 181 181;
-  --iris-100: #c2e8e6; --iris-100-rgb: 194 232 230;
-  --iris-50: #def4f2;  --iris-50-rgb: 222 244 242;
-
-  --on-primary: #eafaf8; --on-primary-rgb: 234 250 248;
-}
-
 /* Indigo Night — soft lights on a deep night ground. Proof the system handles
    dark too: surfaces invert and the status colours lift for legibility. */
 :root[data-theme='indigo-night'] {
@@ -161,5 +138,116 @@
   --rose-100: #3a2a30; --rose-100-rgb: 58 42 48;
   --sage-600: #7cae48; --sage-600-rgb: 124 174 72;
   --sage-500: #8fbf5a; --sage-500-rgb: 143 191 90;
+  --sage-100: #2c3a24; --sage-100-rgb: 44 58 36;
+}
+
+/* Lavender — a calm wisteria purple on pale violet paper. */
+:root[data-theme='lavender'] {
+  --parchment-50: #faf8ff; --parchment-50-rgb: 250 248 255;
+  --parchment-100: #f1eefa; --parchment-100-rgb: 241 238 250;
+  --parchment-200: #e3ddf3; --parchment-200-rgb: 227 221 243;
+  --parchment-300: #d0c6ea; --parchment-300-rgb: 208 198 234;
+
+  --ink-900: #221c33; --ink-900-rgb: 34 28 51;
+  --ink-700: #3a3152; --ink-700-rgb: 58 49 82;
+  --ink-500: #625a7e; --ink-500-rgb: 98 90 126;
+  --ink-300: #9a90b8; --ink-300-rgb: 154 144 184;
+  --ink-100: #d5cde8; --ink-100-rgb: 213 205 232;
+
+  --iris-700: #4f3fa0; --iris-700-rgb: 79 63 160;
+  --iris-600: #5e4cba; --iris-600-rgb: 94 76 186;
+  --iris-500: #7c6bd0; --iris-500-rgb: 124 107 208;
+  --iris-400: #9585dd; --iris-400-rgb: 149 133 221;
+  --iris-100: #e2dcf6; --iris-100-rgb: 226 220 246;
+  --iris-50: #efeafb; --iris-50-rgb: 239 234 251;
+
+  --on-primary: #faf8ff; --on-primary-rgb: 250 248 255;
+}
+
+/* Rose Quartz — a deep rose on soft blush paper. */
+:root[data-theme='rose-quartz'] {
+  --parchment-50: #fff7f8; --parchment-50-rgb: 255 247 248;
+  --parchment-100: #fbeef0; --parchment-100-rgb: 251 238 240;
+  --parchment-200: #f4dce1; --parchment-200-rgb: 244 220 225;
+  --parchment-300: #ebc6ce; --parchment-300-rgb: 235 198 206;
+
+  --ink-900: #2c1a1f; --ink-900-rgb: 44 26 31;
+  --ink-700: #4a2f36; --ink-700-rgb: 74 47 54;
+  --ink-500: #785a61; --ink-500-rgb: 120 90 97;
+  --ink-300: #b8949c; --ink-300-rgb: 184 148 156;
+  --ink-100: #e6ccd2; --ink-100-rgb: 230 204 210;
+
+  --iris-700: #8a3350; --iris-700-rgb: 138 51 80;
+  --iris-600: #a53f60; --iris-600-rgb: 165 63 96;
+  --iris-500: #c25072; --iris-500-rgb: 194 80 114;
+  --iris-400: #d06c8a; --iris-400-rgb: 208 108 138;
+  --iris-100: #f4dbe3; --iris-100-rgb: 244 219 227;
+  --iris-50: #fbecf0; --iris-50-rgb: 251 236 240;
+
+  --on-primary: #fff7f8; --on-primary-rgb: 255 247 248;
+}
+
+/* Espresso — a warm dark: caramel on deep coffee-brown. Pairs the cool Indigo
+   Night. Status colours lift for legibility on the dark ground. */
+:root[data-theme='espresso'] {
+  color-scheme: dark;
+
+  --parchment-50: #322820; --parchment-50-rgb: 50 40 32;
+  --parchment-100: #241d17; --parchment-100-rgb: 36 29 23;
+  --parchment-200: #3f342a; --parchment-200-rgb: 63 52 42;
+  --parchment-300: #574839; --parchment-300-rgb: 87 72 57;
+
+  --ink-900: #f4ece0; --ink-900-rgb: 244 236 224;
+  --ink-700: #d8cbb8; --ink-700-rgb: 216 203 184;
+  --ink-500: #b0a08a; --ink-500-rgb: 176 160 138;
+  --ink-300: #8a7a64; --ink-300-rgb: 138 122 100;
+  --ink-100: #574a3a; --ink-100-rgb: 87 74 58;
+
+  --iris-700: #e6b87f; --iris-700-rgb: 230 184 127;
+  --iris-600: #dca768; --iris-600-rgb: 220 167 104;
+  --iris-500: #cf9455; --iris-500-rgb: 207 148 85;
+  --iris-400: #c08544; --iris-400-rgb: 192 133 68;
+  --iris-100: #4a3c27; --iris-100-rgb: 74 60 39;
+  --iris-50: #382d1d; --iris-50-rgb: 56 45 29;
+
+  --on-primary: #241d17; --on-primary-rgb: 36 29 23;
+
+  --rose-600: #e8a48c; --rose-600-rgb: 232 164 140;
+  --rose-500: #d98f76; --rose-500-rgb: 217 143 118;
+  --rose-100: #3c2c24; --rose-100-rgb: 60 44 36;
+  --sage-600: #a6c76f; --sage-600-rgb: 166 199 111;
+  --sage-500: #b4d47e; --sage-500-rgb: 180 212 126;
+  --sage-100: #333c26; --sage-100-rgb: 51 60 38;
+}
+
+/* Forest Night — a restful green dark: soft moss on deep pine. */
+:root[data-theme='forest-night'] {
+  color-scheme: dark;
+
+  --parchment-50: #1f2e25; --parchment-50-rgb: 31 46 37;
+  --parchment-100: #16211a; --parchment-100-rgb: 22 33 26;
+  --parchment-200: #2a3b30; --parchment-200-rgb: 42 59 48;
+  --parchment-300: #3a4d40; --parchment-300-rgb: 58 77 64;
+
+  --ink-900: #e8f0e6; --ink-900-rgb: 232 240 230;
+  --ink-700: #c4d4c0; --ink-700-rgb: 196 212 192;
+  --ink-500: #93a98d; --ink-500-rgb: 147 169 141;
+  --ink-300: #6d8268; --ink-300-rgb: 109 130 104;
+  --ink-100: #445041; --ink-100-rgb: 68 80 65;
+
+  --iris-700: #a7e0b0; --iris-700-rgb: 167 224 176;
+  --iris-600: #8fd39a; --iris-600-rgb: 143 211 154;
+  --iris-500: #74c084; --iris-500-rgb: 116 192 132;
+  --iris-400: #63ab72; --iris-400-rgb: 99 171 114;
+  --iris-100: #29402f; --iris-100-rgb: 41 64 47;
+  --iris-50: #1e3023; --iris-50-rgb: 30 48 35;
+
+  --on-primary: #14201a; --on-primary-rgb: 20 32 26;
+
+  --rose-600: #e8a0ac; --rose-600-rgb: 232 160 172;
+  --rose-500: #d98598; --rose-500-rgb: 217 133 152;
+  --rose-100: #3a2a30; --rose-100-rgb: 58 42 48;
+  --sage-600: #97c977; --sage-600-rgb: 151 201 119;
+  --sage-500: #a8d98a; --sage-500-rgb: 168 217 138;
   --sage-100: #2c3a24; --sage-100-rgb: 44 58 36;
 }

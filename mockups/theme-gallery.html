@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Harmony — Theme gallery</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      body {
+        font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+        color: #2b2b2b;
+        /* A soft photographic studio sweep: light floor into a gentle grey wall. */
+        background:
+          radial-gradient(120% 90% at 50% 8%, #fdfdfc 0%, #ececea 45%, #dededb 100%);
+        min-height: 100vh;
+        padding: 48px 24px 96px;
+      }
+      header { text-align: center; max-width: 720px; margin: 0 auto 8px; }
+      header h1 { font-family: 'DM Serif Display', Georgia, serif; font-size: 40px; color: #1d1d1b; letter-spacing: -0.5px; }
+      header p { margin-top: 10px; color: #6a6a67; font-size: 15px; line-height: 1.5; }
+      .section-label {
+        max-width: 1200px; margin: 44px auto 0; padding: 0 8px;
+        font-size: 12px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: #8a8a86;
+      }
+      .grid {
+        max-width: 1200px; margin: 18px auto 0;
+        display: grid; grid-template-columns: repeat(auto-fill, minmax(272px, 1fr)); gap: 40px 28px;
+      }
+      .tile { display: flex; flex-direction: column; align-items: center; }
+      /* The device: sits on a soft studio shadow. */
+      .phone {
+        width: 272px; border-radius: 30px; padding: 16px 14px 20px;
+        background: var(--p100);
+        box-shadow: 0 22px 40px -18px rgba(30, 25, 20, 0.35), 0 4px 10px -4px rgba(30, 25, 20, 0.18),
+          inset 0 0 0 1px rgba(0, 0, 0, 0.04);
+      }
+      .notch { width: 84px; height: 5px; border-radius: 99px; background: rgba(128,128,128,0.28); margin: 2px auto 14px; }
+      .app-title { font-family: 'DM Serif Display', Georgia, serif; font-size: 26px; color: var(--i900); line-height: 1; }
+      .tabs { display: flex; gap: 5px; margin-top: 12px; }
+      .chip { flex: 1; text-align: center; font-size: 11px; font-weight: 600; padding: 5px 0; border-radius: 99px; color: var(--i300); }
+      .chip.on { background: var(--iris50); color: var(--iris500); }
+      .card {
+        margin-top: 12px; background: var(--p50); border-radius: 14px; padding: 14px;
+        box-shadow: 0 1px 2px rgba(20, 15, 10, 0.05), 0 1px 3px rgba(20, 15, 10, 0.04);
+      }
+      .bloom-wrap { display: flex; justify-content: center; }
+      .caption { text-align: center; font-size: 12px; color: var(--i500); margin-top: 8px; }
+      .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 12px; }
+      .stat { background: var(--p50); border-radius: 12px; padding: 10px 4px; text-align: center; box-shadow: 0 1px 2px rgba(20,15,10,0.05); }
+      .stat b { display: block; font-family: 'DM Serif Display', Georgia, serif; font-size: 20px; color: var(--i900); }
+      .stat span { font-size: 10px; color: var(--i300); }
+      .btn { margin-top: 12px; text-align: center; font-size: 13px; font-weight: 600; padding: 11px 0; border-radius: 99px; background: var(--iris500); color: var(--onp); }
+      .balance { margin-top: 12px; }
+      .bar { height: 8px; border-radius: 99px; background: var(--p200); overflow: hidden; }
+      .bar > i { display: block; height: 100%; border-radius: 99px; background: var(--iris500); }
+      .swatches { display: flex; gap: 6px; margin-top: 12px; justify-content: center; }
+      .swatches span { width: 18px; height: 18px; border-radius: 6px; box-shadow: inset 0 0 0 1px rgba(0,0,0,0.06); }
+      .meta { margin-top: 16px; text-align: center; }
+      .meta h3 { font-size: 15px; color: #1d1d1b; }
+      .meta p { font-size: 12px; color: #7a7a76; margin-top: 3px; max-width: 240px; }
+      .badge { display: inline-block; margin-top: 6px; font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #9a9a96; }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>Harmony themes</h1>
+      <p>Every proposed theme, previewed as a little Harmony. Area colours (the bloom's petals) are never themed — only the light around them changes. Pick the ones you love.</p>
+    </header>
+
+    <div id="proposed-light" class="section-label">Proposed · light</div>
+    <div class="grid" data-group="proposed-light"></div>
+
+    <div id="proposed-dark" class="section-label">Proposed · dark &amp; neutral</div>
+    <div class="grid" data-group="proposed-dark"></div>
+
+    <div id="current" class="section-label">Your current five (for comparison)</div>
+    <div class="grid" data-group="current"></div>
+
+    <script>
+      // Full token sets, in the same shape as tokens.css, so a chosen theme drops
+      // straight in. p = parchment, i = ink, iris = accent ramp, onp = on-primary.
+      const THEMES = [
+        { group: 'proposed-light', name: 'Rose Quartz', desc: 'Deep rose on soft blush paper. Tender and warm.',
+          p50:'#fff7f8', p100:'#fbeef0', p200:'#f4dce1', p300:'#ebc6ce',
+          i900:'#2c1a1f', i700:'#4a2f36', i500:'#785a61', i300:'#b8949c',
+          iris700:'#8a3350', iris600:'#a53f60', iris500:'#c25072', iris400:'#d06c8a', iris100:'#f4dbe3', iris50:'#fbecf0', onp:'#fff7f8' },
+        { group: 'proposed-light', name: 'Lavender', desc: 'Calm wisteria purple on pale violet paper.',
+          p50:'#faf8ff', p100:'#f1eefa', p200:'#e3ddf3', p300:'#d0c6ea',
+          i900:'#221c33', i700:'#3a3152', i500:'#625a7e', i300:'#9a90b8',
+          iris700:'#4f3fa0', iris600:'#5e4cba', iris500:'#7c6bd0', iris400:'#9585dd', iris100:'#e2dcf6', iris50:'#efeafb', onp:'#faf8ff' },
+        { group: 'proposed-light', name: 'Bluebell', desc: 'A true cornflower blue on cool misty paper.',
+          p50:'#f6f9ff', p100:'#e9f0fb', p200:'#d5e2f5', p300:'#bcd0ee',
+          i900:'#10192c', i700:'#23324e', i500:'#45577a', i300:'#8298bd',
+          iris700:'#2a4f9e', iris600:'#345fbf', iris500:'#3a6fd8', iris400:'#5e8ae6', iris100:'#d3e0f7', iris50:'#e6eefb', onp:'#f6f9ff' },
+        { group: 'proposed-light', name: 'Peach', desc: 'Warm coral on sunset-peach paper. Cozy and bright.',
+          p50:'#fff8f3', p100:'#ffefe6', p200:'#ffdcc9', p300:'#f8c4a6',
+          i900:'#331d12', i700:'#543422', i500:'#855a41', i300:'#bd9377',
+          iris700:'#b8471f', iris600:'#cf5630', iris500:'#e2683f', iris400:'#ee8964', iris100:'#fbdccb', iris50:'#fef0e6', onp:'#fff8f3' },
+        { group: 'proposed-light', name: 'Stone', desc: 'Near-greyscale paper with a slate accent. Quiet and focused.',
+          p50:'#fafaf8', p100:'#f1f1ee', p200:'#e2e2de', p300:'#cdcdc7',
+          i900:'#1e1f1d', i700:'#3b3d39', i500:'#63665f', i300:'#9a9c93',
+          iris700:'#3f4a57', iris600:'#4c5866', iris500:'#5a6472', iris400:'#74808f', iris100:'#dfe2e6', iris50:'#eef0f2', onp:'#fafaf8' },
+        { group: 'proposed-light', name: 'Plum', desc: 'Mulberry berry accent on soft mauve paper.',
+          p50:'#fcf5f9', p100:'#f5eaf0', p200:'#ecd6e2', p300:'#dfbcd0',
+          i900:'#2a1826', i700:'#472c40', i500:'#74566a', i300:'#b08fa4',
+          iris700:'#6e2a56', iris600:'#863466', iris500:'#9d3f79', iris400:'#b25c92', iris100:'#f0d8e6', iris50:'#f9ecf3', onp:'#fcf5f9' },
+
+        { group: 'proposed-dark', name: 'Espresso', desc: 'Warm dark: caramel on deep coffee-brown. Pairs the cool Indigo Night.', dark:true,
+          p50:'#322820', p100:'#241d17', p200:'#3f342a', p300:'#574839',
+          i900:'#f4ece0', i700:'#d8cbb8', i500:'#b0a08a', i300:'#8a7a64',
+          iris700:'#e6b87f', iris600:'#dca768', iris500:'#cf9455', iris400:'#c08544', iris100:'#4a3c27', iris50:'#382d1d', onp:'#241d17' },
+        { group: 'proposed-dark', name: 'Forest Night', desc: 'A restful green dark mode: soft moss on deep pine.', dark:true,
+          p50:'#1f2e25', p100:'#16211a', p200:'#2a3b30', p300:'#3a4d40',
+          i900:'#e8f0e6', i700:'#c4d4c0', i500:'#93a98d', i300:'#6d8268',
+          iris700:'#a7e0b0', iris600:'#8fd39a', iris500:'#74c084', iris400:'#63ab72', iris100:'#29402f', iris50:'#1e3023', onp:'#14201a' },
+
+        { group: 'current', name: 'Terracotta', desc: 'Warm and grounding. The original.',
+          p50:'#fffaf1', p100:'#fbf1e4', p200:'#f3e4cf', p300:'#e7d3b4',
+          i900:'#23190f', i700:'#483a27', i500:'#76654c', i300:'#ab977a',
+          iris700:'#7a3318', iris600:'#944021', iris500:'#b5532f', iris400:'#c9714a', iris100:'#f6e0cf', iris50:'#fbf0e4', onp:'#fffaf1' },
+        { group: 'current', name: 'Mango Sunshine', desc: 'A golden sunflower on warm sunlit cream.',
+          p50:'#fffcf2', p100:'#fff4d6', p200:'#fbe7b0', p300:'#f1d78c',
+          i900:'#3a2a0e', i700:'#5e4a1e', i500:'#8a7038', i300:'#bba268',
+          iris700:'#ae7a06', iris600:'#d69500', iris500:'#f2a900', iris400:'#f6bc3c', iris100:'#fbe7bc', iris50:'#fef6e0', onp:'#3a2a0e' },
+        { group: 'current', name: 'Sage Grove', desc: 'A deep, restful moss green.',
+          p50:'#f6f8ea', p100:'#e8ecd8', p200:'#d4dbbc', p300:'#c2cba2',
+          i900:'#1e2618', i700:'#34402a', i500:'#4e5c38', i300:'#869066',
+          iris700:'#31441c', iris600:'#3c5222', iris500:'#47602a', iris400:'#5e7a3c', iris100:'#dce6c6', iris50:'#eef3e0', onp:'#eff3e2' },
+        { group: 'current', name: 'Ocean Blue', desc: 'A clear lagoon teal.',
+          p50:'#f4fcfb', p100:'#e2f2f1', p200:'#c8e5e2', p300:'#abd8d3',
+          i900:'#0f2826', i700:'#1e423e', i500:'#3c605c', i300:'#789c98',
+          iris700:'#126e6e', iris600:'#178585', iris500:'#1fa0a0', iris400:'#3db5b5', iris100:'#c2e8e6', iris50:'#def4f2', onp:'#eafaf8' },
+        { group: 'current', name: 'Indigo Night', desc: 'Soft lights after dark.', dark:true,
+          p50:'#262a3c', p100:'#1b1e2c', p200:'#2e3346', p300:'#3f4459',
+          i900:'#eceaf4', i700:'#c4c2d8', i500:'#aba9c4', i300:'#6e6e8a',
+          iris700:'#c9c0f4', iris600:'#a99cec', iris500:'#8c7ce0', iris400:'#7b6ad4', iris100:'#3a3a57', iris50:'#2a2b42', onp:'#16182a' },
+      ];
+
+      // Fixed area colours (never themed) for the mini bloom's petals.
+      const PETALS = ['#b5532f', '#3a7ca8', '#5b7a35', '#7a3b6e', '#b7902a', '#944021'];
+      function miniBloom() {
+        const cx = 40, cy = 40, R = 34, n = PETALS.length;
+        const vals = [0.95, 0.6, 0.8, 0.45, 0.7, 0.5];
+        let wedges = '';
+        for (let i = 0; i < n; i++) {
+          const r = R * (0.34 + 0.66 * vals[i]);
+          const seg = (Math.PI * 2) / n;
+          const a0 = -Math.PI / 2 + i * seg, a1 = -Math.PI / 2 + (i + 1) * seg;
+          const x0 = cx + Math.cos(a0) * r, y0 = cy + Math.sin(a0) * r;
+          const x1 = cx + Math.cos(a1) * r, y1 = cy + Math.sin(a1) * r;
+          wedges += `<path d="M ${cx} ${cy} L ${x0.toFixed(1)} ${y0.toFixed(1)} A ${r.toFixed(1)} ${r.toFixed(1)} 0 0 1 ${x1.toFixed(1)} ${y1.toFixed(1)} Z" fill="${PETALS[i]}" opacity="0.82"/>`;
+        }
+        return `<svg width="80" height="80" viewBox="0 0 80 80" aria-hidden="true">
+          <circle cx="40" cy="40" r="34" fill="none" stroke="var(--p300)" stroke-dasharray="2 4"/>
+          <g style="mix-blend-mode:multiply">${wedges}</g>
+          <circle cx="40" cy="40" r="9" fill="var(--p50)"/>
+          <text x="40" y="41" text-anchor="middle" dominant-baseline="central" font-family="'DM Serif Display',serif" font-size="15" fill="var(--iris500)">h</text>
+        </svg>`;
+      }
+
+      function tile(t) {
+        const vars = `--p50:${t.p50};--p100:${t.p100};--p200:${t.p200};--p300:${t.p300};--i900:${t.i900};--i700:${t.i700};--i500:${t.i500};--i300:${t.i300};--iris700:${t.iris700};--iris600:${t.iris600};--iris500:${t.iris500};--iris400:${t.iris400};--iris100:${t.iris100};--iris50:${t.iris50};--onp:${t.onp}`;
+        return `<div class="tile">
+          <div class="phone" style="${vars}">
+            <div class="notch"></div>
+            <div class="app-title">Insights</div>
+            <div class="tabs">
+              <div class="chip on">Week</div><div class="chip">Month</div><div class="chip">Year</div><div class="chip">All</div>
+            </div>
+            <div class="card">
+              <div class="bloom-wrap">${miniBloom()}</div>
+              <div class="caption">In a good rhythm this week.</div>
+            </div>
+            <div class="stats">
+              <div class="stat"><b>18</b><span>tended</span></div>
+              <div class="stat"><b>6</b><span>days</span></div>
+              <div class="stat"><b>4</b><span>areas</span></div>
+            </div>
+            <div class="btn">Begin ritual</div>
+            <div class="balance"><div class="bar"><i style="width:72%"></i></div></div>
+            <div class="swatches">
+              <span style="background:${t.p100}"></span>
+              <span style="background:${t.p200}"></span>
+              <span style="background:${t.i500}"></span>
+              <span style="background:${t.iris500}"></span>
+              <span style="background:${t.iris700}"></span>
+            </div>
+          </div>
+          <div class="meta">
+            <h3>${t.name}</h3>
+            <p>${t.desc}</p>
+            ${t.dark ? '<span class="badge">Dark</span>' : ''}
+          </div>
+        </div>`;
+      }
+
+      for (const t of THEMES) {
+        const grid = document.querySelector(`.grid[data-group="${t.group}"]`);
+        if (grid) grid.insertAdjacentHTML('beforeend', tile(t));
+      }
+    </script>
+  </body>
+</html>

@@ -29,13 +29,14 @@ export const CHANGELOG: Release[] = [
       'Rituals: gather a few habits into a flow and move through them together, tap by tap, like a calm morning routine. Build one under Rituals on Home, then tap Begin. They sync across your devices.',
       'A new Garden in Insights: every week of your life, pressed and kept as its own little bloom. Scroll back through the seasons and watch your weeks flower and rest.',
       'The Garden is drawn live from what you have done, so nothing extra is stored and it stays true to your history, for years.',
+      'Three new lights, too: a dreamy Lavender and a tender Rose Quartz by day, and two warm-and-restful darks after hours, Espresso and Forest Night. Eight themes in all.',
     ],
     howTo: [
       'On Home, under Rituals, tap New to build a flow, then Begin to move through it step by step.',
-      'Open Insights and tap Garden at the top.',
-      'Scroll the grid of weeks, newest first; tap any bloom to see the areas behind it.',
+      'Open Insights and tap Garden at the top; scroll the weeks and tap any bloom.',
+      'Open Me, then Appearance, to try any of the eight themes.',
     ],
-    art: ['ritual', 'garden'],
+    art: ['ritual', 'garden', 'themes'],
   },
   {
     version: '1.1.0',

@@ -88,7 +88,7 @@ export default function InsightsScreen() {
       : insights.trendDelta > 0.08
         ? `A little more than the previous ${RANGE_NOUN[range]}.`
         : insights.trendDelta < -0.08
-          ? `A gentler ${RANGE_NOUN[range]} than the last — rest counts too.`
+          ? `A gentler ${RANGE_NOUN[range]} than the last. Rest counts too.`
           : `Steady with the previous ${RANGE_NOUN[range]}.`;
 
   const rhythmCaption =

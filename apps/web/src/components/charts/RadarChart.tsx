@@ -8,7 +8,7 @@ export interface RadarDatum {
 
 // A balance constellation: each area is a spoke, its point set by how full that
 // part of life is. The shape it traces shows, at a glance, whether attention is
-// spread wide or gathered in a few places — a companion to the Bloom. Needs at
+// spread wide or gathered in a few places, a companion to the Bloom. Needs at
 // least three areas to form a shape.
 const SIZE = 200;
 const C = SIZE / 2;

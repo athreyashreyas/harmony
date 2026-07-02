@@ -26,8 +26,8 @@ describe('composeReflection', () => {
     const text = out.join(' ');
     expect(out.length).toBeGreaterThanOrEqual(2);
     expect(text).toMatch(/7 times|7 days/); // reflects the real counts
-    // Warm, encouraging closing.
-    expect(text.toLowerCase()).toMatch(/proud|matters|gently|care|everything|building/);
+    // Warm, encouraging closing (a real pat on the back).
+    expect(text.toLowerCase()).toMatch(/credit|keep going|win|game|earned|good to yourself|better/);
   });
 
   it('is deterministic for the same inputs', () => {

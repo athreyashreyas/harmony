@@ -1,4 +1,4 @@
-import type { Habit, NudgeHistory, UserProfile } from '@harmony/shared';
+import type { NudgeHistory, UserProfile } from '@harmony/shared';
 import { isHabitDueOn } from '@harmony/shared';
 import { compose } from './templates';
 import { detectDrift } from './drift';
@@ -17,6 +17,15 @@ import {
   type UserBundle,
 } from './supabase';
 import { sendPush, type PushPayload, type VapidConfig } from './webpush';
+import {
+  isDue,
+  localDateISO,
+  localHHmm,
+  minutesOfDay,
+  reminderText,
+  summaryText,
+  withinDnd,
+} from './schedule';
 
 // Anti-spam invariants (section 16). The per-day cap governs drift nudges only;
 // time-of-day habit reminders and the evening summary are user-requested and
@@ -53,55 +62,6 @@ function json(body: unknown, status = 200): Response {
 
 function vapidFrom(env: Env): VapidConfig {
   return { publicKey: env.VAPID_PUBLIC, privateKey: env.VAPID_PRIVATE, subject: env.VAPID_SUBJECT };
-}
-
-// Local "HH:mm" in the user's timezone, for the do-not-disturb check.
-function localHHmm(now: Date, timezone: string): string {
-  try {
-    return new Intl.DateTimeFormat('en-GB', {
-      timeZone: timezone,
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: false,
-    }).format(now);
-  } catch {
-    return new Intl.DateTimeFormat('en-GB', { hour: '2-digit', minute: '2-digit', hour12: false }).format(now);
-  }
-}
-
-function withinDnd(now: Date, timezone: string, start: string, end: string): boolean {
-  const cur = localHHmm(now, timezone);
-  // Overnight window (e.g. 21:00 to 07:00) wraps past midnight.
-  if (start <= end) return cur >= start && cur < end;
-  return cur >= start || cur < end;
-}
-
-// The user's local calendar date ("YYYY-MM-DD"), matching how the app stamps
-// log.date. Used to tell "due today" and "logged today" from the worker.
-function localDateISO(date: Date, timezone: string): string {
-  try {
-    return new Intl.DateTimeFormat('en-CA', {
-      timeZone: timezone,
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-    }).format(date);
-  } catch {
-    return new Intl.DateTimeFormat('en-CA', { year: 'numeric', month: '2-digit', day: '2-digit' }).format(date);
-  }
-}
-
-function minutesOfDay(hhmm: string): number {
-  const [h, m] = hhmm.split(':').map(Number);
-  return (h || 0) * 60 + (m || 0);
-}
-
-// True when the scheduled `targetMin` is due: it has passed today and we are
-// still within the catch-up window. Pairing this with a once-per-day guard
-// means a delayed or skipped cron run won't drop the reminder.
-function isDue(nowMin: number, targetMin: number, windowMin: number): boolean {
-  const diff = nowMin - targetMin;
-  return diff >= 0 && diff < windowMin;
 }
 
 async function sendToAllSubscriptions(
@@ -147,25 +107,6 @@ async function processUser(env: Env, user: UserProfile, now: Date): Promise<void
 
   await sendDailySummary(env, user, now, bundle);
   await sendDriftNudges(env, user, now, bundle);
-}
-
-// A small, warm set of reminder phrasings, picked deterministically per
-// habit-and-day so it stays put within a day but varies across days.
-const REMINDER_LINES = [
-  (name: string) => `A small moment for ${name}?`,
-  (name: string) => `${name}, whenever you're ready.`,
-  (name: string) => `Now might be a good time for ${name}.`,
-  (name: string) => `${name} is here when you are.`,
-];
-
-function hashString(s: string): number {
-  let h = 0;
-  for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0;
-  return Math.abs(h);
-}
-
-function reminderText(name: string, seed: string): string {
-  return REMINDER_LINES[hashString(seed) % REMINDER_LINES.length](name);
 }
 
 // #1: a gentle nudge for each due, still-unlogged habit at its reminder time.
@@ -216,13 +157,6 @@ async function sendHabitReminders(env: Env, user: UserProfile, now: Date, bundle
       bundle.nudgeHistory.push(nudge);
     }),
   );
-}
-
-function summaryText(unlogged: Habit[]): string {
-  const names = unlogged.map((h) => h.name);
-  if (names.length === 1) return `${names[0]} is still waiting today. No rush.`;
-  if (names.length <= 3) return `Still waiting today: ${names.join(', ')}.`;
-  return `${names.length} things are still waiting today. Even one counts.`;
 }
 
 // #2: one evening round-up of habits due today that are still unlogged.

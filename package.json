@@ -10,6 +10,11 @@
   "scripts": {
     "dev": "pnpm --filter @harmony/web dev",
     "build": "pnpm --filter @harmony/web build",
-    "typecheck": "pnpm -r typecheck"
+    "typecheck": "pnpm -r typecheck",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "devDependencies": {
+    "vitest": "^3.2.4"
   }
 }

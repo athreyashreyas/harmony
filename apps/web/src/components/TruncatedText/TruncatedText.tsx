@@ -47,7 +47,7 @@ export default function TruncatedText({ text, className = '' }: { text: string; 
           aria-expanded={expanded}
           // A large, forgiving tap target (negative margins keep the layout tight)
           // so expanding is easy and never misfires into opening the row.
-          className="-my-2 -mr-2 flex shrink-0 items-center p-2 text-ink-400"
+          className="-my-2 -mr-2 flex shrink-0 items-center p-2 text-ink-300"
         >
           <svg
             className={`transition-transform ${expanded ? 'rotate-180' : ''}`}

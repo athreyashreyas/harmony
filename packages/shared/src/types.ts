@@ -101,6 +101,16 @@ export interface WeatherSummary {
   phrase: string;
 }
 
+// A ritual: a named, ordered little flow of habits you move through together
+// (habit stacking), e.g. a morning routine. Stored on the synced settings row as
+// small per-account data, so rituals follow you across devices. habitIds
+// reference existing habits; ones that no longer exist are simply skipped.
+export interface Ritual {
+  id: string;
+  name: string;
+  habitIds: string[];
+}
+
 // Notification preferences (section 14). One row per user. The worker
 // (Phase 11) reads this from Supabase to decide whether and when to push;
 // the in-app drift banner does not consult it (push is the only channel
@@ -125,4 +135,7 @@ export interface NotificationSettings {
   // 'todo'). Carried on this synced row so the chosen order follows the person
   // across their devices. Null = default (time of day).
   homeSort?: string | null;
+  // Named flows of habits to move through together (habit stacking), synced so
+  // they follow the person across devices. Absent = none yet.
+  rituals?: Ritual[];
 }

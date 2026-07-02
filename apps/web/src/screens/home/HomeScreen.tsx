@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import type { Area, Habit, TimeOfDay } from '@harmony/shared';
+import type { Area, Habit, Ritual, TimeOfDay } from '@harmony/shared';
 import AreaChip from '../../components/AreaChip/AreaChip';
 import { computeAreaActivity } from '../../components/Bloom/activity';
 import Bloom from '../../components/Bloom/Bloom';
@@ -12,8 +12,11 @@ import HabitCard from '../../components/HabitCard/HabitCard';
 import NoteSheet from '../../components/NoteSheet/NoteSheet';
 import PushPrompt from '../../components/PushPrompt/PushPrompt';
 import Skeleton from '../../components/Skeleton/Skeleton';
+import RitualPlayer from '../../components/RitualPlayer/RitualPlayer';
+import RitualSheet from '../../components/RitualSheet/RitualSheet';
 import SortMenu, { type SortOption } from '../../components/SortMenu/SortMenu';
 import TruncatedText from '../../components/TruncatedText/TruncatedText';
+import { ritualHabits } from '../../lib/rituals';
 import { archiveArea, saveArea, saveHabit } from '../../lib/db/queries';
 import { createHabit } from '../../lib/domain';
 import AreaSheet, { type AreaFields, type HabitWeight } from '../areas/AreaSheet';
@@ -33,6 +36,10 @@ interface Banner {
   color: string;
   areaId: string;
 }
+
+// A stable empty array so the rituals selector doesn't return a new reference
+// each render (which would re-render Home needlessly).
+const EMPTY_RITUALS: Ritual[] = [];
 
 // How the Home habit list can be ordered. Default is by time of day (morning
 // through evening, with unscheduled "anytime" habits after), and within each
@@ -79,6 +86,9 @@ export default function HomeScreen() {
 
   const syncedSort = useSettings((s) => s.notifications?.homeSort);
   const updateSettings = useSettings((s) => s.update);
+  const rituals = useSettings((s) => s.notifications?.rituals) ?? EMPTY_RITUALS;
+  const [ritualEditing, setRitualEditing] = useState<Ritual | null | undefined>(undefined);
+  const [playingRitual, setPlayingRitual] = useState<Ritual | null>(null);
 
   const [composeOpen, setComposeOpen] = useState(false);
   const [noteHabit, setNoteHabit] = useState<Habit | null>(null);
@@ -289,6 +299,24 @@ export default function HomeScreen() {
           .sort((a, b) => a.order - b.order)
       : [];
 
+  // Rituals: tend habits are what a ritual can gather, and they live on the
+  // synced settings row so a ritual follows across devices.
+  const activeTendHabits = useMemo(
+    () => habits.filter((h) => h.polarity !== 'ease' && h.archivedAt == null),
+    [habits],
+  );
+  function persistRituals(next: Ritual[]) {
+    if (profile) void updateSettings(profile.id, { rituals: next });
+  }
+  function handleSaveRitual(r: Ritual) {
+    persistRituals(rituals.some((x) => x.id === r.id) ? rituals.map((x) => (x.id === r.id ? r : x)) : [...rituals, r]);
+    setRitualEditing(undefined);
+  }
+  function handleDeleteRitual() {
+    if (ritualEditing) persistRituals(rituals.filter((x) => x.id !== ritualEditing.id));
+    setRitualEditing(undefined);
+  }
+
   return (
     <div className="mx-auto w-full max-w-2xl px-5 pt-6 pb-36 md:pb-16">
       <p className="text-sm text-ink-300">{formatLongDate()}</p>
@@ -420,6 +448,48 @@ export default function HomeScreen() {
         </div>
       </div>
 
+      {loaded && (habits.length > 0 || rituals.length > 0) && (
+        <div className="mt-9">
+          <div className="flex items-center justify-between">
+            <p className="text-xs font-medium uppercase tracking-[0.1em] text-ink-300">Rituals</p>
+            <button type="button" onClick={() => setRitualEditing(null)} className="flex items-center gap-1 text-xs font-medium text-iris-500">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg>
+              New
+            </button>
+          </div>
+          {rituals.length === 0 ? (
+            <p className="mt-1 text-xs text-ink-300">Gather a few habits into a flow you move through together, like a morning ritual.</p>
+          ) : (
+            <div className="mt-3 space-y-2.5">
+              {rituals.map((r) => {
+                const steps = ritualHabits(r, habits);
+                const doneCount = steps.filter((h) => doneIds.has(h.id)).length;
+                const complete = steps.length > 0 && doneCount === steps.length;
+                return (
+                  <div key={r.id} className="flex items-center gap-3 rounded-card bg-parchment-50 px-3.5 py-3 shadow-card">
+                    <button type="button" onClick={() => setRitualEditing(r)} className="min-w-0 flex-1 text-left">
+                      <span className="block truncate text-sm text-ink-900">{r.name}</span>
+                      <span className="text-xs text-ink-300">
+                        {steps.length} step{steps.length === 1 ? '' : 's'}
+                        {steps.length > 0 && ` · ${complete ? 'all done today' : `${doneCount}/${steps.length} today`}`}
+                      </span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setPlayingRitual(r)}
+                      disabled={steps.length === 0}
+                      className="shrink-0 rounded-full bg-iris-500 px-4 py-1.5 text-xs font-medium text-on-primary disabled:opacity-40"
+                    >
+                      {complete ? 'Review' : 'Begin'}
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      )}
+
       {loaded && tugs.length > 0 && (
         <div className="mt-9">
           <p className="text-xs font-medium uppercase tracking-[0.1em] text-ink-300">Tugs</p>
@@ -492,6 +562,26 @@ export default function HomeScreen() {
         initial={null}
         onClose={() => setComposeOpen(false)}
         onSave={handleCreate}
+      />
+
+      <RitualSheet
+        open={ritualEditing !== undefined}
+        ritual={ritualEditing ?? null}
+        habits={activeTendHabits}
+        areas={areas}
+        onClose={() => setRitualEditing(undefined)}
+        onSave={handleSaveRitual}
+        onDelete={handleDeleteRitual}
+      />
+
+      <RitualPlayer
+        open={playingRitual != null}
+        ritual={playingRitual}
+        habits={habits}
+        areas={areas}
+        doneIds={doneIds}
+        onToggle={(habit) => void toggle(habit)}
+        onClose={() => setPlayingRitual(null)}
       />
 
       <NoteSheet

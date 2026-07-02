@@ -1,5 +1,5 @@
 import type { Table } from 'dexie';
-import type { Area, Habit, Log, NotificationSettings, NudgeHistory, UserProfile } from '@harmony/shared';
+import type { Area, Habit, Log, NotificationSettings, NudgeHistory, Ritual, UserProfile } from '@harmony/shared';
 import { supabase } from './client';
 import { db, NOTIFICATION_SETTINGS_KEY, type OutboxItem } from '../db/schema';
 import { withSync } from '../sync/status';
@@ -167,6 +167,7 @@ function notificationSettingsToRow(userId: string, s: NotificationSettings) {
     theme: s.theme ?? null,
     last_seen_version: s.lastSeenVersion ?? null,
     home_sort: s.homeSort ?? null,
+    rituals: s.rituals ?? [],
   };
 }
 
@@ -320,6 +321,7 @@ interface SettingsRow {
   theme: string | null;
   last_seen_version: string | null;
   home_sort: string | null;
+  rituals: Ritual[] | null;
 }
 
 function rowToArea(r: AreaRow): Area {
@@ -382,6 +384,7 @@ function rowToSettings(s: SettingsRow): NotificationSettings {
     theme: s.theme ?? null,
     lastSeenVersion: s.last_seen_version ?? null,
     homeSort: s.home_sort ?? null,
+    rituals: s.rituals ?? [],
   };
 }
 

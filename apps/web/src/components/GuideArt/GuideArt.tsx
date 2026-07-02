@@ -218,6 +218,23 @@ export default function GuideArt({ kind }: { kind: GuideArtKind }) {
         </div>
       );
     }
+    case 'ritual':
+      return (
+        <div className="w-full max-w-[240px] space-y-1.5">
+          {[
+            ['Stretch', '#5b7a35', true],
+            ['Journal', '#3a7ca8', true],
+            ['A glass of water', '#b7902a', false],
+          ].map(([label, c, done], i) => (
+            <div key={label as string} className="flex items-center gap-2.5 rounded-card bg-parchment-50 px-3 py-2 shadow-card">
+              <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[10px] font-semibold" style={done ? { backgroundColor: c as string, color: '#fff' } : { boxShadow: `inset 0 0 0 1.5px ${c as string}`, color: c as string }}>
+                {i + 1}
+              </span>
+              <span className="text-xs text-ink-700">{label as string}</span>
+            </div>
+          ))}
+        </div>
+      );
     case 'guide':
       return (
         <div className="w-full max-w-[240px]">

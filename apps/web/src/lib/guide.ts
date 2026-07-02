@@ -5,7 +5,7 @@
 //
 // Each section may name one illustration, drawn by GuideScreen's GuideArt.
 
-export type GuideArtKind = 'bloom' | 'habit' | 'areas' | 'weights' | 'tug' | 'log' | 'sync' | 'guide' | 'reminder' | 'logo' | 'themes' | 'sort' | 'insights' | 'palette' | 'garden';
+export type GuideArtKind = 'bloom' | 'habit' | 'areas' | 'weights' | 'tug' | 'log' | 'sync' | 'guide' | 'reminder' | 'logo' | 'themes' | 'sort' | 'insights' | 'palette' | 'garden' | 'ritual';
 
 export interface GuideSection {
   id: string;
@@ -46,6 +46,20 @@ export const GUIDE: GuideSection[] = [
       'Switch between Today and All to see everything you keep, not only what is due today.',
     ],
     art: 'habit',
+  },
+  {
+    id: 'rituals',
+    title: 'Rituals',
+    body: [
+      'A ritual gathers a few habits into a flow you move through together, like a morning routine. Name it, pick the habits in the order you do them, and it lives in the Rituals section on Home.',
+      'Tap Begin and Harmony walks you through it, one calm step at a time, marking each done as you go. Rituals follow you across your devices.',
+    ],
+    steps: [
+      'On Home, under Rituals, tap New to build one.',
+      'Name it and tap habits to add them in order.',
+      'Tap Begin to move through it, step by step.',
+    ],
+    art: 'ritual',
   },
   {
     id: 'areas',

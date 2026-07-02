@@ -196,6 +196,7 @@ export async function loadNotificationSettings(): Promise<NotificationSettings> 
     theme: null,
     lastSeenVersion: null,
     homeSort: null,
+    rituals: [],
   };
   const row = await db.settings.get(NOTIFICATION_SETTINGS_KEY);
   // Merge over defaults so settings saved before these fields existed still

@@ -24,16 +24,18 @@ export const CHANGELOG: Release[] = [
     version: '1.2.0',
     date: '2026-07-02',
     major: true,
-    title: 'Your Bloom garden',
+    title: 'Rituals and the Bloom garden',
     notes: [
-      'A new Garden lives in Insights: every week of your life, pressed and kept as its own little bloom. Scroll back through the seasons and watch your weeks flower and rest.',
-      'Tap any week to see which areas were in bloom. It is drawn live from what you have done, so nothing extra is stored and it stays true to your history, for years.',
+      'Rituals: gather a few habits into a flow and move through them together, tap by tap, like a calm morning routine. Build one under Rituals on Home, then tap Begin. They sync across your devices.',
+      'A new Garden in Insights: every week of your life, pressed and kept as its own little bloom. Scroll back through the seasons and watch your weeks flower and rest.',
+      'The Garden is drawn live from what you have done, so nothing extra is stored and it stays true to your history, for years.',
     ],
     howTo: [
+      'On Home, under Rituals, tap New to build a flow, then Begin to move through it step by step.',
       'Open Insights and tap Garden at the top.',
       'Scroll the grid of weeks, newest first; tap any bloom to see the areas behind it.',
     ],
-    art: ['garden'],
+    art: ['ritual', 'garden'],
   },
   {
     version: '1.1.0',

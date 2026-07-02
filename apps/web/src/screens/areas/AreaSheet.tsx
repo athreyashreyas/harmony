@@ -2,6 +2,8 @@ import { useEffect, useMemo, useState } from 'react';
 import type { Area, DriftSensitivity, Habit, Importance, TimeOfDay } from '@harmony/shared';
 import { AREA_PALETTE } from '@harmony/shared';
 import BottomSheet from '../../components/BottomSheet/BottomSheet';
+import ColorPicker from '../../components/ColorPicker/ColorPicker';
+import SegmentedControl from '../../components/SegmentedControl/SegmentedControl';
 import { TIME_OF_DAY_OPTIONS } from '../../lib/cadenceOptions';
 import type { AreaFields } from '../../lib/domain';
 import { PrimaryButton, QuietLink } from '../onboarding/ui';
@@ -39,6 +41,7 @@ export default function AreaSheet({
   open,
   area,
   habits = [],
+  usedColors = [],
   onClose,
   onSave,
   onSaveWeights,
@@ -48,6 +51,9 @@ export default function AreaSheet({
   area: Area | null;
   // The area's tend habits, for the weighting editor (edit mode only).
   habits?: Habit[];
+  // Colours already worn by other areas, marked in the picker so the wheel stays
+  // legibly varied.
+  usedColors?: string[];
   onClose: () => void;
   onSave: (next: AreaFields) => void;
   onSaveWeights?: (weights: HabitWeight[]) => void;
@@ -105,24 +111,8 @@ export default function AreaSheet({
         </div>
 
         <div>
-          <p className="mb-3 text-center text-sm font-medium text-ink-700">Colour</p>
-          <div className="grid gap-3 [grid-template-columns:repeat(auto-fill,minmax(2.5rem,1fr))]">
-            {AREA_PALETTE.map((swatch) => (
-              <button
-                key={swatch.hex}
-                type="button"
-                aria-label={swatch.name}
-                aria-pressed={color === swatch.hex}
-                onClick={() => setColor(swatch.hex)}
-                className="aspect-square w-full rounded-full"
-                style={{
-                  backgroundColor: swatch.hex,
-                  boxShadow:
-                    color === swatch.hex ? `0 0 0 2px #FFFAF1, 0 0 0 4px ${swatch.hex}` : undefined,
-                }}
-              />
-            ))}
-          </div>
+          <p className="mb-3 text-sm font-medium text-ink-700">Colour</p>
+          <ColorPicker value={color} onChange={setColor} usedColors={usedColors} />
         </div>
 
         <div>
@@ -233,21 +223,13 @@ export default function AreaSheet({
         </div>
 
         <div>
-          <label htmlFor="area-reminder-time" className="mb-1.5 block text-sm font-medium text-ink-700">
-            When reminders for this area arrive
-          </label>
-          <select
-            id="area-reminder-time"
+          <p className="mb-1.5 text-sm font-medium text-ink-700">When reminders for this area arrive</p>
+          <SegmentedControl
             value={reminderTimeOfDay}
-            onChange={(e) => setReminderTimeOfDay(e.target.value as TimeOfDay)}
-            className={inputClass}
-          >
-            {TIME_OF_DAY_OPTIONS.map((o) => (
-              <option key={o.value} value={o.value}>
-                {o.label}
-              </option>
-            ))}
-          </select>
+            options={TIME_OF_DAY_OPTIONS}
+            onChange={setReminderTimeOfDay}
+            ariaLabel="When reminders for this area arrive"
+          />
         </div>
 
         <PrimaryButton onClick={handleSave} disabled={!name.trim()}>

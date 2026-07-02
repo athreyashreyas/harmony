@@ -5,7 +5,7 @@
 //
 // Each section may name one illustration, drawn by GuideScreen's GuideArt.
 
-export type GuideArtKind = 'bloom' | 'habit' | 'areas' | 'weights' | 'tug' | 'log' | 'sync' | 'guide' | 'reminder' | 'logo' | 'themes' | 'sort';
+export type GuideArtKind = 'bloom' | 'habit' | 'areas' | 'weights' | 'tug' | 'log' | 'sync' | 'guide' | 'reminder' | 'logo' | 'themes' | 'sort' | 'insights' | 'palette';
 
 export interface GuideSection {
   id: string;
@@ -86,8 +86,16 @@ export const GUIDE: GuideSection[] = [
     id: 'insights',
     title: 'Insights',
     body: [
-      'A weekly recap written from your own week, your areas in balance, and a gentle suggestion or two on what might come next. All of it drawn from what you actually did, in plain language.',
+      'Insights turns what you have done into a calm picture of how life is going. Choose a range at the top, week, month, year, or all time, and every chart rescopes to match.',
+      'You will find your tending momentum over time, the days and times you show up most, how each area and habit is really doing, and the honest lift and drag of your tugs. There is a weekly recap and a gentle suggestion or two as well.',
+      'It is rich with real numbers, but always framed around showing up, never streaks to break. All of it drawn from what you actually did, in plain language.',
     ],
+    steps: [
+      'Open Insights and tap Week, Month, Year, or All to change the range.',
+      'Scroll through momentum, rhythm, area balance, habit highlights, and tugs.',
+      'Tap a habit highlight to open its page.',
+    ],
+    art: 'insights',
   },
   {
     id: 'reminders',

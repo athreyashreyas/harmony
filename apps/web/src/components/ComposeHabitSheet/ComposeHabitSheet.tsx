@@ -1,8 +1,11 @@
 import { useEffect, useState } from 'react';
 import type { Area, Cadence, TimeOfDay } from '@harmony/shared';
-import { AREA_PALETTE } from '@harmony/shared';
 import BottomSheet from '../BottomSheet/BottomSheet';
 import CadenceEditor from '../CadenceEditor/CadenceEditor';
+import ColorPicker from '../ColorPicker/ColorPicker';
+import DateField from '../DateField/DateField';
+import SegmentedControl from '../SegmentedControl/SegmentedControl';
+import TimeField from '../TimeField/TimeField';
 import WatercolorWash from '../WatercolorWash/WatercolorWash';
 import { hexToRgba } from '../../lib/color';
 import { TIME_OF_DAY_OPTIONS } from '../../lib/cadenceOptions';
@@ -207,21 +210,13 @@ export default function ComposeHabitSheet({
 
           {!isEase && (
             <div>
-              <label htmlFor="habit-time" className="mb-1.5 block text-sm font-medium text-ink-700">
-                Time of day
-              </label>
-              <select
-                id="habit-time"
+              <p className="mb-1.5 text-sm font-medium text-ink-700">Time of day</p>
+              <SegmentedControl
                 value={timeOfDay}
-                onChange={(e) => setTimeOfDay(e.target.value as TimeOfDay)}
-                className={selectClass}
-              >
-                {TIME_OF_DAY_OPTIONS.map((o) => (
-                  <option key={o.value} value={o.value}>
-                    {o.label}
-                  </option>
-                ))}
-              </select>
+                options={TIME_OF_DAY_OPTIONS}
+                onChange={setTimeOfDay}
+                ariaLabel="Time of day"
+              />
             </div>
           )}
 
@@ -229,21 +224,11 @@ export default function ComposeHabitSheet({
           <div>
             <p className="mb-1.5 text-sm font-medium text-ink-700">Duration</p>
             <div className="flex items-center gap-3">
-              <label htmlFor="habit-start" className="w-12 shrink-0 text-sm text-ink-500">
-                Starts
-              </label>
-              <input
-                id="habit-start"
-                type="date"
-                value={startDate}
-                onChange={(e) => setStartDate(e.target.value || todayISO())}
-                className={selectClass}
-              />
+              <span className="w-12 shrink-0 text-sm text-ink-500">Starts</span>
+              <DateField value={startDate} onChange={setStartDate} />
             </div>
             <div className="mt-2 flex items-center gap-3">
-              <label htmlFor="habit-end" className="w-12 shrink-0 text-sm text-ink-500">
-                Ends
-              </label>
+              <span className="w-12 shrink-0 text-sm text-ink-500">Ends</span>
               {endDate === null ? (
                 <button
                   type="button"
@@ -254,14 +239,7 @@ export default function ComposeHabitSheet({
                 </button>
               ) : (
                 <>
-                  <input
-                    id="habit-end"
-                    type="date"
-                    min={startDate}
-                    value={endDate}
-                    onChange={(e) => setEndDate(e.target.value || startDate)}
-                    className={selectClass}
-                  />
+                  <DateField value={endDate} onChange={setEndDate} min={startDate} />
                   <button
                     type="button"
                     onClick={() => setEndDate(null)}
@@ -277,27 +255,8 @@ export default function ComposeHabitSheet({
 
           {!isEase && (
           <div>
-            <label htmlFor="habit-reminder" className="mb-1.5 block text-sm font-medium text-ink-700">
-              Remind me at
-            </label>
-            <div className="flex items-center gap-3">
-              <input
-                id="habit-reminder"
-                type="time"
-                value={reminderTime ?? ''}
-                onChange={(e) => setReminderTime(e.target.value || null)}
-                className={selectClass}
-              />
-              {reminderTime && (
-                <button
-                  type="button"
-                  onClick={() => setReminderTime(null)}
-                  className="shrink-0 text-sm text-ink-500 hover:text-ink-700"
-                >
-                  Clear
-                </button>
-              )}
-            </div>
+            <p className="mb-1.5 text-sm font-medium text-ink-700">Remind me at</p>
+            <TimeField value={reminderTime} onChange={setReminderTime} placeholder="Set a reminder time" />
             <p className="mt-1.5 text-xs text-ink-300">
               Optional. A gentle nudge at this time on the days it's due.
             </p>
@@ -306,8 +265,8 @@ export default function ComposeHabitSheet({
 
           {!isEase && (
           <div>
-            <p className="mb-3 text-center text-sm font-medium text-ink-700">Colour</p>
-            <div className="mb-3 flex justify-center">
+            <p className="mb-3 text-sm font-medium text-ink-700">Colour</p>
+            <div className="mb-3">
               <button
                 type="button"
                 onClick={() => setColor(null)}
@@ -316,30 +275,14 @@ export default function ComposeHabitSheet({
                 className="flex h-9 items-center rounded-full bg-parchment-200 px-4 text-sm font-medium text-ink-500"
                 style={
                   color === null && selectedArea
-                    ? { boxShadow: `0 0 0 2px #FFFAF1, 0 0 0 4px ${selectedArea.color}` }
+                    ? { boxShadow: `0 0 0 2px var(--parchment-50), 0 0 0 4px ${selectedArea.color}` }
                     : undefined
                 }
               >
                 Match area
               </button>
             </div>
-            <div className="grid gap-3 [grid-template-columns:repeat(auto-fill,minmax(2.5rem,1fr))]">
-              {AREA_PALETTE.map((swatch) => (
-                <button
-                  key={swatch.hex}
-                  type="button"
-                  aria-label={swatch.name}
-                  aria-pressed={color === swatch.hex}
-                  onClick={() => setColor(swatch.hex)}
-                  className="aspect-square w-full rounded-full"
-                  style={{
-                    backgroundColor: swatch.hex,
-                    boxShadow:
-                      color === swatch.hex ? `0 0 0 2px #FFFAF1, 0 0 0 4px ${swatch.hex}` : undefined,
-                  }}
-                />
-              ))}
-            </div>
+            <ColorPicker value={color} onChange={setColor} usedColors={areas.map((a) => a.color)} />
           </div>
           )}
 

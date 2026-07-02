@@ -21,6 +21,26 @@ export interface Release {
 // plain, the same voice as the rest of the app.
 export const CHANGELOG: Release[] = [
   {
+    version: '1.1.0',
+    date: '2026-07-02',
+    major: true,
+    title: 'Insights, reimagined',
+    notes: [
+      'Insights is reborn: pick a range (week, month, year, or all time) and watch your tending come to life in graphs made just for you.',
+      'See your momentum over time, the days and times you tend most, how each area and habit is really doing, and the honest lift and drag of your tugs. Real numbers, always framed around showing up, never streaks to break.',
+      'A fuller, clearer palette with more distinct colours, and the picker now marks the ones already in use, so your bloom stays easy to tell apart.',
+      "Reminders, dates, and times now use Harmony's own gentle pickers instead of the system's, so every choice feels part of the app.",
+      "Little touches: your Home list glides into order when you tend something, and the 'Remind me at' time is easier to find and set.",
+    ],
+    howTo: [
+      'Open Insights and tap Week, Month, Year, or All to rescope every chart at once.',
+      'Read your momentum, rhythm, area balance, habit highlights, and the lift and drag of your tugs, all drawn from what you actually did.',
+      "Adding or editing a habit? Set the time and dates with Harmony's own pickers, and choose a colour by family so it stands apart.",
+      "On Home, sort by 'Still to do' and tend one — watch it ease down as the rest lift up.",
+    ],
+    art: ['insights', 'palette'],
+  },
+  {
     version: '1.0.0',
     date: '2026-07-01',
     major: true,

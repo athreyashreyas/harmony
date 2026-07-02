@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import type { TimeOfDay } from '@harmony/shared';
+import SegmentedControl from '../../../components/SegmentedControl/SegmentedControl';
+import SelectMenu from '../../../components/SelectMenu/SelectMenu';
 import { useOnboarding } from '../OnboardingContext';
 import OnboardingScaffold from '../OnboardingScaffold';
 import { PrimaryButton, QuietLink } from '../ui';
@@ -89,48 +91,26 @@ export default function HabitsStep({
           </div>
 
           <div>
-            <label
-              htmlFor="habit-frequency"
-              className="mb-1.5 block text-sm font-medium text-ink-700"
-            >
-              How often
-            </label>
-            <select
-              id="habit-frequency"
+            <p className="mb-1.5 text-sm font-medium text-ink-700">How often</p>
+            <SelectMenu
               value={cadenceKey(habit.cadence)}
-              onChange={(e) => {
-                const option = CADENCE_OPTIONS.find((o) => cadenceKey(o.value) === e.target.value);
+              options={CADENCE_OPTIONS.map((o) => ({ value: cadenceKey(o.value), label: o.label }))}
+              onChange={(key) => {
+                const option = CADENCE_OPTIONS.find((o) => cadenceKey(o.value) === key);
                 if (option) setHabitCadence(area.id, option.value);
               }}
-              className={selectClass}
-            >
-              {CADENCE_OPTIONS.map((o) => (
-                <option key={cadenceKey(o.value)} value={cadenceKey(o.value)}>
-                  {o.label}
-                </option>
-              ))}
-            </select>
+              ariaLabel="How often"
+            />
           </div>
 
           <div>
-            <label
-              htmlFor="habit-time"
-              className="mb-1.5 block text-sm font-medium text-ink-700"
-            >
-              Time of day
-            </label>
-            <select
-              id="habit-time"
+            <p className="mb-1.5 text-sm font-medium text-ink-700">Time of day</p>
+            <SegmentedControl
               value={habit.timeOfDay}
-              onChange={(e) => setHabitTimeOfDay(area.id, e.target.value as TimeOfDay)}
-              className={selectClass}
-            >
-              {TIME_OF_DAY_OPTIONS.map((o) => (
-                <option key={o.value} value={o.value}>
-                  {o.label}
-                </option>
-              ))}
-            </select>
+              options={TIME_OF_DAY_OPTIONS}
+              onChange={(v) => setHabitTimeOfDay(area.id, v)}
+              ariaLabel="Time of day"
+            />
           </div>
         </div>
       </div>

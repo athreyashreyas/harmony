@@ -394,7 +394,15 @@ export default function HomeScreen() {
                 const area = areaById.get(habit.areaId);
                 if (!area) return null;
                 return (
-                  <motion.div key={habit.id} variants={listItem}>
+                  // `layout` animates a card gliding to its new place when the
+                  // order changes (e.g. tapping one done under "Still to do"
+                  // eases it down and lifts the rest up), instead of jumping.
+                  <motion.div
+                    key={habit.id}
+                    layout="position"
+                    variants={listItem}
+                    transition={{ layout: { type: 'spring', stiffness: 500, damping: 42 } }}
+                  >
                     <HabitCard
                       habit={habit}
                       area={area}
@@ -497,6 +505,7 @@ export default function HomeScreen() {
       <AreaSheet
         open={editingArea != null}
         area={editingArea}
+        usedColors={areas.filter((a) => a.id !== editingArea?.id).map((a) => a.color)}
         habits={editingAreaHabits}
         onClose={() => setEditingArea(null)}
         onSave={handleSaveArea}

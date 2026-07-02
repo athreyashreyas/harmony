@@ -146,6 +146,7 @@ export default function AreasScreen() {
       <AreaSheet
         open={sheetOpen}
         area={editingArea}
+        usedColors={areas.filter((a) => a.id !== editingArea?.id).map((a) => a.color)}
         habits={
           editingArea
             ? habits

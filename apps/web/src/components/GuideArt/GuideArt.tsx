@@ -166,6 +166,46 @@ export default function GuideArt({ kind }: { kind: GuideArtKind }) {
           </div>
         </div>
       );
+    case 'insights':
+      return (
+        <div className="w-full max-w-[240px]">
+          {/* A range switcher, a little trend line, and rhythm bars. */}
+          <div className="mb-2.5 flex gap-1 rounded-full bg-parchment-200 p-0.5 text-[10px] font-medium">
+            <span className="flex-1 rounded-full bg-parchment-50 py-1 text-center text-ink-900 shadow-card">Week</span>
+            {['Month', 'Year', 'All'].map((l) => (
+              <span key={l} className="flex-1 py-1 text-center text-ink-300">{l}</span>
+            ))}
+          </div>
+          <div className="rounded-card bg-parchment-50 p-3 shadow-card">
+            <svg viewBox="0 0 200 56" width="100%" height="48" preserveAspectRatio="none" aria-hidden="true">
+              <defs>
+                <linearGradient id="gi" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="var(--iris-500)" stopOpacity="0.28" />
+                  <stop offset="100%" stopColor="var(--iris-500)" stopOpacity="0" />
+                </linearGradient>
+              </defs>
+              <path d="M4 44 L36 30 L68 34 L100 16 L132 22 L164 10 L196 14 L196 52 L4 52 Z" fill="url(#gi)" />
+              <path d="M4 44 L36 30 L68 34 L100 16 L132 22 L164 10 L196 14" fill="none" stroke="var(--iris-500)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" vectorEffect="non-scaling-stroke" />
+            </svg>
+            <div className="mt-2 flex items-end gap-1" style={{ height: 26 }}>
+              {[10, 16, 8, 22, 14, 24, 12].map((h, i) => (
+                <span key={i} className="flex-1 rounded-t-[3px]" style={{ height: h, backgroundColor: i === 5 ? '#3a7ca8' : 'rgba(58,124,168,0.5)' }} />
+              ))}
+            </div>
+          </div>
+        </div>
+      );
+    case 'palette':
+      return (
+        <div className="grid grid-cols-6 gap-2">
+          {[
+            '#7BA834', '#1F9A6D', '#3A7CA8', '#6A6FD0', '#9B6FC0', '#D65B4A',
+            '#C66A2C', '#B7902A', '#94405E', '#2E8C8C', '#404780', '#5A636F',
+          ].map((c) => (
+            <span key={c} className="h-7 w-7 rounded-full" style={{ backgroundColor: c, boxShadow: 'inset 0 0 0 1px rgba(0,0,0,0.06)' }} />
+          ))}
+        </div>
+      );
     case 'guide':
       return (
         <div className="w-full max-w-[240px]">

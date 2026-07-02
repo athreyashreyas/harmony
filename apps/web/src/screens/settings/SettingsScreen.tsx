@@ -412,6 +412,7 @@ export default function SettingsScreen() {
       <AreaSheet
         open={sheetOpen}
         area={editingArea}
+        usedColors={areas.filter((a) => a.id !== editingArea?.id).map((a) => a.color)}
         onClose={() => setSheetOpen(false)}
         onSave={handleSaveArea}
       />

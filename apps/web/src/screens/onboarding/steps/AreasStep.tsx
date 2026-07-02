@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { AREA_PALETTE, SUGGESTED_AREAS } from '@harmony/shared';
+import { SUGGESTED_AREAS } from '@harmony/shared';
+import ColorPicker from '../../../components/ColorPicker/ColorPicker';
 import Modal from '../../../components/Modal/Modal';
 import { hexToRgba } from '../../../lib/color';
 import { useOnboarding } from '../OnboardingContext';
@@ -169,25 +170,7 @@ function CustomAreaModal({
       />
 
       <p className="mb-2 mt-4 text-sm font-medium text-ink-700">Colour</p>
-      <div className="flex flex-wrap gap-2.5">
-        {AREA_PALETTE.map((swatch) => (
-          <button
-            key={swatch.hex}
-            type="button"
-            aria-label={swatch.name}
-            aria-pressed={color === swatch.hex}
-            onClick={() => setColor(swatch.hex)}
-            className="h-7 w-7 rounded-full"
-            style={{
-              backgroundColor: swatch.hex,
-              boxShadow:
-                color === swatch.hex
-                  ? `0 0 0 2px #FFFAF1, 0 0 0 4px ${swatch.hex}`
-                  : undefined,
-            }}
-          />
-        ))}
-      </div>
+      <ColorPicker value={color} onChange={setColor} />
 
       <div className="mt-6">
         <PrimaryButton onClick={handleAdd} disabled={!name.trim() || !color}>

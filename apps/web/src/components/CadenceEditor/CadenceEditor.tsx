@@ -1,4 +1,5 @@
 import type { Cadence } from '@harmony/shared';
+import SelectMenu from '../SelectMenu/SelectMenu';
 
 // Full cadence control: pick the kind of schedule and shape it exactly. Covers
 // the whole Cadence model, so a habit can be every day, only certain weekdays,
@@ -19,9 +20,6 @@ const KIND_OPTIONS: { value: Kind; label: string }[] = [
 
 // 0 = Sunday, matching the cadence model's day numbering.
 const DAY_LABELS = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
-
-const selectClass =
-  'w-full rounded-card bg-parchment-50/90 px-3.5 py-2.5 text-sm text-ink-900 ring-1 ring-inset ring-parchment-300 focus:ring-2 focus:ring-iris-500';
 
 function defaultFor(kind: Kind, current: Cadence): Cadence {
   switch (kind) {
@@ -100,21 +98,13 @@ export default function CadenceEditor({
 
   return (
     <div>
-      <label htmlFor="habit-frequency" className="mb-1.5 block text-sm font-medium text-ink-700">
-        How often
-      </label>
-      <select
-        id="habit-frequency"
+      <p className="mb-1.5 text-sm font-medium text-ink-700">How often</p>
+      <SelectMenu
         value={value.kind}
-        onChange={(e) => onChange(defaultFor(e.target.value as Kind, value))}
-        className={selectClass}
-      >
-        {KIND_OPTIONS.map((o) => (
-          <option key={o.value} value={o.value}>
-            {o.label}
-          </option>
-        ))}
-      </select>
+        options={KIND_OPTIONS}
+        onChange={(kind) => onChange(defaultFor(kind, value))}
+        ariaLabel="How often"
+      />
 
       {value.kind === 'specific-days' && (
         <div className="mt-3 flex justify-between gap-1.5">

@@ -87,6 +87,8 @@ export default function AuthGate() {
         // reconcile sees them on the server rather than deleting them locally.
         await flushOutbox();
         if (await hasLocalData(userId)) {
+          // Returning device: it already holds the history, so an incremental
+          // (windowed) pull is enough.
           void pullUserData(userId).then((ok) => {
             if (!active) return;
             if (ok) refreshStores(userId);
@@ -94,7 +96,9 @@ export default function AuthGate() {
             setSynced(true);
           });
         } else {
-          const ok = await pullUserData(userId);
+          // Fresh device: seed the full history once, so Dexie (and Insights,
+          // which reads all of it locally) has everything.
+          const ok = await pullUserData(userId, true);
           if (!active) return;
           if (ok) refreshStores(userId);
           else void useSettings.getState().load();
@@ -252,7 +256,10 @@ export default function AuthGate() {
     const onOnline = () => void syncNow(userId);
     document.addEventListener('visibilitychange', onVisible);
     window.addEventListener('online', onOnline);
-    const POLL_MS = 5 * 60_000;
+    // Realtime + the focus and reconnect pulls carry live updates; this poll is
+    // only a slow backstop for anything they miss, so it can be infrequent (and
+    // each pull is now bounded to the recent window). Less idle egress.
+    const POLL_MS = 15 * 60_000;
     const interval = window.setInterval(() => {
       if (document.visibilityState === 'visible') void syncNow(userId);
     }, POLL_MS);

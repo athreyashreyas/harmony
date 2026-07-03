@@ -38,6 +38,13 @@ export async function recentLogsForUser(userId: string, windowDays = 60): Promis
   return db.logs.where('userId').equals(userId).and((log) => log.date >= from).toArray();
 }
 
+// Every log for the user, from Dexie (which holds the full history locally). Used
+// by Insights and the Bloom garden, whose Year/All ranges and past-week blooms
+// need the whole record — read locally, so it costs no egress.
+export async function allLogsForUser(userId: string): Promise<Log[]> {
+  return db.logs.where('userId').equals(userId).toArray();
+}
+
 // Logs between two ISO dates, inclusive. Goes straight to Dexie rather than
 // the trailing window the Home/Insights stores keep, since the Log calendar
 // (section 12) can be browsed to any month, not just the last 60 days.

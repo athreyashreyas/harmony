@@ -50,6 +50,24 @@ export function computeGarden(
   const currentWeek = startOfWeekISO(today);
   const totalWeeks = Math.min(MAX_WEEKS, Math.max(1, Math.floor(daysBetween(firstWeek, currentWeek) / 7) + 1));
 
+  // Group logs (and habits) by area once, so each of the weeks × areas activity
+  // computations scans only that area's logs, not the whole history. Keeps the
+  // garden fast even with years of data behind it.
+  const logsByArea = new Map<string, Log[]>();
+  for (const l of input.logs) {
+    const bucket = logsByArea.get(l.areaId);
+    if (bucket) bucket.push(l);
+    else logsByArea.set(l.areaId, [l]);
+  }
+  const habitsByArea = new Map<string, Habit[]>();
+  for (const h of input.habits) {
+    const bucket = habitsByArea.get(h.areaId);
+    if (bucket) bucket.push(h);
+    else habitsByArea.set(h.areaId, [h]);
+  }
+  const noLogs: Log[] = [];
+  const noHabits: Habit[] = [];
+
   const out: WeekBloom[] = [];
   for (let i = 0; i < totalWeeks; i++) {
     const start = startOfWeekISO(isoDaysAgo(i * 7, now));
@@ -59,7 +77,7 @@ export function computeGarden(
       id: a.id,
       name: a.name,
       color: a.color,
-      value: computeAreaActivity(a, input.habits, input.logs, 7, end),
+      value: computeAreaActivity(a, habitsByArea.get(a.id) ?? noHabits, logsByArea.get(a.id) ?? noLogs, 7, end),
     }));
     const avg = petals.length ? petals.reduce((s, p) => s + p.value, 0) / petals.length : 0;
     out.push({ start, end, label: weekLabel(i, start, end), petals, avg });

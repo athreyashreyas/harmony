@@ -1,8 +1,10 @@
 import type { Table } from 'dexie';
 import type { Area, Habit, Log, NotificationSettings, NudgeHistory, Ritual, UserProfile } from '@harmony/shared';
+import { isoDaysAgo } from '@harmony/shared';
 import { supabase } from './client';
 import { db, NOTIFICATION_SETTINGS_KEY, type OutboxItem } from '../db/schema';
 import { withSync } from '../sync/status';
+import { staleIds } from '../sync/reconcile';
 
 // The cloud side of the data layer. Dexie is the source of truth on device;
 // this module moves data between it and Supabase three ways:
@@ -414,25 +416,57 @@ async function reconcileTable<T extends { id: string; userId: string }>(
   const serverIds = new Set(serverRows.map((r) => r.id));
   const cutoff = Date.now() - RECONCILE_GRACE_MS;
   const local = await table.where('userId').equals(userId).toArray();
-  const stale = local.filter((r) => !serverIds.has(r.id) && writtenAt(r) < cutoff).map((r) => r.id);
+  const stale = staleIds(local, serverIds, cutoff, writtenAt);
   if (stale.length) await table.bulkDelete(stale);
   if (serverRows.length) await table.bulkPut(serverRows);
+}
+
+// How many days of logs an incremental pull fetches and reconciles. The rest of
+// history is pulled once at first sign-in (the full seed) and then never
+// re-downloaded, which bounds recurring egress to a fixed window no matter how
+// many years of logs pile up. A generous window so any realistic recent edit
+// (the Log calendar's tap-to-fix) still reconciles across devices.
+const LOG_SYNC_WINDOW_DAYS = 120;
+
+// Logs reconcile like other tables, but an incremental pull only looks at the
+// recent window: it fetches server logs newer than `windowStart` and only ever
+// considers local logs in that same window for deletion, so the older history
+// that the window doesn't cover is left completely alone. A full pull (first
+// seed) passes windowStart = null and reconciles everything.
+async function reconcileLogs(userId: string, serverRows: Log[], windowStart: string | null): Promise<void> {
+  const serverIds = new Set(serverRows.map((r) => r.id));
+  const cutoff = Date.now() - RECONCILE_GRACE_MS;
+  const query = db.logs.where('userId').equals(userId);
+  const local = windowStart ? await query.and((l) => l.date >= windowStart).toArray() : await query.toArray();
+  const stale = staleIds(local, serverIds, cutoff, (l) => l.loggedAt);
+  if (stale.length) await db.logs.bulkDelete(stale);
+  if (serverRows.length) await db.logs.bulkPut(serverRows);
 }
 
 // Fetch areas, habits, and logs for the user from Supabase and reconcile them
 // into Dexie (server authoritative, with the grace window above). Returns false
 // if Supabase isn't configured or the fetch failed, so the caller can proceed
 // with whatever is local.
-export async function pullUserData(userId: string): Promise<boolean> {
+// `full` seeds the whole history (used once, on a device with no local data);
+// otherwise only the recent log window is fetched and reconciled, so a returning
+// device — and every background/foreground/manual sync — downloads a bounded
+// amount no matter how large the account's log history has grown. Areas, habits,
+// and settings are always pulled in full: they are tiny and their deletes must
+// always propagate.
+export async function pullUserData(userId: string, full = false): Promise<boolean> {
   const client = supabase;
   if (!client) return false;
 
+  const windowStart = full ? null : isoDaysAgo(LOG_SYNC_WINDOW_DAYS);
+
   return withSync(async () => {
     try {
+      let logsSelect = client.from('logs').select('*').eq('user_id', userId);
+      if (windowStart) logsSelect = logsSelect.gte('date', windowStart);
       const [areasRes, habitsRes, logsRes, settingsRes] = await Promise.all([
         client.from('areas').select('*').eq('user_id', userId),
         client.from('habits').select('*').eq('user_id', userId),
-        client.from('logs').select('*').eq('user_id', userId),
+        logsSelect,
         client.from('notification_settings').select('*').eq('user_id', userId).maybeSingle(),
       ]);
       if (areasRes.error || habitsRes.error || logsRes.error) {
@@ -447,7 +481,7 @@ export async function pullUserData(userId: string): Promise<boolean> {
       await db.transaction('rw', db.areas, db.habits, db.logs, async () => {
         await reconcileTable(db.areas, userId, areas, (a) => a.createdAt);
         await reconcileTable(db.habits, userId, habits, (h) => h.createdAt);
-        await reconcileTable(db.logs, userId, logs, (l) => l.loggedAt);
+        await reconcileLogs(userId, logs, windowStart);
       });
 
       // Notification settings: mirror the cloud copy down so per-device config

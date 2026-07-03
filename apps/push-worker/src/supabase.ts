@@ -20,6 +20,10 @@ export interface Env {
   SUPABASE_URL: string;
   SUPABASE_SERVICE_ROLE_KEY: string;
   TEST_PUSH_SECRET?: string;
+  // Comma-separated list of allowed browser origins for CORS. When unset, CORS
+  // stays permissive ('*') so nothing breaks; set it (e.g. the Pages domain) to
+  // lock the browser-facing endpoints to your app.
+  ALLOWED_ORIGINS?: string;
 }
 
 function restHeaders(env: Env): Record<string, string> {

@@ -1,5 +1,6 @@
-import { useMemo, useState, type ReactNode } from 'react';
+import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
+import type { Log } from '@harmony/shared';
 import { AnimatePresence, motion } from 'framer-motion';
 import ComposeHabitSheet, { type HabitDraft } from '../../components/ComposeHabitSheet/ComposeHabitSheet';
 import SegmentedControl from '../../components/SegmentedControl/SegmentedControl';
@@ -12,7 +13,7 @@ import RadarChart from '../../components/charts/RadarChart';
 import Sparkline from '../../components/charts/Sparkline';
 import TrendChart from '../../components/charts/TrendChart';
 import { hexToRgba } from '../../lib/color';
-import { saveHabit } from '../../lib/db/queries';
+import { allLogsForUser, saveHabit } from '../../lib/db/queries';
 import { createHabit } from '../../lib/domain';
 import {
   computeInsights,
@@ -66,18 +67,35 @@ export default function InsightsScreen() {
   const [openHabit, setOpenHabit] = useState<string | null>(null);
   const [suggestSheetArea, setSuggestSheetArea] = useState<string | null>(null);
 
+  // Insights and the garden read the full log history from Dexie (Year/All and
+  // past-week blooms need all of it), not the 60-day UI window. It's a local
+  // read, so no egress; reloaded whenever the recent-log store changes (a proxy
+  // for "something was just logged"). Falls back to the window until it lands.
+  const [allLogs, setAllLogs] = useState<Log[] | null>(null);
+  useEffect(() => {
+    if (!profile) return;
+    let active = true;
+    void allLogsForUser(profile.id).then((l) => {
+      if (active) setAllLogs(l);
+    });
+    return () => {
+      active = false;
+    };
+  }, [profile, logs]);
+  const fullLogs = allLogs ?? logs;
+
   const activeAreas = useMemo(() => areas.filter((a) => a.archivedAt == null), [areas]);
   // Self-heal if the focused area disappears.
   const focusId = focus && activeAreas.some((a) => a.id === focus) ? focus : null;
   const focusArea = activeAreas.find((a) => a.id === focusId) ?? null;
 
   const insights = useMemo(
-    () => computeInsights({ areas, habits, logs }, range, { focusAreaId: focusId }),
-    [areas, habits, logs, range, focusId],
+    () => computeInsights({ areas, habits, logs: fullLogs }, range, { focusAreaId: focusId }),
+    [areas, habits, fullLogs, range, focusId],
   );
 
-  const observations = useMemo(() => gentleObservations(areas, habits, logs), [areas, habits, logs]);
-  const suggestions = useMemo(() => whatToDoNext(areas, habits, logs), [areas, habits, logs]);
+  const observations = useMemo(() => gentleObservations(areas, habits, fullLogs), [areas, habits, fullLogs]);
+  const suggestions = useMemo(() => whatToDoNext(areas, habits, fullLogs), [areas, habits, fullLogs]);
   const reflection = useMemo(
     () => (profile ? composeReflection(insights, { firstName: profile.firstName, areaName: focusArea?.name ?? null }) : []),
     [insights, profile, focusArea],
@@ -134,7 +152,7 @@ export default function InsightsScreen() {
         <SegmentedControl value={view} options={VIEW_OPTIONS} onChange={setView} ariaLabel="Insights view" />
       </div>
 
-      {view === 'garden' && <Garden areas={areas} habits={habits} logs={logs} />}
+      {view === 'garden' && <Garden areas={areas} habits={habits} logs={fullLogs} />}
 
       {view === 'insights' && (
         <>

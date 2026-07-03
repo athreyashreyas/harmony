@@ -295,11 +295,31 @@ async function runDriftPass(env: Env): Promise<void> {
   });
 }
 
+// Best-effort per-isolate rate limit for the mutating endpoints, keyed by the
+// authenticated user. Cloudflare runs many isolates, so this is not a global
+// limiter (that needs Durable Objects or the Rate Limiting API); it simply
+// blunts a single client hammering one isolate. The endpoints are already
+// token-gated, so any abuse only ever affects the caller's own account.
+const RATE_WINDOW_MS = 60_000;
+const RATE_MAX = 40;
+const rateHits = new Map<string, number[]>();
+function rateLimited(userId: string): boolean {
+  const now = Date.now();
+  const recent = (rateHits.get(userId) ?? []).filter((t) => now - t < RATE_WINDOW_MS);
+  recent.push(now);
+  rateHits.set(userId, recent);
+  if (rateHits.size > 5000) {
+    for (const [k, v] of rateHits) if (v.every((t) => now - t >= RATE_WINDOW_MS)) rateHits.delete(k);
+  }
+  return recent.length > RATE_MAX;
+}
+
 async function handleSubscribe(request: Request, env: Env): Promise<Response> {
   const token = request.headers.get('authorization')?.replace(/^Bearer\s+/i, '');
   if (!token) return json({ error: 'missing token' }, 401);
   const userId = await userIdFromToken(env, token);
   if (!userId) return json({ error: 'invalid token' }, 401);
+  if (rateLimited(userId)) return json({ error: 'rate limited' }, 429);
 
   const body = (await request.json()) as {
     subscription?: { endpoint?: string; keys?: { p256dh?: string; auth?: string } };
@@ -324,6 +344,7 @@ async function handleUnsubscribe(request: Request, env: Env): Promise<Response> 
   if (!token) return json({ error: 'missing token' }, 401);
   const userId = await userIdFromToken(env, token);
   if (!userId) return json({ error: 'invalid token' }, 401);
+  if (rateLimited(userId)) return json({ error: 'rate limited' }, 429);
 
   const body = (await request.json()) as { endpoint?: string };
   if (!body.endpoint) return json({ error: 'missing endpoint' }, 400);
@@ -339,6 +360,7 @@ async function handleDeleteAccount(request: Request, env: Env): Promise<Response
   if (!token) return json({ error: 'missing token' }, 401);
   const userId = await userIdFromToken(env, token);
   if (!userId) return json({ error: 'invalid token' }, 401);
+  if (rateLimited(userId)) return json({ error: 'rate limited' }, 429);
 
   await deleteUserCompletely(env, userId);
   return json({ ok: true });
@@ -368,33 +390,50 @@ async function handleTestPush(request: Request, env: Env): Promise<Response> {
   return json({ delivered, total: subscriptions.length });
 }
 
+// The CORS origin to echo: the request's Origin if it's in the configured
+// allowlist, otherwise the first allowed origin. With no allowlist set, stays
+// permissive so the app keeps working until you lock it down.
+function allowOrigin(request: Request, env: Env): string {
+  const list = env.ALLOWED_ORIGINS?.split(',').map((s) => s.trim()).filter(Boolean);
+  if (!list || list.length === 0) return '*';
+  const origin = request.headers.get('Origin');
+  return origin && list.includes(origin) ? origin : list[0];
+}
+
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
-    if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: CORS_HEADERS });
+    // Finalise every response with the right per-request CORS origin.
+    const withCors = (res: Response): Response => {
+      res.headers.set('access-control-allow-origin', allowOrigin(request, env));
+      res.headers.set('vary', 'Origin');
+      return res;
+    };
+
+    if (request.method === 'OPTIONS') return withCors(new Response(null, { status: 204, headers: CORS_HEADERS }));
 
     const url = new URL(request.url);
     try {
       // Lightweight liveness check: handy for uptime monitoring and for
       // confirming a fresh deploy is live (curl /health).
       if (request.method === 'GET' && (url.pathname === '/health' || url.pathname === '/')) {
-        return json({ ok: true, service: 'harmony-push-worker' });
+        return withCors(json({ ok: true, service: 'harmony-push-worker' }));
       }
       if (url.pathname === '/subscribe' && request.method === 'POST') {
-        return await handleSubscribe(request, env);
+        return withCors(await handleSubscribe(request, env));
       }
       if (url.pathname === '/subscribe' && request.method === 'DELETE') {
-        return await handleUnsubscribe(request, env);
+        return withCors(await handleUnsubscribe(request, env));
       }
       if (url.pathname === '/delete-account' && request.method === 'POST') {
-        return await handleDeleteAccount(request, env);
+        return withCors(await handleDeleteAccount(request, env));
       }
       if (url.pathname === '/test-push' && request.method === 'POST') {
-        return await handleTestPush(request, env);
+        return withCors(await handleTestPush(request, env));
       }
-      return json({ error: 'not found' }, 404);
+      return withCors(json({ error: 'not found' }, 404));
     } catch (err) {
       console.error('Request failed', err);
-      return json({ error: 'internal error' }, 500);
+      return withCors(json({ error: 'internal error' }, 500));
     }
   },
 

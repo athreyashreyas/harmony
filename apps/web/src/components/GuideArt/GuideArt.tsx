@@ -124,8 +124,12 @@ export default function GuideArt({ kind }: { kind: GuideArtKind }) {
         />
       );
     case 'themes':
+      // Accent-forward "theme coins": a small paper centre ringed by the theme's
+      // accent, with a neutral gray hairline that reads on any current theme.
+      // The vivid accent dominates (legible on light and dark alike) while the
+      // paper dot hints light-vs-dark without glaring as a solid block.
       return (
-        <div className="grid max-w-[236px] grid-cols-4 gap-2">
+        <div className="grid max-w-[210px] grid-cols-4 justify-items-center gap-3.5">
           {[
             ['#b5532f', '#fbf1e4'], // Terracotta
             ['#f2a900', '#fff4d6'], // Mango Sunshine
@@ -138,11 +142,12 @@ export default function GuideArt({ kind }: { kind: GuideArtKind }) {
           ].map(([accent, paper]) => (
             <span
               key={accent}
-              className="flex h-[52px] flex-col overflow-hidden rounded-[10px] shadow-card"
-              style={{ backgroundColor: paper, border: '1px solid rgba(0,0,0,0.06)' }}
-            >
-              <span className="mt-auto h-3.5 w-full" style={{ backgroundColor: accent }} />
-            </span>
+              className="h-[42px] w-[42px] rounded-full"
+              style={{
+                background: `radial-gradient(circle at center, ${paper} 0 44%, ${accent} 46% 100%)`,
+                boxShadow: '0 0 0 1px rgba(128,128,128,0.35)',
+              }}
+            />
           ))}
         </div>
       );

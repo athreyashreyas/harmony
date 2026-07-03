@@ -69,29 +69,36 @@ export async function saveOnboarding(areas: Area[], habits: Habit[]): Promise<vo
 // same habit un-logs it. Returns the log that was created, or null if this
 // call removed one.
 export async function toggleLog(habit: Habit, dateISO: string = todayISO()): Promise<Log | null> {
-  const existing = await db.logs
-    .where('[habitId+date]')
-    .equals([habit.id, dateISO])
-    .first();
+  // Run the check-and-set inside a transaction. Dexie serialises transactions
+  // with overlapping scope, so a rapid double-tap can't have both taps read
+  // "no log yet" and each create one — which would leave two rows for the same
+  // habit+date (the [habitId+date] index is not unique). The mirror calls run
+  // after the commit, since the outbox table is outside this transaction scope.
+  const outcome = await db.transaction('rw', db.logs, async (): Promise<{ kind: 'deleted'; id: string } | { kind: 'created'; log: Log }> => {
+    const existing = await db.logs.where('[habitId+date]').equals([habit.id, dateISO]).first();
+    if (existing) {
+      await db.logs.delete(existing.id);
+      return { kind: 'deleted', id: existing.id };
+    }
+    const log: Log = {
+      id: crypto.randomUUID(),
+      userId: habit.userId,
+      habitId: habit.id,
+      areaId: habit.areaId,
+      date: dateISO,
+      loggedAt: Date.now(),
+      note: null,
+    };
+    await db.logs.put(log);
+    return { kind: 'created', log };
+  });
 
-  if (existing) {
-    await db.logs.delete(existing.id);
-    void mirrorLogDelete(existing.id);
+  if (outcome.kind === 'deleted') {
+    void mirrorLogDelete(outcome.id);
     return null;
   }
-
-  const log: Log = {
-    id: crypto.randomUUID(),
-    userId: habit.userId,
-    habitId: habit.id,
-    areaId: habit.areaId,
-    date: dateISO,
-    loggedAt: Date.now(),
-    note: null,
-  };
-  await db.logs.put(log);
-  void mirrorLogUpsert(log);
-  return log;
+  void mirrorLogUpsert(outcome.log);
+  return outcome.log;
 }
 
 // Area create and edit share one write path (section 10 long-press edit
@@ -172,22 +179,28 @@ export async function setLogNote(
   note: string | null,
 ): Promise<Log | null> {
   const trimmed = note?.trim() ? note.trim() : null;
-  const existing = await db.logs.where('[habitId+date]').equals([habit.id, dateISO]).first();
 
-  if (!existing && !trimmed) return null;
+  // Same atomicity guard as toggleLog: read-and-write in one transaction so a
+  // note save racing a tap-to-log on the same day can't create a duplicate row.
+  const log = await db.transaction('rw', db.logs, async (): Promise<Log | null> => {
+    const existing = await db.logs.where('[habitId+date]').equals([habit.id, dateISO]).first();
+    if (!existing && !trimmed) return null;
+    const next: Log = existing
+      ? { ...existing, note: trimmed }
+      : {
+          id: crypto.randomUUID(),
+          userId: habit.userId,
+          habitId: habit.id,
+          areaId: habit.areaId,
+          date: dateISO,
+          loggedAt: Date.now(),
+          note: trimmed,
+        };
+    await db.logs.put(next);
+    return next;
+  });
 
-  const log: Log = existing
-    ? { ...existing, note: trimmed }
-    : {
-        id: crypto.randomUUID(),
-        userId: habit.userId,
-        habitId: habit.id,
-        areaId: habit.areaId,
-        date: dateISO,
-        loggedAt: Date.now(),
-        note: trimmed,
-      };
-  await db.logs.put(log);
+  if (!log) return null;
   void mirrorLogUpsert(log);
   return log;
 }

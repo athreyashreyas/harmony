@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import type { Area, Habit, Ritual } from '@harmony/shared';
 import WatercolorWash from '../WatercolorWash/WatercolorWash';
@@ -32,6 +32,10 @@ export default function RitualPlayer({
 
   const [index, setIndex] = useState(0);
   const [finished, setFinished] = useState(false);
+  // Guards the brief post-tap animation so a rapid double-tap on the complete
+  // circle can't queue two advances and skip a step. Cleared on step change and
+  // when the player (re)opens.
+  const advancing = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     if (open) {
@@ -40,6 +44,12 @@ export default function RitualPlayer({
     }
   }, [open, ritual]);
 
+  // Clear any pending advance timer on unmount (or when the player closes), so
+  // it can't fire against a torn-down player.
+  useEffect(() => () => {
+    if (advancing.current) clearTimeout(advancing.current);
+  }, []);
+
   if (!open || !ritual) return null;
 
   const current = steps[index];
@@ -47,12 +57,20 @@ export default function RitualPlayer({
   const color = current ? colorOf(current) : '#5a636f';
 
   const advance = () => {
+    if (advancing.current) {
+      clearTimeout(advancing.current);
+      advancing.current = null;
+    }
     if (index < steps.length - 1) setIndex((i) => i + 1);
     else setFinished(true);
   };
   const complete = () => {
+    if (advancing.current) return; // a transition is already in flight
     if (current && !doneIds.has(current.id)) onToggle(current);
-    window.setTimeout(advance, 460);
+    advancing.current = setTimeout(() => {
+      advancing.current = null;
+      advance();
+    }, 460);
   };
 
   return (

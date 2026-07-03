@@ -48,11 +48,14 @@ export default function GuideScreen() {
   const initial: Pane = entryPane === 'guide' ? 'guide' : 'new';
   const [pane, setPane] = useState<Pane>(initial);
 
-  // Back depends on where they came from. After onboarding (pane=guide) there is
-  // no useful history behind this screen, so back enters the app. From Settings
-  // (pane=new) back returns to where they were. "Back to Harmony" always goes home.
+  // Back depends on where they came from. Both entries are reached by a `replace`
+  // navigation (Settings → What's new; onboarding → the walk-through), so there is
+  // no useful history behind this screen — navigate(-1) would land on whatever
+  // preceded it, not Me. Go forward to the right destination instead: onboarding
+  // enters the app (Home); otherwise this was opened from the Me tab, so return
+  // there. "Back to Harmony" always goes home.
   const fromOnboarding = entryPane === 'guide';
-  const goBack = () => (fromOnboarding ? navigate('/', { replace: true }) : navigate(-1));
+  const goBack = () => navigate(fromOnboarding ? '/' : '/me', { replace: true });
 
   const latest = CHANGELOG[0];
   const earlier = CHANGELOG.slice(1);

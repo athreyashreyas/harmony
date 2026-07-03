@@ -23,3 +23,38 @@ export function staleIds<T extends Reconcilable>(
 ): string[] {
   return local.filter((r) => !serverIds.has(r.id) && writtenAt(r) < cutoff).map((r) => r.id);
 }
+
+// --- Incremental ("watermark") sync -----------------------------------------
+// The extensible channel. Any entity with an `updated_at` (bumped on every
+// write) and a soft-delete `deleted_at` can sync incrementally: a device pulls
+// only rows changed since its stored watermark, applies inserts/edits and
+// deletions, then advances the watermark to the newest change it saw. This
+// catches everything missed while offline, of any age, immediately on reconnect
+// — and stays cheap. New edge cases join by adopting the same two columns.
+
+// A server row carrying the incremental-sync bookkeeping columns.
+export interface Timestamped {
+  updated_at: string; // ISO; monotonic per row
+  deleted_at: string | null; // ISO when soft-deleted, else null
+}
+
+// The newest ISO timestamp among `current` and the given values (ISO strings
+// sort lexicographically), or `current` if none is newer. Used to advance the
+// watermark to the latest change applied.
+export function latestTimestamp(current: string | null, isos: (string | null | undefined)[]): string | null {
+  let max = current;
+  for (const t of isos) if (t && (max == null || t > max)) max = t;
+  return max;
+}
+
+// Split a batch of changed rows into the ones to upsert (live) and the ids to
+// delete locally (tombstoned). Shared by every incremental entity.
+export function partitionChanges<T extends Reconcilable & Timestamped>(rows: T[]): { upserts: T[]; deletedIds: string[] } {
+  const upserts: T[] = [];
+  const deletedIds: string[] = [];
+  for (const r of rows) {
+    if (r.deleted_at != null) deletedIds.push(r.id);
+    else upserts.push(r);
+  }
+  return { upserts, deletedIds };
+}

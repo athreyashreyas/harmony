@@ -16,7 +16,9 @@ export function refreshStores(userId: string): void {
 
 // Background re-sync: pull from the cloud and refresh the UI, but only when
 // online and nothing is mid-mirror, so the authoritative reconcile can't race
-// a write that hasn't reached the server yet. Used by focus/online/poll.
+// a write that hasn't reached the server yet. Used by focus/online/poll. The
+// pull is incremental (watermark-based for logs), so every one of these is both
+// cheap and complete — it catches everything changed since the last sync.
 export async function syncNow(userId: string): Promise<void> {
   if (!navigator.onLine) return;
   // Send any queued local writes up first, so the authoritative pull can't

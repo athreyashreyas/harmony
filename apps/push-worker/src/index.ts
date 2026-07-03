@@ -8,6 +8,7 @@ import {
   deleteUserCompletely,
   getActiveUsers,
   getUserBundle,
+  pruneDeletedLogs,
   recordNudge,
   subscriptionsForUser,
   upsertSubscription,
@@ -439,5 +440,7 @@ export default {
 
   async scheduled(_event: ScheduledController, env: Env, ctx: ExecutionContext): Promise<void> {
     ctx.waitUntil(runDriftPass(env));
+    // Once an hour, prune old log tombstones so soft-deleted rows never pile up.
+    if (new Date().getUTCMinutes() === 7) ctx.waitUntil(pruneDeletedLogs(env));
   },
 };

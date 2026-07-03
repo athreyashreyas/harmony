@@ -1,10 +1,9 @@
 import type { Table } from 'dexie';
 import type { Area, Habit, Log, NotificationSettings, NudgeHistory, Ritual, UserProfile } from '@harmony/shared';
-import { isoDaysAgo } from '@harmony/shared';
 import { supabase } from './client';
 import { db, NOTIFICATION_SETTINGS_KEY, type OutboxItem } from '../db/schema';
 import { withSync } from '../sync/status';
-import { staleIds } from '../sync/reconcile';
+import { latestTimestamp, partitionChanges, staleIds } from '../sync/reconcile';
 
 // The cloud side of the data layer. Dexie is the source of truth on device;
 // this module moves data between it and Supabase three ways:
@@ -203,7 +202,13 @@ export async function flushOutbox(): Promise<void> {
         let error: { code?: string } | null = null;
         if (item.op === 'delete') {
           if (item.table === 'logs') {
-            ({ error } = await client.from('logs').delete().eq('id', item.payload.id as string));
+            // Soft-delete so the removal syncs to other devices via the
+            // watermark (a hard delete would leave nothing to catch up on).
+            // The trigger bumps updated_at.
+            ({ error } = await client
+              .from('logs')
+              .update({ deleted_at: new Date().toISOString() })
+              .eq('id', item.payload.id as string));
           }
         } else {
           ({ error } = await client
@@ -311,6 +316,8 @@ interface LogRow {
   date: string;
   logged_at: string;
   note: string | null;
+  updated_at: string;
+  deleted_at: string | null;
 }
 
 interface SettingsRow {
@@ -421,48 +428,59 @@ async function reconcileTable<T extends { id: string; userId: string }>(
   if (serverRows.length) await table.bulkPut(serverRows);
 }
 
-// How many days of logs an incremental pull fetches and reconciles. The rest of
-// history is pulled once at first sign-in (the full seed) and then never
-// re-downloaded, which bounds recurring egress to a fixed window no matter how
-// many years of logs pile up. A generous window so any realistic recent edit
-// (the Log calendar's tap-to-fix) still reconciles across devices.
-const LOG_SYNC_WINDOW_DAYS = 120;
+// Incremental log sync (the extensible channel; see lib/sync/reconcile.ts).
+// Logs are the one large, ever-growing table, so instead of re-downloading them
+// they sync by a per-device watermark: each pull fetches only logs whose
+// `updated_at` is newer than the watermark (inserts, edits, and soft-deletes of
+// any date), applies them, and advances the watermark. A device that has never
+// synced — or hasn't in longer than the tombstone-retention window — reseeds the
+// full set once. This makes cross-device catch-up on reconnect both immediate
+// and cheap.
+const LOG_WATERMARK_KEY = (userId: string) => `harmony.logsSince.${userId}`;
+// Must stay <= the worker's tombstone prune window, so a device can never miss a
+// soft-delete that was pruned before it synced; if its watermark is older than
+// this it reseeds instead.
+const SAFE_RESEED_DAYS = 45;
 
-// Logs reconcile like other tables, but an incremental pull only looks at the
-// recent window: it fetches server logs newer than `windowStart` and only ever
-// considers local logs in that same window for deletion, so the older history
-// that the window doesn't cover is left completely alone. A full pull (first
-// seed) passes windowStart = null and reconciles everything.
-async function reconcileLogs(userId: string, serverRows: Log[], windowStart: string | null): Promise<void> {
-  const serverIds = new Set(serverRows.map((r) => r.id));
-  const cutoff = Date.now() - RECONCILE_GRACE_MS;
-  const query = db.logs.where('userId').equals(userId);
-  const local = windowStart ? await query.and((l) => l.date >= windowStart).toArray() : await query.toArray();
-  const stale = staleIds(local, serverIds, cutoff, (l) => l.loggedAt);
-  if (stale.length) await db.logs.bulkDelete(stale);
-  if (serverRows.length) await db.logs.bulkPut(serverRows);
+function getLogWatermark(userId: string): string | null {
+  try {
+    return localStorage.getItem(LOG_WATERMARK_KEY(userId));
+  } catch {
+    return null;
+  }
+}
+function setLogWatermark(userId: string, iso: string): void {
+  try {
+    localStorage.setItem(LOG_WATERMARK_KEY(userId), iso);
+  } catch {
+    // ignore (private mode / disabled storage)
+  }
 }
 
 // Fetch areas, habits, and logs for the user from Supabase and reconcile them
 // into Dexie (server authoritative, with the grace window above). Returns false
 // if Supabase isn't configured or the fetch failed, so the caller can proceed
 // with whatever is local.
-// `full` seeds the whole history (used once, on a device with no local data);
-// otherwise only the recent log window is fetched and reconciled, so a returning
-// device — and every background/foreground/manual sync — downloads a bounded
-// amount no matter how large the account's log history has grown. Areas, habits,
-// and settings are always pulled in full: they are tiny and their deletes must
-// always propagate.
+// `full` forces a full log reseed (used once, on a device with no local data).
+// Otherwise logs sync incrementally by watermark; areas, habits, and settings
+// are always pulled in full (they are tiny and their deletes must always
+// propagate). Either way a returning device — and every background/foreground/
+// manual sync — downloads only what changed, no matter how large the log
+// history has grown.
 export async function pullUserData(userId: string, full = false): Promise<boolean> {
   const client = supabase;
   if (!client) return false;
 
-  const windowStart = full ? null : isoDaysAgo(LOG_SYNC_WINDOW_DAYS);
+  const watermark = full ? null : getLogWatermark(userId);
+  const staleThreshold = new Date(Date.now() - SAFE_RESEED_DAYS * 86_400_000).toISOString();
+  const reseed = watermark == null || watermark < staleThreshold;
 
   return withSync(async () => {
     try {
+      // Reseed: fetch live logs only (snapshot). Incremental: fetch everything
+      // changed since the watermark, tombstones included, so deletions apply.
       let logsSelect = client.from('logs').select('*').eq('user_id', userId);
-      if (windowStart) logsSelect = logsSelect.gte('date', windowStart);
+      logsSelect = reseed ? logsSelect.is('deleted_at', null) : logsSelect.gt('updated_at', watermark!);
       const [areasRes, habitsRes, logsRes, settingsRes] = await Promise.all([
         client.from('areas').select('*').eq('user_id', userId),
         client.from('habits').select('*').eq('user_id', userId),
@@ -476,13 +494,26 @@ export async function pullUserData(userId: string, full = false): Promise<boolea
 
       const areas = (areasRes.data as AreaRow[]).map(rowToArea);
       const habits = (habitsRes.data as HabitRow[]).map(rowToHabit);
-      const logs = (logsRes.data as LogRow[]).map(rowToLog);
+      const logRows = logsRes.data as LogRow[];
 
       await db.transaction('rw', db.areas, db.habits, db.logs, async () => {
         await reconcileTable(db.areas, userId, areas, (a) => a.createdAt);
         await reconcileTable(db.habits, userId, habits, (h) => h.createdAt);
-        await reconcileLogs(userId, logs, windowStart);
+        if (reseed) {
+          // Snapshot of live logs is authoritative.
+          await reconcileTable(db.logs, userId, logRows.map(rowToLog), (l) => l.loggedAt);
+        } else {
+          const { upserts, deletedIds } = partitionChanges(logRows);
+          if (deletedIds.length) await db.logs.bulkDelete(deletedIds);
+          if (upserts.length) await db.logs.bulkPut(upserts.map(rowToLog));
+        }
       });
+
+      // Advance the watermark to the newest change seen (after the commit, so a
+      // failed transaction never skips rows). On a reseed with no rows, start
+      // from now so the next incremental pull has a floor.
+      const next = latestTimestamp(reseed ? null : watermark, logRows.map((r) => r.updated_at));
+      setLogWatermark(userId, next ?? new Date().toISOString());
 
       // Notification settings: mirror the cloud copy down so per-device config
       // (mute, quiet hours, the reminder toggles) stays in agreement.
@@ -538,7 +569,11 @@ export function subscribeUserRealtime(
     } else if (table === 'habits') {
       await db.habits.put(rowToHabit(p.new as unknown as HabitRow));
     } else {
-      await db.logs.put(rowToLog(p.new as unknown as LogRow));
+      // A log soft-delete arrives as an UPDATE with deleted_at set; treat it as
+      // a removal, otherwise apply the insert/edit.
+      const row = p.new as unknown as LogRow;
+      if (row.deleted_at) await db.logs.delete(row.id);
+      else await db.logs.put(rowToLog(row));
     }
     onChange(table);
   };

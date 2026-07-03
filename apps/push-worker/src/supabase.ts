@@ -236,7 +236,7 @@ export async function getUserBundle(env: Env, userId: string): Promise<UserBundl
   const [areas, habits, logs, nudges, settingsRows, subs] = await Promise.all([
     rest<AreaRow[]>(env, `areas?${uid}&select=*`),
     rest<HabitRow[]>(env, `habits?${uid}&select=*`),
-    rest<LogRow[]>(env, `logs?${uid}&date=gte.${logsFrom}&select=*`),
+    rest<LogRow[]>(env, `logs?${uid}&date=gte.${logsFrom}&deleted_at=is.null&select=*`),
     rest<NudgeRow[]>(env, `nudge_history?${uid}&sent_at=gte.${nudgesFrom}&select=*`),
     rest<SettingsRow[]>(env, `notification_settings?${uid}&select=*`),
     rest<SubscriptionRow[]>(env, `push_subscriptions?${uid}&select=endpoint,p256dh,auth`),
@@ -304,6 +304,15 @@ export async function deleteSubscription(env: Env, endpoint: string): Promise<vo
   await rest(env, `push_subscriptions?endpoint=eq.${encodeURIComponent(endpoint)}`, {
     method: 'DELETE',
   });
+}
+
+// Hard-delete log tombstones past the retention window, so soft-deleted rows
+// never accumulate. The window is kept comfortably longer than the client's
+// reseed threshold, so a device always reseeds (full snapshot) before any
+// tombstone it still needs could be pruned away.
+export async function pruneDeletedLogs(env: Env): Promise<void> {
+  const cutoff = new Date(Date.now() - 60 * 86_400_000).toISOString();
+  await rest(env, `logs?deleted_at=lt.${encodeURIComponent(cutoff)}`, { method: 'DELETE' });
 }
 
 export async function subscriptionsForUser(env: Env, userId: string): Promise<StoredSubscription[]> {

@@ -87,8 +87,8 @@ export default function AuthGate() {
         // reconcile sees them on the server rather than deleting them locally.
         await flushOutbox();
         if (await hasLocalData(userId)) {
-          // Returning device: it already holds the history, so an incremental
-          // (windowed) pull is enough.
+          // Returning device: an incremental (watermark) pull catches everything
+          // changed since it last synced, immediately and cheaply.
           void pullUserData(userId).then((ok) => {
             if (!active) return;
             if (ok) refreshStores(userId);

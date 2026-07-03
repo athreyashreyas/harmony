@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { staleIds } from '../../apps/web/src/lib/sync/reconcile';
+import { latestTimestamp, partitionChanges, staleIds } from '../../apps/web/src/lib/sync/reconcile';
 
 // The authoritative-pull deletion decision: a local row is stale only if the
 // server no longer has it AND it was written before the grace cutoff (so a
@@ -29,5 +29,30 @@ describe('staleIds', () => {
     const local = [at('old-gone', CUTOFF - 5), at('kept', CUTOFF - 5), at('new-gone', NOW)];
     expect(staleIds(local, new Set(['kept']), CUTOFF, w)).toEqual(['old-gone']);
     expect(staleIds([], new Set(), CUTOFF, w)).toEqual([]);
+  });
+});
+
+describe('latestTimestamp (watermark advance)', () => {
+  it('picks the newest ISO timestamp, keeping the current when nothing is newer', () => {
+    expect(latestTimestamp('2026-07-01T00:00:00Z', ['2026-07-03T00:00:00Z', '2026-07-02T00:00:00Z'])).toBe('2026-07-03T00:00:00Z');
+    expect(latestTimestamp('2026-07-05T00:00:00Z', ['2026-07-02T00:00:00Z'])).toBe('2026-07-05T00:00:00Z');
+  });
+
+  it('ignores nulls and starts from null', () => {
+    expect(latestTimestamp(null, [null, undefined, '2026-07-02T00:00:00Z'])).toBe('2026-07-02T00:00:00Z');
+    expect(latestTimestamp(null, [])).toBeNull();
+  });
+});
+
+describe('partitionChanges (incremental apply)', () => {
+  it('splits changed rows into upserts (live) and deleted ids (tombstoned)', () => {
+    const rows = [
+      { id: 'a', updated_at: 't1', deleted_at: null },
+      { id: 'b', updated_at: 't2', deleted_at: '2026-07-02T00:00:00Z' },
+      { id: 'c', updated_at: 't3', deleted_at: null },
+    ];
+    const { upserts, deletedIds } = partitionChanges(rows);
+    expect(upserts.map((r) => r.id)).toEqual(['a', 'c']);
+    expect(deletedIds).toEqual(['b']);
   });
 });

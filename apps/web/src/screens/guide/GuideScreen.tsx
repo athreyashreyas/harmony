@@ -48,13 +48,11 @@ export default function GuideScreen() {
   const initial: Pane = entryPane === 'guide' ? 'guide' : 'new';
   const [pane, setPane] = useState<Pane>(initial);
 
-  // Back depends on where they came from. After onboarding (pane=guide) the app
-  // itself is the natural destination; otherwise this was opened from the Me tab
-  // ("What's new"), so the arrow returns there. Both are forward navigations —
-  // history-back is suppressed app-wide (see BackGuard). "Back to Harmony" always
-  // goes home.
+  // Back depends on where they came from. After onboarding (pane=guide) there is
+  // no useful history behind this screen, so back enters the app. From Settings
+  // (pane=new) back returns to where they were. "Back to Harmony" always goes home.
   const fromOnboarding = entryPane === 'guide';
-  const goBack = () => navigate(fromOnboarding ? '/' : '/me', { replace: true });
+  const goBack = () => (fromOnboarding ? navigate('/', { replace: true }) : navigate(-1));
 
   const latest = CHANGELOG[0];
   const earlier = CHANGELOG.slice(1);

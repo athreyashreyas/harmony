@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useLocation, useNavigate, useParams, type Location } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import type { Log } from '@harmony/shared';
 import AreaChip from '../../components/AreaChip/AreaChip';
 import ComposeHabitSheet, { type HabitDraft } from '../../components/ComposeHabitSheet/ComposeHabitSheet';
@@ -32,13 +32,7 @@ const eyebrow = 'text-[10px] font-medium uppercase tracking-[0.1em] text-ink-300
 export default function HabitDetailScreen() {
   const { habitId } = useParams<{ habitId: string }>();
   const navigate = useNavigate();
-  const location = useLocation();
   const openHabit = useOpenHabit();
-
-  // The tab this habit was opened from (see useOpenHabit). Returning there closes
-  // the overlay and reveals that tab, still mounted, exactly as it was.
-  const background = (location.state as { backgroundLocation?: Location } | null)?.backgroundLocation;
-  const backTo = background ? `${background.pathname}${background.search}` : '/';
   const profile = useUser((s) => s.profile);
 
   const areas = useAreas((s) => s.areas);
@@ -139,11 +133,11 @@ export default function HabitDetailScreen() {
           <div className="flex h-14 items-center">
             <BackButton
               onClick={() => {
-                // Forward-navigate back to the originating tab (history-back is
-                // suppressed app-wide by BackGuard). Send that tab to the top on
-                // the way out, matching the old "arrow takes me home" feel.
+                // A deliberate "take me home": send the tab beneath the overlay to
+                // the top, then pop. (An edge-swipe back just pops, leaving the
+                // tab's scroll exactly where it was.)
                 scrollShellToTop();
-                navigate(backTo, { replace: true });
+                navigate(-1);
               }}
             />
           </div>

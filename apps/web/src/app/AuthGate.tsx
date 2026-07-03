@@ -218,7 +218,7 @@ export default function AuthGate() {
     if (isNew) {
       setSeenVersionLocal(APP_VERSION);
       void updateSettings(profile.id, { lastSeenVersion: APP_VERSION });
-      if (onAppRoute) navigate('/guide?pane=new');
+      if (onAppRoute) navigate('/guide?pane=new', { replace: true });
     } else {
       // Seen elsewhere already: quietly bring both markers up to date.
       if (isNewerVersion(APP_VERSION, seenLocal)) setSeenVersionLocal(APP_VERSION);

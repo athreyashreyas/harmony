@@ -35,6 +35,11 @@ body {
 .scroll-ios {
   -webkit-overflow-scrolling: touch;
   overscroll-behavior-y: contain;
+  /* Kill horizontal rubber-banding so a stray sideways drag doesn't wobble the
+     view. (This can't disable Safari's own edge swipe-back gesture — that's
+     handled by keeping the history flat: every navigation replaces except
+     opening a habit, so a back swipe has nowhere to go but out of a habit.) */
+  overscroll-behavior-x: none;
 }
 
 /* 5.4 App feel: text should not select or pop the iOS long-press

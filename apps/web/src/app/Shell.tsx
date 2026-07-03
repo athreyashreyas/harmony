@@ -63,6 +63,7 @@ function Sidebar() {
             <NavLink
               to={item.to}
               end={item.to === '/'}
+              replace
               className={({ isActive }) =>
                 [
                   'flex items-center gap-3 rounded-card px-3 py-2.5 text-sm transition-colors',
@@ -99,6 +100,7 @@ function BottomNav() {
             key={item.to}
             to={item.to}
             end={item.to === '/'}
+            replace
             className={({ isActive }) =>
               [
                 'flex flex-1 flex-col items-center gap-0.5 py-1 transition-colors',

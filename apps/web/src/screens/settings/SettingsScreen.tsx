@@ -322,7 +322,7 @@ export default function SettingsScreen() {
         <p className={eyebrow}>Guide</p>
         <button
           type="button"
-          onClick={() => navigate('/guide?pane=new')}
+          onClick={() => navigate('/guide?pane=new', { replace: true })}
           className="mt-3 flex w-full items-center justify-between rounded-card bg-parchment-50 px-4 py-3.5 text-left shadow-card"
         >
           <span className="min-w-0 pr-3">

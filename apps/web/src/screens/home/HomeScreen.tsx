@@ -331,7 +331,7 @@ export default function HomeScreen() {
 
       {banner && (
         <div className="mt-6">
-          <DriftBanner text={banner.text} color={banner.color} onClick={() => navigate('/areas')} />
+          <DriftBanner text={banner.text} color={banner.color} onClick={() => navigate('/areas', { replace: true })} />
         </div>
       )}
 

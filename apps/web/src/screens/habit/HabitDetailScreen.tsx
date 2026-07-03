@@ -103,7 +103,7 @@ export default function HabitDetailScreen() {
     return (
       <main className="flex h-full flex-col items-center justify-center px-5 pt-safe pb-safe text-center">
         <p className="text-sm text-ink-300">This habit is no longer here.</p>
-        <button type="button" onClick={() => navigate('/')} className="mt-4 text-sm text-iris-500 hover:underline">
+        <button type="button" onClick={() => navigate('/', { replace: true })} className="mt-4 text-sm text-iris-500 hover:underline">
           Back to home
         </button>
       </main>
@@ -121,7 +121,7 @@ export default function HabitDetailScreen() {
     if (!habit) return;
     await archiveHabit(habit.id);
     if (profile) await loadHabits(profile.id);
-    navigate('/');
+    navigate('/', { replace: true });
   }
 
   return (
@@ -155,7 +155,7 @@ export default function HabitDetailScreen() {
 
         <main className="mx-auto w-full max-w-md px-5">
           <div className="flex">
-            <AreaChip area={area} onClick={() => navigate('/areas')} />
+            <AreaChip area={area} onClick={() => navigate('/areas', { replace: true })} />
           </div>
           <h1 className="mt-3 font-serif text-3xl leading-tight text-ink-900">{habit.name}</h1>
 

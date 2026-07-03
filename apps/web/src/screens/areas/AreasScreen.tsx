@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
 import { Reorder } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
 import type { Area, Habit } from '@harmony/shared';
 import { MAX_AREAS } from '@harmony/shared';
 import AreaRow from '../../components/AreaRow/AreaRow';
@@ -10,12 +9,13 @@ import Skeleton from '../../components/Skeleton/Skeleton';
 import { archiveArea, reorderAreas, reorderHabits, saveArea, saveHabit } from '../../lib/db/queries';
 import { createArea } from '../../lib/domain';
 import { useUserData } from '../../lib/useUserData';
+import { useOpenHabit } from '../../app/openHabit';
 import { useAreas } from '../../store/useAreas';
 import { useHabits } from '../../store/useHabits';
 import AreaSheet, { type AreaFields, type HabitWeight } from './AreaSheet';
 
 export default function AreasScreen() {
-  const navigate = useNavigate();
+  const openHabit = useOpenHabit();
   const { profile, areas, habits, logs, loaded, reloadAreas, reloadHabits } = useUserData();
 
   const [orderedAreas, setOrderedAreas] = useState<Area[]>(areas);
@@ -123,7 +123,7 @@ export default function AreasScreen() {
                 logs={logs}
                 onOpen={() => openEdit(area)}
                 expandable
-                onOpenHabit={(habitId) => navigate(`/habit/${habitId}`)}
+                onOpenHabit={(habitId) => openHabit(habitId)}
                 onRequestReorder={() => setReorderingArea(area)}
                 onDragStart={() => {
                   dragging.current = true;

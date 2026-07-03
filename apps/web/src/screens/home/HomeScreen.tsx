@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import type { Area, Habit, Ritual, TimeOfDay } from '@harmony/shared';
+import { useOpenHabit } from '../../app/openHabit';
 import AreaChip from '../../components/AreaChip/AreaChip';
 import { computeAreaActivity } from '../../components/Bloom/activity';
 import Bloom from '../../components/Bloom/Bloom';
@@ -80,6 +81,7 @@ function bloomCaption(activities: number[]): string {
 
 export default function HomeScreen() {
   const navigate = useNavigate();
+  const openHabit = useOpenHabit();
   const { profile, areas, habits, logs, loaded, reloadHabits, reloadAreas } = useUserData();
   const toggle = useLogs((s) => s.toggle);
   const setNote = useLogs((s) => s.setNote);
@@ -437,7 +439,7 @@ export default function HomeScreen() {
                       area={area}
                       done={doneIds.has(habit.id)}
                       onToggle={() => void toggle(habit)}
-                      onOpen={() => navigate(`/habit/${habit.id}`)}
+                      onOpen={() => openHabit(habit.id)}
                       onLongPress={() => setNoteHabit(habit)}
                     />
                   </motion.div>
@@ -535,7 +537,7 @@ export default function HomeScreen() {
                   </button>
                   <button
                     type="button"
-                    onClick={() => navigate(`/habit/${habit.id}`)}
+                    onClick={() => openHabit(habit.id)}
                     className="flex min-w-0 flex-1 items-center gap-3 text-left"
                   >
                     <span className="min-w-0 flex-1">

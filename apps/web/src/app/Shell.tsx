@@ -1,9 +1,9 @@
-import { useLayoutEffect, useRef } from 'react';
-import { NavLink, Outlet, useLocation, useNavigationType } from 'react-router-dom';
+import { useEffect, useLayoutEffect, useRef } from 'react';
+import { NavLink, Outlet, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import SyncDot from '../components/SyncDot/SyncDot';
 import { NAV_ITEMS } from './navItems';
-import { getScroll, saveScroll, takeForceTop } from './scrollMemory';
+import { registerScroller } from './scrollMemory';
 
 // The app shell. A flex row at md+ (sidebar then content), a flex column on
 // phone (content then bottom tab bar). The shell fills the real visible
@@ -13,37 +13,21 @@ import { getScroll, saveScroll, takeForceTop } from './scrollMemory';
 // child (not position: fixed) so it stays flush to the true bottom.
 export default function Shell() {
   const { pathname } = useLocation();
-  const navType = useNavigationType();
   const scrollerRef = useRef<HTMLDivElement>(null);
-  const rafRef = useRef(0);
 
-  // Remember the scroller's offset for the current route as it scrolls, throttled
-  // to a frame. This is what lets a back gesture restore the exact view.
-  const handleScroll = () => {
-    cancelAnimationFrame(rafRef.current);
-    rafRef.current = requestAnimationFrame(() => {
-      const el = scrollerRef.current;
-      if (el) saveScroll(pathname, el.scrollTop);
-    });
-  };
+  // Expose the live scroller so the habit back arrow can send Home to the top on
+  // its way out (the shell stays mounted beneath the habit overlay).
+  useEffect(() => {
+    registerScroller(scrollerRef.current);
+    return () => registerScroller(null);
+  }, []);
 
-  // On each navigation (and on mount): the top-left back arrow asks for the top
-  // (forceTop). A history POP (a back gesture / edge swipe, e.g. returning from a
-  // habit page) restores where the user was — the habit screen renders outside
-  // this shell, so the shell remounts fresh and we scroll it back. Any forward
-  // navigation (a tab tap = PUSH) lands at the top, as before.
+  // Switching tabs lands at the top of the new tab, as before. Opening or closing
+  // a habit does not change this pathname (the habit is an overlay above the tab),
+  // so the tab's scroll is left untouched and preserved across a back gesture.
   useLayoutEffect(() => {
-    const el = scrollerRef.current;
-    if (!el) return;
-    if (takeForceTop() || navType !== 'POP') {
-      el.scrollTo({ top: 0 });
-      return;
-    }
-    const y = getScroll(pathname);
-    el.scrollTo({ top: y }); // before paint → no flash at the top
-    // Retry next frame in case content height settled after this paint.
-    requestAnimationFrame(() => el.scrollTo({ top: y }));
-  }, [pathname, navType]);
+    scrollerRef.current?.scrollTo({ top: 0 });
+  }, [pathname]);
 
   return (
     <div className="flex h-full w-full flex-col overflow-hidden md:flex-row">
@@ -53,7 +37,7 @@ export default function Shell() {
       {/* pt-safe lives on main, outside the scroller, so content never slides
           under the status bar; a clean nested div does the actual scrolling. */}
       <main className="flex min-w-0 min-h-0 flex-1 flex-col pt-safe pl-safe pr-safe">
-        <div ref={scrollerRef} onScroll={handleScroll} className="scroll-ios min-h-0 flex-1 overflow-y-auto">
+        <div ref={scrollerRef} className="scroll-ios min-h-0 flex-1 overflow-y-auto">
           <Outlet />
         </div>
       </main>

@@ -1,5 +1,5 @@
 import { lazy, Suspense } from 'react';
-import { Navigate, Route, Routes } from 'react-router-dom';
+import { Navigate, Route, Routes, useLocation, type Location } from 'react-router-dom';
 import Shell from './Shell';
 import SignInScreen from '../screens/auth/SignInScreen';
 
@@ -38,22 +38,59 @@ export default function Router() {
         <Route path="sign-up" element={<SignUpScreen />} />
         <Route path="reset-password" element={<ResetPasswordScreen />} />
 
+        {/* AuthGate mounts once and owns the sync/realtime lifecycle; the app's
+            own routing (including the habit overlay) lives below it in AppRoutes,
+            so none of that machinery is torn down or duplicated when a habit is
+            opened. */}
         <Route element={<AuthGate />}>
-          <Route path="onboarding" element={<OnboardingFlow />} />
-          <Route path="guide" element={<GuideScreen />} />
-          <Route path="habit/:habitId" element={<HabitDetailScreen />} />
+          <Route path="*" element={<AppRoutes />} />
+        </Route>
+      </Routes>
+    </Suspense>
+  );
+}
 
-          <Route element={<Shell />}>
-            <Route index element={<HomeScreen />} />
-            <Route path="areas" element={<AreasScreen />} />
-            <Route path="log" element={<LogScreen />} />
-            <Route path="insights" element={<InsightsScreen />} />
-            <Route path="me" element={<SettingsScreen />} />
-          </Route>
+// The protected app routes, with the habit detail rendered as an overlay above
+// the current tab rather than as a sibling that replaces it.
+//
+// When a habit is opened we stash the current location in `backgroundLocation`
+// (see useOpenHabit). The primary <Routes> is then driven by that background, so
+// the tab underneath (Home / Areas / Insights) stays mounted and untouched — its
+// scroll, its cards, its Bloom, all preserved. A second <Routes> renders the
+// habit on top from the real location. A back gesture drops `backgroundLocation`,
+// the overlay unmounts, and the tab is revealed exactly as it was left: no
+// remount, no reload, no flash. Opening a habit directly (deep link / refresh)
+// has no background, so it simply renders full-screen from the primary <Routes>.
+function AppRoutes() {
+  const location = useLocation();
+  const backgroundLocation = (location.state as { backgroundLocation?: Location } | null)
+    ?.backgroundLocation;
+
+  return (
+    <>
+      <Routes location={backgroundLocation ?? location}>
+        <Route path="onboarding" element={<OnboardingFlow />} />
+        <Route path="guide" element={<GuideScreen />} />
+        <Route path="habit/:habitId" element={<HabitDetailScreen />} />
+
+        <Route element={<Shell />}>
+          <Route index element={<HomeScreen />} />
+          <Route path="areas" element={<AreasScreen />} />
+          <Route path="log" element={<LogScreen />} />
+          <Route path="insights" element={<InsightsScreen />} />
+          <Route path="me" element={<SettingsScreen />} />
         </Route>
 
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
-    </Suspense>
+
+      {backgroundLocation && (
+        <div className="fixed inset-0 z-40 bg-parchment-100">
+          <Routes>
+            <Route path="habit/:habitId" element={<HabitDetailScreen />} />
+          </Routes>
+        </div>
+      )}
+    </>
   );
 }

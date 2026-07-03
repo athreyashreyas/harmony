@@ -11,7 +11,8 @@ import { blendOver, hexToRgba } from '../../lib/color';
 import { useThemeColor } from '../../lib/useThemeColor';
 import { formatDateMedium, isoDaysAgo, lastTendedPhrase } from '../../lib/time/dates';
 import { BackButton } from '../onboarding/ui';
-import { requestScrollTop } from '../../app/scrollMemory';
+import { scrollShellToTop } from '../../app/scrollMemory';
+import { useOpenHabit } from '../../app/openHabit';
 import { useAreas } from '../../store/useAreas';
 import { useHabits } from '../../store/useHabits';
 import { useLogs } from '../../store/useLogs';
@@ -31,6 +32,7 @@ const eyebrow = 'text-[10px] font-medium uppercase tracking-[0.1em] text-ink-300
 export default function HabitDetailScreen() {
   const { habitId } = useParams<{ habitId: string }>();
   const navigate = useNavigate();
+  const openHabit = useOpenHabit();
   const profile = useUser((s) => s.profile);
 
   const areas = useAreas((s) => s.areas);
@@ -131,9 +133,10 @@ export default function HabitDetailScreen() {
           <div className="flex h-14 items-center">
             <BackButton
               onClick={() => {
-                // A deliberate "take me home": land at the top. (An edge-swipe
-                // back is a history POP and instead restores the prior scroll.)
-                requestScrollTop();
+                // A deliberate "take me home": send the tab beneath the overlay to
+                // the top, then pop. (An edge-swipe back just pops, leaving the
+                // tab's scroll exactly where it was.)
+                scrollShellToTop();
                 navigate(-1);
               }}
             />
@@ -215,7 +218,7 @@ export default function HabitDetailScreen() {
                   <button
                     key={n.id}
                     type="button"
-                    onClick={() => navigate(`/habit/${n.id}`, { replace: true })}
+                    onClick={() => openHabit(n.id, { replace: true })}
                     className="flex shrink-0 items-center gap-2 rounded-full bg-parchment-50 px-3.5 py-1.5 text-sm text-ink-700 shadow-card"
                   >
                     <span
@@ -237,7 +240,7 @@ export default function HabitDetailScreen() {
                   <button
                     key={n.id}
                     type="button"
-                    onClick={() => navigate(`/habit/${n.id}`, { replace: true })}
+                    onClick={() => openHabit(n.id, { replace: true })}
                     className="flex shrink-0 items-center gap-2 rounded-full border border-dashed border-[#5a636f]/45 px-3.5 py-1.5 text-sm text-ink-700"
                   >
                     <span

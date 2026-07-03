@@ -1,35 +1,19 @@
-// Scroll restoration for the single shell scroller. The habit detail screen
-// renders outside the shell, so returning home remounts the shell with a fresh
-// scroller at the top. We remember each route's last scroll offset (module-level,
-// so it survives that unmount) and restore it when the user comes back via a
-// back gesture (a history POP) — landing them exactly where they left. A tap on
-// the top-left back arrow instead asks for the top explicitly (see forceTop),
-// because that reads as a deliberate "take me home", not a reflexive swipe.
+// The habit detail now renders as an overlay above the tab (see AppRoutes), so
+// the tab underneath stays mounted and keeps its scroll naturally across a habit
+// open/close — no per-route offset bookkeeping needed. All that remains is the
+// one deliberate exception: tapping the top-left back arrow on a habit should
+// land Home at the top, not where it was. Since the shell (and its scroller) is
+// still mounted beneath the overlay, the arrow just scrolls it to the top
+// imperatively, then navigates back to reveal it there.
 
-const positions = new Map<string, number>();
-let forceTop = false;
+let scrollerEl: HTMLElement | null = null;
 
-export function saveScroll(key: string, top: number): void {
-  positions.set(key, top);
+// The Shell registers its live scroller so the arrow can reach it from the
+// overlay without threading refs through the router.
+export function registerScroller(el: HTMLElement | null): void {
+  scrollerEl = el;
 }
 
-export function getScroll(key: string): number {
-  return positions.get(key) ?? 0;
-}
-
-// The back arrow calls this just before navigating, so the next shell mount
-// scrolls to the top rather than restoring the remembered offset.
-export function requestScrollTop(): void {
-  forceTop = true;
-}
-
-// Returns whether a "scroll to top" was requested, and clears the request on a
-// microtask — so React StrictMode's double-invoked mount effects (dev) both see
-// it, while it never leaks to a later, unrelated navigation.
-export function takeForceTop(): boolean {
-  if (!forceTop) return false;
-  queueMicrotask(() => {
-    forceTop = false;
-  });
-  return true;
+export function scrollShellToTop(): void {
+  scrollerEl?.scrollTo({ top: 0 });
 }

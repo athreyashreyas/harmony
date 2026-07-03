@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
-import { useNavigate } from 'react-router-dom';
 import type { Log } from '@harmony/shared';
 import { AnimatePresence, motion } from 'framer-motion';
 import ComposeHabitSheet, { type HabitDraft } from '../../components/ComposeHabitSheet/ComposeHabitSheet';
@@ -12,6 +11,7 @@ import HBars from '../../components/charts/HBars';
 import RadarChart from '../../components/charts/RadarChart';
 import Sparkline from '../../components/charts/Sparkline';
 import TrendChart from '../../components/charts/TrendChart';
+import { useOpenHabit } from '../../app/openHabit';
 import { hexToRgba } from '../../lib/color';
 import { allLogsForUser, saveHabit } from '../../lib/db/queries';
 import { createHabit } from '../../lib/domain';
@@ -58,7 +58,7 @@ function Section({ title, hint, children }: { title: string; hint?: string; chil
 }
 
 export default function InsightsScreen() {
-  const navigate = useNavigate();
+  const openHabit = useOpenHabit();
   const { profile, areas, habits, logs, loaded, reloadHabits } = useUserData();
 
   const [view, setView] = useState<ViewKey>('insights');
@@ -126,7 +126,7 @@ export default function InsightsScreen() {
 
   function handleSuggestion(s: Suggestion) {
     if (s.kind === 'add-habit') setSuggestSheetArea(s.areaId);
-    else navigate(`/habit/${s.habitId}`);
+    else openHabit(s.habitId);
   }
 
   async function handleCreateHabit(draft: HabitDraft) {
@@ -311,7 +311,7 @@ export default function InsightsScreen() {
                                     <span className="text-xs text-ink-300">
                                       {h.lastDate ? `Last on ${new Date(`${h.lastDate}T00:00:00`).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}` : 'Not yet logged'}
                                     </span>
-                                    <button type="button" onClick={() => navigate(`/habit/${h.habit.id}`)} className="text-xs font-medium" style={{ color: h.color }}>
+                                    <button type="button" onClick={() => openHabit(h.habit.id)} className="text-xs font-medium" style={{ color: h.color }}>
                                       Open ›
                                     </button>
                                   </div>

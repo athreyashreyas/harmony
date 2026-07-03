@@ -1,6 +1,7 @@
 import { lazy, Suspense } from 'react';
 import { Navigate, Route, Routes, useLocation, type Location } from 'react-router-dom';
 import Shell from './Shell';
+import BackGuard from './BackGuard';
 import SignInScreen from '../screens/auth/SignInScreen';
 
 // AuthGate pulls in Dexie and the Supabase profile sync; lazy so an
@@ -33,6 +34,7 @@ function RouteFallback() {
 export default function Router() {
   return (
     <Suspense fallback={<RouteFallback />}>
+      <BackGuard />
       <Routes>
         <Route path="sign-in" element={<SignInScreen />} />
         <Route path="sign-up" element={<SignUpScreen />} />

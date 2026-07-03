@@ -58,7 +58,7 @@ function Section({ title, hint, children }: { title: string; hint?: string; chil
 }
 
 export default function InsightsScreen() {
-  const openHabit = useOpenHabit();
+  const goToHabit = useOpenHabit();
   const { profile, areas, habits, logs, loaded, reloadHabits } = useUserData();
 
   const [view, setView] = useState<ViewKey>('insights');
@@ -126,7 +126,7 @@ export default function InsightsScreen() {
 
   function handleSuggestion(s: Suggestion) {
     if (s.kind === 'add-habit') setSuggestSheetArea(s.areaId);
-    else openHabit(s.habitId);
+    else goToHabit(s.habitId);
   }
 
   async function handleCreateHabit(draft: HabitDraft) {
@@ -311,7 +311,7 @@ export default function InsightsScreen() {
                                     <span className="text-xs text-ink-300">
                                       {h.lastDate ? `Last on ${new Date(`${h.lastDate}T00:00:00`).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}` : 'Not yet logged'}
                                     </span>
-                                    <button type="button" onClick={() => openHabit(h.habit.id)} className="text-xs font-medium" style={{ color: h.color }}>
+                                    <button type="button" onClick={() => goToHabit(h.habit.id)} className="text-xs font-medium" style={{ color: h.color }}>
                                       Open ›
                                     </button>
                                   </div>

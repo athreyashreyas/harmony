@@ -16,18 +16,29 @@ import { useLocation } from 'react-router-dom';
 // stays consistent and route state (e.g. a habit overlay's backgroundLocation)
 // is never lost. The one place that used history-back — the habit screen's
 // arrow — navigates forward instead.
+//
+// Scoped to touch devices (coarse pointer): the reflexive edge-swipe only exists
+// there. On desktop the Back button is a deliberate, expected control, so it's
+// left working normally.
+const isTouch = (): boolean =>
+  typeof window !== 'undefined' &&
+  typeof window.matchMedia === 'function' &&
+  window.matchMedia('(pointer: coarse)').matches;
+
 export default function BackGuard() {
   const location = useLocation();
 
   // Re-arm the trap on top of whatever entry react-router just created, on mount
   // and after every navigation.
   useEffect(() => {
+    if (!isTouch()) return;
     window.history.pushState(window.history.state, '', window.location.href);
   }, [location.key]);
 
   // Absorb every back press: it pops our trap (URL unchanged, so no visible
   // navigation), and we re-arm immediately so the next one is caught as well.
   useEffect(() => {
+    if (!isTouch()) return;
     const onPopState = () => {
       window.history.pushState(window.history.state, '', window.location.href);
     };

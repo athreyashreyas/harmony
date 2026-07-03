@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>04 · The Bloom — Harmony Walkthrough</title>
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+<div class="topbar"><span class="brand">Harmony<span>.</span></span><a href="index.html">← All chapters</a><span class="spacer"></span><span class="muted">04 / 15</span></div>
+<div class="wrap">
+  <p class="eyebrow">Chapter 04 · the signature idea</p>
+  <h1>The Bloom, exactly</h1>
+  <p class="lede">The Bloom is a radial flower: one petal per area, each filling as you tend it and easing back when it goes quiet. This chapter is the precise algorithm — <code>computeAreaActivity()</code> in <code>components/Bloom/activity.ts</code> — because "how is the Bloom calculated?" is <em>the</em> question about this app.</p>
+
+  <h2>What one petal represents</h2>
+  <p>A petal's fill is a number in <code>[0, 1]</code> for one area, computed over a rolling window (14 days for the live Bloom). It answers: "over the last two weeks, how fully has this area been tended, adjusted for how much it matters and dragged down by any tugs?" Two tiers combine.</p>
+
+  <h2>Tier 1 — weighted adherence (the lift)</h2>
+  <p>Each <em>tend</em> habit in the area contributes its own <strong>adherence</strong> = completed ÷ expected, clamped to 1, weighted by its share of the area.</p>
+  <div class="formula">
+    for each tend habit h:<br>
+    &nbsp;&nbsp;expected = expectedCompletionsInWindow(h.cadence, 14)<br>
+    &nbsp;&nbsp;completed = distinct days h was logged in the window<br>
+    &nbsp;&nbsp;adherence = min(1, completed / expected)<br>
+    positive = Σ ( (h.weight / totalWeight) × adherence )
+  </div>
+  <ul>
+    <li><strong>Per-habit clamping</strong> means a daily habit and a "3× a week" habit are each measured against <em>their own</em> cadence. Doing your 3×-a-week habit 3 times = full credit, even though a daily habit would need 14.</li>
+    <li><strong>Weights</strong> (<code>habit.weight</code>, default 1 = equal) let you say "meditation counts more toward Mind than my reading habit." The split always normalizes to 1.</li>
+  </ul>
+
+  <h2>Tier 2 — the tug penalty (the drag)</h2>
+  <p>Every logged <em>tug</em> in the window subtracts, honestly but never punitively.</p>
+  <div class="formula">
+    penalty = Σ (tug.tugWeight ?? 1)&nbsp;&nbsp;over logged tugs in window<br>
+    penaltyFrac = min(<b>TUG_CAP 0.6</b>, penalty × <b>TUG_UNIT 0.12</b>)<br>
+    score = max(0, positive − penaltyFrac)
+  </div>
+  <p>One "some" tug (weight 1) costs 0.12 of the petal; the cap of 0.6 means tugs can never erase more than 60% — you are never sent to zero by slips alone. The floor of 0 means a petal never goes negative.</p>
+
+  <h2>Tier 3 — the importance curve (the attention dial)</h2>
+  <p>Finally the score is bent by the area's <strong>importance</strong> via a gamma exponent:</p>
+  <div class="formula">
+    fill = min(1, score <sup>γ</sup>)&nbsp;&nbsp;where γ = { core 1.35, matters 1.0, optional 0.6 }
+  </div>
+  <table>
+    <tr><th>Importance</th><th>γ</th><th>Effect</th></tr>
+    <tr><td><code>core</code> ("really matters")</td><td>1.35</td><td>Fills <em>less</em> readily — needs more to look full.</td></tr>
+    <tr><td><code>matters</code></td><td>1.0</td><td>Linear — score is the fill.</td></tr>
+    <tr><td><code>optional</code> ("nice to have")</td><td>0.6</td><td>Fills <em>readily</em> — a little effort looks healthy.</td></tr>
+  </table>
+  <div class="callout why"><span class="label">Why gamma, not a cap</span>This is the cleverest, most "product" decision in the app. A lower-stakes area looks healthy with less effort, so <strong>your eye is drawn to the areas you said matter most</strong> — a core area that's half-tended reads as noticeably less full than an optional one that's half-tended. Yet γ only <em>bends the curve</em>; it never caps below 1, so <em>everything</em> can still reach a full petal if you do it all. Gentle, but honest about priorities.</div>
+
+  <h2>The full function, in order</h2>
+  <pre><code>function computeAreaActivity(area, habits, logs, windowDays = 14, endISO = today) {
+  tendHabits = area's habits where polarity !== 'ease'
+  if (tendHabits.length === 0) return 0            <span class="tok-c">// "ready to grow" rest state</span>
+  from = endISO − (windowDays − 1) days
+
+  <span class="tok-c">// one pass: tally completed days per tend habit + total tug penalty</span>
+  for each log in [from, endISO]:
+    if it's an ease habit: penalty += tugWeight ?? 1
+    else: completedByHabit[log.habitId].add(log.date)
+
+  totalWeight = Σ tend weights (or 1)
+  positive = Σ (weight/totalWeight) × min(1, completed/expected)
+  penaltyFrac = min(0.6, penalty × 0.12)
+  score = max(0, positive − penaltyFrac)
+  return min(1, score ^ FILL_GAMMA[area.importance])
+}</code></pre>
+
+  <h2>Worked example</h2>
+  <div class="card">
+    <p><strong>Area "Body" (importance = core, γ 1.35)</strong> with two equal-weight tend habits over 14 days:</p>
+    <ul>
+      <li>"Walk" — daily → expected 14; logged 14 days → adherence 1.0</li>
+      <li>"Stretch" — 3× a week → expected 6; logged 3 days → adherence 0.5</li>
+      <li>One "some" tug logged once → penalty 1 → penaltyFrac 0.12</li>
+    </ul>
+    <p>positive = ½·1.0 + ½·0.5 = <b>0.75</b> → score = 0.75 − 0.12 = <b>0.63</b> → fill = 0.63<sup>1.35</sup> ≈ <b>0.54</b>.</p>
+    <p class="muted">The same numbers in a <code>matters</code> area (γ 1) would read 0.63; in an <code>optional</code> area (γ 0.6), 0.63<sup>0.6</sup> ≈ 0.75. Identical effort, three different fills — that's the attention dial at work.</p>
+  </div>
+
+  <h2>Windows &amp; reuse — one function, many surfaces</h2>
+  <p>The same function drives multiple views by varying <code>windowDays</code> and <code>endISO</code>:</p>
+  <table>
+    <tr><th>Surface</th><th>windowDays</th><th>endISO</th></tr>
+    <tr><td>The live Bloom (Home)</td><td>14</td><td>today</td></tr>
+    <tr><td>Insights area balance</td><td>30</td><td>today</td></tr>
+    <tr><td>Bloom garden (each past week)</td><td>7</td><td>that week's end</td></tr>
+  </table>
+  <p>The <code>endISO</code> parameter was added specifically so the <strong>garden</strong> could re-bloom any historical week (ch. 08). The rolling window is why "no streaks" is structurally true: the calculation only ever looks at a trailing span, recalculated daily — a single missed day shifts a ratio slightly, it never "breaks" anything.</p>
+
+  <h2>The caption &amp; the geometry</h2>
+  <p>Above the petals, a one-line caption reads the mean of all petal fills: high and even → "In a good rhythm today"; any petal below 0.25 → "A few areas waiting for you"; else "Tend to yourself today." Petals are laid out as wedges of a circle (custom SVG geometry), coloured by the <em>area's own colour</em> which is <strong>never themed</strong> — so the bloom always means the same thing regardless of the app's light.</p>
+
+  <div class="pager"><a href="03-data-model.html">← 03 · Data Model</a><a href="05-cadences.html">05 · Scheduling &amp; Cadences →</a></div>
+  <p class="foot">Harmony Owner's Walkthrough · Chapter 04</p>
+</div>
+</body>
+</html>

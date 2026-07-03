@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>06 · Sync Architecture — Harmony Walkthrough</title>
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+<div class="topbar"><span class="brand">Harmony<span>.</span></span><a href="index.html">← All chapters</a><span class="spacer"></span><span class="muted">06 / 15</span></div>
+<div class="wrap">
+  <p class="eyebrow">Chapter 06 · the hard part</p>
+  <h1>Sync Architecture</h1>
+  <p class="lede">Offline-first sync that stays correct across devices without ever losing a write, and without re-downloading years of history. Four mechanisms: the durable outbox, the authoritative pull, realtime, and — for logs — watermark-based incremental sync with soft-deletes.</p>
+
+  <h2>Principle: Dexie is the truth, the cloud is a mirror</h2>
+  <p>Every read renders from Dexie. Every write goes to Dexie first (instant, optimistic) and is <em>then</em> propagated. The cloud never blocks the UI. This inverts the usual "server is truth" model and is the reason the app feels instantaneous and works fully offline.</p>
+
+  <h2>1 · The durable outbox (never lose a write)</h2>
+  <p>A write does two things atomically-ish: <code>db.&lt;table&gt;.put(row)</code> and <code>outbox.add({op, table, payload})</code>. A background <em>flusher</em> drains the outbox to Supabase in insertion order.</p>
+  <pre><code>flushOutbox():
+  for each queued item in id order:
+    if op === 'delete' &amp;&amp; table === 'logs':  <span class="tok-c">// soft-delete (see §4)</span>
+      update logs set deleted_at = now() where id = ...
+    else:
+      upsert(table, payload)
+    on server-rejection (has error.code): DROP the item (it's bad, don't block)
+    on network error (no code):           STOP, retry later (keep the queue)</code></pre>
+  <div class="callout why"><span class="label">Why an outbox, not fire-and-forget</span>A tap on the subway must persist. The outbox makes writes <strong>durable and ordered</strong>: made offline, they queue and flush on reconnect; a failed request retries; and because ids increment, they drain in FK-safe order (an area before its habits before their logs). The distinction between "server rejected it" (drop) and "network failed" (retry) prevents one poison item from wedging the whole queue forever.</p></div>
+
+  <h2>2 · The authoritative pull (server wins, gently)</h2>
+  <p>On sign-in and as a backstop, the app fetches the account's rows and reconciles into Dexie with the server authoritative. The danger is deleting a local write that simply hasn't uploaded yet — solved by a <strong>grace window</strong>.</p>
+  <pre><code>reconcileTable(local, serverRows):
+  serverIds = set(serverRows.id)
+  cutoff = now − <b>RECONCILE_GRACE_MS (2 min)</b>
+  stale = local rows where NOT serverIds.has(id) AND writtenAt &lt; cutoff
+  bulkDelete(stale); bulkPut(serverRows)</code></pre>
+  <p>Areas, habits, and settings always pull in full — they're tiny and their deletes must always propagate. The deletion decision is extracted to a pure, unit-tested <code>staleIds()</code>.</p>
+
+  <h2>3 · Realtime (instant cross-device)</h2>
+  <p>Supabase Realtime broadcasts every row change for the user's rows; the app applies each straight into Dexie and reloads just the affected store. This is the instant path when both devices are online — a tap on your phone lands on your iPad in a moment. Backstops for anything realtime misses: a pull on <strong>foreground</strong>, on <strong>reconnect</strong>, and a slow <strong>15-minute poll</strong> while visible.</p>
+
+  <h2>4 · Watermark incremental sync for logs (the big one)</h2>
+  <p>Logs are the one ever-growing table. Re-downloading them on every pull would blow the free-tier egress budget over years. The fix — and the app's most refined piece of infrastructure — is a watermark.</p>
+  <h3>The schema (migration 0019)</h3>
+  <ul>
+    <li><code>logs.updated_at</code> — a timestamp bumped on <em>every</em> write by a Postgres <code>BEFORE INSERT OR UPDATE</code> trigger.</li>
+    <li><code>logs.deleted_at</code> — a <strong>soft-delete</strong> flag. A "delete" becomes an update setting <code>deleted_at</code>, so the removal is a <em>change the sync can see</em> rather than a silent disappearance.</li>
+    <li>An index on <code>(user_id, updated_at)</code> for the range scan.</li>
+  </ul>
+  <h3>The client algorithm</h3>
+  <pre><code>pullUserData(userId, full = false):
+  watermark = full ? null : localStorage["harmony.logsSince.&lt;userId&gt;"]
+  reseed = watermark == null || watermark &lt; now − <b>SAFE_RESEED_DAYS (45)</b>
+
+  if reseed:  fetch logs where deleted_at IS NULL        <span class="tok-c">// live snapshot</span>
+              → snapshot-reconcile into Dexie
+  else:       fetch logs where updated_at &gt; watermark     <span class="tok-c">// only the delta, tombstones included</span>
+              → partitionChanges(): bulkPut live, bulkDelete tombstoned
+
+  watermark = latestTimestamp(watermark, fetched updated_at's)   <span class="tok-c">// advance</span></code></pre>
+  <p>So every reconnect/foreground pulls <strong>only what changed since last sync</strong> — inserts, edits, and deletions of <em>any</em> date — immediately and cheaply. A device that's never synced, or hasn't in 45+ days, reseeds the live snapshot once.</p>
+  <h3>The pruner (bounded storage)</h3>
+  <p>The worker hard-deletes tombstones older than <strong>60 days</strong>, once an hour. Retention (60d) is deliberately longer than the client's reseed threshold (45d), so a device <em>always</em> reseeds before any tombstone it still needs could be pruned. Realtime also carries a live soft-delete as an UPDATE with <code>deleted_at</code> set, which the client treats as a removal.</p>
+
+  <div class="callout decision"><span class="label">Decision · why not a change-feed table or CRDT</span>A separate <code>sync_events</code> table (double writes) or a full CRDT would be overkill for a single-user-with-a-few-devices app. Soft-delete + <code>updated_at</code> is the industry-standard "incremental sync with tombstones" and it's <strong>extensible</strong>: any future entity joins by adopting the same two columns and reusing the shared primitives (<code>latestTimestamp</code>, <code>partitionChanges</code>). It was explicitly built as <em>the</em> canonical sync channel so future edge cases club into it.</div>
+
+  <h2>Guarantee: immediate + complete + cheap</h2>
+  <table>
+    <tr><th>Scenario</th><th>How it stays correct</th></tr>
+    <tr><td>Both devices online</td><td>Realtime — instant, any date, incl. deletes.</td></tr>
+    <tr><td>Device offline during a change, then reconnects</td><td>Watermark pull fetches exactly the delta since last sync — immediate on reconnect, any age.</td></tr>
+    <tr><td>Retro-edit a 6-month-old day on another device</td><td><code>updated_at</code> bumps → the watermark pull catches it even though its <code>date</code> is old.</td></tr>
+    <tr><td>Delete an ancient log while a device was away</td><td>Soft-delete tombstone → the watermark pull applies the removal.</td></tr>
+    <tr><td>A device dormant for months</td><td>Watermark too old → reseed the live snapshot once.</td></tr>
+  </table>
+
+  <h2>The seed distinction (a nuance to know)</h2>
+  <p>On a <strong>fresh device</strong> (no local data), <code>AuthGate</code> calls <code>pullUserData(userId, true)</code> — a full seed so Dexie (and Insights, which reads all of it locally) has the whole history. A <strong>returning device</strong> uses the incremental path. Insights and the Bloom garden deliberately read the <em>full</em> log history from Dexie (a local, zero-egress read) rather than the 60-day UI window, so Year/All ranges and past-week blooms are complete.</p>
+
+  <div class="pager"><a href="05-cadences.html">← 05 · Cadences</a><a href="07-notifications.html">07 · Notifications &amp; the Worker →</a></div>
+  <p class="foot">Harmony Owner's Walkthrough · Chapter 06</p>
+</div>
+</body>
+</html>

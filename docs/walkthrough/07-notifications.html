@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>07 · Notifications & the Worker — Harmony Walkthrough</title>
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+<div class="topbar"><span class="brand">Harmony<span>.</span></span><a href="index.html">← All chapters</a><span class="spacer"></span><span class="muted">07 / 15</span></div>
+<div class="wrap">
+  <p class="eyebrow">Chapter 07</p>
+  <h1>Notifications &amp; the Push Worker</h1>
+  <p class="lede">A Cloudflare Worker runs a pass <strong>every minute</strong>, sending three kinds of gentle nudge — habit reminders, an evening round-up, and drift nudges in your own words — using web push implemented from scratch with Web Crypto. This is the most "backend" part of the app.</p>
+
+  <h2>Web push, from first principles</h2>
+  <p>There's no library doing the crypto. The worker signs a VAPID JWT and encrypts each payload (aes128gcm) using the browser subscription's public key, entirely with the Workers runtime's <code>SubtleCrypto</code> — no Node dependencies. A subscription is <code>{ endpoint, p256dh, auth }</code>, stored per device in <code>push_subscriptions</code>. When a push returns <code>404/410</code> (gone/expired), the worker deletes that subscription; unexpected statuses are logged, not silently dropped.</p>
+  <div class="callout"><span class="label">iOS reality</span>Web push on iOS requires the PWA be installed to the home screen, and iOS injects a "from Harmony" attribution line that the API can't remove. The app detects the install state and guides the user; the notification text is deliberately just <em>Harmony</em> + the message so it reads cleanly.</div>
+
+  <h2>The every-minute pass</h2>
+  <p>The cron handler runs <code>runDriftPass</code>. It prefilters to <em>users with subscriptions</em>, then processes them in parallel (<code>Promise.allSettled</code>) so one slow user can't stall the pass; each Supabase call and each push has a 10-second timeout for the same reason.</p>
+  <pre><code>processUser(user):
+  bundle = getUserBundle(user)        <span class="tok-c">// areas, habits, last-60d live logs, 14d nudges, settings, subs</span>
+  if !bundle.settings.masterEnabled: return
+  if bundle.subscriptions.length === 0: return
+  inQuietHours = withinDnd(now, tz, dndStart, dndEnd)
+
+  sendHabitReminders(...)             <span class="tok-c">// user-chosen times — fire EVEN in quiet hours</span>
+  if inQuietHours: return             <span class="tok-c">// the rest are ours to time → stay quiet</span>
+  sendDailySummary(...)
+  sendDriftNudges(...)</code></pre>
+
+  <h3>1 · Habit reminders</h3>
+  <p>For each habit with a <code>reminderTime</code> that is due today, still unlogged, and not already reminded today, at its set minute. "Due this minute" uses a catch-up window so a delayed cron run still delivers:</p>
+  <div class="formula">isDue(nowMin, targetMin, window) = (nowMin − targetMin) ≥ 0 AND &lt; window<br><b>REMINDER_CATCHUP_MIN = 10</b> minutes</div>
+  <p>Paired with a once-per-habit-per-day guard (via NudgeHistory), a delayed or skipped run delivers a few minutes late rather than never — but never twice. Because they're times <em>you</em> chose, reminders fire even during quiet hours.</p>
+
+  <h3>2 · The evening summary</h3>
+  <p>One round-up of habits still unlogged that day, at <strong>20:00</strong> local (deliberately <em>before</em> the 21:00 quiet-hours default, so it isn't suppressed), with a 5-minute catch-up. Copy scales: "Walk is still waiting today. No rush." → "Still waiting today: A, B." → "5 things are still waiting today. Even one counts."</p>
+
+  <h3>3 · Drift nudges (the soul of the feature)</h3>
+  <p>When an area you said mattered goes quiet, Harmony brings <em>your own sentence</em> back to you. Capped at <strong>2 drift nudges per user per day</strong> (this cap governs drift only; reminders and the summary have their own once-each guards).</p>
+
+  <h2>The drift engine (<code>detectDrift</code>, shared)</h2>
+  <p>Pure, and run <em>both</em> client-side (for the in-app banner) and server-side (for push) from the same code. It decides which areas are "quiet enough" to nudge, right now.</p>
+  <pre><code>for each area (skip archived; skip importance === 'optional'):
+  cadence   = areaCadence(area)     <span class="tok-c">// median gap between log-days over 60d, clamped 1..14</span>
+                                     <span class="tok-c">// (falls back to median habit cadence, then 7)</span>
+  daysSince = days since the area was last tended (or since it was created)
+  base      = importance==='core' ? max(cadence×1.5, 5) : max(cadence×2.0, 10)
+  threshold = base × sensitivity     <span class="tok-c">// low 1.5, default 1, high 0.65</span>
+  if daysSince &gt; threshold AND not firedRecently(area, 3 days):
+    → candidate</code></pre>
+  <p>Candidates are ranked <strong>core before matters</strong>, then by <em>longest silence</em>. Key honesty rule: <strong>tugs don't count as tending</strong> — a logged tug never resets an area's drift clock or shapes its cadence. Only tend-habit logs do.</p>
+  <div class="callout why"><span class="label">Two independent dials</span><em>Importance</em> sets the base threshold (core areas nag sooner: ×1.5 and a 5-day floor vs matters' ×2.0 and 10-day floor). <em>Drift sensitivity</em> is a separate per-area multiplier (high = 0.65× the threshold → sooner). Together they give fine control without a settings maze.</div>
+
+  <h2>The template composer &amp; library</h2>
+  <p>Nudge text isn't hardcoded — it's composed from a library of templates (<code>packages/shared/src/templates/</code>), also shared and byte-identical between banner and push. A template is data with <code>{placeholders}</code>:</p>
+  <pre><code>{ id: 'drift-words-days', type: 'drift',
+  body: `You wrote: "{whySentence}" It's been {daysSince} days. Maybe {timeOfDay}.` }</code></pre>
+  <p>Selection algorithm (<code>compose</code>):</p>
+  <ol>
+    <li>Filter templates by <code>type</code>, matching <code>conditions</code> (time of day, weekday, weather, min/max days-since, importance), and <code>canUseTemplate</code> — every placeholder it needs must have a value (<code>weatherPhrase</code> is exempt and simply drops out).</li>
+    <li>Prefer templates <em>not</em> used recently for this area+type (the caller passes recent ids); if all used, allow a repeat rather than going silent.</li>
+    <li>Weighted-random pick from the pool.</li>
+  </ol>
+  <p><code>renderTemplate</code> substitutes values, supports a <code>{x.titleCase}</code> modifier, and tidies the spacing an empty value leaves (e.g. a missing weather phrase). Placeholders resolve to <em>your</em> words (<code>whySentence</code>, <code>areaName</code>, <code>firstName</code>) or facts (<code>daysSince</code>, <code>lastDayPhrase</code>, <code>timeOfDay</code>). The app never speaks in its own voice.</p>
+
+  <div class="callout decision"><span class="label">Decision · server-composed content vs privacy</span>Because the worker composes messages from your data (habit names, "why" sentences, logs), it must be able to <em>read</em> that data. This is the central tension with the deferred zero-knowledge E2EE plan (ch. 11): true blackout would blind the server and break these nudges. The chosen future path is "encrypt content, keep timings" so reminders survive.</div>
+
+  <h2>Reliability engineering</h2>
+  <ul>
+    <li><strong>Catch-up windows</strong> (10m reminders / 5m summary) survive a delayed or skipped cron tick.</li>
+    <li><strong>Parallel + timeouts:</strong> users, sends, and reminders run via <code>Promise.allSettled</code>; every Supabase/push call aborts after 10s.</li>
+    <li><strong>Self-healing:</strong> the app re-subscribes a device whose permission is granted but whose backend row is missing; dead endpoints (404/410) are pruned.</li>
+    <li><strong>Observability:</strong> a <code>/health</code> endpoint and structured logs of unexpected push statuses.</li>
+  </ul>
+
+  <div class="pager"><a href="06-sync.html">← 06 · Sync</a><a href="08-insights.html">08 · Insights &amp; the Reflection →</a></div>
+  <p class="foot">Harmony Owner's Walkthrough · Chapter 07</p>
+</div>
+</body>
+</html>

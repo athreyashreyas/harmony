@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>09 · Rituals — Harmony Walkthrough</title>
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+<div class="topbar"><span class="brand">Harmony<span>.</span></span><a href="index.html">← All chapters</a><span class="spacer"></span><span class="muted">09 / 15</span></div>
+<div class="wrap">
+  <p class="eyebrow">Chapter 09</p>
+  <h1>Rituals</h1>
+  <p class="lede">A ritual gathers a few habits into a named flow you move through together — a morning routine — tap by tap. It's habit-stacking (a proven behavioural technique) turned into a calm, guided experience.</p>
+
+  <h2>What a ritual is</h2>
+  <p>Just a name and an ordered list of habit ids: <code>{ id, name, habitIds[] }</code>. It doesn't own habits — it <em>references</em> them, so a habit can be in a ritual and still live normally on Home. <code>lib/rituals.ts → ritualHabits()</code> resolves the live habits in order, quietly skipping any that were deleted or archived, so a ritual never breaks when its contents change.</p>
+
+  <div class="callout decision"><span class="label">Decision · stored on the settings row</span>Rituals are small per-account data, so instead of a whole new synced table (with its own migration, sync mappings, realtime, and outbox), they ride the existing <code>notification_settings.rituals</code> <code>jsonb</code> column. They sync across devices for free via the settings path. The trade-off — no per-ritual realtime granularity — is fine for something you build once and rarely edit.</div>
+
+  <h2>Building one — <code>RitualSheet</code></h2>
+  <p>Name it, then tap tend-habits to add them <em>in order</em>. Each selected habit shows an order badge (1, 2, 3…) so the flow is legible at a glance. Editing and deleting share the same sheet.</p>
+
+  <h2>Doing one — <code>RitualPlayer</code></h2>
+  <p>Tapping <strong>Begin</strong> opens a full-screen, distraction-free flow:</p>
+  <ul>
+    <li><strong>One habit at a time</strong>, big serif name, a watercolour wash in that habit's colour.</li>
+    <li><strong>Progress dots</strong> across the top; the current step widens.</li>
+    <li>A <strong>large circle to complete</strong> — tapping it logs the habit (via the normal <code>useLogs.toggle</code>, so it counts everywhere) and eases to the next step.</li>
+    <li>Habits <strong>already done today start complete</strong>, so a mid-morning run just continues from where you are.</li>
+    <li>A "Skip for now" escape hatch, and a gentle <strong>"Ritual complete"</strong> finish.</li>
+  </ul>
+  <p>On Home, each ritual card shows its step count and today's progress, with a <strong>Begin</strong> button that becomes <strong>Review</strong> once everything in it is done.</p>
+
+  <div class="callout why"><span class="label">Why a full-screen player</span>The delight of habit stacking is <em>flow</em> — doing the set as one calm sequence, not ticking a checklist. The player removes every other affordance so, for two minutes, there's just you and the next small thing. It logs through the same store as tapping on Home, so there's no separate data path to keep in sync.</div>
+
+  <h2>How it plugs into the rest</h2>
+  <table>
+    <tr><th>Touchpoint</th><th>Behaviour</th></tr>
+    <tr><td>Completing a step</td><td>Writes a normal Log → Bloom, insights, and streaksfree counts all update.</td></tr>
+    <tr><td>Cross-device</td><td>The ritual definition syncs via settings; completions sync as logs.</td></tr>
+    <tr><td>Deleted habit</td><td><code>ritualHabits()</code> skips it; the ritual keeps working.</td></tr>
+  </table>
+
+  <p class="muted">Rituals shipped as part of release 1.2.0 alongside the Bloom garden.</p>
+
+  <div class="pager"><a href="08-insights.html">← 08 · Insights</a><a href="10-theming.html">10 · Theming &amp; Design System →</a></div>
+  <p class="foot">Harmony Owner's Walkthrough · Chapter 09</p>
+</div>
+</body>
+</html>

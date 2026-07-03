@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>10 · Theming & Design — Harmony Walkthrough</title>
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+<div class="topbar"><span class="brand">Harmony<span>.</span></span><a href="index.html">← All chapters</a><span class="spacer"></span><span class="muted">10 / 15</span></div>
+<div class="wrap">
+  <p class="eyebrow">Chapter 10</p>
+  <h1>Theming &amp; the Design System</h1>
+  <p class="lede">Eight runtime themes, from one elegant trick: every colour is a CSS variable in two forms, so both Tailwind utilities <em>and</em> their opacity modifiers re-theme instantly. Adding a theme is one token block plus one registry line — nothing else changes.</p>
+
+  <h2>The dual-variable token trick</h2>
+  <p>In <code>styles/tokens.css</code>, every colour token exists twice:</p>
+  <pre><code>--iris-500: #b5532f;          <span class="tok-c">// hex — for inline styles &amp; SVG fills: var(--iris-500)</span>
+--iris-500-rgb: 181 83 47;    <span class="tok-c">// "r g b" channels — for Tailwind</span></code></pre>
+  <p>Tailwind's config maps colours to <code>rgb(var(--iris-500-rgb) / &lt;alpha-value&gt;)</code>. That single line is why <code>bg-iris-500</code> <em>and</em> <code>bg-iris-500/20</code> both re-theme — the opacity modifier composes with the channel form. A theme is one <code>:root[data-theme="id"]</code> block that overrides these variables; switching themes is just setting <code>data-theme</code> on <code>&lt;html&gt;</code>. Every class and inline <code>var()</code> across the app cascades from there.</p>
+
+  <div class="callout decision"><span class="label">Decision · variables, not a rebuild</span>Themes change at runtime with zero JS recomputation and no flash — the saved theme is applied <em>before first paint</em> in <code>main.tsx</code>. The alternative (Tailwind's <code>dark:</code> variants or multiple built stylesheets) couldn't express five light + three dark palettes cleanly, nor re-theme inline SVG. One source of truth, cascading.</div>
+
+  <h2>The eight themes</h2>
+  <table>
+    <tr><th>Light</th><th>Dark</th></tr>
+    <tr><td>Terracotta (default), Mango Sunshine, Sage Grove, Lavender, Rose Quartz</td><td>Indigo Night, Espresso (warm), Forest Night (green)</td></tr>
+  </table>
+  <p>Dark themes set <code>color-scheme: dark</code>, invert the parchment/ink ramps, and <em>lift</em> the status colours (rose/sage) for legibility. A token <code>--on-primary</code> is the text colour that sits on a filled accent (near-white on dark accents, dark ink on bright ones like Mango's gold) so buttons always read.</p>
+  <div class="callout"><span class="label">Area colours are never themed</span>This is a rule: the Bloom's petals use the <em>area's own colour</em> regardless of theme, so the bloom always means the same thing. Themes only change the light <em>around</em> your data.</div>
+
+  <h3>Cross-device theme sync</h3>
+  <p>The choice is stored per-device in localStorage (applied before paint) <em>and</em> mirrored to the synced settings row so it follows you across devices. The cloud save is <strong>debounced</strong> (500ms): rapid toggling would otherwise spam the row, and its out-of-order realtime echoes would flicker the selection. Debounce means one save of the settled choice — one echo, equal to what's showing, no flicker.</p>
+
+  <h2>The area colour palette &amp; picker</h2>
+  <p><strong>36 colours across nine hue families</strong> (Greens, Teals, Blues, Purples, Pinks, Reds, Oranges, Yellows, Neutrals). The <code>ColorPicker</code> lays them out in a responsive auto-fill grid (fills landscape width, compact height) in hue order, so contrasting choices sit a glance apart — and it <strong>marks colours already used by other areas</strong>, so your wheel stays legibly varied instead of collapsing into similar shades.</p>
+
+  <h2>App-native controls (no OS chrome)</h2>
+  <p>A design goal: the app's experience filters down to every click — no dropping to jarring OS pickers. So the native controls were all replaced with themed, touch-first components:</p>
+  <ul>
+    <li><strong>TimeField</strong> — a popover time picker (hour / minute / AM·PM), replacing <code>&lt;input type="time"&gt;</code>.</li>
+    <li><strong>DateField</strong> — a month-grid calendar popover, replacing <code>&lt;input type="date"&gt;</code>.</li>
+    <li><strong>SegmentedControl</strong> — pill toggles for few choices (time of day).</li>
+    <li><strong>SelectMenu / SortMenu</strong> — app dropdowns for many choices (cadence, Home sort), with descriptions.</li>
+  </ul>
+  <p>The "Remind me at" field was also made an obvious tappable affordance (it used to read as empty space).</p>
+
+  <h2>Motion &amp; the calm boot</h2>
+  <ul>
+    <li><strong>Framer Motion</strong> throughout, wrapped in <code>MotionConfig reducedMotion="user"</code> so <code>prefers-reduced-motion</code> makes every spring instant app-wide.</li>
+    <li><strong>Watercolour wash</strong> — a soft accent gradient behind sheets and the ritual player.</li>
+    <li><strong>One boot screen.</strong> A static logo cover in <code>index.html</code> (before React), the same logo in the React splash, and the same in the update overlay — so update → reload → boot reads as a <em>single</em> screen that fades to reveal the app. The "Updating Harmony" label only appears on an actual version bump; ordinary reopens show just the logo and land straight on Home with no floor/wait.</li>
+    <li><strong>List reflow:</strong> Home's habit list uses <code>layout</code> animation so a card glides into place when the sort order changes (e.g. tapping one done under "Still to do").</li>
+  </ul>
+
+  <div class="pager"><a href="09-rituals.html">← 09 · Rituals</a><a href="11-security.html">11 · Security &amp; Privacy →</a></div>
+  <p class="foot">Harmony Owner's Walkthrough · Chapter 10</p>
+</div>
+</body>
+</html>

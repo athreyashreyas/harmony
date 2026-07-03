@@ -1,0 +1,110 @@
+/* Harmony — owner's walkthrough. A warm, readable article style echoing the app. */
+:root {
+  --paper: #fbf1e4;
+  --card: #fffaf1;
+  --ink-900: #23190f;
+  --ink-700: #483a27;
+  --ink-500: #76654c;
+  --ink-300: #ab977a;
+  --accent: #b5532f;
+  --accent-2: #3a7ca8;
+  --sage: #5b7a35;
+  --line: #e7d3b4;
+  --code-bg: #2b2118;
+  --code-ink: #f3e4cf;
+  --serif: 'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia, serif;
+  --sans: 'Inter', 'Helvetica Neue', Arial, system-ui, sans-serif;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  background: radial-gradient(140% 100% at 50% 0%, #fffaf1 0%, var(--paper) 55%, #f3e4cf 100%);
+  color: var(--ink-900);
+  font-family: var(--sans);
+  font-size: 17px;
+  line-height: 1.68;
+  -webkit-font-smoothing: antialiased;
+}
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+.topbar {
+  position: sticky; top: 0; z-index: 10;
+  backdrop-filter: blur(8px);
+  background: rgba(251, 241, 228, 0.82);
+  border-bottom: 1px solid var(--line);
+  padding: 12px 20px;
+  display: flex; align-items: center; gap: 14px;
+  font-size: 14px;
+}
+.topbar .brand { font-family: var(--serif); font-weight: 700; font-size: 18px; color: var(--ink-900); }
+.topbar .brand span { color: var(--accent); }
+.topbar a { color: var(--ink-500); }
+.topbar .spacer { flex: 1; }
+
+.wrap { max-width: 840px; margin: 0 auto; padding: 40px 24px 96px; }
+.hero { max-width: 900px; margin: 0 auto; padding: 64px 24px 24px; }
+.hero h1 { font-family: var(--serif); font-size: 46px; line-height: 1.05; letter-spacing: -0.5px; margin: 0 0 12px; }
+.hero p.lede { font-size: 20px; color: var(--ink-700); margin: 0; }
+
+.eyebrow { font-size: 12px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent); margin: 0 0 6px; }
+h1 { font-family: var(--serif); font-size: 40px; line-height: 1.08; letter-spacing: -0.4px; margin: 0 0 10px; }
+h2 { font-family: var(--serif); font-size: 27px; margin: 42px 0 10px; letter-spacing: -0.2px; }
+h3 { font-family: var(--sans); font-size: 18px; font-weight: 700; margin: 26px 0 6px; }
+p { margin: 12px 0; }
+ul, ol { margin: 12px 0; padding-left: 22px; }
+li { margin: 6px 0; }
+strong { color: var(--ink-900); }
+hr { border: none; border-top: 1px solid var(--line); margin: 40px 0; }
+.muted { color: var(--ink-500); }
+
+code {
+  font-family: 'SF Mono', 'JetBrains Mono', ui-monospace, Menlo, monospace;
+  font-size: 0.86em; background: #f3e4cf; color: #6b3a1f; padding: 1px 6px; border-radius: 6px;
+}
+pre {
+  background: var(--code-bg); color: var(--code-ink); border-radius: 12px; padding: 16px 18px;
+  overflow-x: auto; font-size: 14px; line-height: 1.6; margin: 16px 0;
+  box-shadow: 0 8px 24px -12px rgba(35,25,15,0.4);
+}
+pre code { background: none; color: inherit; padding: 0; font-size: 14px; }
+.tok-c { color: #9a8a6a; font-style: italic; } /* comment */
+.tok-k { color: #e0962a; } /* keyword */
+.tok-s { color: #9fbf6a; } /* string */
+.tok-f { color: #79b6d6; } /* function/name */
+.tok-n { color: #d98f76; } /* number */
+
+.callout { border-left: 4px solid var(--accent-2); background: #eef5f9; border-radius: 0 12px 12px 0; padding: 12px 18px; margin: 18px 0; }
+.callout.why { border-left-color: var(--sage); background: #eef3e2; }
+.callout.decision { border-left-color: var(--accent); background: #fbeee4; }
+.callout.warn { border-left-color: #b8862a; background: #f8f0dc; }
+.callout .label { font-size: 12px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-500); display: block; margin-bottom: 2px; }
+
+.card {
+  background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 18px 20px; margin: 18px 0;
+  box-shadow: 0 1px 2px rgba(35,25,15,0.04);
+}
+table { width: 100%; border-collapse: collapse; margin: 18px 0; font-size: 15px; }
+th, td { text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-500); }
+td code { font-size: 13px; }
+
+.formula { background: #fffaf1; border: 1px dashed var(--accent); border-radius: 12px; padding: 14px 18px; margin: 16px 0; font-family: 'SF Mono', ui-monospace, monospace; font-size: 15px; color: var(--ink-900); }
+
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; margin: 24px 0; }
+.tile { display: block; background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 18px; box-shadow: 0 1px 2px rgba(35,25,15,0.04); transition: transform .12s, box-shadow .12s; }
+.tile:hover { transform: translateY(-2px); box-shadow: 0 10px 24px -14px rgba(35,25,15,0.35); text-decoration: none; }
+.tile .n { font-family: var(--serif); font-size: 13px; color: var(--accent); }
+.tile h3 { margin: 4px 0 4px; font-size: 17px; color: var(--ink-900); }
+.tile p { margin: 0; font-size: 14px; color: var(--ink-500); }
+
+.toc { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 14px 18px; margin: 20px 0 30px; font-size: 15px; }
+.toc .label { font-size: 12px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-500); margin-bottom: 6px; }
+.toc a { display: inline-block; margin-right: 4px; }
+
+.pager { display: flex; justify-content: space-between; margin-top: 48px; gap: 16px; font-size: 15px; }
+.pager a { max-width: 48%; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0 4px; }
+.chip { font-size: 12.5px; background: #f3e4cf; color: #6b3a1f; border-radius: 999px; padding: 3px 11px; font-weight: 600; }
+.foot { color: var(--ink-300); font-size: 13px; margin-top: 40px; }

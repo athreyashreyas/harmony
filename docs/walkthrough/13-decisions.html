@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>13 · Key Decisions — Harmony Walkthrough</title>
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+<div class="topbar"><span class="brand">Harmony<span>.</span></span><a href="index.html">← All chapters</a><span class="spacer"></span><span class="muted">13 / 15</span></div>
+<div class="wrap">
+  <p class="eyebrow">Chapter 13</p>
+  <h1>Key Decisions &amp; Trade-offs</h1>
+  <p class="lede">The forks in the road, and why each was taken. This is the chapter to internalize — interviewers probe <em>decisions</em>, not features.</p>
+
+  <h2>The decision log</h2>
+  <table>
+    <tr><th>Decision</th><th>Chosen because</th><th>Trade-off accepted</th></tr>
+    <tr><td><strong>Offline-first; Dexie is truth</strong></td><td>A tracker is tapped constantly for 2 seconds; must be instant &amp; work with no signal.</td><td>Reconcile complexity (grace windows, watermarks) to keep the cloud in agreement.</td></tr>
+    <tr><td><strong>Share the engine in <code>@harmony/shared</code> (no build)</strong></td><td>Client "today" and worker reminders must be byte-identical.</td><td>Web &amp; worker are coupled to one source; a path alias, not a published package.</td></tr>
+    <tr><td><strong>Rolling-window Bloom, no streak field</strong></td><td>Enforce "no shame" in the data layer, not just copy.</td><td>Can't offer a streak counter even if asked — by design.</td></tr>
+    <tr><td><strong>Importance gamma curve</strong></td><td>Draw the eye to what matters most; still let everything reach full.</td><td>The fill isn't a naive percentage — needs explaining (ch. 04).</td></tr>
+    <tr><td><strong>Tugs subtract from the Bloom</strong></td><td>Show the honest whole (lift &amp; drag), not just wins.</td><td>Capped at 0.6 and floored at 0 so it's honest, never punitive.</td></tr>
+    <tr><td><strong>Rituals &amp; prefs on the settings JSON row</strong></td><td>Small per-account data; reuse the existing synced singleton.</td><td>No per-item realtime granularity (fine for rarely-edited data).</td></tr>
+    <tr><td><strong>Watermark + soft-delete log sync</strong></td><td>Immediate <em>and</em> complete <em>and</em> cheap cross-device catch-up.</td><td>A tombstone table &amp; an hourly pruner to maintain; reseed if dormant 45+ days.</td></tr>
+    <tr><td><strong>Worker composes content from your data</strong></td><td>Nudges must speak <em>your</em> words → the server must read them.</td><td>Direct tension with full E2EE → "encrypt content, keep timings" is the future path.</td></tr>
+    <tr><td><strong>Bespoke SVG/CSS charts, no library</strong></td><td>Small bundle (free-tier egress), fully themeable.</td><td>We maintain the chart code ourselves.</td></tr>
+    <tr><td><strong>Rules-based reflection (no LLM yet)</strong></td><td>Instant, free, private, deterministic; feels personal.</td><td>Hand-authored phrasing pools; LLM layered on later.</td></tr>
+    <tr><td><strong>CSS-variable theming (dual hex + rgb)</strong></td><td>Runtime themes with opacity modifiers &amp; inline SVG re-theming; no flash.</td><td>Every token defined twice.</td></tr>
+    <tr><td><strong>App-native pickers, not OS controls</strong></td><td>The app's feel extends to every tap; touch-first.</td><td>More components to build &amp; maintain.</td></tr>
+    <tr><td><strong>Migrations by hand in the SQL editor</strong></td><td>No linked CLI/DB password in the build env; deliberate, reviewed DDL.</td><td>The owner runs each migration manually.</td></tr>
+  </table>
+
+  <h2>Decisions that were reversed (and why that's healthy)</h2>
+  <ul>
+    <li><strong>120-day windowed log pull → watermark sync.</strong> The window bounded egress but left an old-date-edit edge case with up to a day's delay. When "immediate sync, no matter what" became a hard requirement, it was replaced with the proper watermark + soft-delete mechanism. <em>Lesson: the windowed pull was a good 80% step; the watermark is the correct 100%.</em></li>
+    <li><strong>Daily self-heal → superseded.</strong> A once-a-day full pull was implemented to close the edge, then removed the same session because the watermark closes it <em>immediately</em>, not daily.</li>
+    <li><strong>Tap-to-expand chevron → wrap-in-place.</strong> A cropped long habit name first got a tap-to-reveal popover, then a tap-to-expand chevron — both misfired on touch (opening the habit page). The final answer removed the interaction entirely: long names just wrap. <em>Lesson: the best affordance was no affordance.</em></li>
+    <li><strong>Ocean Blue removed.</strong> Trimmed to a curated 5-light / 3-dark set to avoid choice fatigue; stale selections fall back to the default gracefully.</li>
+  </ul>
+
+  <h2>Deliberate non-decisions (things intentionally NOT built)</h2>
+  <ul>
+    <li><strong>Cron sharding across users.</strong> It would make reminders fire less often per user, hurting the "within a minute" guarantee. Deferred until scale actually demands it — a case where <em>not</em> doing the "scalable" thing was the right call.</li>
+    <li><strong>Full zero-knowledge blackout.</strong> Would break server reminders; the pragmatic middle path preserves functionality (ch. 11).</li>
+    <li><strong>A charting/animation-heavy dependency.</strong> Kept out to protect bundle size and the free-tier egress budget.</li>
+  </ul>
+
+  <div class="callout why"><span class="label">The meta-lesson</span>Nearly every decision optimizes for one of three things: <strong>the calm philosophy</strong> (no shame, your words), <strong>instant offline UX</strong> (Dexie-first), or <strong>staying free at scale</strong> (bounded egress, no server compute, no deps). When a new idea conflicts with all three, it's reshaped until it doesn't — that's the design method.</div>
+
+  <div class="pager"><a href="12-journeys.html">← 12 · Journeys</a><a href="14-performance-cost.html">14 · Performance &amp; Cost →</a></div>
+  <p class="foot">Harmony Owner's Walkthrough · Chapter 13</p>
+</div>
+</body>
+</html>

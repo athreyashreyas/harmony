@@ -11,6 +11,7 @@ import { blendOver, hexToRgba } from '../../lib/color';
 import { useThemeColor } from '../../lib/useThemeColor';
 import { formatDateMedium, isoDaysAgo, lastTendedPhrase } from '../../lib/time/dates';
 import { BackButton } from '../onboarding/ui';
+import { requestScrollTop } from '../../app/scrollMemory';
 import { useAreas } from '../../store/useAreas';
 import { useHabits } from '../../store/useHabits';
 import { useLogs } from '../../store/useLogs';
@@ -128,7 +129,14 @@ export default function HabitDetailScreen() {
       <div className="scroll-ios relative z-10 min-h-0 flex-1 overflow-y-auto pb-safe">
         <header className="flex items-center justify-between px-4 pt-safe">
           <div className="flex h-14 items-center">
-            <BackButton onClick={() => navigate(-1)} />
+            <BackButton
+              onClick={() => {
+                // A deliberate "take me home": land at the top. (An edge-swipe
+                // back is a history POP and instead restores the prior scroll.)
+                requestScrollTop();
+                navigate(-1);
+              }}
+            />
           </div>
           <div className="flex h-14 items-center">
             <button

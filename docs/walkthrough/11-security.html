@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>11 · Security & Privacy — Harmony Walkthrough</title>
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+<div class="topbar"><span class="brand">Harmony<span>.</span></span><a href="index.html">← All chapters</a><span class="spacer"></span><span class="muted">11 / 15</span></div>
+<div class="wrap">
+  <p class="eyebrow">Chapter 11</p>
+  <h1>Security &amp; Privacy</h1>
+  <p class="lede">Defence in depth: row-level security as the backbone, a zero-trust worker, strict secret isolation, and a set of hardening measures — plus a fully-designed (but deferred) zero-knowledge encryption plan.</p>
+
+  <h2>Row-Level Security is the backbone</h2>
+  <p>Every table has RLS enabled with a per-user policy — a user can only ever touch rows where <code>auth.uid() = user_id</code>, on select, insert, update, <em>and</em> delete (<code>with check</code> guards writes too). PostgREST also needs baseline <code>GRANT</code>s, which are explicit (migration 0007). This means even a fully-compromised client, using its own valid token, can only reach its own data — the isolation is enforced by Postgres, not by app code.</p>
+  <pre><code>create policy "Users manage their own areas" on areas for all
+  using (auth.uid() = user_id) with check (auth.uid() = user_id);</code></pre>
+
+  <h2>The zero-trust worker</h2>
+  <p>The push worker holds the <strong>service-role key</strong> (which bypasses RLS), so it is written to never trust client input:</p>
+  <ul>
+    <li>Every mutating endpoint (<code>/subscribe</code>, <code>/delete-account</code>) <strong>verifies the bearer token</strong> against Supabase and derives the user id <em>from the token</em>, never from the request body. You can only ever act on your own account.</li>
+    <li>The service-role key lives only in the Worker's env — it is never shipped to the browser. The browser only ever holds the public <em>anon</em> key.</li>
+    <li><strong>Account deletion</strong> is admin-gated and lives in the worker: it deletes the user's data across all tables, then the <code>auth.users</code> row via the Admin API — a real deletion, not just data.</li>
+  </ul>
+
+  <h2>Hardening (from the security/perf audit)</h2>
+  <table>
+    <tr><th>Measure</th><th>What &amp; why</th></tr>
+    <tr><td>CORS allowlist</td><td>The worker echoes an <em>allow-listed</em> Origin (<code>ALLOWED_ORIGINS</code> env) instead of a blanket <code>*</code> — defence in depth (endpoints are already token-gated).</td></tr>
+    <tr><td>Rate limiting</td><td>Best-effort per-user limiter on the mutating endpoints (blunts a hammering client; abuse can only ever affect the caller's own account).</td></tr>
+    <tr><td>Length bounds (0018)</td><td>Server-side <code>CHECK</code> constraints on text, well above the UX caps, so a tampered client can't store absurd values.</td></tr>
+    <tr><td>No XSS surface</td><td>No <code>dangerouslySetInnerHTML</code> anywhere; React escapes all user text (habit names, notes) by default.</td></tr>
+    <tr><td>Sign-out wipe</td><td>Signing out flushes the queue, then <strong>wipes local Dexie data</strong>, so a shared device leaks nothing to the next account.</td></tr>
+  </table>
+
+  <h2>Auth flows</h2>
+  <ul>
+    <li><strong>Password reset</strong> via a Supabase email link → set a new password on the reset screen.</li>
+    <li><strong>Onboarding draft</strong> is kept in localStorage so a reload mid-signup never loses your areas; it's cleared on completion and on sign-out.</li>
+    <li><strong>"What's new"</strong> is shown once per account: a synced <code>lastSeenVersion</code> (so seeing it on one device suppresses it elsewhere) <em>and</em> a per-device localStorage marker (which a mid-sync pull can never clobber), gated on a fresh pull so a stale value can't re-trigger it.</li>
+  </ul>
+
+  <h2>The deferred zero-knowledge encryption plan</h2>
+  <p>A flagship privacy feature was fully designed and consciously deferred. The goal: the server stores only encrypted blobs, so Harmony can honestly say "we can't see your habits, reasons, or notes."</p>
+  <h3>The architecture (envelope encryption)</h3>
+  <ul>
+    <li>A random <strong>Data Key</strong> encrypts content (AES-GCM, client-side Web Crypto — zero server cost).</li>
+    <li>The Data Key is stored <strong>wrapped</strong> by a key derived from the password (PBKDF2, ~600k iterations). The server never sees the password or the Data Key.</li>
+    <li><strong>Changing the password re-wraps the Data Key</strong> (fast, no bulk re-encryption). A <strong>recovery key</strong> at sign-up wraps it a second time, so a forgotten password isn't automatic data loss.</li>
+  </ul>
+  <div class="callout warn"><span class="label">The central trade-off</span>The worker reads your data to compose reminders and drift nudges (ch. 07). Full blackout would blind it and break those. The chosen path is <strong>"encrypt content, keep timings"</strong>: encrypt names / "why" / notes, but keep cadence, reminder time, and log dates readable so reminders survive. The honest claim becomes "we can't read <em>what</em> you track or write, only the clock we nudge you by."</div>
+  <div class="callout warn"><span class="label">The browser-E2EE caveat (be honest in interviews)</span>Because the server delivers the app's JavaScript, a <em>malicious</em> server could in theory serve key-leaking code. The defensible PWA claim is "stored only encrypted; we never transmit your keys or plaintext" — the absolute "even a hacked us couldn't" needs native apps + reproducible builds. Knowing this distinction is exactly the kind of nuance that impresses in a security conversation.</div>
+  <p class="muted">Cost verdict: E2EE is free-tier-safe for a decade — client-side crypto adds no server cost; storage/egress inflate only ~1.3–1.4× (well within headroom).</p>
+
+  <div class="pager"><a href="10-theming.html">← 10 · Theming</a><a href="12-journeys.html">12 · User Journeys →</a></div>
+  <p class="foot">Harmony Owner's Walkthrough · Chapter 11</p>
+</div>
+</body>
+</html>

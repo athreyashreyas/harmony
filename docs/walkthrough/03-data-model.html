@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>03 · Data Model — Harmony Walkthrough</title>
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+<div class="topbar"><span class="brand">Harmony<span>.</span></span><a href="index.html">← All chapters</a><span class="spacer"></span><span class="muted">03 / 15</span></div>
+<div class="wrap">
+  <p class="eyebrow">Chapter 03</p>
+  <h1>The Data Model</h1>
+  <p class="lede">Six shapes carry the whole app: Area, Habit, Log, plus NotificationSettings (which also holds Rituals), NudgeHistory, and the local Outbox. They live in <code>packages/shared/src/types.ts</code> so client and worker agree exactly.</p>
+
+  <h2>Area</h2>
+  <p>A part of life you name.</p>
+  <pre><code>interface Area {
+  id, userId
+  name           <span class="tok-c">// your word: "Body", "Mind" (≤ 30 chars)</span>
+  color          <span class="tok-c">// hex from a curated palette; NEVER themed</span>
+  importance     <span class="tok-c">// 'core' | 'matters' | 'optional'</span>
+  whySentence    <span class="tok-c">// your reason, brought back to you (≤ 240)</span>
+  order          <span class="tok-c">// priority order (drag to reorder)</span>
+  createdAt, archivedAt
+  driftSensitivity?   <span class="tok-c">// 'low' | 'default' | 'high'</span>
+  reminderTimeOfDay?  <span class="tok-c">// when this area's nudges arrive</span>
+}</code></pre>
+  <div class="callout"><span class="label">Two dials per area</span><strong>Importance</strong> shapes how readily the Bloom petal fills (ch. 04) <em>and</em> whether drift nudges fire (<code>optional</code> areas never nag). <strong>Drift sensitivity</strong> is a second, independent multiplier on how quickly "quiet" is called (ch. 07).</div>
+
+  <h2>Habit</h2>
+  <p>A small practice inside an area. The <code>polarity</code> field is the fork between a <em>tend</em> and a <em>tug</em>.</p>
+  <pre><code>interface Habit {
+  id, userId, areaId
+  name
+  cadence        <span class="tok-c">// the repeat rule (see below)</span>
+  timeOfDay      <span class="tok-c">// 'morning'|'afternoon'|'evening'|'anytime' — sort/label only</span>
+  reminderTime   <span class="tok-c">// "HH:mm" or null</span>
+  startDate, endDate
+  order
+  color?         <span class="tok-c">// override, else inherits the area's colour</span>
+  polarity?      <span class="tok-c">// 'tend' (default) | 'ease' (a tug)</span>
+  tugWeight?     <span class="tok-c">// how much one logged tug sets you back (ease only)</span>
+  weight?        <span class="tok-c">// share of the area's Bloom (default 1 = equal)</span>
+}</code></pre>
+
+  <h3>Cadence — the repeat rule (a discriminated union)</h3>
+  <table>
+    <tr><th>kind</th><th>Meaning</th></tr>
+    <tr><td><code>daily</code></td><td>Every day.</td></tr>
+    <tr><td><code>weekdays</code> / <code>weekends</code></td><td>Mon–Fri / Sat–Sun.</td></tr>
+    <tr><td><code>specific-days: { days:[0..6] }</code></td><td>Certain weekdays (0=Sun).</td></tr>
+    <tr><td><code>times-per-week: { times }</code></td><td>Flexible: shown every day, you pick which.</td></tr>
+    <tr><td><code>every-n-days: { n }</code></td><td>Counted from the start date.</td></tr>
+    <tr><td><code>every-n-weeks: { n }</code></td><td>Same weekday every n weeks (fortnightly, etc.).</td></tr>
+    <tr><td><code>every-n-months: { n }</code></td><td>Same day-of-month, clamped to month length (monthly, quarterly, yearly).</td></tr>
+  </table>
+  <div class="callout why"><span class="label">Why <code>times-per-week</code> shows every day</span>Rather than guess <em>which</em> days you'll do a "3× a week" habit, Harmony shows it daily and lets the day's own log mark it done. It respects that flexible habits are flexible — the Bloom just needs the count, not a prescribed schedule.</div>
+
+  <h2>Log</h2>
+  <p>One tap = one Log. This is the highest-volume, ever-growing table, which is why it gets special sync treatment (ch. 06).</p>
+  <pre><code>interface Log {
+  id, userId, habitId, areaId
+  date       <span class="tok-c">// "YYYY-MM-DD" local — the day it counts for</span>
+  loggedAt   <span class="tok-c">// timestamp it was tapped (drives time-of-day insights)</span>
+  note       <span class="tok-c">// optional "how did that feel?" (≤ 1000)</span>
+}</code></pre>
+  <p>A compound index <code>[habitId+date]</code> makes "is this habit logged today?" an instant lookup. On the server, two extra columns were added for incremental sync: <code>updated_at</code> (bumped by a trigger) and <code>deleted_at</code> (soft-delete). More in chapter 06.</p>
+  <p class="muted">Note the two timestamps: <code>date</code> is the day the log is <em>for</em> (you can log a past day); <code>loggedAt</code> is when you actually tapped. Insights' "time of day" rhythm uses <code>loggedAt</code>; the calendar uses <code>date</code>.</p>
+
+  <h2>NotificationSettings — the synced per-account row</h2>
+  <p>One row per user. Beyond notifications it has become the home for small synced preferences, because it's already a synced singleton.</p>
+  <pre><code>interface NotificationSettings {
+  masterEnabled, mutedAreaIds[], dndStart, dndEnd
+  habitReminders, dailySummary
+  theme?           <span class="tok-c">// chosen theme id, follows you across devices</span>
+  lastSeenVersion? <span class="tok-c">// "What's new" shown once per account</span>
+  homeSort?        <span class="tok-c">// Home list order preference</span>
+  rituals?         <span class="tok-c">// Ritual[] — named habit-stacking flows</span>
+}
+interface Ritual { id, name, habitIds[] }</code></pre>
+  <div class="callout decision"><span class="label">Decision · Rituals as JSON on settings</span>A ritual is small per-account data (a name + an ordered list of habit ids). Rather than a whole new synced table (migration, sync mappings, realtime, outbox), it rides the existing settings row as a <code>jsonb</code> column. It syncs across devices for free via the settings path. Trade-off: no per-ritual realtime granularity — acceptable for something you edit rarely.</div>
+
+  <h2>NudgeHistory &amp; the Outbox</h2>
+  <ul>
+    <li><strong>NudgeHistory</strong> — a record of every nudge sent (drift, reminder, summary), with the composed text, channel (<code>in-app</code>/<code>push</code>), and time. It powers anti-spam (don't repeat a template for the same area within 3 days) and the "already shown today" guards.</li>
+    <li><strong>Outbox</strong> (local only, Dexie) — the durable write queue: <code>{ op: 'upsert'|'delete', table, payload, onConflict }</code>, auto-incrementing id so writes drain in the order they were made (which also respects FK order: area before habit before log).</li>
+  </ul>
+
+  <h2>Constants worth knowing cold</h2>
+  <table>
+    <tr><th>Constant</th><th>Value</th><th>Meaning</th></tr>
+    <tr><td><code>MIN_AREAS</code> / <code>MAX_AREAS</code></td><td>3 / 20</td><td>Keeps the Bloom's petals legible.</td></tr>
+    <tr><td><code>MAX_HABIT_NAME</code> / <code>MAX_AREA_NAME</code></td><td>60 / 30</td><td>Titles stay short for tight rows/chips.</td></tr>
+    <tr><td><code>MAX_WHY_SENTENCE</code> / <code>MAX_NOTE</code></td><td>240 / 1000</td><td>Reflective text; shown in full.</td></tr>
+    <tr><td><code>DEFAULT_DND</code></td><td>21:00 → 07:00</td><td>Quiet hours default.</td></tr>
+  </table>
+  <p class="muted">These are enforced client-side (<code>maxLength</code>) and, since migration 0018, with server-side <code>CHECK</code> constraints set well above the UX caps as a safety floor.</p>
+
+  <div class="pager"><a href="02-architecture.html">← 02 · Architecture</a><a href="04-bloom.html">04 · The Bloom (the math) →</a></div>
+  <p class="foot">Harmony Owner's Walkthrough · Chapter 03</p>
+</div>
+</body>
+</html>

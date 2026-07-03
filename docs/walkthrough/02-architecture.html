@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>02 · Architecture & Stack — Harmony Walkthrough</title>
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+<div class="topbar"><span class="brand">Harmony<span>.</span></span><a href="index.html">← All chapters</a><span class="spacer"></span><span class="muted">02 / 15</span></div>
+<div class="wrap">
+  <p class="eyebrow">Chapter 02</p>
+  <h1>Architecture &amp; Stack</h1>
+  <p class="lede">Harmony is an offline-first PWA with a tiny serverless backend. The defining architectural choice: the device is the source of truth, and the cloud is a mirror it reconciles against.</p>
+
+  <h2>The monorepo</h2>
+  <p>A pnpm workspace with three packages:</p>
+  <pre><code>harmony/
+  apps/
+    web/          <span class="tok-c"># the PWA (React 18 + TS + Vite)</span>
+    push-worker/  <span class="tok-c"># Cloudflare Worker for web push (Web Crypto, no Node deps)</span>
+  packages/
+    shared/       <span class="tok-c"># types + scheduling + drift/template engine, shared by web AND worker</span>
+  supabase/
+    migrations/   <span class="tok-c"># SQL, applied by hand in the Supabase SQL editor</span></code></pre>
+
+  <div class="callout decision"><span class="label">Decision · single-sourced logic</span><code>@harmony/shared</code> resolves to <em>source</em> (<code>packages/shared/src/index.ts</code>) via a tsconfig/Vite path alias — there is <strong>no build step</strong> for it. The web app and the push worker both import the exact same scheduling and drift code, so "is this habit due today?" and "has this area gone quiet?" are computed <em>byte-identically</em> on client and server. This is why a reminder fired by the worker always matches the app's own view.</div>
+
+  <h2>The stack, and why each piece</h2>
+  <table>
+    <tr><th>Layer</th><th>Choice</th><th>Why</th></tr>
+    <tr><td>Build</td><td>Vite + <code>vite-plugin-pwa</code> (injectManifest)</td><td>Fast dev; we own the service worker (<code>sw.ts</code>) for custom push handling.</td></tr>
+    <tr><td>UI</td><td>React 18 + TypeScript, lazy routes</td><td>Code-split per screen; type safety across the shared model.</td></tr>
+    <tr><td>Local DB</td><td>Dexie (IndexedDB)</td><td><strong>Source of truth on device.</strong> Everything renders from here; the network is optional.</td></tr>
+    <tr><td>State</td><td>Zustand</td><td>Tiny stores that hydrate from Dexie; optimistic updates before any round-trip.</td></tr>
+    <tr><td>Styling</td><td>Tailwind + CSS-variable tokens</td><td>Themeable at runtime (ch. 10); utilities re-theme via <code>rgb(var(--x) / a)</code>.</td></tr>
+    <tr><td>Animation</td><td>Framer Motion</td><td>Bloom transitions, list reflow, the ritual flow, respects reduced-motion.</td></tr>
+    <tr><td>Auth / data / realtime</td><td>Supabase (free tier): PostgREST + RLS + Realtime</td><td>Postgres with row-level security; live cross-device updates for free.</td></tr>
+    <tr><td>Push backend</td><td>Cloudflare Worker, cron every minute</td><td>Serverless, generous free tier; runs the reminder/drift pass.</td></tr>
+    <tr><td>Web push crypto</td><td>Web Crypto (SubtleCrypto) VAPID + aes128gcm</td><td>No Node crypto deps — runs in the Workers runtime.</td></tr>
+    <tr><td>Hosting</td><td>Cloudflare Pages (web) + Workers (push)</td><td>Both git-connected; push triggers a build on path-watch.</td></tr>
+  </table>
+
+  <h2>The data-flow model (the important mental picture)</h2>
+  <p>Read it as three arrows around Dexie:</p>
+  <div class="card">
+    <p><strong>1 · Write → Dexie → Outbox → Supabase.</strong> Every user action writes to Dexie first (instant, optimistic), and enqueues a durable <em>outbox</em> item. A flusher drains the outbox to Supabase in order. A write made offline (or one whose request fails) stays queued and retries — it is never lost.</p>
+    <p><strong>2 · Pull (authoritative reconcile).</strong> On sign-in and as a backstop, the app fetches the account's rows and reconciles them into Dexie with the <em>server authoritative</em>, guarded by a grace window so a just-made local write is never deleted. (Ch. 06 details the watermark-based incremental version.)</p>
+    <p><strong>3 · Realtime.</strong> Supabase Realtime pushes each row change to other devices instantly; the app applies it straight into Dexie and reloads the affected store.</p>
+  </div>
+  <p>Backstops for anything realtime misses (dropped socket, sleep): a pull on <em>foreground</em>, on <em>reconnect</em>, and a slow <em>15-minute poll</em> while visible.</p>
+
+  <div class="callout why"><span class="label">Why offline-first, not server-first</span>A habit tracker is opened dozens of times a day for a two-second tap. That interaction must be <em>instant</em> and must work on a subway with no signal. Making Dexie the truth means the UI never waits on the network — the network catches up in the background. It also makes the app resilient: Supabase could be down and you could still log your whole day.</div>
+
+  <h2>Routing &amp; app shell</h2>
+  <p>React Router v6 with lazy-loaded screens. Public routes (<code>/sign-in</code>, <code>/sign-up</code>, <code>/reset-password</code>) sit outside the auth gate; everything else is wrapped in <code>&lt;AuthGate&gt;</code>, which orchestrates the boot (auth check, first pull, theme, and the "What's new" decision) behind a single calm splash. The main tabbed shell holds Home (index), Areas, Log, Insights, and Me.</p>
+  <pre><code><span class="tok-c">// app/Router.tsx — the shape</span>
+/sign-in /sign-up /reset-password        <span class="tok-c">// public</span>
+&lt;AuthGate&gt;
+  /onboarding /guide /habit/:habitId
+  &lt;Shell&gt;  <span class="tok-c">// bottom-tab shell</span>
+    /            HomeScreen
+    /areas       AreasScreen
+    /log         LogScreen
+    /insights    InsightsScreen
+    /me          SettingsScreen</code></pre>
+
+  <h2>PWA specifics</h2>
+  <ul>
+    <li><strong>Custom service worker</strong> (<code>src/sw.ts</code>, injectManifest) for <code>push</code> and <code>notificationclick</code> — the app shell is precached by Workbox, but the push logic is ours.</li>
+    <li><strong>Seamless updates:</strong> a new version = a new SW bundle → controllerchange → reload, gated behind the "Updating Harmony" screen only when the version actually changed (ch. 12).</li>
+    <li><strong>iOS reality:</strong> web push requires the PWA be installed to the home screen; the app detects this and guides the user. iOS also injects "from &lt;app&gt;" attribution on notifications — not removable via the API, a documented constraint.</li>
+  </ul>
+
+  <div class="pager"><a href="01-philosophy.html">← 01 · Philosophy</a><a href="03-data-model.html">03 · The Data Model →</a></div>
+  <p class="foot">Harmony Owner's Walkthrough · Chapter 02</p>
+</div>
+</body>
+</html>

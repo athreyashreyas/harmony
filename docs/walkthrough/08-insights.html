@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>08 · Insights & Reflection — Harmony Walkthrough</title>
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+<div class="topbar"><span class="brand">Harmony<span>.</span></span><a href="index.html">← All chapters</a><span class="spacer"></span><span class="muted">08 / 15</span></div>
+<div class="wrap">
+  <p class="eyebrow">Chapter 08</p>
+  <h1>Insights &amp; the Reflection</h1>
+  <p class="lede">A one-stop, dynamic read on how you're living — over a selectable range or focused on one area — powered by a pure analytics engine, bespoke dependency-free charts, a Bloom garden of your past weeks, and a warm reflection that never repeats itself.</p>
+
+  <h2>The analytics engine (<code>lib/insights/analytics.ts</code>)</h2>
+  <p><code>computeInsights({areas, habits, logs}, range, {focusAreaId})</code> is pure and deterministic given <code>now</code>. Everything on the screen derives from its single output, so every chart tells a consistent story.</p>
+  <table>
+    <tr><th>Field</th><th>What it is</th></tr>
+    <tr><td><code>range</code></td><td><code>week | month | year | all</code> — rescopes every chart at once.</td></tr>
+    <tr><td><code>focusAreaId</code></td><td>Scope the whole page to one area (a drill-down).</td></tr>
+    <tr><td><code>trend</code></td><td>Per-bucket adherence ratio (daily for week/month, monthly for year/all).</td></tr>
+    <tr><td><code>trendDelta / prevTends</code></td><td>Momentum vs the previous equal period.</td></tr>
+    <tr><td><code>calendar</code></td><td>Daily cells for the <em>whole calendar year</em>, including future days (drawn faint) so the grid reads complete.</td></tr>
+    <tr><td><code>weekday[7] / segments[4]</code></td><td>Rhythm: which days &amp; times of day you show up most.</td></tr>
+    <tr><td><code>runs</code></td><td>Current &amp; longest consecutive days shown up (gentle, celebrate-only).</td></tr>
+    <tr><td><code>areas[] / habits[]</code></td><td>Per-area &amp; per-habit stats; each habit gets a sparkline + best weekday + last done.</td></tr>
+    <tr><td><code>tugs[] / tugStats[]</code></td><td>Lift-vs-drag series + per-tug counts and days-since.</td></tr>
+    <tr><td><code>summary</code></td><td>Tends, days shown up, active areas/habits, top area.</td></tr>
+  </table>
+
+  <h2>Bespoke charts — no dependency</h2>
+  <p>Every visualization is hand-built SVG/CSS (<code>components/charts/</code>), deliberately <em>not</em> a charting library — it keeps the bundle small (kind to the free-tier egress) and lets each chart wear the theme:</p>
+  <ul>
+    <li><strong>TrendChart</strong> — an area+line of momentum, stroke kept even under stretch via <code>vector-effect: non-scaling-stroke</code>.</li>
+    <li><strong>Bars / HBars</strong> — weekday bars and horizontal time-of-day bars (full labels: Morning/Afternoon/Evening/Night).</li>
+    <li><strong>CalendarHeatmap</strong> — a contribution grid that opens <em>anchored on the present</em> (auto-scrolls so the current month is in view), with month labels across the top (spaced so they never crowd) and all seven weekday labels down the left; today is ringed; future days are dashed outlines. Never red.</li>
+    <li><strong>RadarChart</strong> — a "balance constellation" of your areas, a companion to the Bloom showing whether attention is spread or gathered.</li>
+    <li><strong>Sparkline / DivergingBars</strong> — per-habit rhythm; tugs rising above / pulling below the line.</li>
+  </ul>
+
+  <h2>The Bloom garden</h2>
+  <p>A second tab in Insights: <strong>every past week, pressed and kept as its own mini Bloom</strong>, scrollable back through the seasons. It's computed live (<code>computeGarden</code>) from your logs — nothing extra is stored. Each week re-blooms by calling the very same <code>computeAreaActivity</code> with that week's <code>endISO</code> and a 7-day window (this is why the Bloom function took an <code>endISO</code> parameter). Bounded to <strong>78 weeks</strong>, and made fast by pre-grouping logs by area so each week scans only that area's logs.</p>
+  <div class="callout"><span class="label">Correctness note</span>Insights and the garden read the <em>full</em> log history from Dexie (a local, zero-egress read), not the 60-day UI window — otherwise Year/All ranges and older garden weeks would silently under-report. This was a real bug caught and fixed in the security/perf audit (ch. 14).</div>
+
+  <h2>The reflection — a voice that never repeats</h2>
+  <p>Insights closes with a warm, human paragraph (<code>lib/insights/reflection.ts</code>). The brief was exacting: informative, motivational, accurate, human, empathetic, joyful, kind — and it must <strong>not</strong> feel repetitive over days, weeks, months, years, while staying stable (no flicker) for a given state.</p>
+  <h3>How it achieves both</h3>
+  <ol>
+    <li><strong>It rotates which truths it surfaces.</strong> Each period there are many <em>applicable</em> observations (momentum, rhythm, runs, breadth, a standout habit, a quiet area held kindly using your own "why", tugs, weekday leanings). A seed picks a fresh couple to feature — so different periods highlight different things, not just different words.</li>
+    <li><strong>It rotates how each is said</strong> — large phrasing pools per slot.</li>
+    <li><strong>The seed</strong> is a hash of the <em>period</em> (the range's start) plus your actual numbers. Same state → identical text (no flicker on re-open). New day/new numbers → fresh wording. Fully deterministic, no randomness.</li>
+  </ol>
+  <div class="formula">seed = hash( from · range · tends · daysShownUp · weekday[] · bestSegment · runs · Δmomentum · per-area ratios )<br>featured = the applicable observations, sorted by hash(seed, id), take 2</div>
+  <h3>The voice rules (hard-won)</h3>
+  <ul>
+    <li><strong>No first person.</strong> "from where I'm sitting" was removed — the app isn't a character.</li>
+    <li><strong>No eggshells.</strong> "No pressure at all, but…" became confident nudges ("give it a small hello this week"). It doesn't apologise for suggesting what you already said you wanted.</li>
+    <li><strong>No streaks-as-shame.</strong> Runs are celebrated, never used to guilt. A quiet area is held kindly, quoting your own reason back.</li>
+    <li>It always closes on a genuine pat on the back.</li>
+  </ul>
+  <p class="muted">A focused (single-area) reflection is a separate, similarly-structured generator. Both are unit-tested for determinism, for reflecting real counts, and for reading differently across periods.</p>
+
+  <div class="callout decision"><span class="label">Decision · rules-based now, LLM later</span>The reflection is deliberately rules-based (no model call) so it's instant, free, private, and deterministic. It's structured so LLM processing can be layered on later — the intent was always to make it feel "almost LLM-generated" first, then optionally add real generation.</div>
+
+  <div class="pager"><a href="07-notifications.html">← 07 · Notifications</a><a href="09-rituals.html">09 · Rituals →</a></div>
+  <p class="foot">Harmony Owner's Walkthrough · Chapter 08</p>
+</div>
+</body>
+</html>

@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>12 · User Journeys — Harmony Walkthrough</title>
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+<div class="topbar"><span class="brand">Harmony<span>.</span></span><a href="index.html">← All chapters</a><span class="spacer"></span><span class="muted">12 / 15</span></div>
+<div class="wrap">
+  <p class="eyebrow">Chapter 12</p>
+  <h1>User Journeys</h1>
+  <p class="lede">The end-to-end paths a real person takes, and what happens under each tap. If you can narrate these, you can demo the app from memory.</p>
+
+  <h2>1 · Onboarding</h2>
+  <ol>
+    <li><strong>Sign up</strong> → the first name is stashed in localStorage as a pending value (so a confirmation round-trip never loses it).</li>
+    <li><strong>Name your areas</strong> (3–20), pick colours from the family-grouped picker, add a starter habit per area, and write the <strong>"why" sentence</strong> for each — with a live preview of how a future reminder would read.</li>
+    <li>The whole draft lives in localStorage, so a reload mid-flow resumes exactly where you were.</li>
+    <li>On finish, everything commits in one Dexie transaction (areas + habits together), and you land on the <strong>guide</strong> (the intended first stop), with <code>lastSeenVersion</code> set so "What's new" won't greet you immediately.</li>
+  </ol>
+
+  <h2>2 · A day of use (Home)</h2>
+  <ul>
+    <li><strong>Tap a circle</strong> → an optimistic Log is written to Dexie and the store, so the check, the count, and the Bloom redraw <em>before</em> any network call; the outbox mirrors it up.</li>
+    <li><strong>Tap again</strong> to undo (a soft-delete that syncs).</li>
+    <li><strong>Press &amp; hold a habit</strong> → leave a "how did that feel?" note (which also marks the day tended).</li>
+    <li><strong>Tap an area chip</strong> (or a Bloom petal) → filter the day to that area; <strong>hold</strong> a chip → edit the area in place.</li>
+    <li><strong>Sort control</strong> → order the list by time of day (default; anytime last), priority, or "still to do"; the choice syncs across devices and the list animates into its new order.</li>
+    <li><strong>Tugs section</strong> → one tap to note a tug for today; it shows "days since the last one" and quietly steps aside after a while.</li>
+    <li><strong>Rituals section</strong> → Begin a flow (ch. 09).</li>
+  </ul>
+
+  <h2>3 · Editing the past (Log)</h2>
+  <p>The Log is a calm month calendar of what you tended, with your notes. <strong>Tap any past day</strong> to set the record straight — mark something you forgot, or unmark a mistaken tap. Thanks to the watermark sync (ch. 06), even an edit to a months-old day propagates to your other devices immediately on their next sync.</p>
+
+  <h2>4 · Across devices</h2>
+  <ul>
+    <li>Sign in on a new phone/tablet → a <strong>full seed</strong> pulls your whole history; everything is just there.</li>
+    <li>From then on, changes flow instantly via <strong>Realtime</strong> when both devices are online, and via the <strong>watermark catch-up</strong> the moment an offline device reconnects.</li>
+    <li>The <strong>status dot</strong> (top-right) shows offline / syncing / up-to-date; tapping it opens a Sync popup to sync on demand or pick up a new app version.</li>
+  </ul>
+
+  <h2>5 · Reminders arriving</h2>
+  <p>Turn on reminders per device (on iPhone, add to home screen first). Give a habit a time → the worker sends a soft nudge at that minute on days it's due, landing within ~a minute. Quiet hours suppress the app's own nudges (drift, the evening round-up) but not your chosen reminder times. When an area you said mattered goes quiet, your own sentence comes back — on Home as a banner and as a push.</p>
+
+  <h2>6 · The guide &amp; "What's new"</h2>
+  <p>"How Harmony works" has two sides: <strong>What's new</strong> (the latest release in focus, full version history below, each with a little illustration of the feature it brought) and an illustrated <strong>walk-through</strong> of everything. It's shown once after onboarding and reachable any time under Me. On a version bump, "What's new" greets you exactly once per account (synced), then steps aside.</p>
+
+  <h2>7 · Account management</h2>
+  <ul>
+    <li><strong>Forgot password</strong> → email link → set a new one on the reset screen.</li>
+    <li><strong>Delete account</strong> → the worker removes all your data <em>and</em> your auth user (a true deletion), then the device wipes local data.</li>
+    <li><strong>Sign out</strong> → flush the queue while still authenticated, then wipe Dexie so nothing is left for the next person.</li>
+  </ul>
+
+  <div class="callout why"><span class="label">The thread through all of these</span>Every journey is <em>instant and offline-safe</em> because writes hit Dexie first, and <em>consistent across devices</em> because the sync layer catches up completely and cheaply. The user never waits on, or is blocked by, the network.</div>
+
+  <div class="pager"><a href="11-security.html">← 11 · Security</a><a href="13-decisions.html">13 · Key Decisions →</a></div>
+  <p class="foot">Harmony Owner's Walkthrough · Chapter 12</p>
+</div>
+</body>
+</html>

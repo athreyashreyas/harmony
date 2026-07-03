@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>05 · Scheduling & Cadences — Harmony Walkthrough</title>
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+<div class="topbar"><span class="brand">Harmony<span>.</span></span><a href="index.html">← All chapters</a><span class="spacer"></span><span class="muted">05 / 15</span></div>
+<div class="wrap">
+  <p class="eyebrow">Chapter 05</p>
+  <h1>Scheduling &amp; Cadences</h1>
+  <p class="lede">Two pure functions in <code>packages/shared/src/scheduling.ts</code> answer every scheduling question in the app: <code>isHabitDueOn</code> ("is this on today's list?") and <code>expectedCompletionsInWindow</code> ("how many should there be?"). Because they're shared, the app's "today" and the worker's reminders always agree.</p>
+
+  <h2><code>isHabitDueOn(habit, dateISO)</code></h2>
+  <p>Guard clauses first, then the cadence switch:</p>
+  <pre><code>if (habit.archivedAt != null) return false
+if (habit.polarity === 'ease') return false      <span class="tok-c">// tugs are NEVER scheduled</span>
+if (dateISO &lt; habit.startDate) return false
+if (habit.endDate != null &amp;&amp; dateISO &gt; habit.endDate) return false
+
+switch (cadence.kind) {
+  daily:          return true
+  weekdays:       return dayOfWeek in 1..5
+  weekends:       return dayOfWeek === 0 || 6
+  specific-days:  return cadence.days.includes(dayOfWeek)
+  times-per-week: return true                     <span class="tok-c">// shown every day; you pick which</span>
+  every-n-days:   return daysBetween(start, date) % max(1,n) === 0
+  every-n-weeks:  return daysBetween(start, date) % (7 × max(1,n)) === 0
+  every-n-months: <span class="tok-c">// due on the start day-of-month, clamped to month length</span>
+}</code></pre>
+
+  <div class="callout"><span class="label">The month-clamp subtlety</span>For <code>every-n-months</code>, a habit that starts on the 31st is "due" on the 28th in February (or 30th in April) — it clamps to the month's last day so a monthly habit never silently skips a short month. This is the kind of edge that's unit-tested explicitly.</div>
+
+  <h2><code>expectedCompletionsInWindow(cadence, windowDays)</code></h2>
+  <p>How many completions a cadence implies over a span. This is the denominator for every adherence ratio (the Bloom, insights, the garden). It's an <em>approximation from the cadence shape</em>, not a day-by-day walk — because the windows in practice are whole weeks.</p>
+  <table>
+    <tr><th>Cadence</th><th>Expected over <code>windowDays</code></th></tr>
+    <tr><td><code>daily</code></td><td>windowDays</td></tr>
+    <tr><td><code>weekdays</code> / <code>weekends</code></td><td>weeks × 5 &nbsp;/&nbsp; weeks × 2</td></tr>
+    <tr><td><code>specific-days</code></td><td>weeks × days.length</td></tr>
+    <tr><td><code>times-per-week</code></td><td>weeks × times</td></tr>
+    <tr><td><code>every-n-days</code></td><td>windowDays / max(1, n)</td></tr>
+    <tr><td><code>every-n-weeks</code></td><td>windowDays / (7 × max(1, n))</td></tr>
+    <tr><td><code>every-n-months</code></td><td>windowDays / (30 × max(1, n))</td></tr>
+  </table>
+  <p>(<code>weeks = windowDays / 7</code>.) Every branch guards against <code>n = 0</code> with <code>max(1, n)</code>, so a malformed cadence can never divide by zero.</p>
+
+  <h2>Where "today's list" comes from</h2>
+  <p>Home's list is <code>habits.filter(isHabitDueToday)</code> where <code>isHabitDueToday</code> is just <code>isHabitDueOn(habit, todayISO())</code>. The Today/All toggle switches between due-today and all-kept. Tugs are excluded from this list entirely (they're never scheduled) and live in their own section.</p>
+
+  <h2>Dates are days, not moments</h2>
+  <p>A subtle but important convention: dates that represent a <em>day</em> (a log's <code>date</code>, start/end dates) are ISO strings <code>"YYYY-MM-DD"</code> in <strong>local time</strong>, produced by <code>todayISO()</code>. This avoids the classic UTC bug where logging at 11pm lands on "tomorrow." Helpers <code>daysBetween</code>, <code>isoDaysAgo</code>, and <code>daySegment</code> (morning/afternoon/evening/night by local hour) all live in shared so client and worker compute identically.</p>
+
+  <div class="callout why"><span class="label">Why this is pure &amp; shared</span>Scheduling is the highest-leverage correctness code in the app — if the worker thought a habit was due when the app didn't, you'd get a reminder for something not on your list. Keeping it pure (no I/O, deterministic given inputs) makes it trivially unit-testable, and keeping it in <code>@harmony/shared</code> guarantees the client and the Cloudflare worker run the exact same bytes.</div>
+
+  <div class="pager"><a href="04-bloom.html">← 04 · The Bloom</a><a href="06-sync.html">06 · Sync Architecture →</a></div>
+  <p class="foot">Harmony Owner's Walkthrough · Chapter 05</p>
+</div>
+</body>
+</html>

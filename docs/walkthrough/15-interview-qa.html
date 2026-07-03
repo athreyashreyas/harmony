@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>15 · Interview Q&A — Harmony Walkthrough</title>
+<link rel="stylesheet" href="styles.css" />
+<style>
+  .qa { margin: 22px 0; }
+  .qa .q { font-family: var(--serif); font-size: 20px; color: var(--ink-900); margin: 0 0 6px; }
+  .qa .q::before { content: "Q"; display:inline-block; width:26px;height:26px;line-height:26px;text-align:center; background:var(--accent); color:#fff; border-radius:8px; font-family:var(--sans); font-size:13px; font-weight:700; margin-right:10px; vertical-align:2px; }
+  .qa .a { color: var(--ink-700); }
+  .cat { margin-top: 40px; }
+</style>
+</head>
+<body>
+<div class="topbar"><span class="brand">Harmony<span>.</span></span><a href="index.html">← All chapters</a><span class="spacer"></span><span class="muted">15 / 15</span></div>
+<div class="wrap">
+  <p class="eyebrow">Chapter 15 · the payoff</p>
+  <h1>Interview Q&amp;A Prep</h1>
+  <p class="lede">The questions a sharp interviewer (or a curious user) will actually ask, with crisp answers you can say out loud. Practise these until they're reflex.</p>
+
+  <h2 class="cat">Product &amp; design</h2>
+  <div class="qa"><p class="q">How is this different from Streaks or Habitica?</p><p class="a">Philosophy, made mechanical. There's no streak counter — the Bloom reads a rolling 14-day window recalculated daily, so a missed day shifts a ratio, it never "breaks." Negative habits (tugs) subtract from the picture so it's honest, not just wins. And nudges quote <em>your own words</em> back to you instead of the app lecturing. "No streaks, no shame" isn't a tagline — there is literally no field that stores days-in-a-row.</p></div>
+  <div class="qa"><p class="q">Why let bad habits ("tugs") lower the score? Isn't that discouraging?</p><p class="a">A week showing only wins is a lie. Tugs make the Bloom honest — lift and drag together. But they're capped (a tug can never remove more than 60% of a petal) and floored at zero, and styled muted so they never read as an alarm. Honest, never punitive.</p></div>
+  <div class="qa"><p class="q">What's the single cleverest product idea in it?</p><p class="a">The importance <em>gamma</em> on the Bloom. Lower-stakes areas fill more readily (γ 0.6) and core areas fill less readily (γ 1.35), so your eye is drawn to what you said matters most — yet gamma only bends the curve, so everything can still reach full. It encodes priority into the visual without any nagging.</p></div>
+
+  <h2 class="cat">Architecture</h2>
+  <div class="qa"><p class="q">Walk me through what happens when I tap to log a habit.</p><p class="a">Optimistically: write a Log to Dexie and update the Zustand store, so the check, count, and Bloom redraw before any network call. Enqueue an outbox item. A flusher drains it to Supabase; a DB trigger bumps <code>updated_at</code>. Realtime broadcasts it to my other devices, which apply it into their Dexie. If I was offline, the outbox retries on reconnect. The UI never waited on the network.</p></div>
+  <div class="qa"><p class="q">Why offline-first with the device as source of truth?</p><p class="a">A tracker is opened constantly for two-second interactions and must work with no signal. Server-first would put the network in the critical path of every tap. Dexie-first makes it instant and fully offline-capable; the cloud reconciles in the background.</p></div>
+  <div class="qa"><p class="q">How do the client and the notification server stay consistent about "is this due"?</p><p class="a">The scheduling and drift logic live in <code>@harmony/shared</code>, imported as source (no build) by both the web app and the Cloudflare worker. They run byte-identical code, so a reminder always matches the app's own view of the day.</p></div>
+
+  <h2 class="cat">The hard one — sync</h2>
+  <div class="qa"><p class="q">How does cross-device sync work, and how do you keep it cheap over years?</p><p class="a">Four mechanisms around Dexie: a durable ordered outbox for writes; an authoritative pull with a 2-minute grace window; Supabase Realtime for the instant path; and — for logs, the one growing table — <strong>watermark incremental sync</strong>. Each pull fetches only logs with <code>updated_at &gt;</code> a per-device watermark. Deletes are <em>soft-deletes</em>, so a removal is a change the watermark can see rather than a silent gap. A device dormant 45+ days reseeds; the worker prunes tombstones after 60 days. Result: every reconnect catches up completely and immediately, transferring only the delta — bounded egress no matter how much history exists.</p></div>
+  <div class="qa"><p class="q">What about a conflict — two devices edit the same log?</p><p class="a">Last-write-wins per row via upsert; realtime + the watermark converge them quickly. The grace window in the authoritative reconcile prevents the classic bug of deleting a local write that simply hasn't uploaded yet. For a single-user-with-a-few-devices app, LWW is the right simplicity; a CRDT would be over-engineering.</p></div>
+  <div class="qa"><p class="q">How do offline deletions propagate?</p><p class="a">That's exactly why deletes are soft (a <code>deleted_at</code> flag), not hard. A hard delete leaves nothing for an offline device to catch up on. The soft-delete bumps <code>updated_at</code>, so the watermark pull applies the removal on the next sync — and realtime carries it live for online devices.</p></div>
+
+  <h2 class="cat">Security</h2>
+  <div class="qa"><p class="q">How is one user's data isolated from another's?</p><p class="a">Postgres row-level security: every table has a policy restricting all operations to rows where <code>auth.uid() = user_id</code>, with <code>with check</code> on writes. Even a compromised client with a valid token can only reach its own rows — enforced by the database, not app code.</p></div>
+  <div class="qa"><p class="q">The push worker has the service-role key — how do you stop it being abused?</p><p class="a">Zero-trust: every mutating endpoint verifies the bearer token against Supabase and derives the user id <em>from the token, never the body</em>, so you can only act on your own account. The service-role key lives only in the worker's env, never in the browser. Plus a CORS allowlist, per-user rate limiting, and length CHECK constraints as defence in depth.</p></div>
+  <div class="qa"><p class="q">You want to say "we can't see your data" — can a web app truly promise that?</p><p class="a">Honestly, with a caveat. The plan is envelope encryption: a random Data Key encrypts content, wrapped by a PBKDF2 key from your password; the server stores only ciphertext. But because the server ships the JS, a <em>malicious</em> server could serve key-leaking code — so the defensible PWA claim is "stored only encrypted; we never transmit your keys or plaintext," and the absolute version needs native apps + reproducible builds. Also, reminders need the server to read timings, so the pragmatic scope is "encrypt content, keep timings." Knowing those two nuances is the whole answer.</p></div>
+
+  <h2 class="cat">Scale &amp; cost</h2>
+  <div class="qa"><p class="q">Does this stay on the free tier as it grows?</p><p class="a">For small scale, a decade, yes. Storage: ~1 MB/user/year of logs → ~100 MB for 10 heavy users over 10 years, under the 500 MB cap. Egress is bounded by the watermark sync. No server compute — the intelligence is client-side or in the shared engine the worker already runs. The one thing I'd add before hundreds of users is cron sharding, which I deliberately deferred because it would hurt reminder timeliness at current scale.</p></div>
+  <div class="qa"><p class="q">What breaks first at 10,000 users?</p><p class="a">The every-minute worker pass scanning all active users — Cloudflare subrequest/CPU limits per invocation. The fix is sharding users across cron ticks (each user checked every N minutes), trading a little reminder precision for scale. Storage and the free Postgres tier would need upgrading well before the architecture does.</p></div>
+
+  <h2 class="cat">Reflective</h2>
+  <div class="qa"><p class="q">What would you do differently?</p><p class="a">I'd have started logs with <code>updated_at</code> + soft-delete from day one instead of arriving at it via a windowed pull then a daily self-heal — though those intermediate steps were reasonable given the requirements at each point. And I'd add tests around the impure Dexie reconcile, not just the pure core.</p></div>
+  <div class="qa"><p class="q">What are you most proud of?</p><p class="a">Three things: the Bloom's gamma curve (priority encoded gently into a visual), the watermark sync (immediate, complete, and cheap all at once), and the reflection engine (it reads like a kind friend and never repeats, with zero randomness — purely a function of your state).</p></div>
+
+  <hr>
+  <p class="muted">That's the full walkthrough. If you can narrate chapters 04 (Bloom), 06 (Sync), and this Q&amp;A from memory, you know Harmony cold.</p>
+  <div class="pager"><a href="14-performance-cost.html">← 14 · Performance</a><a href="index.html">Back to contents →</a></div>
+  <p class="foot">Harmony Owner's Walkthrough · Chapter 15 · fin.</p>
+</div>
+</body>
+</html>

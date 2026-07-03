@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>01 · Philosophy & Ethos — Harmony Walkthrough</title>
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+<div class="topbar"><span class="brand">Harmony<span>.</span></span><a href="index.html">← All chapters</a><span class="spacer"></span><span class="muted">01 / 15</span></div>
+<div class="wrap">
+  <p class="eyebrow">Chapter 01</p>
+  <h1>Philosophy &amp; Product Ethos</h1>
+  <p class="lede">Every technical decision in Harmony descends from one belief: your habits are how you return to yourself, not tasks you are failing at. If you understand this chapter, the rest of the app explains itself.</p>
+
+  <h2>The premise</h2>
+  <p>Most habit trackers are guilt machines. They reward unbroken streaks and punish the first miss with a broken chain, a dead plant, a reset score. That design optimizes for a dopamine loop, but it quietly teaches you that a single off day erases your effort — the opposite of how a sustainable life actually works.</p>
+  <p>Harmony inverts this. Its four founding negatives are load-bearing, not marketing:</p>
+  <div class="chips"><span class="chip">No streaks</span><span class="chip">No shame</span><span class="chip">No plant pets</span><span class="chip">No score</span></div>
+  <ul>
+    <li><strong>No streaks</strong> — there is no consecutive-day counter that can "break." The core visual (the Bloom) reads a <em>rolling two-week window</em>, recalculated daily, so one missed day never undoes things.</li>
+    <li><strong>No shame</strong> — untended days are never red, never a scold. In the heatmaps an unlogged day is a quiet neutral dot, not a warning.</li>
+    <li><strong>No plant pets / no score</strong> — nothing "dies" and there is no single number to chase. The Bloom is a <em>reflection</em> of balance, not a currency.</li>
+  </ul>
+
+  <div class="callout decision"><span class="label">Design decision</span>The absence of streaks is enforced in the <em>data layer</em>, not just the copy. The Bloom's fill is a windowed ratio (chapter 04); there is literally no field anywhere that stores "days in a row." You cannot accidentally reintroduce shame because the machinery to measure it doesn't exist.</div>
+
+  <h2>Areas of life, in your own words</h2>
+  <p>Harmony is organized around <strong>areas of life</strong> — "Body," "Mind," "Connection," "Creativity" — that <em>you</em> name, colour, and prioritize. Habits live inside areas. This framing is the product's spine: you are not managing a to-do list, you are tending the parts of a life you said matter.</p>
+  <p>Crucially, each area carries a <strong>"why" sentence</strong> in your own words ("I want to feel strong and clear-headed"). This sentence is not decoration — the notification and drift engine <em>brings it back to you</em> when an area goes quiet. The app never lectures you in its own voice; it quotes <em>you</em> to yourself.</p>
+
+  <h2>Tends and tugs — the honest whole</h2>
+  <p>Two kinds of habits exist:</p>
+  <ul>
+    <li><strong>Tends</strong> (polarity <code>tend</code>) — things you want to do, scheduled by a cadence. Tapping one fills the Bloom.</li>
+    <li><strong>Tugs</strong> (polarity <code>ease</code>) — things you want to <em>ease off</em> (late-night scrolling, a smoke). They are <em>never scheduled</em>; you log them on the days they happen, and they gently <em>eat into</em> the area's Bloom.</li>
+  </ul>
+  <p>The insight here is emotional honesty: a week that shows only your wins is a lie. By letting the drag (tugs) subtract from the lift (tends), the Bloom shows the whole, honest picture — and it does so without alarm. Tugs are styled in a muted, outlined slate so they never read as an emergency; the copy says "no shame, just truth."</p>
+
+  <h2>The voice</h2>
+  <p>Harmony's writing is a feature. Rules:</p>
+  <ul>
+    <li><strong>Warm, plain, human.</strong> It reads like a perceptive friend, never an app barking metrics.</li>
+    <li><strong>Second-person, not first-person.</strong> The reflection engine (chapter 08) was explicitly rewritten to remove "I"/"we" — the app is not a character talking about itself.</li>
+    <li><strong>Confident gentle nudges, not eggshells.</strong> A late round of edits stripped apologetic hedging ("no pressure at all, but…") in favour of assured warmth ("give it a small hello this week"). Gentle ≠ timid.</li>
+    <li><strong>Your nouns, not ours.</strong> Every generated sentence uses either your own words (area names, "why" sentences) or a plain fact about you (a count, a weekday).</li>
+  </ul>
+
+  <div class="callout why"><span class="label">Why this matters for you as owner</span>When someone asks "how is this different from Streaks/Habitica?", the answer is not a feature — it's this philosophy made mechanical. The Bloom's rolling window, the tug subtraction, the your-words nudges, and the deliberate absence of a score are all the <em>same idea</em> expressed in maths, data, and copy.</div>
+
+  <h2>The through-lines to hold</h2>
+  <table>
+    <tr><th>Principle</th><th>Where it shows up in code</th></tr>
+    <tr><td>No streaks; a rolling window</td><td><code>computeAreaActivity</code> uses a 14-day window ratio (ch. 04)</td></tr>
+    <tr><td>Never shame</td><td>Heatmaps: empty day = neutral dot; calendar never red (ch. 08)</td></tr>
+    <tr><td>Your own words, brought back</td><td>Drift/template engine composes from your <code>whySentence</code> (ch. 07)</td></tr>
+    <tr><td>Honest whole (lift &amp; drag)</td><td>Tugs subtract in the Bloom; "Lift and drag" chart (ch. 04, 08)</td></tr>
+    <tr><td>Attention drawn to what matters</td><td>Importance <em>gamma</em> makes core areas fill less readily (ch. 04)</td></tr>
+    <tr><td>Calm, private, yours</td><td>Offline-first, per-user RLS, deferred zero-knowledge E2EE (ch. 11)</td></tr>
+  </table>
+
+  <div class="pager"><a href="index.html">← All chapters</a><a href="02-architecture.html">02 · Architecture &amp; Stack →</a></div>
+  <p class="foot">Harmony Owner's Walkthrough · Chapter 01</p>
+</div>
+</body>
+</html>

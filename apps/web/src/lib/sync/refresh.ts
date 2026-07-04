@@ -1,3 +1,4 @@
+import { applyUpdateNow } from '../../appUpdate';
 import { flushOutbox, pullUserData } from '../supabase/sync';
 import { useSyncStore } from './status';
 import { useAreas } from '../../store/useAreas';
@@ -30,8 +31,13 @@ export async function syncNow(userId: string): Promise<void> {
 }
 
 // Explicit, user-initiated sync (the Sync data popup): push queued writes, pull
-// the latest from the source database, and ask the service worker to check for
-// a new app version. Resolves when it has done what it can.
+// the latest from the source database, then forcefully bring the app itself up
+// to the newest deployed version. The two are separate layers — data vs. code —
+// and a green "Synced" only ever meant the former; this makes the button also
+// deliver the latter. applyUpdateNow drives a real worker swap (and, if the
+// worker is wedged, a data-safe hard recover) so a newly shipped version lands
+// without the user re-adding the home-screen icon. If it returns 'updating', a
+// reload is imminent and this resolves as the page tears down.
 export async function manualRefresh(userId: string | null): Promise<void> {
   if (userId && navigator.onLine) {
     await flushOutbox();
@@ -39,8 +45,7 @@ export async function manualRefresh(userId: string | null): Promise<void> {
     if (ok) refreshStores(userId);
   }
   try {
-    const reg = await navigator.serviceWorker?.getRegistration();
-    await reg?.update();
+    await applyUpdateNow();
   } catch {
     // A failed update check should never make the sync feel broken.
   }

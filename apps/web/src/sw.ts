@@ -19,6 +19,15 @@ self.addEventListener('activate', (event) => {
   event.waitUntil(self.clients.claim());
 });
 
+// Belt-and-braces for the forceful update path (appUpdate.applyUpdateNow, driven
+// by the Sync button): if a worker somehow lands in the waiting state despite the
+// top-level skipWaiting above, the page can message it to activate immediately.
+self.addEventListener('message', (event) => {
+  if ((event.data as { type?: string } | undefined)?.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
+});
+
 interface PushPayload {
   title?: string;
   body?: string;

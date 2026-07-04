@@ -68,13 +68,34 @@ export function showUpdatingOverlay(): void {
 // is deliberately not precached, and is served no-cache by Cloudflare (_headers).
 async function serverHasNewerBuild(): Promise<boolean> {
   try {
-    const res = await fetch('/version.json', { cache: 'no-store' });
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 3000); // never hang on a probe
+    const res = await fetch('/version.json', { cache: 'no-store', signal: ctrl.signal });
+    clearTimeout(timer);
     if (!res.ok) return false;
     const data = (await res.json()) as { build?: string };
     return typeof data.build === 'string' && data.build !== RUNNING_BUILD;
   } catch {
     return false;
   }
+}
+
+// Resolve to `fallback` if `p` has not settled within `ms`, so a slow or wedged
+// network call can never hang the Sync button. A rejection resolves to fallback
+// too — a failed update check should be invisible, not fatal.
+function withTimeout<T>(p: Promise<T>, ms: number, fallback: T): Promise<T> {
+  return new Promise<T>((resolve) => {
+    let settled = false;
+    const finish = (v: T) => {
+      if (!settled) {
+        settled = true;
+        clearTimeout(timer);
+        resolve(v);
+      }
+    };
+    const timer = setTimeout(() => finish(fallback), ms);
+    p.then(finish, () => finish(fallback));
+  });
 }
 
 const RECOVER_KEY = 'harmony.lastHardRecover';
@@ -122,28 +143,42 @@ export async function applyUpdateNow(): Promise<'updating' | 'current'> {
   if (!('serviceWorker' in navigator)) return 'current';
 
   const reg = await navigator.serviceWorker.getRegistration();
-  if (reg) {
-    try {
-      await reg.update();
-    } catch {
-      // offline or transient — the version.json cross-check below still runs
-    }
-    // A just-found worker may take a beat to appear; give it a short grace so we
-    // prefer the graceful swap over a hard recover.
-    let pending = reg.waiting ?? reg.installing;
-    if (!pending) {
-      await new Promise((r) => setTimeout(r, 1500));
-      pending = reg.waiting ?? reg.installing;
-    }
+  if (!reg) return 'current';
+
+  // Watch for a graceful worker swap kicking off during this call, so we don't
+  // also trigger a (redundant) hard recover while pwa.ts is already reloading.
+  let controllerChanged = false;
+  const onControllerChange = () => {
+    controllerChanged = true;
+  };
+  navigator.serviceWorker.addEventListener('controllerchange', onControllerChange);
+  try {
+    // Ask the worker to check AND probe the deployed build id at the same time,
+    // each time-boxed. Running them in parallel (rather than sleeping between)
+    // keeps the Sync button responsive; the timeouts keep it from ever hanging.
+    const [, newer] = await Promise.all([
+      withTimeout(reg.update(), 4000, undefined),
+      withTimeout(serverHasNewerBuild(), 4000, false),
+    ]);
+
+    // If update() surfaced a new worker, take the graceful swap: nudge it to
+    // activate (sw.ts also self-skips), and pwa.ts reloads on controllerchange.
+    const pending = reg.waiting ?? reg.installing;
     if (pending) {
-      pending.postMessage({ type: 'SKIP_WAITING' }); // sw.ts also self-skips; belt and braces
+      pending.postMessage({ type: 'SKIP_WAITING' });
       return 'updating';
     }
-  }
 
-  if (await serverHasNewerBuild()) {
-    await hardRecover();
-    return 'updating';
+    // A graceful swap already fired (or is firing) — let pwa.ts do the reload.
+    if (controllerChanged) return 'updating';
+
+    // Nothing surfaced but the server is genuinely ahead → the worker is wedged.
+    if (newer) {
+      await hardRecover();
+      return 'updating';
+    }
+    return 'current';
+  } finally {
+    navigator.serviceWorker.removeEventListener('controllerchange', onControllerChange);
   }
-  return 'current';
 }

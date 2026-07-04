@@ -187,6 +187,30 @@
   --on-primary: #fff7f8; --on-primary-rgb: 255 247 248;
 }
 
+/* Eggshell — a warm off-white paper with a soft taupe-stone accent. Clean and
+   quiet: the brightest, most neutral of the light themes, like ink on ivory. */
+:root[data-theme='eggshell'] {
+  --parchment-50: #fdfbf6;  --parchment-50-rgb: 253 251 246;
+  --parchment-100: #f4f0e6; --parchment-100-rgb: 244 240 230;
+  --parchment-200: #e8e2d3; --parchment-200-rgb: 232 226 211;
+  --parchment-300: #d9d1bd; --parchment-300-rgb: 217 209 189;
+
+  --ink-900: #2b2620; --ink-900-rgb: 43 38 32;
+  --ink-700: #4c463b; --ink-700-rgb: 76 70 59;
+  --ink-500: #79715f; --ink-500-rgb: 121 113 95;
+  --ink-300: #aba189; --ink-300-rgb: 171 161 137;
+  --ink-100: #ded6c4; --ink-100-rgb: 222 214 196;
+
+  --iris-700: #4e4230; --iris-700-rgb: 78 66 48;
+  --iris-600: #63543d; --iris-600-rgb: 99 84 61;
+  --iris-500: #7c6a4d; --iris-500-rgb: 124 106 77;
+  --iris-400: #94805e; --iris-400-rgb: 148 128 94;
+  --iris-100: #e9e1d0; --iris-100-rgb: 233 225 208;
+  --iris-50: #f3eddf;  --iris-50-rgb: 243 237 223;
+
+  --on-primary: #fdfbf6; --on-primary-rgb: 253 251 246;
+}
+
 /* Espresso — a warm dark: caramel on deep coffee-brown. Pairs the cool Indigo
    Night. Status colours lift for legibility on the dark ground. */
 :root[data-theme='espresso'] {

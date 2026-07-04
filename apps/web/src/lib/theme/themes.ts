@@ -62,6 +62,14 @@ export const THEMES: ThemeMeta[] = [
     primary: '#C25072',
   },
   {
+    id: 'eggshell',
+    name: 'Eggshell',
+    description: 'Soft taupe on warm off-white. Clean, quiet, and bright.',
+    bg: '#F4F0E6',
+    surface: '#FDFBF6',
+    primary: '#7C6A4D',
+  },
+  {
     id: 'indigo-night',
     name: 'Indigo Night',
     description: 'Soft lights after dark. Easy on the eyes.',

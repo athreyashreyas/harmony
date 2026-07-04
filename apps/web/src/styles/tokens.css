@@ -10,7 +10,8 @@
    (see lib/theme). ADDING A THEME: add a :root[data-theme="id"] block here and
    one entry in lib/theme/themes.ts. Nothing else needs to change — every class
    and var across the app cascades from these. Area colours are user data and
-   are never themed. */
+   are never themed. Themes appear in the settings picker in the order they are
+   listed in themes.ts. */
 
 :root,
 :root[data-theme='terracotta'] {

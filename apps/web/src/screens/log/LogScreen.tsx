@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { Habit, Log } from '@harmony/shared';
+import TabScreen from '../../app/TabScreen';
 import BottomSheet from '../../components/BottomSheet/BottomSheet';
 import Skeleton from '../../components/Skeleton/Skeleton';
-import SyncDot from '../../components/SyncDot/SyncDot';
 import TruncatedText from '../../components/TruncatedText/TruncatedText';
 import { isoDaysAgo, formatDateMedium, formatMonthYear, monthGrid, startOfMonthISO, endOfMonthISO, todayISO } from '../../lib/time/dates';
 import { isHabitDueOn } from '../../lib/time/cadence';
@@ -136,11 +136,8 @@ export default function LogScreen() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-2xl px-5 pt-8 pb-28 md:pb-12">
-      <div className="flex items-center justify-between gap-3">
-        <h1 className="font-serif text-3xl text-ink-900">Log</h1>
-        <SyncDot />
-      </div>
+    <TabScreen className="pt-8 pb-28 md:pb-12">
+      <h1 className="font-serif text-3xl text-ink-900">Log</h1>
       <p className="mt-2 text-sm text-ink-300">A record of what you tended to.</p>
 
       <section className="mt-7">
@@ -279,6 +276,6 @@ export default function LogScreen() {
           )}
         </div>
       </BottomSheet>
-    </div>
+    </TabScreen>
   );
 }

@@ -10,11 +10,14 @@ import { useUser } from '../../store/useUser';
 //   red    offline (changes saved on-device)
 //   gold   syncing (pushing up or pulling down)
 //   green  all synced
-// Rendered inline in each tab's header row (top-right), so it rides with the
-// page instead of hovering: to sync, scroll to the top and tap it. The chip
-// rests on its own frosted surface so it reads as a button. Tapping it opens a
-// popup to sync on demand (and pick up a new app version) without closing and
-// reopening the app.
+// Anchored to the top-right of each tab's own scrolling content (its root is
+// `relative`), not the viewport, so it rides with the page instead of hovering:
+// to sync, scroll to the top and tap it. The offset is a single shared constant
+// so the dot lands at the exact same spot on every tab — no drift when switching
+// sections, even though Home's header (a date line + smaller greeting) differs
+// from the others. The chip rests on its own frosted surface so it reads as a
+// button. Tapping it opens a popup to sync on demand (and pick up a new app
+// version) without closing and reopening the app.
 const STATES = {
   offline: {
     color: '#c0392b',
@@ -64,7 +67,7 @@ export default function SyncDot() {
         type="button"
         onClick={() => setOpen(true)}
         aria-label={`Sync status: ${state.label}. Open to sync.`}
-        className="-mr-1 shrink-0 rounded-full bg-parchment-50/80 p-1.5 shadow-[0_1px_4px_rgba(35,25,15,0.12)] ring-1 ring-parchment-200 backdrop-blur-sm"
+        className="absolute right-4 top-9 z-10 rounded-full bg-parchment-50/80 p-1.5 shadow-[0_1px_4px_rgba(35,25,15,0.12)] ring-1 ring-parchment-200 backdrop-blur-sm"
       >
         <motion.span
           className="block h-2.5 w-2.5 rounded-full"

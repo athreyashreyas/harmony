@@ -2,9 +2,9 @@ import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import type { Log } from '@harmony/shared';
 import { AnimatePresence, motion } from 'framer-motion';
 import ComposeHabitSheet, { type HabitDraft } from '../../components/ComposeHabitSheet/ComposeHabitSheet';
+import TabScreen from '../../app/TabScreen';
 import SegmentedControl from '../../components/SegmentedControl/SegmentedControl';
 import Skeleton from '../../components/Skeleton/Skeleton';
-import SyncDot from '../../components/SyncDot/SyncDot';
 import Bars from '../../components/charts/Bars';
 import CalendarHeatmap from '../../components/charts/CalendarHeatmap';
 import DivergingBars from '../../components/charts/DivergingBars';
@@ -146,11 +146,8 @@ export default function InsightsScreen() {
   ];
 
   return (
-    <div className="mx-auto w-full max-w-2xl px-5 pt-8 pb-28 md:pb-12">
-      <div className="flex items-center justify-between gap-3">
-        <h1 className="font-serif text-3xl text-ink-900">Insights</h1>
-        <SyncDot />
-      </div>
+    <TabScreen className="pt-8 pb-28 md:pb-12">
+      <h1 className="font-serif text-3xl text-ink-900">Insights</h1>
 
       <div className="mt-4">
         <SegmentedControl value={view} options={VIEW_OPTIONS} onChange={setView} ariaLabel="Insights view" />
@@ -410,7 +407,7 @@ export default function InsightsScreen() {
         onClose={() => setSuggestSheetArea(null)}
         onSave={handleCreateHabit}
       />
-    </div>
+    </TabScreen>
   );
 }
 

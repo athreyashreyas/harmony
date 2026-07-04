@@ -6,11 +6,11 @@ import AreaRow from '../../components/AreaRow/AreaRow';
 import FAB from '../../components/FAB/FAB';
 import HabitReorderSheet from '../../components/HabitReorderSheet/HabitReorderSheet';
 import Skeleton from '../../components/Skeleton/Skeleton';
-import SyncDot from '../../components/SyncDot/SyncDot';
 import { archiveArea, reorderAreas, reorderHabits, saveArea, saveHabit } from '../../lib/db/queries';
 import { createArea } from '../../lib/domain';
 import { useUserData } from '../../lib/useUserData';
 import { useOpenHabit } from '../../app/openHabit';
+import TabScreen from '../../app/TabScreen';
 import { useAreas } from '../../store/useAreas';
 import { useHabits } from '../../store/useHabits';
 import AreaSheet, { type AreaFields, type HabitWeight } from './AreaSheet';
@@ -101,11 +101,8 @@ export default function AreasScreen() {
       : [];
 
   return (
-    <div className="mx-auto w-full max-w-2xl px-5 pt-8 pb-36 md:pb-16">
-      <div className="flex items-center justify-between gap-3">
-        <h1 className="font-serif text-3xl text-ink-900">Areas</h1>
-        <SyncDot />
-      </div>
+    <TabScreen className="pt-8 pb-36 md:pb-16">
+      <h1 className="font-serif text-3xl text-ink-900">Areas</h1>
       <p className="mt-2 text-sm text-ink-300">Your areas of life, in priority order.</p>
 
       <div className="mt-6">
@@ -171,6 +168,6 @@ export default function AreasScreen() {
         onClose={() => setReorderingArea(null)}
         onReorder={handleReorderHabits}
       />
-    </div>
+    </TabScreen>
   );
 }

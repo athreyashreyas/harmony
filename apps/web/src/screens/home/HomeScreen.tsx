@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import type { Area, Habit, Ritual, TimeOfDay } from '@harmony/shared';
 import { useOpenHabit } from '../../app/openHabit';
+import TabScreen from '../../app/TabScreen';
 import AreaChip from '../../components/AreaChip/AreaChip';
 import { computeAreaActivity } from '../../components/Bloom/activity';
 import Bloom from '../../components/Bloom/Bloom';
@@ -13,7 +14,6 @@ import HabitCard from '../../components/HabitCard/HabitCard';
 import NoteSheet from '../../components/NoteSheet/NoteSheet';
 import PushPrompt from '../../components/PushPrompt/PushPrompt';
 import Skeleton from '../../components/Skeleton/Skeleton';
-import SyncDot from '../../components/SyncDot/SyncDot';
 import RitualPlayer from '../../components/RitualPlayer/RitualPlayer';
 import RitualSheet from '../../components/RitualSheet/RitualSheet';
 import SortMenu, { type SortOption } from '../../components/SortMenu/SortMenu';
@@ -321,14 +321,15 @@ export default function HomeScreen() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-2xl px-5 pt-6 pb-36 md:pb-16">
-      <p className="text-sm text-ink-300">{formatLongDate()}</p>
-      <div className="mt-0.5 flex items-center justify-between gap-3">
-        <h1 className="font-serif text-2xl text-ink-900">
+    <TabScreen className="pt-6 pb-36 md:pb-16">
+      {/* Reserve the top-right corner so a long name or date never slides under
+          the sync dot that TabScreen anchors there. */}
+      <div className="pr-12">
+        <p className="text-sm text-ink-300">{formatLongDate()}</p>
+        <h1 className="mt-0.5 font-serif text-2xl text-ink-900">
           {greetingWord()}
           {profile ? `, ${profile.firstName.trim()}.` : '.'}
         </h1>
-        <SyncDot />
       </div>
 
       {profile && <PushPrompt userId={profile.id} />}
@@ -611,6 +612,6 @@ export default function HomeScreen() {
         onSaveWeights={handleSaveWeights}
         onArchive={handleArchiveArea}
       />
-    </div>
+    </TabScreen>
   );
 }

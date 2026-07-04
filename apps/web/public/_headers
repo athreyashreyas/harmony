@@ -1,0 +1,19 @@
+# Cloudflare Pages response headers.
+#
+# Always revalidate the entry document, the service worker, and the manifest so
+# a new deploy is picked up promptly instead of being served stale from the
+# browser's HTTP cache. This is what lets registration.update() (fired on app
+# foreground and by the Sync button) actually see a new worker: without it, iOS
+# Safari can hand back a cached sw.js and the PWA stays on old code even though
+# the data layer reports "Synced". `no-cache` means "store, but revalidate with
+# the server every time" — a cheap 304 when unchanged, the new file when it is.
+#
+# Content-hashed bundles under /assets/* are immutable (their name changes when
+# their content does), so they keep Cloudflare's default long-lived caching and
+# are intentionally NOT listed here.
+/sw.js
+  Cache-Control: no-cache
+/index.html
+  Cache-Control: no-cache
+/manifest.webmanifest
+  Cache-Control: no-cache

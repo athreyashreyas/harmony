@@ -13,6 +13,7 @@ import HabitCard from '../../components/HabitCard/HabitCard';
 import NoteSheet from '../../components/NoteSheet/NoteSheet';
 import PushPrompt from '../../components/PushPrompt/PushPrompt';
 import Skeleton from '../../components/Skeleton/Skeleton';
+import SyncDot from '../../components/SyncDot/SyncDot';
 import RitualPlayer from '../../components/RitualPlayer/RitualPlayer';
 import RitualSheet from '../../components/RitualSheet/RitualSheet';
 import SortMenu, { type SortOption } from '../../components/SortMenu/SortMenu';
@@ -322,10 +323,13 @@ export default function HomeScreen() {
   return (
     <div className="mx-auto w-full max-w-2xl px-5 pt-6 pb-36 md:pb-16">
       <p className="text-sm text-ink-300">{formatLongDate()}</p>
-      <h1 className="mt-0.5 font-serif text-2xl text-ink-900">
-        {greetingWord()}
-        {profile ? `, ${profile.firstName.trim()}.` : '.'}
-      </h1>
+      <div className="mt-0.5 flex items-center justify-between gap-3">
+        <h1 className="font-serif text-2xl text-ink-900">
+          {greetingWord()}
+          {profile ? `, ${profile.firstName.trim()}.` : '.'}
+        </h1>
+        <SyncDot />
+      </div>
 
       {profile && <PushPrompt userId={profile.id} />}
 

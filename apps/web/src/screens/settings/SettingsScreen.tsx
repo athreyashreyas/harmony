@@ -3,6 +3,7 @@ import { DEFAULT_DND } from '@harmony/shared';
 import Modal from '../../components/Modal/Modal';
 import { useNavigate } from 'react-router-dom';
 import Switch from '../../components/Switch/Switch';
+import SyncDot from '../../components/SyncDot/SyncDot';
 import { APP_VERSION } from '../../lib/changelog';
 import { enablePush, pushReadiness, type PushReadiness } from '../../lib/push/subscribe';
 import { useTheme } from '../../lib/theme/theme';
@@ -163,7 +164,10 @@ export default function SettingsScreen() {
 
   return (
     <div className="mx-auto w-full max-w-2xl px-5 pt-8 pb-28 md:pb-12">
-      <h1 className="font-serif text-3xl text-ink-900">Me</h1>
+      <div className="flex items-center justify-between gap-3">
+        <h1 className="font-serif text-3xl text-ink-900">Me</h1>
+        <SyncDot />
+      </div>
 
       <section className="mt-7">
         <p className={eyebrow}>Account</p>

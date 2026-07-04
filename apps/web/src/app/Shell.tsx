@@ -1,7 +1,6 @@
 import { useEffect, useLayoutEffect, useRef } from 'react';
 import { NavLink, Outlet, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import SyncDot from '../components/SyncDot/SyncDot';
 import { NAV_ITEMS } from './navItems';
 import { registerScroller } from './scrollMemory';
 
@@ -31,7 +30,6 @@ export default function Shell() {
 
   return (
     <div className="flex h-full w-full flex-col overflow-hidden md:flex-row">
-      <SyncDot />
       <Sidebar />
 
       {/* pt-safe lives on main, outside the scroller, so content never slides

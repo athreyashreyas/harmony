@@ -10,9 +10,11 @@ import { useUser } from '../../store/useUser';
 //   red    offline (changes saved on-device)
 //   gold   syncing (pushing up or pulling down)
 //   green  all synced
-// The chip rests on its own frosted surface so it never collides with a card
-// border. Tapping it opens a popup to sync on demand (and pick up a new app
-// version) without closing and reopening the app.
+// Rendered inline in each tab's header row (top-right), so it rides with the
+// page instead of hovering: to sync, scroll to the top and tap it. The chip
+// rests on its own frosted surface so it reads as a button. Tapping it opens a
+// popup to sync on demand (and pick up a new app version) without closing and
+// reopening the app.
 const STATES = {
   offline: {
     color: '#c0392b',
@@ -62,8 +64,7 @@ export default function SyncDot() {
         type="button"
         onClick={() => setOpen(true)}
         aria-label={`Sync status: ${state.label}. Open to sync.`}
-        className="fixed z-40 rounded-full bg-parchment-50/80 p-1 shadow-[0_1px_4px_rgba(35,25,15,0.12)] ring-1 ring-parchment-200 backdrop-blur-sm"
-        style={{ top: 'calc(var(--safe-top) + 0.6rem)', right: 'calc(var(--safe-right) + 0.6rem)' }}
+        className="-mr-1 shrink-0 rounded-full bg-parchment-50/80 p-1.5 shadow-[0_1px_4px_rgba(35,25,15,0.12)] ring-1 ring-parchment-200 backdrop-blur-sm"
       >
         <motion.span
           className="block h-2.5 w-2.5 rounded-full"

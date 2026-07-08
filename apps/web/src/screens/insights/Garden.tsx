@@ -7,9 +7,11 @@ import { computeGarden, type WeekBloom } from '../../lib/insights/garden';
 
 // The Bloom garden: a scrollable garden of your past weeks, each week re-bloomed
 // from your logs. Nothing is stored; every bloom is computed on the fly.
-function caption(avg: number): string {
+// Only the mid-tier caption is tense-sensitive ("coming along" reads as
+// in-progress); every other tier already reads fine for a week that's done.
+function caption(avg: number, isCurrent: boolean): string {
   if (avg >= 0.66) return 'In full bloom';
-  if (avg >= 0.33) return 'Coming along';
+  if (avg >= 0.33) return isCurrent ? 'Coming along' : 'Completed';
   if (avg > 0) return 'A gentle week';
   return 'A resting week';
 }
@@ -39,7 +41,8 @@ export default function Garden({ areas, habits, logs }: { areas: Area[]; habits:
           >
             <MiniBloom petals={w.petals} />
             <span className="mt-1.5 text-xs font-medium text-ink-900">{w.label}</span>
-            <span className="text-[11px] text-ink-300">{caption(w.avg)}</span>
+            {w.label !== w.dateLabel && <span className="text-[10px] text-ink-300">{w.dateLabel}</span>}
+            <span className="text-[11px] text-ink-300">{caption(w.avg, w.isCurrent)}</span>
           </button>
         ))}
       </div>
@@ -64,7 +67,7 @@ function WeekDetail({ week }: { week: WeekBloom }) {
       <div className="mx-auto mt-3 w-full max-w-[260px]">
         <WeekBloomWheel petals={week.petals} />
       </div>
-      <p className="text-center font-serif text-lg text-ink-900">{caption(week.avg)}</p>
+      <p className="text-center font-serif text-lg text-ink-900">{caption(week.avg, week.isCurrent)}</p>
 
       {week.petals.length > 0 && (
         <div className="mt-5 space-y-2.5 border-t border-parchment-200 pt-4">

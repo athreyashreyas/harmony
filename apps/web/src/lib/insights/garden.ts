@@ -17,6 +17,8 @@ export interface WeekBloom {
   start: string; // week's Sunday (ISO)
   end: string; // week's Saturday, clamped to today for the current week
   label: string;
+  dateLabel: string; // always the "Mon d – Mon d" range, so a week is placeable even when label is relative
+  isCurrent: boolean; // true only for this week (still in progress, unlike every other week here)
   petals: GardenPetal[];
   avg: number; // mean petal fill, for a one-line caption
 }
@@ -92,7 +94,7 @@ export function computeGarden(
       value: computeAreaActivity(a, habitsByArea.get(a.id) ?? noHabits, logsByArea.get(a.id) ?? noLogs, 7, end),
     }));
     const avg = petals.length ? petals.reduce((s, p) => s + p.value, 0) / petals.length : 0;
-    out.push({ start, end, label: weekLabel(i, start, end), petals, avg });
+    out.push({ start, end, label: weekLabel(i, start, end), dateLabel: `${fmt(start)} – ${fmt(end)}`, isCurrent: i === 0, petals, avg });
   }
   return out; // most recent week first
 }

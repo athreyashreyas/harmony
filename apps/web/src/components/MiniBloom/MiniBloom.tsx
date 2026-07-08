@@ -1,4 +1,5 @@
 import type { GardenPetal } from '../../lib/insights/garden';
+import { hexToRgba } from '../../lib/color';
 
 // A small, pressed-flower rendering of one week's bloom: a petal per area, its
 // length set by how full that part of life was that week, in the area's colour.
@@ -12,10 +13,11 @@ export default function MiniBloom({ petals, size = 76 }: { petals: GardenPetal[]
   return (
     <svg viewBox={`0 0 ${size} ${size}`} width={size} height={size} aria-hidden="true">
       <circle cx={cx} cy={cy} r={R} fill="none" stroke="var(--parchment-300)" strokeDasharray="2 4" />
-      <g style={{ mixBlendMode: 'multiply' }}>
+      <g>
         {petals.map((p, i) => {
           const r = R * (0.32 + 0.68 * Math.max(0, Math.min(1, p.value)));
-          if (n === 1) return <circle key={p.id} cx={cx} cy={cy} r={r} fill={p.color} opacity={0.8} />;
+          const fill = hexToRgba(p.color, 0.8);
+          if (n === 1) return <circle key={p.id} cx={cx} cy={cy} r={r} fill={fill} />;
           const seg = (Math.PI * 2) / n;
           const a0 = -Math.PI / 2 + i * seg;
           const a1 = -Math.PI / 2 + (i + 1) * seg;
@@ -24,7 +26,7 @@ export default function MiniBloom({ petals, size = 76 }: { petals: GardenPetal[]
           const x1 = cx + Math.cos(a1) * r;
           const y1 = cy + Math.sin(a1) * r;
           const large = seg > Math.PI ? 1 : 0;
-          return <path key={p.id} d={`M ${cx} ${cy} L ${x0.toFixed(1)} ${y0.toFixed(1)} A ${r.toFixed(1)} ${r.toFixed(1)} 0 ${large} 1 ${x1.toFixed(1)} ${y1.toFixed(1)} Z`} fill={p.color} opacity={0.8} />;
+          return <path key={p.id} d={`M ${cx} ${cy} L ${x0.toFixed(1)} ${y0.toFixed(1)} A ${r.toFixed(1)} ${r.toFixed(1)} 0 ${large} 1 ${x1.toFixed(1)} ${y1.toFixed(1)} Z`} fill={fill} />;
         })}
       </g>
       <circle cx={cx} cy={cy} r={R * 0.26} fill="var(--parchment-50)" />

@@ -37,7 +37,10 @@ export function computeGarden(
   now: Date = new Date(),
 ): WeekBloom[] {
   const today = todayISO(now);
-  const areas = input.areas.filter((a) => a.archivedAt == null);
+  // Kept unfiltered here: the garden is a pressed-flower record of history, so
+  // an area archived today (or added just now) shouldn't rewrite how earlier
+  // weeks looked. Which areas show up is decided per week, below.
+  const areas = input.areas;
 
   // How far back to go: the week of the first activity (log or area creation).
   let earliest = today;
@@ -73,7 +76,16 @@ export function computeGarden(
     const start = startOfWeekISO(isoDaysAgo(i * 7, now));
     const saturday = isoDaysAgo(-6, new Date(`${start}T00:00:00`)); // start + 6 days
     const end = saturday > today ? today : saturday;
-    const petals = areas.map((a) => ({
+
+    // Only areas that existed for at least part of this week: created by its
+    // end, and not archived before it started. Keeps each week's bloom true to
+    // what was actually alive then, regardless of what's active now.
+    const weekAreas = areas.filter((a) => {
+      if (todayISO(new Date(a.createdAt)) > end) return false;
+      return a.archivedAt == null || todayISO(new Date(a.archivedAt)) >= start;
+    });
+
+    const petals = weekAreas.map((a) => ({
       id: a.id,
       name: a.name,
       color: a.color,

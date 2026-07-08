@@ -33,11 +33,17 @@ export function computeAreaActivity(
   windowDays = 14,
   endISO: string = todayISO(),
 ): number {
-  const areaHabits = habits.filter((h) => h.areaId === area.id && h.archivedAt == null);
+  const from = isoDaysAgo(windowDays - 1, new Date(`${endISO}T00:00:00`));
+
+  // A habit counts for this window as long as it wasn't already archived
+  // before the window started — so a past week's bloom (the Garden) still
+  // reflects habits since archived, while the live Bloom (window ending
+  // today) still ignores anything archived before today, same as before.
+  const activeInWindow = (archivedAt: number | null) =>
+    archivedAt == null || todayISO(new Date(archivedAt)) > from;
+  const areaHabits = habits.filter((h) => h.areaId === area.id && activeInWindow(h.archivedAt));
   const tendHabits = areaHabits.filter((h) => h.polarity !== 'ease');
   if (tendHabits.length === 0) return 0;
-
-  const from = isoDaysAgo(windowDays - 1, new Date(`${endISO}T00:00:00`));
 
   // Completed distinct days per tend habit, and total tug penalty, in one pass.
   const completedByHabit = new Map<string, Set<string>>();

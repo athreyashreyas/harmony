@@ -38,16 +38,19 @@ interface PushPayload {
 self.addEventListener('push', (event) => {
   const data: PushPayload = event.data?.json() ?? {};
   const { title, body, areaId, url } = data;
-  // Standard structure, the way native apps do it: a short bold heading that is
-  // just the app name ("Harmony"), and the message in the body. The body wraps
-  // to several lines, so a longer message is read in full rather than cropped to
-  // one line. Keeping the heading as the app name also stops iOS from adding its
-  // own "from Harmony" subtitle, which only appears when the body is empty.
-  const heading = title || 'Harmony';
-  const message = body && body !== heading ? body : undefined;
+  // iOS renders a PWA push as three fixed slots: the notification title, an
+  // unremovable "from Harmony" attribution line (taken from the manifest name),
+  // then the body. If the title is *also* "Harmony", the app name shows twice
+  // ("Harmony" / "from Harmony"). Per Apple's guidance, the title must not repeat
+  // the app name — the system adds it. So the message itself is the heading and
+  // the body is left empty; iOS then shows just:
+  //   <message>
+  //   from Harmony
+  // The messages are short one-liners, so they read fine as the heading. `title`
+  // ("Harmony") remains only as a fallback if a payload ever arrives without a body.
+  const heading = body || title || 'Harmony';
   event.waitUntil(
     self.registration.showNotification(heading, {
-      body: message,
       icon: '/icons/icon-192.png',
       badge: '/icons/badge.png',
       tag: areaId ? `area-${areaId}` : undefined, // coalesce per-area nudges

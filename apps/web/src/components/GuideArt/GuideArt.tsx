@@ -243,6 +243,51 @@ export default function GuideArt({ kind }: { kind: GuideArtKind }) {
           ))}
         </div>
       );
+    case 'confetti': {
+      // A Bloom at its fullest, every petal reaching the ring, with a scatter of
+      // confetti lifting off it in the areas' own colours, the exact moment the
+      // celebration marks.
+      // x, y, size, rotation(deg), colour — a loose, upward-drifting scatter.
+      const pieces: [number, number, number, number, string][] = [
+        [24, 20, 7, 20, '#b5532f'],
+        [46, 10, 6, -25, '#b7902a'],
+        [70, 8, 7, 40, '#5b7a35'],
+        [92, 16, 6, 15, '#3a7ca8'],
+        [104, 34, 7, -30, '#7a3b6e'],
+        [14, 40, 6, 45, '#3a7ca8'],
+        [100, 60, 6, 30, '#b7902a'],
+        [16, 66, 7, -20, '#5b7a35'],
+        [58, 4, 6, 10, '#944021'],
+        [34, 8, 5, -40, '#7a3b6e'],
+      ];
+      return (
+        <svg viewBox="0 0 120 120" className="h-28 w-28" aria-hidden="true">
+          <circle cx="60" cy="60" r="44" fill="none" stroke="var(--parchment-300)" strokeDasharray="2 4" />
+          <g style={{ mixBlendMode: 'multiply' }}>
+            <path d="M60 60 L60 18 A42 42 0 0 1 96 39 Z" fill="#b5532f" opacity="0.9" />
+            <path d="M60 60 L96 39 A42 42 0 0 1 96 81 Z" fill="#b7902a" opacity="0.85" />
+            <path d="M60 60 L96 81 A42 42 0 0 1 60 102 Z" fill="#5b7a35" opacity="0.9" />
+            <path d="M60 60 L60 102 A42 42 0 0 1 24 81 Z" fill="#7a3b6e" opacity="0.82" />
+            <path d="M60 60 L24 81 A42 42 0 0 1 24 39 Z" fill="#3a7ca8" opacity="0.88" />
+            <path d="M60 60 L24 39 A42 42 0 0 1 60 18 Z" fill="#944021" opacity="0.85" />
+          </g>
+          <circle cx="60" cy="60" r="16" fill="var(--parchment-50)" />
+          <text x="60" y="61" textAnchor="middle" dominantBaseline="central" fontFamily="var(--font-serif)" fontSize="20" fill="var(--iris-500)">h</text>
+          {pieces.map(([x, y, s, r, c], i) => (
+            <rect
+              key={i}
+              x={x - s / 2}
+              y={y - s / 2}
+              width={s}
+              height={s * 0.62}
+              rx={1}
+              fill={c}
+              transform={`rotate(${r} ${x} ${y})`}
+            />
+          ))}
+        </svg>
+      );
+    }
     case 'guide':
       return (
         <div className="w-full max-w-[240px]">

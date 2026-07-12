@@ -77,6 +77,7 @@ export default function SettingsScreen() {
     dndEnd: DEFAULT_DND.end,
     habitReminders: true,
     dailySummary: true,
+    confettiEnabled: true,
   };
 
   const mutedSet = useMemo(() => new Set(dnd.mutedAreaIds), [dnd.mutedAreaIds]);
@@ -230,6 +231,21 @@ export default function SettingsScreen() {
               </button>
             );
           })}
+        </div>
+      </section>
+
+      <section className="mt-9">
+        <p className={eyebrow}>Celebrations</p>
+        <div className="mt-3 flex items-center justify-between rounded-card bg-parchment-50 px-4 py-3 shadow-card">
+          <span className="min-w-0 pr-3">
+            <span className="block text-sm text-ink-900">Confetti in full bloom</span>
+            <span className="block text-xs text-ink-300">A little burst when an area fills, in its own colour. Turn it off for a calmer Bloom.</span>
+          </span>
+          <Switch
+            checked={dnd.confettiEnabled ?? true}
+            onChange={(next) => profile && void updateNotifications(profile.id, { confettiEnabled: next })}
+            label="Confetti celebrations"
+          />
         </div>
       </section>
 

@@ -138,4 +138,8 @@ export interface NotificationSettings {
   // Named flows of habits to move through together (habit stacking), synced so
   // they follow the person across devices. Absent = none yet.
   rituals?: Ritual[];
+  // Whether the little confetti celebration plays when a Bloom section reaches
+  // full bloom. Synced so the choice follows the person. Absent = on (the
+  // default); some people would rather it stay calm.
+  confettiEnabled?: boolean;
 }

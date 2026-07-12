@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import type { Area, Habit, Ritual, TimeOfDay } from '@harmony/shared';
@@ -7,6 +7,7 @@ import TabScreen from '../../app/TabScreen';
 import AreaChip from '../../components/AreaChip/AreaChip';
 import { computeAreaActivity } from '../../components/Bloom/activity';
 import Bloom from '../../components/Bloom/Bloom';
+import CelebrationToast from '../../components/CelebrationToast/CelebrationToast';
 import ComposeHabitSheet, { type HabitDraft } from '../../components/ComposeHabitSheet/ComposeHabitSheet';
 import DriftBanner from '../../components/DriftBanner/DriftBanner';
 import FAB from '../../components/FAB/FAB';
@@ -26,6 +27,7 @@ import { detectDrift } from '../../lib/drift/detect';
 import { compose } from '../../lib/templates/composer';
 import { isDriftTemplate } from '../../lib/templates/library';
 import { nudgeHistoryForUser, recentTemplateIdsFor, recordNudge } from '../../lib/templates/history';
+import { useCelebrations, type CelebrationMeta } from '../../lib/celebrate/useCelebrations';
 import { isHabitDueToday } from '../../lib/time/cadence';
 import { daysBetween, formatLongDate, greetingWord, todayISO } from '../../lib/time/dates';
 import { listContainer, listItem } from '../../lib/motion';
@@ -90,6 +92,7 @@ export default function HomeScreen() {
   const syncedSort = useSettings((s) => s.notifications?.homeSort);
   const updateSettings = useSettings((s) => s.update);
   const rituals = useSettings((s) => s.notifications?.rituals) ?? EMPTY_RITUALS;
+  const confettiEnabled = useSettings((s) => s.notifications?.confettiEnabled) ?? true;
   const [ritualEditing, setRitualEditing] = useState<Ritual | null | undefined>(undefined);
   const [playingRitual, setPlayingRitual] = useState<Ritual | null>(null);
 
@@ -236,6 +239,27 @@ export default function HomeScreen() {
     [areas, habits, logs],
   );
 
+  // Confetti when a Bloom section reaches full bloom (throttled per section so a
+  // steady streak isn't celebrated every day — see useCelebrations). The burst
+  // emanates from the Bloom itself, and a note rises to commend the consistency.
+  const bloomRef = useRef<HTMLDivElement>(null);
+  const [celebration, setCelebration] = useState<{ areas: Area[]; meta: CelebrationMeta } | null>(
+    null,
+  );
+  const dismissCelebration = useCallback(() => setCelebration(null), []);
+  const onCelebrate = useCallback(
+    (celebrated: Area[], meta: CelebrationMeta) => setCelebration({ areas: celebrated, meta }),
+    [],
+  );
+  useCelebrations({
+    userId: profile?.id,
+    areas,
+    activities,
+    enabled: confettiEnabled,
+    originRef: bloomRef,
+    onCelebrate,
+  });
+
   const areaById = useMemo(() => new Map(areas.map((a) => [a.id, a])), [areas]);
 
   // The list in the chosen order. Priority = area order, then habit order.
@@ -343,14 +367,16 @@ export default function HomeScreen() {
       <div className="mt-8">
         {loaded ? (
           <>
-            <Bloom
-              areas={areas}
-              habits={habits}
-              logs={logs}
-              activities={activities}
-              selectedAreaId={activeFilter}
-              onSelectArea={toggleAreaFilter}
-            />
+            <div ref={bloomRef}>
+              <Bloom
+                areas={areas}
+                habits={habits}
+                logs={logs}
+                activities={activities}
+                selectedAreaId={activeFilter}
+                onSelectArea={toggleAreaFilter}
+              />
+            </div>
             <p className="mt-4 text-center text-sm text-ink-500">{bloomCaption(activities)}</p>
           </>
         ) : (
@@ -612,6 +638,8 @@ export default function HomeScreen() {
         onSaveWeights={handleSaveWeights}
         onArchive={handleArchiveArea}
       />
+
+      <CelebrationToast celebration={celebration} onDismiss={dismissCelebration} />
     </TabScreen>
   );
 }

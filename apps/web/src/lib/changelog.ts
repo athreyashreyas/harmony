@@ -21,6 +21,23 @@ export interface Release {
 // plain, the same voice as the rest of the app.
 export const CHANGELOG: Release[] = [
   {
+    version: '1.3.0',
+    date: '2026-07-12',
+    major: true,
+    title: 'A moment of confetti',
+    notes: [
+      'When an area of your Bloom reaches full bloom, a little confetti lifts off it, in that area\'s own colour, with a warm word to mark your consistency.',
+      'It stays a treat, not a habit: once an area is full it rests quietly through a steady streak, and the confetti only returns when you earn full bloom afresh after a while away. Each area celebrates on its own.',
+      'Some moments are bigger. Your very first full bloom is marked as the milestone it is, and when your whole Bloom comes into flower at once, the whole screen celebrates with you.',
+      'Prefer things calm? Turn the confetti off any time under Me, in Celebrations. The Bloom fills just the same, quietly.',
+    ],
+    howTo: [
+      'Tend an area until every petal is full to see it celebrated.',
+      'Open Me and find Celebrations to turn the confetti off or back on.',
+    ],
+    art: ['confetti'],
+  },
+  {
     version: '1.2.0',
     date: '2026-07-02',
     major: true,

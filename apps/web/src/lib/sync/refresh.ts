@@ -1,4 +1,5 @@
 import { applyUpdateNow } from '../../appUpdate';
+import { db } from '../db/schema';
 import { flushOutbox, pullUserData } from '../supabase/sync';
 import { useSyncStore } from './status';
 import { useAreas } from '../../store/useAreas';
@@ -26,6 +27,10 @@ export async function syncNow(userId: string): Promise<void> {
   // reconcile-away a change that simply hasn't reached the server yet.
   await flushOutbox();
   if (useSyncStore.getState().pending > 0) return;
+  // If the flush couldn't drain everything (e.g. a transient network error),
+  // don't run the authoritative pull: it could reconcile-away a local write
+  // that is still queued but hasn't reached the server. Retry next sync.
+  if ((await db.outbox.count()) > 0) return;
   const ok = await pullUserData(userId);
   if (ok) refreshStores(userId);
 }
@@ -41,8 +46,12 @@ export async function syncNow(userId: string): Promise<void> {
 export async function manualRefresh(userId: string | null): Promise<void> {
   if (userId && navigator.onLine) {
     await flushOutbox();
-    const ok = await pullUserData(userId);
-    if (ok) refreshStores(userId);
+    // Same guard as syncNow: never let the authoritative pull race a queued
+    // local write that hasn't reached the server yet.
+    if ((await db.outbox.count()) === 0) {
+      const ok = await pullUserData(userId);
+      if (ok) refreshStores(userId);
+    }
   }
   try {
     await applyUpdateNow();

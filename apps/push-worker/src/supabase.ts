@@ -306,6 +306,17 @@ export async function deleteSubscription(env: Env, endpoint: string): Promise<vo
   });
 }
 
+// User-initiated unsubscribe: scoped to the caller's own rows, so a token for
+// one account can never remove another account's subscription, even with a
+// known endpoint URL.
+export async function deleteSubscriptionForUser(env: Env, userId: string, endpoint: string): Promise<void> {
+  await rest(
+    env,
+    `push_subscriptions?endpoint=eq.${encodeURIComponent(endpoint)}&user_id=eq.${encodeURIComponent(userId)}`,
+    { method: 'DELETE' },
+  );
+}
+
 // Hard-delete log tombstones past the retention window, so soft-deleted rows
 // never accumulate. The window is kept comfortably longer than the client's
 // reseed threshold, so a device always reseeds (full snapshot) before any

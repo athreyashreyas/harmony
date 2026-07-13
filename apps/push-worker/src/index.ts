@@ -5,6 +5,7 @@ import { detectDrift } from './drift';
 import { isDriftTemplate } from './templates';
 import {
   deleteSubscription,
+  deleteSubscriptionForUser,
   deleteUserCompletely,
   getActiveUsers,
   getUserBundle,
@@ -315,6 +316,16 @@ function rateLimited(userId: string): boolean {
   return recent.length > RATE_MAX;
 }
 
+// Parse a JSON body, returning null (not throwing) on malformed input so the
+// endpoints can answer 400 instead of tripping the catch-all 500.
+async function parseJson<T>(request: Request): Promise<T | null> {
+  try {
+    return (await request.json()) as T;
+  } catch {
+    return null;
+  }
+}
+
 async function handleSubscribe(request: Request, env: Env): Promise<Response> {
   const token = request.headers.get('authorization')?.replace(/^Bearer\s+/i, '');
   if (!token) return json({ error: 'missing token' }, 401);
@@ -322,10 +333,11 @@ async function handleSubscribe(request: Request, env: Env): Promise<Response> {
   if (!userId) return json({ error: 'invalid token' }, 401);
   if (rateLimited(userId)) return json({ error: 'rate limited' }, 429);
 
-  const body = (await request.json()) as {
+  const body = await parseJson<{
     subscription?: { endpoint?: string; keys?: { p256dh?: string; auth?: string } };
     userAgent?: string;
-  };
+  }>(request);
+  if (!body) return json({ error: 'invalid json' }, 400);
   const sub = body.subscription;
   if (!sub?.endpoint || !sub.keys?.p256dh || !sub.keys?.auth) {
     return json({ error: 'invalid subscription' }, 400);
@@ -347,9 +359,9 @@ async function handleUnsubscribe(request: Request, env: Env): Promise<Response> 
   if (!userId) return json({ error: 'invalid token' }, 401);
   if (rateLimited(userId)) return json({ error: 'rate limited' }, 429);
 
-  const body = (await request.json()) as { endpoint?: string };
-  if (!body.endpoint) return json({ error: 'missing endpoint' }, 400);
-  await deleteSubscription(env, body.endpoint);
+  const body = await parseJson<{ endpoint?: string }>(request);
+  if (!body?.endpoint) return json({ error: 'missing endpoint' }, 400);
+  await deleteSubscriptionForUser(env, userId, body.endpoint);
   return json({ ok: true });
 }
 
@@ -373,8 +385,8 @@ async function handleTestPush(request: Request, env: Env): Promise<Response> {
   if (!env.TEST_PUSH_SECRET || request.headers.get('x-test-secret') !== env.TEST_PUSH_SECRET) {
     return json({ error: 'forbidden' }, 403);
   }
-  const body = (await request.json()) as { userId?: string };
-  if (!body.userId) return json({ error: 'missing userId' }, 400);
+  const body = await parseJson<{ userId?: string }>(request);
+  if (!body?.userId) return json({ error: 'missing userId' }, 400);
 
   const subscriptions = await subscriptionsForUser(env, body.userId);
   const payload: PushPayload = {

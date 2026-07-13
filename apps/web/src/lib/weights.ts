@@ -48,28 +48,50 @@ export function normalizeToPercents(
 // Set `changedId` to `rawValue` percent and re-apportion the rest in proportion
 // to their current shares, so every habit stays at least 1% and the whole set
 // sums to 100. The dragged habit is pinned to (a clamped) exact value; the
-// others float to make room.
+// unlocked others float to make room.
+//
+// `lockedIds` hold their value and are never disturbed, so a share you've
+// deliberately set stays put while you tune the others. The dragged habit is by
+// definition the one being set, so a lock on it is ignored. The change is
+// absorbed only by the remaining unlocked habits; the dragged habit's ceiling
+// is whatever the locked shares (and the unlocked others' 1% floors) leave, so
+// the total can never exceed 100.
 export function redistributePercents(
   pcts: Record<string, number>,
   ids: string[],
   changedId: string,
   rawValue: number,
+  lockedIds: string[] = [],
 ): Record<string, number> {
   if (ids.length === 0) return {};
   if (ids.length === 1) return { [ids[0]]: 100 };
 
-  const others = ids.filter((id) => id !== changedId);
-  // The dragged habit can rise until the others would fall below 1% each.
-  const maxForChanged = 100 - others.length;
-  const value = Math.max(1, Math.min(maxForChanged, Math.round(rawValue)));
-  const remaining = 100 - value;
+  const locked = new Set(lockedIds);
+  locked.delete(changedId);
+  const lockedSum = ids
+    .filter((id) => locked.has(id))
+    .reduce((sum, id) => sum + (pcts[id] ?? 1), 0);
+  const others = ids.filter((id) => id !== changedId && !locked.has(id));
 
+  const out: Record<string, number> = { ...pcts };
+  const available = 100 - lockedSum; // the pool the dragged habit + unlocked others share
+
+  // Nothing unlocked to absorb the change: the dragged habit just takes whatever
+  // the locked ones leave.
+  if (others.length === 0) {
+    out[changedId] = Math.max(1, available);
+    return out;
+  }
+
+  const maxForChanged = Math.max(1, available - others.length); // others keep >= 1
+  const value = Math.max(1, Math.min(maxForChanged, Math.round(rawValue)));
+  const remaining = available - value;
   const apportioned = apportion(
     others.map((id) => pcts[id] ?? 1),
     remaining,
     1,
   );
-  const out: Record<string, number> = { [changedId]: value };
+  out[changedId] = value;
   others.forEach((id, i) => (out[id] = apportioned[i]));
   return out;
 }

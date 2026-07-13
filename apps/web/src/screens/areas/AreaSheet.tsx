@@ -68,6 +68,10 @@ export default function AreaSheet({
   const [driftSensitivity, setDriftSensitivity] = useState<DriftSensitivity>('default');
   const [reminderTimeOfDay, setReminderTimeOfDay] = useState<TimeOfDay>('anytime');
   const [weights, setWeights] = useState<Record<string, number>>({});
+  // Habits the person has locked while tuning the split. Locked shares hold firm
+  // so setting one doesn't undo another; only the unlocked ones flex. A purely
+  // transient editing aid, reset every time the sheet opens.
+  const [lockedIds, setLockedIds] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     if (!open) return;
@@ -77,6 +81,7 @@ export default function AreaSheet({
     setWhySentence(area?.whySentence ?? '');
     setDriftSensitivity(area?.driftSensitivity ?? 'default');
     setReminderTimeOfDay(area?.reminderTimeOfDay ?? 'anytime');
+    setLockedIds(new Set());
     // Seed the editor from stored weights as whole percentages summing to 100,
     // so the sliders start from a clean, exact split (and legacy relative
     // weights migrate transparently the first time an area is opened).
@@ -92,8 +97,21 @@ export default function AreaSheet({
   );
 
   const habitIds = useMemo(() => habits.map((h) => h.id), [habits]);
-  // The most one habit can take while every other keeps at least 1%.
-  const maxShare = Math.max(1, 100 - (habits.length - 1));
+  // What the locked shares add up to, and how many habits are still free. The
+  // dragged habit's ceiling is whatever's left once the locked shares and the
+  // other unlocked habits' 1% floors are set aside, so the total can't top 100.
+  const lockedSum = habits.reduce((sum, h) => (lockedIds.has(h.id) ? sum + (weights[h.id] ?? 0) : sum), 0);
+  const unlockedCount = habits.length - habits.filter((h) => lockedIds.has(h.id)).length;
+  const maxShareFor = (id: string) => Math.max(1, 100 - lockedSum - (unlockedCount - 1));
+
+  function toggleLock(id: string) {
+    setLockedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }
 
   function handleSave() {
     if (!name.trim()) return;
@@ -154,7 +172,7 @@ export default function AreaSheet({
           <div>
             <p className="mb-1 text-sm font-medium text-ink-700">How much each habit counts</p>
             <p className="mb-3 text-xs text-ink-300">
-              Their shares of this area's bloom. Slide one to set its exact percent; the rest adjust to keep the total at 100.
+              Their shares of this area's bloom. Slide one to set its exact percent; the rest adjust to keep the total at 100. Lock a share to hold it while you set the others.
             </p>
             {/* Live stacked bar of the shares. */}
             <div className="mb-3 flex h-2.5 overflow-hidden rounded-full bg-parchment-200">
@@ -171,6 +189,10 @@ export default function AreaSheet({
             <div className="space-y-3">
               {habits.map((h) => {
                 const pct = weights[h.id] ?? Math.round(((h.weight ?? 1) / totalWeight) * 100);
+                const locked = lockedIds.has(h.id);
+                // A locked share can't move; and if this is the only unlocked
+                // habit its value is just the remainder, so there's nothing to drag.
+                const sliderDisabled = locked || unlockedCount <= 1;
                 return (
                   <div key={h.id}>
                     <div className="mb-1 flex items-center justify-between gap-2">
@@ -178,20 +200,38 @@ export default function AreaSheet({
                         <span className="h-1.5 w-1.5 shrink-0 rounded-full" style={{ backgroundColor: h.color ?? color }} />
                         <span className="truncate text-sm text-ink-700">{h.name}</span>
                       </span>
-                      <span className="shrink-0 text-xs font-medium text-ink-500">{pct}%</span>
+                      <span className="flex shrink-0 items-center gap-2">
+                        <span className="text-xs font-medium text-ink-500">{pct}%</span>
+                        <button
+                          type="button"
+                          onClick={() => toggleLock(h.id)}
+                          aria-pressed={locked}
+                          aria-label={locked ? `Unlock ${h.name}` : `Lock ${h.name} at ${pct} percent`}
+                          className={`-mr-1 rounded-full p-1 transition-colors ${locked ? 'text-iris-500' : 'text-ink-300 hover:text-ink-500'}`}
+                        >
+                          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                            <rect x="4.5" y="10.5" width="15" height="10" rx="2.4" fill={locked ? 'currentColor' : 'none'} />
+                            {/* Shackle: closed when locked, lifted open when not. */}
+                            {locked ? <path d="M8 10.5V7a4 4 0 0 1 8 0v3.5" /> : <path d="M8 10.5V7a4 4 0 0 1 7.7-1.3" />}
+                          </svg>
+                        </button>
+                      </span>
                     </div>
                     <input
                       type="range"
                       min={1}
-                      max={maxShare}
+                      max={locked ? 100 : maxShareFor(h.id)}
                       step={1}
                       value={pct}
+                      disabled={sliderDisabled}
                       onChange={(e) =>
-                        setWeights((w) => redistributePercents(w, habitIds, h.id, Number(e.target.value)))
+                        setWeights((w) =>
+                          redistributePercents(w, habitIds, h.id, Number(e.target.value), [...lockedIds]),
+                        )
                       }
                       aria-label={`Percent share for ${h.name}`}
                       aria-valuetext={`${pct} percent`}
-                      className="w-full accent-iris-500"
+                      className="w-full accent-iris-500 disabled:cursor-not-allowed disabled:opacity-40"
                     />
                   </div>
                 );

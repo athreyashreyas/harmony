@@ -71,3 +71,40 @@ describe('redistributePercents', () => {
     expect(out).toEqual({ a: 1, b: 99 });
   });
 });
+
+describe('redistributePercents with locks', () => {
+  const ids = ['a', 'b', 'c'];
+
+  it('holds a locked share while another is dragged', () => {
+    const out = redistributePercents({ a: 34, b: 33, c: 33 }, ids, 'a', 60, ['c']);
+    expect(out.c).toBe(33); // untouched
+    expect(out.a).toBe(60);
+    expect(out.b).toBe(7); // absorbs the rest
+    expect(sum(out)).toBe(100);
+  });
+
+  it('caps the dragged habit so a lock keeps the total at 100', () => {
+    // c locked at 33, so a + b share 67 and a can reach at most 66 (b keeps 1).
+    const out = redistributePercents({ a: 34, b: 33, c: 33 }, ids, 'a', 100, ['c']);
+    expect(out.c).toBe(33);
+    expect(out.a).toBe(66);
+    expect(out.b).toBe(1);
+    expect(sum(out)).toBe(100);
+  });
+
+  it('forces the dragged habit to the remainder when all others are locked', () => {
+    const out = redistributePercents({ a: 34, b: 33, c: 33 }, ids, 'a', 50, ['b', 'c']);
+    expect(out).toEqual({ a: 34, b: 33, c: 33 }); // a can only be the leftover 34
+  });
+
+  it('preserves an earlier deliberate choice across a later edit', () => {
+    // Set a to 60, lock it, then set b — c should absorb, a stays put.
+    const step1 = redistributePercents({ a: 34, b: 33, c: 33 }, ids, 'a', 60);
+    expect(step1.a).toBe(60);
+    const step2 = redistributePercents(step1, ids, 'b', 30, ['a']);
+    expect(step2.a).toBe(60); // the locked choice held
+    expect(step2.b).toBe(30);
+    expect(step2.c).toBe(10);
+    expect(sum(step2)).toBe(100);
+  });
+});

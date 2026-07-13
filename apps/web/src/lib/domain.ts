@@ -1,4 +1,5 @@
 import type { Area, Cadence, Habit, TimeOfDay } from '@harmony/shared';
+import { safeCadence } from '@harmony/shared';
 
 // The editable shape of a habit, as the compose sheet collects it. Everything
 // else on a Habit (id, ownership, timestamps, ordering) is assigned at create
@@ -41,6 +42,9 @@ export function createHabit(
     archivedAt: null,
     // draft carries startDate / endDate (and the rest of the editable fields).
     ...draft,
+    // Never persist a habit without a valid cadence: a missing one would crash
+    // every screen that computes the Bloom or today's list.
+    cadence: safeCadence(draft.cadence),
   };
 }
 

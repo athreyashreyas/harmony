@@ -1,9 +1,11 @@
 import type { Cadence } from '../types';
+import { safeCadence } from '../scheduling';
 
 // Expected gap, in days, between completions for a cadence. Used as the
 // fallback cadence for a fresh area with no log history yet (section 16:
 // "times-per-week:3 => cadence ~2.3 days").
-export function cadenceGapDays(c: Cadence): number {
+export function cadenceGapDays(raw: Cadence): number {
+  const c = safeCadence(raw);
   switch (c.kind) {
     case 'daily':
       return 1;
@@ -12,15 +14,17 @@ export function cadenceGapDays(c: Cadence): number {
     case 'weekends':
       return 7 / 2;
     case 'specific-days':
-      return c.days.length ? 7 / c.days.length : 7;
+      return (c.days ?? []).length ? 7 / (c.days ?? []).length : 7;
     case 'times-per-week':
       return c.times ? 7 / c.times : 7;
     case 'every-n-days':
-      return Math.max(1, c.n);
+      return Math.max(1, c.n ?? 1);
     case 'every-n-weeks':
-      return 7 * Math.max(1, c.n);
+      return 7 * Math.max(1, c.n ?? 1);
     case 'every-n-months':
-      return 30 * Math.max(1, c.n);
+      return 30 * Math.max(1, c.n ?? 1);
+    default:
+      return 1;
   }
 }
 

@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { expectedCompletionsInWindow, isHabitDueOn } from '@harmony/shared';
+import type { Cadence } from '@harmony/shared';
+import { expectedCompletionsInWindow, isHabitDueOn, safeCadence } from '@harmony/shared';
 import { makeHabit } from '../fixtures';
 
 // 2026-01-05 is a Monday; 2026-01-10 a Saturday; 2026-01-11 a Sunday.
@@ -118,5 +119,36 @@ describe('expectedCompletionsInWindow', () => {
 
   it('guards against n = 0', () => {
     expect(expectedCompletionsInWindow({ kind: 'every-n-days', n: 0 }, 14)).toBe(14);
+  });
+});
+
+// A habit with a missing or malformed cadence (older schema, a partial sync, a
+// corrupt draft) must degrade gracefully rather than throw — reading `.kind` off
+// an undefined cadence would white-screen the whole app.
+describe('malformed cadence is resilient', () => {
+  // Cast through unknown so the tests can feed the shapes real bad data takes.
+  const bad = (v: unknown) => v as Cadence;
+
+  it('safeCadence falls back for undefined / null / non-object / no kind', () => {
+    expect(safeCadence(undefined).kind).toBe('daily');
+    expect(safeCadence(null).kind).toBe('daily');
+    expect(safeCadence(bad('daily')).kind).toBe('daily');
+    expect(safeCadence(bad({})).kind).toBe('daily');
+  });
+
+  it('isHabitDueOn does not throw on an undefined cadence, and shows the habit', () => {
+    const h = makeHabit({ cadence: bad(undefined) });
+    expect(() => isHabitDueOn(h, MON)).not.toThrow();
+    expect(isHabitDueOn(h, MON)).toBe(true);
+  });
+
+  it('expectedCompletionsInWindow treats a missing cadence as daily', () => {
+    expect(expectedCompletionsInWindow(bad(undefined), 14)).toBe(14);
+    expect(expectedCompletionsInWindow(bad({}), 14)).toBe(14);
+  });
+
+  it('tolerates a right-kind cadence missing its numeric field', () => {
+    expect(() => expectedCompletionsInWindow(bad({ kind: 'times-per-week' }), 14)).not.toThrow();
+    expect(expectedCompletionsInWindow(bad({ kind: 'specific-days' }), 14)).toBe(0);
   });
 });

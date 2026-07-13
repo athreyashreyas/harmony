@@ -5,13 +5,21 @@ const ASH = '#5a636f';
 
 // Small, calm illustrations so the guide (and the "What's new" cards) instruct
 // by showing, not only telling. Shared by GuideScreen and ReleaseRow.
+//
+// THEME RULE (these render on every theme, light and dark): never assume a light
+// background. Use the parchment/ink CSS variables for anything structural (they
+// flip per theme), and for colour accents use a *semi-transparent solid* fill
+// (hexToRgba(color, ~0.8) or a hex with an opacity attribute), the way MiniBloom
+// does. Do NOT use `mixBlendMode: 'multiply'` or any blend mode: multiply turns
+// to mud on a dark ground. A quick check: glance at each new art in a dark theme
+// (Me -> Appearance -> Indigo Night) before shipping it.
 export default function GuideArt({ kind }: { kind: GuideArtKind }) {
   switch (kind) {
     case 'bloom':
       return (
         <svg viewBox="0 0 120 120" className="h-28 w-28" aria-hidden="true">
           <circle cx="60" cy="60" r="44" fill="none" stroke="var(--parchment-300)" strokeDasharray="2 4" />
-          <g style={{ mixBlendMode: 'multiply' }}>
+          <g>
             <path d="M60 60 L60 18 A42 42 0 0 1 96 39 Z" fill="#b5532f" opacity="0.85" />
             <path d="M60 60 L96 39 A42 42 0 0 1 96 81 Z" fill="#b7902a" opacity="0.5" />
             <path d="M60 60 L96 81 A42 42 0 0 1 60 102 Z" fill="#5b7a35" opacity="0.7" />
@@ -66,6 +74,37 @@ export default function GuideArt({ kind }: { kind: GuideArtKind }) {
             <span>30%</span>
             <span>15%</span>
           </div>
+        </div>
+      );
+    case 'weightsfine':
+      // Fine sliders with exact percents that add to 100, showing you can tune a
+      // habit's share to the precise point. Theme-safe: parchment track and
+      // thumb, solid accent fill.
+      return (
+        <div className="w-full max-w-[240px] space-y-3">
+          {([
+            ['Run', '#5b7a35', 63],
+            ['Stretch', '#3a7ca8', 22],
+            ['Walk', '#b7902a', 15],
+          ] as const).map(([label, c, pct]) => (
+            <div key={label}>
+              <div className="mb-1 flex items-center justify-between text-[11px]">
+                <span className="flex items-center gap-1.5 text-ink-700">
+                  <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: c }} />
+                  {label}
+                </span>
+                <span className="font-medium text-ink-500">{pct}%</span>
+              </div>
+              {/* Track, filled portion, and a thumb sitting at the exact percent. */}
+              <div className="relative h-1.5 rounded-full bg-parchment-200">
+                <div className="absolute inset-y-0 left-0 rounded-full" style={{ width: `${pct}%`, backgroundColor: c }} />
+                <div
+                  className="absolute top-1/2 h-3 w-3 -translate-y-1/2 rounded-full bg-parchment-50 shadow-card"
+                  style={{ left: `calc(${pct}% - 6px)`, boxShadow: `0 0 0 1.5px ${c}` }}
+                />
+              </div>
+            </div>
+          ))}
         </div>
       );
     case 'tug':
@@ -263,7 +302,7 @@ export default function GuideArt({ kind }: { kind: GuideArtKind }) {
       return (
         <svg viewBox="0 0 120 120" className="h-28 w-28" aria-hidden="true">
           <circle cx="60" cy="60" r="44" fill="none" stroke="var(--parchment-300)" strokeDasharray="2 4" />
-          <g style={{ mixBlendMode: 'multiply' }}>
+          <g>
             <path d="M60 60 L60 18 A42 42 0 0 1 96 39 Z" fill="#b5532f" opacity="0.9" />
             <path d="M60 60 L96 39 A42 42 0 0 1 96 81 Z" fill="#b7902a" opacity="0.85" />
             <path d="M60 60 L96 81 A42 42 0 0 1 60 102 Z" fill="#5b7a35" opacity="0.9" />

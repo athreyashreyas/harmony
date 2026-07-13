@@ -30,12 +30,14 @@ export const CHANGELOG: Release[] = [
       'It stays a treat, not a habit: once an area is full it rests quietly through a steady streak, and the confetti only returns when you earn full bloom afresh after a while away. Each area celebrates on its own.',
       'Some moments are bigger. Your very first full bloom is marked as the milestone it is, and when your whole Bloom comes into flower at once, the whole screen celebrates with you.',
       'Prefer things calm? Turn the confetti off any time under Me, in Celebrations. The Bloom fills just the same, quietly.',
+      'And a finer touch for your areas: the habit weight sliders now move a percent at a time, so you can set each habit\'s exact share of the bloom, right down to 1%. Slide one and the others gently rebalance on their own to keep the total at 100.',
     ],
     howTo: [
       'Tend an area until every petal is full to see it celebrated.',
       'Open Me and find Celebrations to turn the confetti off or back on.',
+      'To weight habits, open an area with two or more habits, tap the pencil, and slide any habit to its exact percent.',
     ],
-    art: ['confetti'],
+    art: ['confetti', 'weightsfine'],
   },
   {
     version: '1.2.0',

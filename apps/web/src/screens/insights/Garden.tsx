@@ -61,7 +61,7 @@ function WeekDetail({ week }: { week: WeekBloom }) {
   return (
     <div className="pb-4">
       <p className="text-xs text-ink-300">
-        {fmtDate(week.start)} – {fmtDate(week.end)}
+        {fmtDate(week.start)} - {fmtDate(week.end)}
       </p>
 
       <div className="mx-auto mt-3 w-full max-w-[260px]">

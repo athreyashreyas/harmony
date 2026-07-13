@@ -28,7 +28,7 @@ export default function ColorPicker({
             type="button"
             aria-label={inUse ? `${swatch.name} (in use)` : swatch.name}
             aria-pressed={selected}
-            title={inUse ? `${swatch.name} — already used by another area` : swatch.name}
+            title={inUse ? `${swatch.name}, already used by another area` : swatch.name}
             onClick={() => onChange(swatch.hex)}
             className="relative aspect-square w-full rounded-full transition-transform active:scale-95"
             style={{

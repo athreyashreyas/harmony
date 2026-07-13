@@ -6,6 +6,7 @@ import ColorPicker from '../../components/ColorPicker/ColorPicker';
 import SegmentedControl from '../../components/SegmentedControl/SegmentedControl';
 import { TIME_OF_DAY_OPTIONS } from '../../lib/cadenceOptions';
 import type { AreaFields } from '../../lib/domain';
+import { normalizeToPercents, redistributePercents } from '../../lib/weights';
 import { PrimaryButton, QuietLink } from '../onboarding/ui';
 
 export interface HabitWeight {
@@ -76,19 +77,30 @@ export default function AreaSheet({
     setWhySentence(area?.whySentence ?? '');
     setDriftSensitivity(area?.driftSensitivity ?? 'default');
     setReminderTimeOfDay(area?.reminderTimeOfDay ?? 'anytime');
-    setWeights(Object.fromEntries(habits.map((h) => [h.id, h.weight ?? 1])));
+    // Seed the editor from stored weights as whole percentages summing to 100,
+    // so the sliders start from a clean, exact split (and legacy relative
+    // weights migrate transparently the first time an area is opened).
+    setWeights(normalizeToPercents(Object.fromEntries(habits.map((h) => [h.id, h.weight ?? 1])), habits.map((h) => h.id)));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, area]);
 
+  // Percentages sum to 100, so this is 100 in practice; kept as a guard against
+  // an empty/partial map (e.g. the frame before the seed effect runs).
   const totalWeight = useMemo(
-    () => habits.reduce((sum, h) => sum + (weights[h.id] ?? 1), 0) || 1,
+    () => habits.reduce((sum, h) => sum + (weights[h.id] ?? 0), 0) || 1,
     [habits, weights],
   );
+
+  const habitIds = useMemo(() => habits.map((h) => h.id), [habits]);
+  // The most one habit can take while every other keeps at least 1%.
+  const maxShare = Math.max(1, 100 - (habits.length - 1));
 
   function handleSave() {
     if (!name.trim()) return;
     onSave({ name: name.trim(), color, importance, whySentence, driftSensitivity, reminderTimeOfDay });
     if (onSaveWeights && habits.length > 1) {
+      // Percentages are stored straight as the relative weights; the bloom math
+      // normalises by their total either way.
       onSaveWeights(habits.map((h) => ({ id: h.id, weight: weights[h.id] ?? 1 })));
     }
   }
@@ -142,7 +154,7 @@ export default function AreaSheet({
           <div>
             <p className="mb-1 text-sm font-medium text-ink-700">How much each habit counts</p>
             <p className="mb-3 text-xs text-ink-300">
-              Their shares of this area's bloom. Slide to lean it toward what matters most here.
+              Their shares of this area's bloom. Slide one to set its exact percent; the rest adjust to keep the total at 100.
             </p>
             {/* Live stacked bar of the shares. */}
             <div className="mb-3 flex h-2.5 overflow-hidden rounded-full bg-parchment-200">
@@ -150,7 +162,7 @@ export default function AreaSheet({
                 <span
                   key={h.id}
                   style={{
-                    width: `${((weights[h.id] ?? 1) / totalWeight) * 100}%`,
+                    width: `${((weights[h.id] ?? 0) / totalWeight) * 100}%`,
                     backgroundColor: h.color ?? color,
                   }}
                 />
@@ -158,7 +170,7 @@ export default function AreaSheet({
             </div>
             <div className="space-y-3">
               {habits.map((h) => {
-                const pct = Math.round(((weights[h.id] ?? 1) / totalWeight) * 100);
+                const pct = weights[h.id] ?? Math.round(((h.weight ?? 1) / totalWeight) * 100);
                 return (
                   <div key={h.id}>
                     <div className="mb-1 flex items-center justify-between gap-2">
@@ -171,13 +183,14 @@ export default function AreaSheet({
                     <input
                       type="range"
                       min={1}
-                      max={10}
+                      max={maxShare}
                       step={1}
-                      value={weights[h.id] ?? 1}
+                      value={pct}
                       onChange={(e) =>
-                        setWeights((w) => ({ ...w, [h.id]: Number(e.target.value) }))
+                        setWeights((w) => redistributePercents(w, habitIds, h.id, Number(e.target.value)))
                       }
-                      aria-label={`Weight for ${h.name}`}
+                      aria-label={`Percent share for ${h.name}`}
+                      aria-valuetext={`${pct} percent`}
                       className="w-full accent-iris-500"
                     />
                   </div>

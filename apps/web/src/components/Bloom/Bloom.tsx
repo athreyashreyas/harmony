@@ -72,6 +72,10 @@ function Petal({
       role="button"
       tabIndex={0}
       aria-label={area.name}
+      // Suppress the browser focus ring for pointer input (mouse click, touch
+      // tap) but keep it for keyboard Tab focus, so the slice stays accessible
+      // without flashing a box on every tap.
+      className="[&:focus:not(:focus-visible)]:outline-none"
       onPointerDown={startPress}
       onPointerUp={endPress}
       onPointerLeave={cancelPress}

@@ -31,6 +31,7 @@ export const CHANGELOG: Release[] = [
       'Some moments are bigger. Your very first full bloom is marked as the milestone it is, and when your whole Bloom comes into flower at once, the whole screen celebrates with you.',
       'Prefer things calm? Turn the confetti off any time under Me, in Celebrations. The Bloom fills just the same, quietly.',
       'And a finer touch for your areas: the habit weight sliders now move a percent at a time, so you can set each habit\'s exact share of the bloom, right down to 1%. Slide one and the others gently rebalance on their own to keep the total at 100.',
+      'A safer goodbye, too: deleting your account now asks you to type the word first, so it can never happen from an accidental tap.',
     ],
     howTo: [
       'Tend an area until every petal is full to see it celebrated.',

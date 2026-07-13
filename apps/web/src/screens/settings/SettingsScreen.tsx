@@ -30,6 +30,21 @@ export default function SettingsScreen() {
 
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  // Type-to-confirm: deleting an account is irreversible, so the button stays
+  // inert until they deliberately type the confirmation word, guarding against
+  // an accidental tap.
+  const [deleteConfirm, setDeleteConfirm] = useState('');
+  const DELETE_WORD = 'DELETE';
+  const canDelete = deleteConfirm.trim().toUpperCase() === DELETE_WORD && !deleting;
+
+  function openDeleteModal() {
+    setDeleteConfirm('');
+    setDeleteOpen(true);
+  }
+  function closeDeleteModal() {
+    setDeleteOpen(false);
+    setDeleteConfirm('');
+  }
   // pushReadiness() is synchronous, so seed it on first render to avoid a flash.
   const [pushState, setPushState] = useState<PushReadiness>(() => pushReadiness());
   const [pushBusy, setPushBusy] = useState(false);
@@ -116,7 +131,7 @@ export default function SettingsScreen() {
   }
 
   async function handleDeleteAccount() {
-    if (!profile) return;
+    if (!profile || !canDelete) return;
     setDeleting(true);
     await deleteAccount(profile.id);
     await supabase?.auth.signOut();
@@ -181,7 +196,7 @@ export default function SettingsScreen() {
           </button>
           <button
             type="button"
-            onClick={() => setDeleteOpen(true)}
+            onClick={openDeleteModal}
             className="rounded-full px-5 py-2.5 text-sm font-medium text-rose-600 hover:bg-rose-100"
           >
             Delete account
@@ -360,18 +375,34 @@ export default function SettingsScreen() {
         <p className="mt-1 text-xs text-ink-300">Made with love by Noor's App Dreamland Ltd.</p>
       </section>
 
-      <Modal open={deleteOpen} onClose={() => setDeleteOpen(false)} title="Delete account">
+      <Modal open={deleteOpen} onClose={closeDeleteModal} title="Delete account">
         <p className="text-sm text-ink-700">
           This deletes everything you've added: your areas, habits, logs, and notes, on this device
           and in your account. It can't be undone.
         </p>
+        <label htmlFor="delete-confirm" className="mt-4 block text-sm text-ink-700">
+          Type <span className="font-semibold">{DELETE_WORD}</span> to confirm.
+        </label>
+        <input
+          id="delete-confirm"
+          type="text"
+          value={deleteConfirm}
+          onChange={(e) => setDeleteConfirm(e.target.value)}
+          autoComplete="off"
+          autoCapitalize="characters"
+          autoCorrect="off"
+          spellCheck={false}
+          placeholder={DELETE_WORD}
+          aria-label={`Type ${DELETE_WORD} to confirm account deletion`}
+          className="mt-1.5 w-full rounded-card bg-parchment-100 px-3.5 py-2.5 text-sm text-ink-900 ring-1 ring-inset ring-parchment-300 placeholder:text-ink-300 focus:ring-2 focus:ring-iris-500"
+        />
         <div className="mt-5 space-y-2">
-          <PrimaryButton onClick={handleDeleteAccount} disabled={deleting}>
-            Delete everything
+          <PrimaryButton onClick={handleDeleteAccount} disabled={!canDelete}>
+            {deleting ? 'Deleting...' : 'Delete everything'}
           </PrimaryButton>
           <button
             type="button"
-            onClick={() => setDeleteOpen(false)}
+            onClick={closeDeleteModal}
             className="w-full rounded-full py-2.5 text-sm text-ink-500"
           >
             Keep my account

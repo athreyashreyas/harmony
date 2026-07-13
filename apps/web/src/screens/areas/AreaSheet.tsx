@@ -102,7 +102,9 @@ export default function AreaSheet({
   // other unlocked habits' 1% floors are set aside, so the total can't top 100.
   const lockedSum = habits.reduce((sum, h) => (lockedIds.has(h.id) ? sum + (weights[h.id] ?? 0) : sum), 0);
   const unlockedCount = habits.length - habits.filter((h) => lockedIds.has(h.id)).length;
-  const maxShareFor = (id: string) => Math.max(1, 100 - lockedSum - (unlockedCount - 1));
+  // The ceiling is the same for every unlocked habit: it can rise until each of
+  // the other unlocked ones would hit its 1% floor.
+  const maxUnlockedShare = Math.max(1, 100 - lockedSum - (unlockedCount - 1));
 
   function toggleLock(id: string) {
     setLockedIds((prev) => {
@@ -220,7 +222,7 @@ export default function AreaSheet({
                     <input
                       type="range"
                       min={1}
-                      max={locked ? 100 : maxShareFor(h.id)}
+                      max={locked ? 100 : maxUnlockedShare}
                       step={1}
                       value={pct}
                       disabled={sliderDisabled}

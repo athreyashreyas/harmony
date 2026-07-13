@@ -15,6 +15,7 @@
     "test:watch": "vitest"
   },
   "devDependencies": {
+    "vite": "^5.4.21",
     "vitest": "^3.2.7"
   }
 }

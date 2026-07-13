@@ -1,3 +1,4 @@
+import { motion } from 'framer-motion';
 import type { GuideArtKind } from '../../lib/guide';
 import MiniBloom from '../MiniBloom/MiniBloom';
 
@@ -78,30 +79,42 @@ export default function GuideArt({ kind }: { kind: GuideArtKind }) {
       );
     case 'weightsfine':
       // Fine sliders with exact percents that add to 100, showing you can tune a
-      // habit's share to the precise point. Theme-safe: parchment track and
-      // thumb, solid accent fill.
+      // habit's share to the precise point. The fills glide out to their values
+      // in turn, like the sliders settling. Theme-safe: parchment track and
+      // thumb, solid accent fill. A fixed width so it takes its own row (rather
+      // than being squeezed narrow beside another illustration) and the label
+      // and percent always sit at comfortable opposite ends.
       return (
-        <div className="w-full max-w-[240px] space-y-3">
+        <div className="w-[248px] max-w-full space-y-4">
           {([
             ['Run', '#5b7a35', 63],
             ['Stretch', '#3a7ca8', 22],
             ['Walk', '#b7902a', 15],
-          ] as const).map(([label, c, pct]) => (
+          ] as const).map(([label, c, pct], i) => (
             <div key={label}>
-              <div className="mb-1 flex items-center justify-between text-[11px]">
-                <span className="flex items-center gap-1.5 text-ink-700">
-                  <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: c }} />
-                  {label}
+              <div className="mb-1.5 flex items-center justify-between gap-4 text-[11px]">
+                <span className="flex min-w-0 items-center gap-1.5 text-ink-700">
+                  <span className="h-1.5 w-1.5 shrink-0 rounded-full" style={{ backgroundColor: c }} />
+                  <span className="truncate">{label}</span>
                 </span>
-                <span className="font-medium text-ink-500">{pct}%</span>
+                <span className="shrink-0 font-medium text-ink-500">{pct}%</span>
               </div>
-              {/* Track, filled portion, and a thumb sitting at the exact percent. */}
-              <div className="relative h-1.5 rounded-full bg-parchment-200">
-                <div className="absolute inset-y-0 left-0 rounded-full" style={{ width: `${pct}%`, backgroundColor: c }} />
-                <div
-                  className="absolute top-1/2 h-3 w-3 -translate-y-1/2 rounded-full bg-parchment-50 shadow-card"
-                  style={{ left: `calc(${pct}% - 6px)`, boxShadow: `0 0 0 1.5px ${c}` }}
-                />
+              {/* Track, and a filled portion that glides out to the percent. The
+                  thumb rides the fill's leading edge, so it follows along for
+                  free as the width animates. */}
+              <div className="relative h-2 rounded-full bg-parchment-200">
+                <motion.div
+                  className="absolute inset-y-0 left-0 rounded-full"
+                  style={{ backgroundColor: c }}
+                  initial={{ width: '0%' }}
+                  animate={{ width: `${pct}%` }}
+                  transition={{ duration: 0.8, ease: 'easeOut', delay: 0.15 + i * 0.15 }}
+                >
+                  <span
+                    className="absolute h-3.5 w-3.5 rounded-full bg-parchment-50 shadow-card"
+                    style={{ top: '50%', right: -7, marginTop: -7, boxShadow: `0 0 0 1.5px ${c}` }}
+                  />
+                </motion.div>
               </div>
             </div>
           ))}

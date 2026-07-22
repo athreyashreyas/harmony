@@ -1,20 +1,86 @@
-// Generates the PWA icons with zero dependencies: a soft iris "h" mark on
-// parchment, rendered from signed-distance fields with one-pass anti-aliasing,
-// encoded to PNG using only Node's built-in zlib. Run with `node
-// scripts/generate-icons.mjs`. The mark stays within the central 30% so it
-// survives maskable cropping (section 18).
+// Generates Harmony's PWA icons and notification badge.
+//
+// Home-screen tiles (icon-192/512/1024): the watercolour flower lifted off its
+// cream tile and set on Harmony's espresso ground (#241D17, from tokens.css) —
+// a solid brand field (a la Hisaab) that lets every petal separate, while the
+// multi-colour flower, which can't be a single light knockout, is preserved.
+// The cream ground is removed with a
+// border-connected flood-fill so the enclosed centre "h" disc survives. Needs
+// `sharp` resolvable (e.g. `pnpm add -Dw sharp`); reads the untouched master at
+// scripts/flower-master-1024.png.
+//
+// Badge (badge.png): a white "h" on transparent, drawn from a signed-distance
+// field and encoded with only Node's zlib (zero deps), for Android
+// notifications. Run with `node scripts/generate-icons.mjs`.
 
+import sharp from 'sharp';
 import { deflateSync } from 'node:zlib';
 import { writeFileSync, mkdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 
-const OUT_DIR = join(dirname(fileURLToPath(import.meta.url)), '..', 'apps', 'web', 'public', 'icons');
+const HERE = dirname(fileURLToPath(import.meta.url));
+const OUT_DIR = join(HERE, '..', 'apps', 'web', 'public', 'icons');
+const MASTER = join(HERE, 'flower-master-1024.png');
 
-// Warm paper (parchment-100) and terracotta primary, matching the app theme.
-const PARCHMENT = [251, 241, 228];
-const IRIS = [181, 83, 47];
-const WHITE = [255, 255, 255];
+const ESPRESSO = [36, 29, 23]; // #241D17 — Harmony's dark ground, the tile field
+const WHITE = [255, 255, 255]; // the notification badge mark
+
+mkdirSync(OUT_DIR, { recursive: true });
+
+// ---- Home-screen tiles: flower on terracotta -------------------------------
+
+// Read the master flower (opaque, on a white/cream tile) as raw RGBA.
+const { data, info } = await sharp(MASTER).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
+const W = info.width;
+const H = info.height;
+const ch = info.channels;
+
+// A pixel is "background" if it is light and unsaturated — this catches both the
+// white rounded corners and the cream field, but not the saturated petals.
+const isBgCandidate = (i) => {
+  const r = data[i], g = data[i + 1], b = data[i + 2];
+  const mn = Math.min(r, g, b), mx = Math.max(r, g, b);
+  return mn > 196 && mx - mn < 38;
+};
+
+// Flood-fill inward from the border. The centre "h" disc is cream too, but it is
+// enclosed by petals and never reached, so it stays.
+const bg = new Uint8Array(W * H);
+const stack = [];
+const pushIf = (x, y) => {
+  if (x < 0 || y < 0 || x >= W || y >= H) return;
+  const p = y * W + x;
+  if (bg[p] || !isBgCandidate(p * ch)) return;
+  bg[p] = 1;
+  stack.push(p);
+};
+for (let x = 0; x < W; x++) { pushIf(x, 0); pushIf(x, H - 1); }
+for (let y = 0; y < H; y++) { pushIf(0, y); pushIf(W - 1, y); }
+while (stack.length) {
+  const p = stack.pop();
+  const x = p % W, y = (p / W) | 0;
+  pushIf(x - 1, y); pushIf(x + 1, y); pushIf(x, y - 1); pushIf(x, y + 1);
+}
+
+// Flower on transparent ground, then flattened onto the terracotta field.
+const flower = Buffer.from(data);
+for (let p = 0; p < W * H; p++) flower[p * ch + 3] = bg[p] ? 0 : 255;
+const flowerPng = await sharp(flower, { raw: { width: W, height: H, channels: 4 } })
+  .blur(0.6) // soften the cut edge a hair before downscaling
+  .png()
+  .toBuffer();
+
+for (const size of [192, 512, 1024]) {
+  await sharp(flowerPng)
+    .flatten({ background: { r: ESPRESSO[0], g: ESPRESSO[1], b: ESPRESSO[2] } })
+    .resize(size, size, { kernel: 'lanczos3' })
+    .png()
+    .toFile(join(OUT_DIR, `icon-${size}.png`));
+}
+console.log('Tiles written to', OUT_DIR);
+
+// ---- Notification badge: white "h", zero-dependency --------------------------
 
 function sdSegment(px, py, ax, ay, bx, by) {
   const pax = px - ax;
@@ -33,16 +99,11 @@ function sdH(px, py) {
   const stroke = 0.05;
   const leftStem = sdSegment(px, py, 0.4, 0.27, 0.4, 0.73) - stroke;
   const rightStem = sdSegment(px, py, 0.6, 0.5, 0.6, 0.73) - stroke;
-  // Top half of a ring centred at (0.5, 0.5) joins the two stems.
   let shoulder = Infinity;
   if (py <= 0.5) {
     shoulder = Math.abs(Math.hypot(px - 0.5, py - 0.5) - 0.1) - stroke;
   }
   return Math.min(leftStem, rightStem, shoulder);
-}
-
-function lerp(a, b, t) {
-  return Math.round(a + (b - a) * t);
 }
 
 function crc32(buf) {
@@ -79,36 +140,21 @@ function encodePng(size, rgba) {
   return Buffer.concat([sig, chunk('IHDR', ihdr), chunk('IDAT', deflateSync(raw, { level: 9 })), chunk('IEND', Buffer.alloc(0))]);
 }
 
-// fg/bg are [r,g,b]; when transparent is true the background is clear and the
-// foreground fades in over alpha (for the Android badge).
-function renderIcon(size, fg, bg, transparent) {
+function renderBadge(size, fg) {
   const rgba = Buffer.alloc(size * size * 4);
   for (let y = 0; y < size; y++) {
     for (let x = 0; x < size; x++) {
-      const u = (x + 0.5) / size;
-      const v = (y + 0.5) / size;
-      const d = sdH(u, v);
+      const d = sdH((x + 0.5) / size, (y + 0.5) / size);
       const coverage = Math.max(0, Math.min(1, 0.5 - d * size));
       const i = (y * size + x) * 4;
-      if (transparent) {
-        rgba[i] = fg[0];
-        rgba[i + 1] = fg[1];
-        rgba[i + 2] = fg[2];
-        rgba[i + 3] = Math.round(coverage * 255);
-      } else {
-        rgba[i] = lerp(bg[0], fg[0], coverage);
-        rgba[i + 1] = lerp(bg[1], fg[1], coverage);
-        rgba[i + 2] = lerp(bg[2], fg[2], coverage);
-        rgba[i + 3] = 255;
-      }
+      rgba[i] = fg[0];
+      rgba[i + 1] = fg[1];
+      rgba[i + 2] = fg[2];
+      rgba[i + 3] = Math.round(coverage * 255);
     }
   }
   return encodePng(size, rgba);
 }
 
-mkdirSync(OUT_DIR, { recursive: true });
-for (const size of [192, 512, 1024]) {
-  writeFileSync(join(OUT_DIR, `icon-${size}.png`), renderIcon(size, IRIS, PARCHMENT, false));
-}
-writeFileSync(join(OUT_DIR, 'badge.png'), renderIcon(96, WHITE, PARCHMENT, true));
-console.log('Icons written to', OUT_DIR);
+writeFileSync(join(OUT_DIR, 'badge.png'), renderBadge(96, WHITE));
+console.log('Badge written to', OUT_DIR);

@@ -228,13 +228,34 @@ export async function usersWithSubscriptions(env: Env): Promise<Set<string>> {
   return new Set(rows.map((r) => r.user_id));
 }
 
-export async function getUserBundle(env: Env, userId: string): Promise<UserBundle> {
-  const logsFrom = isoDaysAgo(60);
-  const nudgesFrom = new Date(Date.now() - 14 * 86_400_000).toISOString();
+// What a single pass needs to fetch. The every-minute reminder/summary pass only
+// looks at *today's* logs and needs no areas, so it fetches a tiny window; the
+// drift pass (run far less often) needs ~60 days of history and the areas. This
+// split is the main egress lever: re-downloading 60 days of logs every minute
+// was the dominant PostgREST egress.
+export interface BundleOptions {
+  // Days of logs to fetch. Reminders/summary need only today (2 days covers any
+  // timezone's "today"); drift needs the full HISTORY_DAYS (60) window.
+  logDays?: number;
+  // Days of nudge history to fetch. Reminder/summary dedup is per-day (today);
+  // drift's no-repeat + phrasing memory looks back a couple of weeks.
+  nudgeDays?: number;
+  // Areas are only used by drift, so the reminder/summary pass skips the fetch.
+  includeAreas?: boolean;
+}
+
+export async function getUserBundle(
+  env: Env,
+  userId: string,
+  opts: BundleOptions = {},
+): Promise<UserBundle> {
+  const { logDays = 2, nudgeDays = 2, includeAreas = false } = opts;
+  const logsFrom = isoDaysAgo(logDays);
+  const nudgesFrom = new Date(Date.now() - nudgeDays * 86_400_000).toISOString();
   const uid = `user_id=eq.${userId}`;
 
   const [areas, habits, logs, nudges, settingsRows, subs] = await Promise.all([
-    rest<AreaRow[]>(env, `areas?${uid}&select=*`),
+    includeAreas ? rest<AreaRow[]>(env, `areas?${uid}&select=*`) : Promise.resolve([] as AreaRow[]),
     rest<HabitRow[]>(env, `habits?${uid}&select=*`),
     rest<LogRow[]>(env, `logs?${uid}&date=gte.${logsFrom}&deleted_at=is.null&select=*`),
     rest<NudgeRow[]>(env, `nudge_history?${uid}&sent_at=gte.${nudgesFrom}&select=*`),

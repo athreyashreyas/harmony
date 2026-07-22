@@ -80,6 +80,12 @@ for (const size of [192, 512, 1024]) {
 }
 console.log('Tiles written to', OUT_DIR);
 
+// In-app logo: the flower on its original light ground (favicon, boot cover,
+// splash, guide, update toast). The espresso tile above is reserved for the
+// installed home-screen icon only.
+await sharp(MASTER).resize(192, 192, { kernel: 'lanczos3' }).png().toFile(join(OUT_DIR, 'logo-192.png'));
+console.log('Light logo written to', join(OUT_DIR, 'logo-192.png'));
+
 // ---- Notification badge: white "h", zero-dependency --------------------------
 
 function sdSegment(px, py, ax, ay, bx, by) {

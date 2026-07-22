@@ -164,10 +164,11 @@ export default function GuideArt({ kind }: { kind: GuideArtKind }) {
         </div>
       );
     case 'logo':
-      // Just the real app icon, the same one that sits on the home screen.
+      // The Harmony brand logo on its light ground. (The installed home-screen
+      // icon is the espresso tile; this in-app mark stays on paper.)
       return (
         <img
-          src="/icons/icon-192.png"
+          src="/icons/logo-192.png"
           alt="Harmony"
           width={84}
           height={84}

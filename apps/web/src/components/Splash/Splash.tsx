@@ -19,7 +19,7 @@ export default function Splash({ label }: { label?: string }) {
       transition={{ duration: 0.45, ease: 'easeInOut' }}
     >
       <img
-        src="/icons/icon-192.png"
+        src="/icons/logo-192.png"
         alt=""
         width={80}
         height={80}

@@ -45,7 +45,7 @@ export function showUpdatingOverlay(): void {
   ].join(';');
 
   const logo = document.createElement('img');
-  logo.src = '/icons/icon-192.png';
+  logo.src = '/icons/logo-192.png';
   logo.width = 80;
   logo.height = 80;
   logo.style.cssText =

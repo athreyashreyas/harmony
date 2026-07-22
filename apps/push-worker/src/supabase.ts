@@ -56,56 +56,45 @@ async function rest<T>(env: Env, path: string, init?: RequestInit): Promise<T> {
 }
 
 // Row shapes (snake_case) as stored, mapped to the camelCase domain types the
-// shared engine expects.
+// shared engine expects. NOTE: the worker deliberately fetches only the columns
+// its scheduling + drift logic reads (see the selects in getUserBundle), so
+// these interfaces list just those columns — not the full table. Unused domain
+// fields are given neutral defaults in the mappers below. If new logic needs
+// another column, add it to both the select and the interface/mapper here. This
+// keeps the two unbounded text columns (logs.note, nudge_history.composed_text)
+// and other unread fields off the wire, which is a large egress saving.
 interface AreaRow {
   id: string;
-  user_id: string;
   name: string;
-  color: string;
   importance: Area['importance'];
   why_sentence: string;
-  sort_order: number;
   created_at: string;
   archived_at: string | null;
   drift_sensitivity: NonNullable<Area['driftSensitivity']>;
-  reminder_time_of_day: NonNullable<Area['reminderTimeOfDay']>;
 }
 
 interface HabitRow {
   id: string;
-  user_id: string;
   area_id: string;
   name: string;
   cadence: Habit['cadence'];
-  time_of_day: Habit['timeOfDay'];
   reminder_time: string | null;
   start_date: string;
   end_date: string | null;
-  sort_order: number;
-  created_at: string;
   archived_at: string | null;
-  color: string | null;
   polarity: Habit['polarity'] | null;
-  tug_weight: number | null;
 }
 
 interface LogRow {
-  id: string;
-  user_id: string;
   habit_id: string;
   area_id: string;
   date: string;
-  logged_at: string;
-  note: string | null;
 }
 
 interface NudgeRow {
-  id: string;
-  user_id: string;
   template_id: string;
   area_id: string | null;
   habit_id: string | null;
-  composed_text: string;
   sent_at: string;
   channel: 'push' | 'in-app';
 }
@@ -128,62 +117,61 @@ interface SubscriptionRow {
   auth: string;
 }
 
+// The `''`/`0`/`null` fields below are columns the worker never fetches (see the
+// note on the row interfaces); they satisfy the domain type but are never read.
 function toArea(r: AreaRow): Area {
   return {
     id: r.id,
-    userId: r.user_id,
+    userId: '',
     name: r.name,
-    color: r.color,
+    color: '',
     importance: r.importance,
     whySentence: r.why_sentence,
-    order: r.sort_order,
+    order: 0,
     createdAt: Date.parse(r.created_at),
     archivedAt: r.archived_at ? Date.parse(r.archived_at) : null,
     driftSensitivity: r.drift_sensitivity,
-    reminderTimeOfDay: r.reminder_time_of_day,
   };
 }
 
 function toHabit(r: HabitRow): Habit {
   return {
     id: r.id,
-    userId: r.user_id,
+    userId: '',
     areaId: r.area_id,
     name: r.name,
     cadence: r.cadence,
-    timeOfDay: r.time_of_day,
+    timeOfDay: 'anytime',
     reminderTime: r.reminder_time,
     startDate: r.start_date,
     endDate: r.end_date,
-    order: r.sort_order,
-    createdAt: Date.parse(r.created_at),
+    order: 0,
+    createdAt: 0,
     archivedAt: r.archived_at ? Date.parse(r.archived_at) : null,
-    color: r.color ?? undefined,
     polarity: r.polarity ?? 'tend',
-    tugWeight: r.tug_weight ?? undefined,
   };
 }
 
 function toLog(r: LogRow): Log {
   return {
-    id: r.id,
-    userId: r.user_id,
+    id: '',
+    userId: '',
     habitId: r.habit_id,
     areaId: r.area_id,
     date: r.date,
-    loggedAt: Date.parse(r.logged_at),
-    note: r.note,
+    loggedAt: 0,
+    note: null,
   };
 }
 
 function toNudge(r: NudgeRow): NudgeHistory {
   return {
-    id: r.id,
-    userId: r.user_id,
+    id: '',
+    userId: '',
     templateId: r.template_id,
     areaId: r.area_id,
     habitId: r.habit_id,
-    composedText: r.composed_text,
+    composedText: '',
     sentAt: Date.parse(r.sent_at),
     channel: r.channel,
   };
@@ -254,12 +242,29 @@ export async function getUserBundle(
   const nudgesFrom = new Date(Date.now() - nudgeDays * 86_400_000).toISOString();
   const uid = `user_id=eq.${userId}`;
 
+  // Explicit column lists (not select=*): fetch only what the worker reads, so
+  // unused/unbounded columns (notably logs.note, nudge_history.composed_text, and
+  // the settings row's rituals/theme JSON) never leave Supabase.
   const [areas, habits, logs, nudges, settingsRows, subs] = await Promise.all([
-    includeAreas ? rest<AreaRow[]>(env, `areas?${uid}&select=*`) : Promise.resolve([] as AreaRow[]),
-    rest<HabitRow[]>(env, `habits?${uid}&select=*`),
-    rest<LogRow[]>(env, `logs?${uid}&date=gte.${logsFrom}&deleted_at=is.null&select=*`),
-    rest<NudgeRow[]>(env, `nudge_history?${uid}&sent_at=gte.${nudgesFrom}&select=*`),
-    rest<SettingsRow[]>(env, `notification_settings?${uid}&select=*`),
+    includeAreas
+      ? rest<AreaRow[]>(
+          env,
+          `areas?${uid}&select=id,name,importance,why_sentence,created_at,archived_at,drift_sensitivity`,
+        )
+      : Promise.resolve([] as AreaRow[]),
+    rest<HabitRow[]>(
+      env,
+      `habits?${uid}&select=id,area_id,name,cadence,reminder_time,start_date,end_date,archived_at,polarity`,
+    ),
+    rest<LogRow[]>(env, `logs?${uid}&date=gte.${logsFrom}&deleted_at=is.null&select=habit_id,area_id,date`),
+    rest<NudgeRow[]>(
+      env,
+      `nudge_history?${uid}&sent_at=gte.${nudgesFrom}&select=template_id,area_id,habit_id,sent_at,channel`,
+    ),
+    rest<SettingsRow[]>(
+      env,
+      `notification_settings?${uid}&select=master_enabled,muted_area_ids,dnd_start,dnd_end,habit_reminders,daily_summary`,
+    ),
     rest<SubscriptionRow[]>(env, `push_subscriptions?${uid}&select=endpoint,p256dh,auth`),
   ]);
 

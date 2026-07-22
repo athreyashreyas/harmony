@@ -546,7 +546,7 @@ export default function HomeScreen() {
                 // + edit), reached the same way you'd open a habit.
                 <div
                   key={habit.id}
-                  className="flex w-full items-center gap-3 rounded-card border border-dashed border-[#5a636f]/45 bg-parchment-50 px-3 py-3"
+                  className="flex w-full items-center gap-3 rounded-card border border-dashed border-ink-300/60 bg-parchment-50 px-3 py-3"
                 >
                   <button
                     type="button"
@@ -556,8 +556,8 @@ export default function HomeScreen() {
                     className="flex h-[22px] w-[22px] shrink-0 items-center justify-center rounded-full"
                     style={
                       loggedToday
-                        ? { backgroundColor: '#5a636f' }
-                        : { boxShadow: 'inset 0 0 0 1.5px #5a636f55' }
+                        ? { backgroundColor: 'var(--ink-300)' }
+                        : { boxShadow: 'inset 0 0 0 1.5px rgb(var(--ink-300-rgb) / 0.33)' }
                     }
                   >
                     {loggedToday && (

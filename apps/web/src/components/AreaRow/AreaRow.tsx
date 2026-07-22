@@ -210,13 +210,13 @@ export default function AreaRow({
                           onClick={() => onOpenHabit?.(habit.id)}
                           className={
                             isTug
-                              ? 'flex w-full items-center gap-2.5 rounded-lg border border-dashed border-[#5a636f]/45 px-3 py-2 text-left'
+                              ? 'flex w-full items-center gap-2.5 rounded-lg border border-dashed border-ink-300/60 px-3 py-2 text-left'
                               : 'flex w-full items-center gap-2.5 rounded-lg bg-parchment-100 px-3 py-2 text-left'
                           }
                         >
                           <span
                             className="h-1.5 w-1.5 shrink-0 rounded-full"
-                            style={{ backgroundColor: isTug ? '#5a636f' : habit.color ?? area.color }}
+                            style={{ backgroundColor: isTug ? 'var(--ink-300)' : habit.color ?? area.color }}
                           />
                           <span className="min-w-0 flex-1 truncate text-sm text-ink-800">{habit.name}</span>
                           {isTug && <span className="shrink-0 text-[10px] uppercase tracking-wide text-ink-300">tug</span>}

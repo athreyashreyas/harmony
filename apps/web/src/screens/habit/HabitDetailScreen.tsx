@@ -241,11 +241,11 @@ export default function HabitDetailScreen() {
                     key={n.id}
                     type="button"
                     onClick={() => openHabit(n.id, { replace: true })}
-                    className="flex shrink-0 items-center gap-2 rounded-full border border-dashed border-[#5a636f]/45 px-3.5 py-1.5 text-sm text-ink-700"
+                    className="flex shrink-0 items-center gap-2 rounded-full border border-dashed border-ink-300/60 px-3.5 py-1.5 text-sm text-ink-700"
                   >
                     <span
                       className="h-1.5 w-1.5 rounded-full"
-                      style={{ backgroundColor: recent ? '#5a636f' : 'var(--parchment-300)' }}
+                      style={{ backgroundColor: recent ? 'var(--ink-300)' : 'var(--parchment-300)' }}
                     />
                     {n.name}
                   </button>

@@ -239,7 +239,7 @@ export default function LogScreen() {
               {dayHabits.map((habit) => {
                 const area = areaById.get(habit.areaId);
                 const isTug = habit.polarity === 'ease';
-                const accent = isTug ? '#5a636f' : habit.color ?? area?.color ?? 'var(--iris-500)';
+                const accent = isTug ? 'var(--ink-300)' : habit.color ?? area?.color ?? 'var(--iris-500)';
                 const log = dayLogByHabit.get(habit.id);
                 const done = log != null;
                 const due = selectedDate ? isHabitDueOn(habit, selectedDate) : false;
@@ -251,7 +251,7 @@ export default function LogScreen() {
                     aria-pressed={done}
                     className={
                       isTug
-                        ? 'flex w-full items-center gap-3 rounded-card border border-dashed border-[#5a636f]/45 px-3 py-2.5 text-left'
+                        ? 'flex w-full items-center gap-3 rounded-card border border-dashed border-ink-300/60 px-3 py-2.5 text-left'
                         : 'flex w-full items-center gap-3 rounded-card bg-parchment-100 px-3 py-2.5 text-left'
                     }
                   >

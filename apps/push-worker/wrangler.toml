@@ -11,7 +11,10 @@ enabled = true
 
 # Runs every minute (Cloudflare cron's finest granularity) so habit reminders
 # fire within about a minute of their set time. Drift and the daily summary are
-# self-throttled, so the extra runs don't mean extra notifications.
+# self-throttled, so the extra runs don't mean extra notifications. The pass is
+# cheap by design: it asks Supabase one question ("is anyone due right now?")
+# via the due_push_users RPC and stops there on the minutes nobody is, so the
+# every-minute cadence costs a tiny fraction of the egress it used to.
 [triggers]
 crons = ["* * * * *"]
 

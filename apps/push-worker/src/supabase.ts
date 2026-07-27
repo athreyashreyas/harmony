@@ -209,11 +209,49 @@ export async function getActiveUsers(env: Env): Promise<UserProfile[]> {
 }
 
 // The set of user ids that have at least one push subscription. Only these
-// users can receive anything, so the every-minute pass can skip the rest
-// instead of fetching a full bundle for each of them.
+// users can receive anything, so a pass can skip the rest instead of fetching
+// a full bundle for each of them. Used by the (hourly) drift pass; the
+// every-minute pass uses usersDueNow below, which is far cheaper still.
 export async function usersWithSubscriptions(env: Env): Promise<Set<string>> {
   const rows = await rest<{ user_id: string }[]>(env, 'push_subscriptions?select=user_id');
   return new Set(rows.map((r) => r.user_id));
+}
+
+// The every-minute question — "is anyone due a reminder or the round-up right
+// now?" — answered by Postgres in a single request (see migration 0021).
+//
+// This is the main egress lever. Working it out worker-side meant downloading
+// the profile list, the subscription list, and a per-user bundle every minute
+// of every day just to discover that nothing was due; now a normal minute
+// costs one response containing `[]`. The returned users are the ones with
+// something plausibly due — the caller still applies the full checks (habit
+// cadence in particular), so this only ever narrows the work.
+export async function usersDueNow(
+  env: Env,
+  opts: {
+    reminderCatchupMin: number;
+    summaryTime: string;
+    summaryCatchupMin: number;
+    reminderTemplateId: string;
+    summaryTemplateId: string;
+  },
+): Promise<UserProfile[]> {
+  const rows = await rest<{ id: string; first_name: string; timezone: string }[]>(env, 'rpc/due_push_users', {
+    method: 'POST',
+    body: JSON.stringify({
+      reminder_catchup_min: opts.reminderCatchupMin,
+      summary_time: opts.summaryTime,
+      summary_catchup_min: opts.summaryCatchupMin,
+      reminder_template_id: opts.reminderTemplateId,
+      summary_template_id: opts.summaryTemplateId,
+    }),
+  });
+  return rows.map((r) => ({
+    id: r.id,
+    firstName: r.first_name,
+    timezone: r.timezone,
+    onboardedAt: 1,
+  }));
 }
 
 // What a single pass needs to fetch. The every-minute reminder/summary pass only

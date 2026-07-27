@@ -21,16 +21,28 @@ export function refreshStores(userId: string): void {
 // a write that hasn't reached the server yet. Used by focus/online/poll. The
 // pull is incremental (watermark-based for logs), so every one of these is both
 // cheap and complete — it catches everything changed since the last sync.
+// Foregrounding fires visibilitychange every time, and on a phone that can be
+// dozens of times a day — each one a fresh round of queries for data that
+// almost certainly hasn't changed since a minute ago. Realtime already carries
+// anything that did. So bursts of background syncs collapse into one pull; the
+// explicit Sync button (manualRefresh) bypasses this, so the user can always
+// force one.
+const MIN_PULL_GAP_MS = 60_000;
+let lastPullAt = 0;
+
 export async function syncNow(userId: string): Promise<void> {
   if (!navigator.onLine) return;
   // Send any queued local writes up first, so the authoritative pull can't
-  // reconcile-away a change that simply hasn't reached the server yet.
+  // reconcile-away a change that simply hasn't reached the server yet. This is
+  // never skipped: a queued write should leave the device at the first chance.
   await flushOutbox();
   if (useSyncStore.getState().pending > 0) return;
   // If the flush couldn't drain everything (e.g. a transient network error),
   // don't run the authoritative pull: it could reconcile-away a local write
   // that is still queued but hasn't reached the server. Retry next sync.
   if ((await db.outbox.count()) > 0) return;
+  if (Date.now() - lastPullAt < MIN_PULL_GAP_MS) return;
+  lastPullAt = Date.now();
   const ok = await pullUserData(userId);
   if (ok) refreshStores(userId);
 }

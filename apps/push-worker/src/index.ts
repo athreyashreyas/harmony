@@ -14,6 +14,7 @@ import {
   subscriptionsForUser,
   upsertSubscription,
   userIdFromToken,
+  usersDueNow,
   usersWithSubscriptions,
   type Env,
   type UserBundle,
@@ -94,26 +95,29 @@ async function sendToAllSubscriptions(
   return results.some((r) => r.status === 'fulfilled' && r.value === true);
 }
 
-async function processUser(env: Env, user: UserProfile, now: Date, runDrift: boolean): Promise<void> {
-  // Reminders and the summary only need today's logs; drift needs ~60 days of
-  // history and the areas. Fetch only what this pass will use — re-downloading
-  // 60 days of logs every minute was the bulk of PostgREST egress.
-  const bundle = runDrift
-    ? await getUserBundle(env, user.id, { logDays: 60, nudgeDays: 14, includeAreas: true })
-    : await getUserBundle(env, user.id, { logDays: 2, nudgeDays: 2, includeAreas: false });
+// The per-minute work for one user the database told us is due: the small
+// bundle (today's logs only, no areas) and the two time-of-day pushes.
+async function processDueUser(env: Env, user: UserProfile, now: Date): Promise<void> {
+  const bundle = await getUserBundle(env, user.id, { logDays: 2, nudgeDays: 2, includeAreas: false });
   if (!bundle.settings.masterEnabled) return;
   if (bundle.subscriptions.length === 0) return;
 
-  const inQuietHours = withinDnd(now, user.timezone, bundle.settings.dndStart, bundle.settings.dndEnd);
-
   // A per-habit reminder is a time the user chose deliberately, so it fires even
-  // during quiet hours. The drift nudges and the evening round-up are ours to
-  // time, so they stay quiet during quiet hours.
+  // during quiet hours. The evening round-up is ours to time, so it stays quiet.
   await sendHabitReminders(env, user, now, bundle);
-  if (inQuietHours) return;
-
+  if (withinDnd(now, user.timezone, bundle.settings.dndStart, bundle.settings.dndEnd)) return;
   await sendDailySummary(env, user, now, bundle);
-  if (runDrift) await sendDriftNudges(env, user, now, bundle);
+}
+
+// The drift work for one user: needs ~60 days of history and the areas, which
+// is why it runs on its own coarse cadence rather than every minute.
+async function processDriftUser(env: Env, user: UserProfile, now: Date): Promise<void> {
+  const bundle = await getUserBundle(env, user.id, { logDays: 60, nudgeDays: 14, includeAreas: true });
+  if (!bundle.settings.masterEnabled) return;
+  if (bundle.subscriptions.length === 0) return;
+  if (withinDnd(now, user.timezone, bundle.settings.dndStart, bundle.settings.dndEnd)) return;
+
+  await sendDriftNudges(env, user, now, bundle);
 }
 
 // #1: a gentle nudge for each due, still-unlogged habit at its reminder time.
@@ -277,31 +281,56 @@ async function sendDriftNudges(env: Env, user: UserProfile, now: Date, bundle: U
   }
 }
 
-// One scheduled pass. `runDrift` decides whether this run also does the (much
-// heavier) drift check; reminders and the evening summary run on every pass so
-// they stay punctual.
-async function runPass(env: Env, runDrift: boolean): Promise<void> {
-  const now = new Date();
+// The every-minute pass, kept deliberately cheap: one request asks the database
+// which users (if any) have a reminder or the round-up due this minute, and only
+// those users cost a bundle. On the overwhelming majority of minutes nobody is
+// due and this pass is a single response containing an empty array — which is
+// what keeps idle PostgREST egress near zero. The database-side predicates
+// mirror the checks below (see migration 0021); those checks still run here and
+// remain authoritative, so an over-broad answer costs a fetch, never a wrong
+// notification.
+async function runRemindersPass(env: Env, now: Date): Promise<void> {
+  let due: UserProfile[];
+  try {
+    due = await usersDueNow(env, {
+      reminderCatchupMin: REMINDER_CATCHUP_MIN,
+      summaryTime: SUMMARY_TIME,
+      summaryCatchupMin: SUMMARY_CATCHUP_MIN,
+      reminderTemplateId: REMINDER_TEMPLATE_ID,
+      summaryTemplateId: SUMMARY_TEMPLATE_ID,
+    });
+  } catch (err) {
+    console.error('Reminder pass could not load due users', err);
+    return;
+  }
+  if (due.length === 0) return;
 
-  // Fetch the active users and the set of users who actually have a device
-  // subscribed, together. If either lookup fails, log and bail for this minute
-  // rather than throwing (the next run, a minute later, retries).
+  // Process everyone in parallel and isolate failures, so one user (or one slow
+  // request) never delays or drops another's.
+  const results = await Promise.allSettled(due.map((user) => processDueUser(env, user, now)));
+  results.forEach((r, i) => {
+    if (r.status === 'rejected') console.warn(`Reminder pass failed for user ${due[i].id}`, r.reason);
+  });
+}
+
+// The drift pass. Drift is a days-scale signal capped at two nudges a day, so it
+// runs hourly rather than every minute; it has no cheap "is anyone due" test
+// (the answer depends on 60 days of logs), so its cost is the reason it stays on
+// a coarse cadence.
+async function runDriftPass(env: Env, now: Date): Promise<void> {
   let users: UserProfile[];
   let subscribed: Set<string>;
   try {
     [users, subscribed] = await Promise.all([getActiveUsers(env), usersWithSubscriptions(env)]);
   } catch (err) {
-    console.error('Scheduled pass could not load users', err);
+    console.error('Drift pass could not load users', err);
     return;
   }
 
-  // Only users with a subscription can receive anything, so skip the rest before
-  // paying for a bundle each. Process everyone in parallel and isolate failures,
-  // so one user (or one slow request) never delays or drops another's.
   const recipients = users.filter((u) => subscribed.has(u.id));
-  const results = await Promise.allSettled(recipients.map((user) => processUser(env, user, now, runDrift)));
+  const results = await Promise.allSettled(recipients.map((user) => processDriftUser(env, user, now)));
   results.forEach((r, i) => {
-    if (r.status === 'rejected') console.warn(`Scheduled pass failed for user ${recipients[i].id}`, r.reason);
+    if (r.status === 'rejected') console.warn(`Drift pass failed for user ${recipients[i].id}`, r.reason);
   });
 }
 
@@ -459,12 +488,15 @@ export default {
   },
 
   async scheduled(_event: ScheduledController, env: Env, ctx: ExecutionContext): Promise<void> {
-    const minute = new Date().getUTCMinutes();
-    // Reminders and the summary run every minute so they fire on time. Drift is a
-    // days-scale signal, so it only needs a coarse cadence; running it every 15
-    // minutes (rather than every minute) is what keeps the 60-day log pull —
-    // otherwise repeated 1,440×/day — from dominating Supabase egress.
-    ctx.waitUntil(runPass(env, minute % 15 === 0));
+    const now = new Date();
+    const minute = now.getUTCMinutes();
+    // Reminders and the round-up run every minute so they fire on time; the pass
+    // is one small request unless someone is actually due.
+    ctx.waitUntil(runRemindersPass(env, now));
+    // Drift needs 60 days of logs per user, so it runs hourly. A nudge about a
+    // days-old pattern is no less true for arriving within the hour, and the
+    // two-a-day cap means a finer cadence wouldn't send anything extra anyway.
+    if (minute === 11) ctx.waitUntil(runDriftPass(env, now));
     // Once an hour, prune old log tombstones so soft-deleted rows never pile up.
     if (minute === 7) ctx.waitUntil(pruneDeletedLogs(env));
   },

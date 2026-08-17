@@ -381,7 +381,7 @@ export default function GuideArt({ kind }: { kind: GuideArtKind }) {
             <span className="flex h-5 w-5 items-center justify-center rounded-full bg-iris-500">
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="text-on-primary"><path d="M5 13l4 4L19 7" /></svg>
             </span>
-            <span className="text-[11px] text-ink-500">That is with them now</span>
+            <span className="text-[11px] text-ink-500">It is with them</span>
           </motion.div>
         </div>
       );

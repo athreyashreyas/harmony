@@ -182,8 +182,10 @@ export default function SettingsScreen() {
     }
   }
 
+  // The tab bar is a flex sibling rather than an overlay, so this screen needs
+  // no clearance under it: the version line ends the page.
   return (
-    <TabScreen className="pt-8 pb-28 md:pb-12">
+    <TabScreen className="pt-8 pb-10">
       <h1 className="font-serif text-3xl text-ink-900">Me</h1>
 
       <section className="mt-7">
@@ -358,19 +360,19 @@ export default function SettingsScreen() {
       <section className="mt-9">
         <p className={eyebrow}>Make Harmony Yours</p>
         <p className="mt-2 text-xs text-ink-300">
-          Harmony is built and maintained by one person, and this goes straight to
-          their desk. Say what broke, or what you wish the app did. It does not
-          need to be long.
+          One person looks after Harmony, and whatever you write here lands on
+          their desk. Tell them what went wrong, or what you wish the app did. A
+          sentence or two is plenty.
         </p>
         <div className="mt-3 space-y-2">
           <FeedbackRow
             title="Report something broken"
-            sub="Found a bug, or something that doesn't work as you expect?"
+            sub="Something behaving differently to how you expected?"
             onClick={() => setFeedback('bug')}
           />
           <FeedbackRow
             title="Suggest something"
-            sub="Any and all ideas are welcome. Especially half-formed ones."
+            sub="Even a half-thought is worth sending."
             onClick={() => setFeedback('idea')}
           />
         </div>
@@ -398,7 +400,6 @@ export default function SettingsScreen() {
       <section className="mt-9">
         <p className={eyebrow}>About</p>
         <p className="mt-2 text-sm text-ink-500">Harmony, version {APP_VERSION}.</p>
-        <p className="mt-1 text-xs text-ink-300">Made with love by Noor's App Dreamland Ltd.</p>
       </section>
 
       <Modal open={deleteOpen} onClose={closeDeleteModal} title="Delete account">

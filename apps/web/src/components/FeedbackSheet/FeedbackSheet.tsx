@@ -105,8 +105,9 @@ export default function FeedbackSheet({
           </div>
 
           <p className="text-xs leading-relaxed text-ink-300">
-            Your message goes to the person who makes Harmony.
-            {account ? ` Any reply will come directly to ${account}.` : ''}
+            This goes to the person who looks after Harmony. Nothing about your
+            areas or habits travels with it.
+            {account ? ` Replies come to ${account}.` : ''}
           </p>
 
           {/* A line is always held here, so an error arriving never shoves the
@@ -162,33 +163,33 @@ function Delivered({
       </motion.div>
 
       <p className="text-center font-serif text-xl text-ink-900">
-        {queued ? 'Saved, and it will send itself.' : 'That is with them now.'}
+        {queued ? 'Kept here, and it will go on its own.' : 'It is with them.'}
       </p>
 
       <div className="mx-auto mt-3 max-w-sm space-y-2.5 text-center text-sm text-ink-500">
         {queued ? (
           <p>
-            It could not go just now, so it is sitting on your device. Harmony
-            sends it the next time it gets a connection, whether or not you open
-            the app again.
+            It could not go just now, so it is resting on your device. Harmony
+            will send it the moment there is a connection, whether or not you
+            come back to the app.
           </p>
         ) : (
           <p>
-            It arrived with your version and device attached, so they can see the
-            same screen you were looking at.
+            It arrived carrying your version and the sort of device you are on,
+            so they can picture what you were looking at.
           </p>
         )}
         <p>
-          Harmony is built and maintained by one person. They read what comes in,
-          and they write back when there is something worth saying. A fair amount
-          of what is in the app now started as somebody&apos;s message.
+          Harmony is made and looked after by one person. They read what arrives,
+          and answer when there is something worth saying. A good deal of the app
+          began as somebody writing in.
         </p>
         {account && (
           <p>
-            Any reply will come to <span className="font-medium text-ink-700">{account}</span>.
+            Replies come to <span className="font-medium text-ink-700">{account}</span>.
           </p>
         )}
-        <p className="text-ink-300">Thank you for taking the time.</p>
+        <p className="text-ink-300">Thank you for stopping to write.</p>
       </div>
 
       <button

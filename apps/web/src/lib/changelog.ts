@@ -21,6 +21,23 @@ export interface Release {
 // plain, the same voice as the rest of the app.
 export const CHANGELOG: Release[] = [
   {
+    version: '1.4.0',
+    date: '2026-08-17',
+    major: true,
+    title: 'A way to make Harmony exactly what you want',
+    notes: [
+      'If Harmony has ever been any good, it is because of the thoughtful voices and consideration of everyone who has used it. As Harmony grows, we want that ethos of bespoke attention to remain. Me now has a line straight to the app\'s creator.',
+      'You can report a bug, suggest a new feature, or just send an idea. Bugs are fixed as soon as possible, and ideas are read and considered for the next version. Every single message is deeply valued and given attention to.',
+      'The message carries your version and the device you are holding, so you never have to describe what you were looking at. Nothing about your areas, habits or notes goes with it.',
+      'If you are offline or the message cannot get through, nothing is lost. Harmony keeps it on your device and sends it when you are back online, so you can write it and forget it.',
+      'Replies come back to the email you signed up with, so there is nothing to go and check and nothing to miss. Answer that mail and the conversation simply carries on.',
+    ],
+    howTo: [
+      'Open Me and scroll to "Make Harmony Yours", then choose whether it is a bug or an idea.',
+    ],
+    art: ['message'],
+  },
+  {
     version: '1.3.0',
     date: '2026-07-12',
     major: true,

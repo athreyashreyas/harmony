@@ -355,5 +355,35 @@ export default function GuideArt({ kind }: { kind: GuideArtKind }) {
           </div>
         </div>
       );
+    // A message written in Me, and where it gets to. The line under the card is
+    // what the app attaches for you.
+    case 'message':
+      return (
+        <div className="w-full max-w-[240px] space-y-2.5">
+          <div className="flex gap-1 rounded-full bg-parchment-200 p-1 text-[11px] font-medium">
+            <span className="flex-1 rounded-full bg-parchment-50 py-1 text-center text-ink-900 shadow-card">Broken</span>
+            <span className="flex-1 py-1 text-center text-ink-300">An idea</span>
+          </div>
+
+          <div className="rounded-card bg-parchment-50 p-3 shadow-card">
+            <p className="text-xs leading-relaxed text-ink-700">
+              I tended a habit and the petal for that area stayed where it was.
+            </p>
+            <p className="mt-2 text-[10px] text-ink-300">Harmony 1.4.0 · iPhone</p>
+          </div>
+
+          <motion.div
+            className="flex items-center justify-center gap-2"
+            initial={{ opacity: 0, y: 4 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, ease: 'easeOut', delay: 0.35 }}
+          >
+            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-iris-500">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="text-on-primary"><path d="M5 13l4 4L19 7" /></svg>
+            </span>
+            <span className="text-[11px] text-ink-500">That is with them now</span>
+          </motion.div>
+        </div>
+      );
   }
 }

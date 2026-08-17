@@ -2,9 +2,11 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { DEFAULT_DND } from '@harmony/shared';
 import TabScreen from '../../app/TabScreen';
 import Modal from '../../components/Modal/Modal';
+import FeedbackSheet from '../../components/FeedbackSheet/FeedbackSheet';
 import { useNavigate } from 'react-router-dom';
 import Switch from '../../components/Switch/Switch';
 import { APP_VERSION } from '../../lib/changelog';
+import type { FeedbackKind } from '../../lib/feedback';
 import { enablePush, pushReadiness, type PushReadiness } from '../../lib/push/subscribe';
 import { useTheme } from '../../lib/theme/theme';
 import { THEMES } from '../../lib/theme/themes';
@@ -30,6 +32,8 @@ export default function SettingsScreen() {
 
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  // Which kind the feedback sheet opens on, or null while it is closed.
+  const [feedback, setFeedback] = useState<FeedbackKind | null>(null);
   // Type-to-confirm: deleting an account is irreversible, so the button stays
   // inert until they deliberately type the confirmation word, guarding against
   // an accidental tap.
@@ -350,6 +354,28 @@ export default function SettingsScreen() {
         )}
       </section>
 
+      {/* A line straight to the person who makes it. */}
+      <section className="mt-9">
+        <p className={eyebrow}>Make Harmony Yours</p>
+        <p className="mt-2 text-xs text-ink-300">
+          Harmony is built and maintained by one person, and this goes straight to
+          their desk. Say what broke, or what you wish the app did. It does not
+          need to be long.
+        </p>
+        <div className="mt-3 space-y-2">
+          <FeedbackRow
+            title="Report something broken"
+            sub="Found a bug, or something that doesn't work as you expect?"
+            onClick={() => setFeedback('bug')}
+          />
+          <FeedbackRow
+            title="Suggest something"
+            sub="Any and all ideas are welcome. Especially half-formed ones."
+            onClick={() => setFeedback('idea')}
+          />
+        </div>
+      </section>
+
       <section className="mt-9">
         <p className={eyebrow}>Guide</p>
         <button
@@ -409,6 +435,37 @@ export default function SettingsScreen() {
           </button>
         </div>
       </Modal>
+
+      <FeedbackSheet kind={feedback} onClose={() => setFeedback(null)} />
     </TabScreen>
+  );
+}
+
+// One tappable row in "Make Harmony Yours", shaped like the Guide row above it.
+function FeedbackRow({
+  title,
+  sub,
+  onClick,
+}: {
+  title: string;
+  sub: string;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="flex w-full items-center justify-between rounded-card bg-parchment-50 px-4 py-3.5 text-left shadow-card"
+    >
+      <span className="min-w-0 pr-3">
+        <span className="block text-sm text-ink-900">{title}</span>
+        <span className="block text-xs text-ink-300">{sub}</span>
+      </span>
+      <span className="shrink-0 text-ink-300">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <path d="M9 5l7 7-7 7" />
+        </svg>
+      </span>
+    </button>
   );
 }

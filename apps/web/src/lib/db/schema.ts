@@ -32,6 +32,19 @@ export interface OutboxItem {
   createdAt: number;
 }
 
+// One message to the creator, written in Me, that has not reached them yet.
+// Its own queue rather than an OutboxItem: it belongs to no table, carries no
+// row id, and is sent through an edge function rather than into Postgres.
+export interface FeedbackOutboxItem {
+  id?: number;
+  kind: 'bug' | 'idea';
+  subject: string;
+  body: string;
+  createdAt: number;
+  // Failed attempts so far, so a message that cannot land is given up on.
+  attempts: number;
+}
+
 export class HarmonyDB extends Dexie {
   profile!: Table<UserProfile, string>;
   areas!: Table<Area, string>;
@@ -40,6 +53,7 @@ export class HarmonyDB extends Dexie {
   nudgeHistory!: Table<NudgeHistory, string>;
   settings!: Table<Setting, string>;
   outbox!: Table<OutboxItem, number>;
+  feedbackOutbox!: Table<FeedbackOutboxItem, number>;
 
   constructor() {
     super('harmony');
@@ -56,6 +70,11 @@ export class HarmonyDB extends Dexie {
     // v2 adds the offline write outbox.
     this.version(2).stores({
       outbox: '++id, createdAt',
+    });
+    // v3 adds the queue of messages to the creator that have not gone yet.
+    // Indexed on createdAt so it drains in the order they were written.
+    this.version(3).stores({
+      feedbackOutbox: '++id, createdAt',
     });
   }
 }

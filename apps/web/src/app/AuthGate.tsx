@@ -6,6 +6,7 @@ import { APP_VERSION } from '../lib/changelog';
 import { ensureSubscribed } from '../lib/push/subscribe';
 import { flushOutbox, hasLocalData, pullProfile, pullUserData, subscribeUserRealtime, type SyncTable } from '../lib/supabase/sync';
 import { refreshStores, syncNow } from '../lib/sync/refresh';
+import { startFeedbackOutbox } from '../lib/feedbackOutbox';
 import { useTheme } from '../lib/theme/theme';
 import { getSeenVersionLocal, isNewerVersion, setSeenVersionLocal } from '../lib/whatsNew';
 import Splash from '../components/Splash/Splash';
@@ -264,11 +265,16 @@ export default function AuthGate() {
       if (document.visibilityState === 'visible') void syncNow(userId);
     }, POLL_MS);
 
+    // Messages written in Me ride their own queue on the same life cycle: it
+    // sends whatever is waiting on reconnect and on coming back to the app.
+    const stopFeedbackOutbox = startFeedbackOutbox();
+
     return () => {
       unsubscribe();
       document.removeEventListener('visibilitychange', onVisible);
       window.removeEventListener('online', onOnline);
       window.clearInterval(interval);
+      stopFeedbackOutbox();
     };
   }, [status, profile]);
 

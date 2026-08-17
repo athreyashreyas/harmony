@@ -5,7 +5,7 @@
 //
 // Each section may name one illustration, drawn by GuideScreen's GuideArt.
 
-export type GuideArtKind = 'bloom' | 'habit' | 'areas' | 'weights' | 'weightsfine' | 'tug' | 'log' | 'sync' | 'guide' | 'reminder' | 'logo' | 'themes' | 'sort' | 'insights' | 'palette' | 'garden' | 'ritual' | 'confetti';
+export type GuideArtKind = 'bloom' | 'habit' | 'areas' | 'weights' | 'weightsfine' | 'tug' | 'log' | 'sync' | 'guide' | 'reminder' | 'logo' | 'themes' | 'sort' | 'insights' | 'palette' | 'garden' | 'ritual' | 'confetti' | 'message';
 
 export interface GuideSection {
   id: string;
@@ -157,5 +157,20 @@ export const GUIDE: GuideSection[] = [
       'Gold means syncing. Green means everything is up to date.',
     ],
     art: 'sync',
+  },
+  {
+    id: 'yours',
+    title: 'Making Harmony yours',
+    body: [
+      'One person makes Harmony, and Me has a line straight to them. If something is broken, say so. If the app should do something it does not yet do, say that too. You do not have to be certain, you do not have to be technical, and you do not have to soften it.',
+      'Your version and the device you are holding travel with the message, so you can describe what you saw and leave the rest alone.',
+      'They read all of it. Bugs are looked at quickly, ideas are thought about properly, and where there is an answer worth giving it comes to the email you signed up with.',
+      'Writing it offline is fine. The message waits on your device and goes out by itself the next time you have a connection, so you can close the app and forget you sent it.',
+    ],
+    steps: [
+      'Open Me and scroll to "Make Harmony Yours".',
+      'Choose whether it is something broken or an idea, then write as much or as little as you like.',
+    ],
+    art: 'message',
   },
 ];

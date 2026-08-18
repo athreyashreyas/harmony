@@ -38,17 +38,17 @@ export default function AreasStep({
           <PrimaryButton onClick={onNext} disabled={!canContinue}>
             Continue
           </PrimaryButton>
-          <p className="text-center text-xs text-ink-300">
+          <p className="text-center text-xs text-ink-faint">
             {count} chosen. Pick {MIN_AREAS} to {MAX_AREAS}.
           </p>
         </div>
       }
     >
       <div className="py-6">
-        <h1 className="font-serif text-3xl leading-tight text-ink-900">
+        <h1 className="font-serif text-3xl leading-tight text-ink-strong">
           What parts of life make you feel most yourself?
         </h1>
-        <p className="mt-3 text-sm text-ink-500">Pick three to seven. You can change these any time.</p>
+        <p className="mt-3 text-sm text-ink-muted">Pick three to seven. You can change these any time.</p>
 
         <div className="mt-7 flex flex-wrap gap-2.5">
           {SUGGESTED_AREAS.map((area) => {
@@ -81,7 +81,7 @@ export default function AreasStep({
             type="button"
             disabled={atMax}
             onClick={() => setModalOpen(true)}
-            className="rounded-full bg-parchment-200 px-4 py-2 text-sm font-medium text-ink-500 hover:text-ink-700 disabled:opacity-40"
+            className="rounded-full bg-parchment-raised px-4 py-2 text-sm font-medium text-ink-muted hover:text-ink-body disabled:opacity-40"
           >
             Add your own
           </button>
@@ -127,7 +127,7 @@ function AreaSelectChip({
               color,
               boxShadow: `inset 0 0 0 1.5px ${hexToRgba(color, 0.55)}`,
             }
-          : { backgroundColor: 'var(--parchment-200)', color: 'var(--ink-700)' }
+          : { backgroundColor: 'var(--parchment-raised)', color: 'var(--ink-body)' }
       }
     >
       <span className="h-2 w-2 rounded-full" style={{ backgroundColor: color }} />
@@ -157,7 +157,7 @@ function CustomAreaModal({
 
   return (
     <Modal open={open} onClose={onClose} title="Add your own">
-      <label htmlFor="custom-area-name" className="mb-1.5 block text-sm font-medium text-ink-700">
+      <label htmlFor="custom-area-name" className="mb-1.5 block text-sm font-medium text-ink-body">
         Name
       </label>
       <input
@@ -167,10 +167,10 @@ function CustomAreaModal({
         onChange={(e) => setName(e.target.value)}
         placeholder="Garden, Music, Faith"
         maxLength={MAX_AREA_NAME}
-        className="w-full rounded-card bg-parchment-50 px-3.5 py-2.5 text-sm text-ink-900 ring-1 ring-inset ring-parchment-300 placeholder:text-ink-300 focus:ring-2 focus:ring-iris-500"
+        className="w-full rounded-card bg-parchment-surface px-3.5 py-2.5 text-sm text-ink-strong ring-1 ring-inset ring-parchment-edge placeholder:text-ink-faint focus:ring-2 focus:ring-accent-base"
       />
 
-      <p className="mb-2 mt-4 text-sm font-medium text-ink-700">Colour</p>
+      <p className="mb-2 mt-4 text-sm font-medium text-ink-body">Colour</p>
       <ColorPicker value={color} onChange={setColor} />
 
       <div className="mt-6">

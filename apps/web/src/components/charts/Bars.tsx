@@ -30,7 +30,7 @@ export default function Bars({
         return (
           <div key={i} className="flex flex-1 flex-col items-center justify-end gap-1">
             {showValues && (
-              <span className="text-[10px] font-medium text-ink-500" style={{ opacity: d.value > 0 ? 1 : 0 }}>
+              <span className="text-[10px] font-medium text-ink-muted" style={{ opacity: d.value > 0 ? 1 : 0 }}>
                 {d.value}
               </span>
             )}
@@ -41,7 +41,7 @@ export default function Bars({
                 backgroundColor: isPeak ? color : hexToRgba(color, 0.5),
               }}
             />
-            <span className="text-[10px] text-ink-300">{d.label}</span>
+            <span className="text-[10px] text-ink-faint">{d.label}</span>
           </div>
         );
       })}

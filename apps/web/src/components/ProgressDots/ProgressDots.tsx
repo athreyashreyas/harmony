@@ -11,8 +11,8 @@ export default function ProgressDots({ total, current }: { total: number; curren
             key={i}
             className={[
               'h-1.5 rounded-full transition-all',
-              isCurrent ? 'w-4 bg-iris-500' : 'w-1.5',
-              isDone ? 'bg-iris-500' : isCurrent ? '' : 'bg-parchment-300',
+              isCurrent ? 'w-4 bg-accent-base' : 'w-1.5',
+              isDone ? 'bg-accent-base' : isCurrent ? '' : 'bg-parchment-edge',
             ].join(' ')}
           />
         );

@@ -51,7 +51,7 @@ export default function SortMenu<T extends string>({
         aria-haspopup="listbox"
         aria-expanded={open}
         aria-label="Sort habits"
-        className="flex items-center gap-1.5 text-ink-500"
+        className="flex items-center gap-1.5 text-ink-muted"
       >
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
           <path d="M4 6h13M4 12h9M4 18h5" />
@@ -83,7 +83,7 @@ export default function SortMenu<T extends string>({
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -4, scale: 0.98 }}
             transition={{ duration: 0.16, ease: 'easeOut' }}
-            className="absolute left-0 top-full z-20 mt-2 w-60 origin-top-left overflow-hidden rounded-card border border-parchment-300/60 bg-parchment-50 p-1 shadow-lift"
+            className="absolute left-0 top-full z-20 mt-2 w-60 origin-top-left overflow-hidden rounded-card border border-parchment-edge/60 bg-parchment-surface p-1 shadow-lift"
           >
             {options.map((o) => {
               const selected = o.value === value;
@@ -97,21 +97,21 @@ export default function SortMenu<T extends string>({
                     }}
                     className={[
                       'flex w-full items-start gap-2.5 rounded-[10px] px-2.5 py-2 text-left transition-colors',
-                      selected ? 'bg-parchment-200' : 'hover:bg-parchment-100',
+                      selected ? 'bg-parchment-raised' : 'hover:bg-parchment-ground',
                     ].join(' ')}
                   >
                     <span className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center">
                       {selected && (
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--iris-500)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--accent-base)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                           <path d="M5 13l4 4L19 7" />
                         </svg>
                       )}
                     </span>
                     <span className="min-w-0">
-                      <span className={['block text-sm', selected ? 'font-semibold text-ink-900' : 'font-medium text-ink-700'].join(' ')}>
+                      <span className={['block text-sm', selected ? 'font-semibold text-ink-strong' : 'font-medium text-ink-body'].join(' ')}>
                         {o.label}
                       </span>
-                      <span className="mt-0.5 block text-xs leading-snug text-ink-300">{o.description}</span>
+                      <span className="mt-0.5 block text-xs leading-snug text-ink-faint">{o.description}</span>
                     </span>
                   </button>
                 </li>

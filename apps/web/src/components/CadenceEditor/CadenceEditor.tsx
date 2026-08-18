@@ -62,11 +62,11 @@ function Stepper({
         onClick={() => onChange(Math.max(min, value - 1))}
         disabled={value <= min}
         aria-label="Fewer"
-        className="flex h-9 w-9 items-center justify-center rounded-full bg-parchment-200 text-lg text-ink-700 disabled:opacity-30"
+        className="flex h-9 w-9 items-center justify-center rounded-full bg-parchment-raised text-lg text-ink-body disabled:opacity-30"
       >
         −
       </button>
-      <span className="min-w-0 flex-1 text-center text-sm text-ink-900">
+      <span className="min-w-0 flex-1 text-center text-sm text-ink-strong">
         {value} {suffix}
       </span>
       <button
@@ -74,7 +74,7 @@ function Stepper({
         onClick={() => onChange(Math.min(max, value + 1))}
         disabled={value >= max}
         aria-label="More"
-        className="flex h-9 w-9 items-center justify-center rounded-full bg-parchment-200 text-lg text-ink-700 disabled:opacity-30"
+        className="flex h-9 w-9 items-center justify-center rounded-full bg-parchment-raised text-lg text-ink-body disabled:opacity-30"
       >
         +
       </button>
@@ -98,7 +98,7 @@ export default function CadenceEditor({
 
   return (
     <div>
-      <p className="mb-1.5 text-sm font-medium text-ink-700">How often</p>
+      <p className="mb-1.5 text-sm font-medium text-ink-body">How often</p>
       <SelectMenu
         value={value.kind}
         options={KIND_OPTIONS}
@@ -119,7 +119,7 @@ export default function CadenceEditor({
                 aria-label={label}
                 className={[
                   'flex h-10 flex-1 items-center justify-center rounded-card text-xs font-medium transition-colors',
-                  on ? 'bg-iris-500 text-on-primary' : 'bg-parchment-200 text-ink-500',
+                  on ? 'bg-accent-base text-on-accent' : 'bg-parchment-raised text-ink-muted',
                 ].join(' ')}
               >
                 {label}
@@ -168,7 +168,7 @@ export default function CadenceEditor({
             onChange={(n) => onChange({ kind: 'every-n-months', n })}
             suffix={value.n === 1 ? 'month apart' : 'months apart'}
           />
-          <p className="mt-2 text-xs text-ink-300">
+          <p className="mt-2 text-xs text-ink-faint">
             Repeats on the same date each time, set by the start date below.
           </p>
         </>

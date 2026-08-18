@@ -51,25 +51,25 @@ export default function InstallStep({
       }
     >
       <div className="flex min-h-full flex-col justify-center py-12">
-        <h1 className="font-serif text-3xl leading-tight text-ink-900">
+        <h1 className="font-serif text-3xl leading-tight text-ink-strong">
           Add Harmony to your home screen.
         </h1>
 
         {installed ? (
-          <p className="mt-4 text-sm text-ink-500">
+          <p className="mt-4 text-sm text-ink-muted">
             You're all set. Harmony is on your home screen.
           </p>
         ) : platform === 'ios-safari' ? (
-          <p className="mt-4 text-sm text-ink-500">
+          <p className="mt-4 text-sm text-ink-muted">
             Tap the share icon, then "Add to Home Screen". Notifications only work this way on
             iPhone, by Apple's design.
           </p>
         ) : showNativePrompt ? (
-          <p className="mt-4 text-sm text-ink-500">
+          <p className="mt-4 text-sm text-ink-muted">
             Keep Harmony a tap away, with notifications that behave like any other app.
           </p>
         ) : (
-          <p className="mt-4 text-sm text-ink-500">
+          <p className="mt-4 text-sm text-ink-muted">
             Look for "Install" or "Add to Home Screen" in your browser menu. This keeps Harmony a
             tap away.
           </p>

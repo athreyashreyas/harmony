@@ -7,7 +7,7 @@ const CAP = 0.6;
 
 export default function DivergingBars({
   data,
-  liftColor = 'var(--sage-500)',
+  liftColor = 'var(--sage-base)',
   dragColor = '#5a636f',
   half = 46,
 }: {
@@ -31,7 +31,7 @@ export default function DivergingBars({
                 style={{ height: Math.max(p.lift > 0 ? 2 : 0, p.lift * half), backgroundColor: liftColor }}
               />
             </div>
-            <div className="h-px w-full bg-parchment-300" />
+            <div className="h-px w-full bg-parchment-edge" />
             <div className="flex w-full items-start justify-center" style={{ height: half }}>
               <div
                 className="w-full max-w-[14px] rounded-b-[4px]"
@@ -43,7 +43,7 @@ export default function DivergingBars({
       </div>
       <div className="mt-1.5 flex justify-between px-1">
         {data.map((p, i) => (
-          <span key={i} className="text-[10px] text-ink-300">{i % step === 0 || i === n - 1 ? p.label : ''}</span>
+          <span key={i} className="text-[10px] text-ink-faint">{i % step === 0 || i === n - 1 ? p.label : ''}</span>
         ))}
       </div>
     </div>

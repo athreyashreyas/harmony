@@ -33,7 +33,7 @@ export default function ColorPicker({
             className="relative aspect-square w-full rounded-full transition-transform active:scale-95"
             style={{
               backgroundColor: swatch.hex,
-              boxShadow: selected ? `0 0 0 2px var(--parchment-50), 0 0 0 4px ${swatch.hex}` : undefined,
+              boxShadow: selected ? `0 0 0 2px var(--parchment-surface), 0 0 0 4px ${swatch.hex}` : undefined,
             }}
           >
             {selected && (
@@ -42,7 +42,7 @@ export default function ColorPicker({
               </svg>
             )}
             {inUse && (
-              <span className="absolute -right-0.5 -top-0.5 h-3 w-3 rounded-full border-2" style={{ backgroundColor: swatch.hex, borderColor: 'var(--parchment-50)' }} aria-hidden="true">
+              <span className="absolute -right-0.5 -top-0.5 h-3 w-3 rounded-full border-2" style={{ backgroundColor: swatch.hex, borderColor: 'var(--parchment-surface)' }} aria-hidden="true">
                 <span className="absolute inset-0 m-auto h-1 w-1 rounded-full bg-white/90" />
               </span>
             )}

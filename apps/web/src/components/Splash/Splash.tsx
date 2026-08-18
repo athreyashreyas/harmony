@@ -13,7 +13,7 @@ import { motion } from 'framer-motion';
 export default function Splash({ label }: { label?: string }) {
   return (
     <motion.div
-      className="fixed inset-0 z-[100] flex flex-col items-center justify-center gap-5 bg-parchment-100"
+      className="fixed inset-0 z-[100] flex flex-col items-center justify-center gap-5 bg-parchment-ground"
       initial={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.45, ease: 'easeInOut' }}
@@ -28,7 +28,7 @@ export default function Splash({ label }: { label?: string }) {
       />
       {label && (
         <motion.p
-          className="text-sm font-medium text-ink-500"
+          className="text-sm font-medium text-ink-muted"
           animate={{ opacity: [0.4, 0.85, 0.4] }}
           transition={{ duration: 1.6, repeat: Infinity, ease: 'easeInOut' }}
         >

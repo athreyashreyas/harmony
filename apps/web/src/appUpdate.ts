@@ -37,9 +37,9 @@ export function showUpdatingOverlay(): void {
     'align-items:center',
     'justify-content:center',
     'gap:20px',
-    'background:var(--parchment-100,#FBF1E4)',
+    'background:var(--parchment-ground,#FBF1E4)',
     'font-family:"Plus Jakarta Sans",system-ui,sans-serif',
-    'color:var(--ink-500,#76654C)',
+    'color:var(--ink-muted,#76654C)',
     'font-size:14px',
     'font-weight:500',
   ].join(';');

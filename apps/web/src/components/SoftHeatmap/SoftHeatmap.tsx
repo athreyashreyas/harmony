@@ -15,8 +15,8 @@ interface DayCell {
 }
 
 // The 28 day soft-dot heatmap. Never red, never hollow: an untended scheduled
-// day is a quiet parchment-300 dot, an untended unscheduled day is almost
-// invisible parchment-200, a tended day is the area's colour. Today wears a
+// day is a quiet parchment-edge dot, an untended unscheduled day is almost
+// invisible parchment-raised, a tended day is the area's colour. Today wears a
 // thin iris ring.
 export default function SoftHeatmap({
   habit,
@@ -53,7 +53,7 @@ export default function SoftHeatmap({
   // A logged day. For a tug it reads as a hollow ash ring (outlined, "on
   // theme but clearly different") rather than a solid, warm fill.
   function dotStyle(cell: DayCell): { backgroundColor: string; boxShadow?: string } {
-    const todayRing = cell.isToday ? '0 0 0 1.5px var(--iris-500)' : '';
+    const todayRing = cell.isToday ? '0 0 0 1.5px var(--accent-base)' : '';
     if (cell.tended) {
       if (isTug) {
         const ring = `inset 0 0 0 2px ${color}`;
@@ -61,7 +61,7 @@ export default function SoftHeatmap({
       }
       return { backgroundColor: hexToRgba(color, 0.87), boxShadow: todayRing || undefined };
     }
-    const bg = cell.scheduled ? 'var(--parchment-300)' : 'var(--parchment-200)';
+    const bg = cell.scheduled ? 'var(--parchment-edge)' : 'var(--parchment-raised)';
     return { backgroundColor: bg, boxShadow: todayRing || undefined };
   }
 
@@ -81,12 +81,12 @@ export default function SoftHeatmap({
       </div>
 
       {selected && (
-        <div className="mt-3 rounded-card bg-parchment-100 p-3 text-xs">
-          <p className="font-medium text-ink-700">{formatDateMedium(selected.date)}</p>
+        <div className="mt-3 rounded-card bg-parchment-ground p-3 text-xs">
+          <p className="font-medium text-ink-body">{formatDateMedium(selected.date)}</p>
           {selected.note ? (
-            <p className="mt-1 italic text-ink-500">&ldquo;{selected.note}&rdquo;</p>
+            <p className="mt-1 italic text-ink-muted">&ldquo;{selected.note}&rdquo;</p>
           ) : (
-            <p className="mt-1 text-ink-300">
+            <p className="mt-1 text-ink-faint">
               {isTug ? (selected.tended ? 'A tug.' : 'No tug.') : selected.tended ? 'Tended.' : 'Untended.'}
             </p>
           )}

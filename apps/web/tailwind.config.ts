@@ -7,41 +7,41 @@ export default {
     extend: {
       colors: {
         // Colours resolve from CSS variables (styles/tokens.css), as RGB
-        // channels so opacity modifiers (bg-iris-500/20) still work. Swapping
-        // data-theme on <html> re-themes every utility class. Token names are
-        // kept (parchment / ink / iris) so nothing has to be renamed.
+        // channels so opacity modifiers (bg-accent-base/20) still work. Swapping
+        // data-theme on <html> re-themes every utility class.
+        //
+        // Steps are ROLES, not numbers: a numeric scale inverts incoherently on
+        // dark themes (the "50" step stops being the lightest). See tokens.css.
         parchment: {
-          50: 'rgb(var(--parchment-50-rgb) / <alpha-value>)',
-          100: 'rgb(var(--parchment-100-rgb) / <alpha-value>)',
-          200: 'rgb(var(--parchment-200-rgb) / <alpha-value>)',
-          300: 'rgb(var(--parchment-300-rgb) / <alpha-value>)',
+          ground: 'rgb(var(--parchment-ground-rgb) / <alpha-value>)',
+          surface: 'rgb(var(--parchment-surface-rgb) / <alpha-value>)',
+          raised: 'rgb(var(--parchment-raised-rgb) / <alpha-value>)',
+          edge: 'rgb(var(--parchment-edge-rgb) / <alpha-value>)',
         },
         ink: {
-          900: 'rgb(var(--ink-900-rgb) / <alpha-value>)',
-          700: 'rgb(var(--ink-700-rgb) / <alpha-value>)',
-          500: 'rgb(var(--ink-500-rgb) / <alpha-value>)',
-          300: 'rgb(var(--ink-300-rgb) / <alpha-value>)',
-          100: 'rgb(var(--ink-100-rgb) / <alpha-value>)',
+          strong: 'rgb(var(--ink-strong-rgb) / <alpha-value>)',
+          body: 'rgb(var(--ink-body-rgb) / <alpha-value>)',
+          muted: 'rgb(var(--ink-muted-rgb) / <alpha-value>)',
+          faint: 'rgb(var(--ink-faint-rgb) / <alpha-value>)',
         },
-        iris: {
-          700: 'rgb(var(--iris-700-rgb) / <alpha-value>)',
-          600: 'rgb(var(--iris-600-rgb) / <alpha-value>)',
-          500: 'rgb(var(--iris-500-rgb) / <alpha-value>)',
-          400: 'rgb(var(--iris-400-rgb) / <alpha-value>)',
-          100: 'rgb(var(--iris-100-rgb) / <alpha-value>)',
-          50: 'rgb(var(--iris-50-rgb) / <alpha-value>)',
-        }, // brand primary, themed
-        // Text that sits on a primary-filled surface (buttons, the bloom heart).
-        'on-primary': 'rgb(var(--on-primary-rgb) / <alpha-value>)',
+        accent: {
+          emphasis: 'rgb(var(--accent-emphasis-rgb) / <alpha-value>)',
+          base: 'rgb(var(--accent-base-rgb) / <alpha-value>)',
+          soft: 'rgb(var(--accent-soft-rgb) / <alpha-value>)',
+          wash: 'rgb(var(--accent-wash-rgb) / <alpha-value>)',
+          tint: 'rgb(var(--accent-tint-rgb) / <alpha-value>)',
+        }, // brand accent, themed
+        // Text that sits ON an accent fill (buttons, the bloom heart).
+        'on-accent': 'rgb(var(--on-accent-rgb) / <alpha-value>)',
         rose: {
-          600: 'rgb(var(--rose-600-rgb) / <alpha-value>)',
-          500: 'rgb(var(--rose-500-rgb) / <alpha-value>)',
-          100: 'rgb(var(--rose-100-rgb) / <alpha-value>)',
+          strong: 'rgb(var(--rose-strong-rgb) / <alpha-value>)',
+          base: 'rgb(var(--rose-base-rgb) / <alpha-value>)',
+          wash: 'rgb(var(--rose-wash-rgb) / <alpha-value>)',
         }, // gentle "below" status
         sage: {
-          600: 'rgb(var(--sage-600-rgb) / <alpha-value>)',
-          500: 'rgb(var(--sage-500-rgb) / <alpha-value>)',
-          100: 'rgb(var(--sage-100-rgb) / <alpha-value>)',
+          strong: 'rgb(var(--sage-strong-rgb) / <alpha-value>)',
+          base: 'rgb(var(--sage-base-rgb) / <alpha-value>)',
+          wash: 'rgb(var(--sage-wash-rgb) / <alpha-value>)',
         }, // "in a good rhythm" status
       },
       fontFamily: {
@@ -54,13 +54,15 @@ export default {
         fab: '24px',
       },
       boxShadow: {
-        // Warm-tinted shadows to match the paper. The FAB carries a terracotta
-        // glow rather than the old violet one.
-        card: '0 1px 2px rgba(35, 25, 15, 0.05), 0 1px 3px rgba(35, 25, 15, 0.04)',
-        // A touch more lift for floating menus/popovers that sit above the page.
-        lift: '0 6px 20px rgba(35, 25, 15, 0.12), 0 2px 6px rgba(35, 25, 15, 0.06)',
-        sheet: '0 -4px 24px rgba(35, 25, 15, 0.10)',
-        fab: '0 4px 16px rgba(148, 64, 33, 0.28)',
+        // Elevation is themed, not hardcoded. A warm 5%-opacity shadow is
+        // invisible on a dark ground, so dark themes swap in an edge ring and
+        // an inset highlight instead. The composition lives in tokens.css.
+        card: 'var(--shadow-card)',
+        lift: 'var(--shadow-lift)',
+        sheet: 'var(--shadow-sheet)',
+        fab: 'var(--shadow-fab)',
+        nav: 'var(--shadow-nav)',
+        drag: 'var(--shadow-drag)',
       },
     },
   },

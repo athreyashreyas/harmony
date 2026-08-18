@@ -33,7 +33,7 @@ const STATES = {
     body: 'Sending up anything new and pulling the latest from your account.',
   },
   synced: {
-    color: 'var(--sage-500)',
+    color: 'var(--sage-base)',
     label: 'Synced',
     heading: "Everything's up to date",
     body: 'Your habits are in sync across your devices.',
@@ -82,27 +82,27 @@ export default function SyncDot() {
         <div className="space-y-4">
           <div className="flex items-center gap-2.5">
             <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: state.color }} />
-            <span className="text-sm font-medium text-ink-900">{state.heading}</span>
+            <span className="text-sm font-medium text-ink-strong">{state.heading}</span>
           </div>
-          <p className="text-sm text-ink-500">{state.body}</p>
+          <p className="text-sm text-ink-muted">{state.body}</p>
 
           {online ? (
             <button
               type="button"
               onClick={handleSync}
               disabled={syncing}
-              className="w-full rounded-full bg-iris-500 py-3 text-sm font-medium text-on-primary transition-opacity disabled:opacity-40"
+              className="w-full rounded-full bg-accent-base py-3 text-sm font-medium text-on-accent transition-opacity disabled:opacity-40"
             >
               {syncing ? 'Syncing...' : key === 'synced' ? 'Sync again' : 'Sync now'}
             </button>
           ) : (
-            <p className="text-xs text-ink-300">
+            <p className="text-xs text-ink-faint">
               Connect to the internet to sync. We'll keep your changes safe here until then, and send
               them up on their own once you're back.
             </p>
           )}
 
-          <p className="text-center text-xs text-ink-300">
+          <p className="text-center text-xs text-ink-faint">
             Harmony {APP_VERSION}. Syncing also checks for a new version.
           </p>
         </div>

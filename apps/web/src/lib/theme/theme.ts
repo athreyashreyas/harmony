@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { DEFAULT_THEME_ID, getTheme, THEMES } from './themes';
+import { DEFAULT_THEME_ID, getTheme, resolveThemeId } from './themes';
 
 // Applying a theme is one attribute on <html>; all the colour cascades from the
 // CSS variables in styles/tokens.css. The choice is a per-device preference
@@ -10,8 +10,7 @@ const STORAGE_KEY = 'harmony.theme';
 
 function readStored(): string {
   try {
-    const v = localStorage.getItem(STORAGE_KEY);
-    if (v && THEMES.some((t) => t.id === v)) return v;
+    return resolveThemeId(localStorage.getItem(STORAGE_KEY));
   } catch {
     // ignore (private mode / disabled storage)
   }
@@ -40,12 +39,15 @@ interface ThemeState {
 export const useTheme = create<ThemeState>((set) => ({
   themeId: readStored(),
   setTheme: (id) => {
+    // Normalise first: this is also the path the synced settings row comes in
+    // on, and that row can still hold a retired id from another device.
+    const resolved = resolveThemeId(id);
     try {
-      localStorage.setItem(STORAGE_KEY, id);
+      localStorage.setItem(STORAGE_KEY, resolved);
     } catch {
       // ignore
     }
-    applyTheme(id);
-    set({ themeId: id });
+    applyTheme(resolved);
+    set({ themeId: resolved });
   },
 }));

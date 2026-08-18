@@ -15,8 +15,8 @@ export default function AuthLayout({
   return (
     <main className="flex min-h-full items-center justify-center px-5 pt-safe pb-safe">
       <div className="w-full max-w-sm py-12">
-        <h1 className="font-serif text-3xl text-ink-900">{title}</h1>
-        <p className="mt-2 text-sm text-ink-500">{sub}</p>
+        <h1 className="font-serif text-3xl text-ink-strong">{title}</h1>
+        <p className="mt-2 text-sm text-ink-muted">{sub}</p>
         <div className="mt-8">{children}</div>
       </div>
     </main>
@@ -25,7 +25,7 @@ export default function AuthLayout({
 
 export function FieldLabel({ children, htmlFor }: { children: ReactNode; htmlFor: string }) {
   return (
-    <label htmlFor={htmlFor} className="mb-1.5 block text-sm font-medium text-ink-700">
+    <label htmlFor={htmlFor} className="mb-1.5 block text-sm font-medium text-ink-body">
       {children}
     </label>
   );
@@ -35,7 +35,7 @@ export function TextInput(props: React.InputHTMLAttributes<HTMLInputElement>) {
   return (
     <input
       {...props}
-      className="w-full rounded-card bg-parchment-50 px-3.5 py-2.5 text-sm text-ink-900 ring-1 ring-inset ring-parchment-300 transition-shadow placeholder:text-ink-300 focus:ring-2 focus:ring-iris-500"
+      className="w-full rounded-card bg-parchment-surface px-3.5 py-2.5 text-sm text-ink-strong ring-1 ring-inset ring-parchment-edge transition-shadow placeholder:text-ink-faint focus:ring-2 focus:ring-accent-base"
     />
   );
 }
@@ -53,7 +53,7 @@ export function PrimaryButton({
     <button
       type={type}
       disabled={disabled}
-      className="w-full rounded-full bg-iris-500 py-3 text-sm font-medium text-on-primary transition-opacity disabled:opacity-40"
+      className="w-full rounded-full bg-accent-base py-3 text-sm font-medium text-on-accent transition-opacity disabled:opacity-40"
     >
       {children}
     </button>

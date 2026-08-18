@@ -27,7 +27,7 @@ const SettingsScreen = lazy(() => import('../screens/settings/SettingsScreen'));
 // A calm, blank hold during the brief chunk download, not a spinner. Only
 // shows on a slow connection's first visit to a route; cached on repeat.
 function RouteFallback() {
-  return <div className="h-full bg-parchment-100" />;
+  return <div className="h-full bg-parchment-ground" />;
 }
 
 export default function Router() {
@@ -85,7 +85,7 @@ function AppRoutes() {
       </Routes>
 
       {backgroundLocation && (
-        <div className="fixed inset-0 z-40 bg-parchment-100">
+        <div className="fixed inset-0 z-40 bg-parchment-ground">
           <Routes>
             <Route path="habit/:habitId" element={<HabitDetailScreen />} />
           </Routes>

@@ -55,10 +55,10 @@ export default function TimeField({
         onClick={() => setOpen((v) => !v)}
         aria-haspopup="dialog"
         aria-expanded={open}
-        className="flex w-full items-center justify-between rounded-card bg-parchment-50/90 px-3.5 py-2.5 text-sm ring-1 ring-inset ring-parchment-300"
+        className="flex w-full items-center justify-between rounded-card bg-parchment-surface/90 px-3.5 py-2.5 text-sm ring-1 ring-inset ring-parchment-edge"
       >
-        <span className={value ? 'text-ink-900' : 'text-ink-300'}>{value ? formatClock(value) : placeholder}</span>
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" className="text-ink-300" aria-hidden="true">
+        <span className={value ? 'text-ink-strong' : 'text-ink-faint'}>{value ? formatClock(value) : placeholder}</span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" className="text-ink-faint" aria-hidden="true">
           <circle cx="12" cy="12" r="9" />
           <path d="M12 7v5l3 2" />
         </svg>
@@ -73,18 +73,18 @@ export default function TimeField({
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -4, scale: 0.98 }}
             transition={{ duration: 0.16, ease: 'easeOut' }}
-            className="absolute left-0 right-0 top-full z-30 mt-2 origin-top rounded-card border border-parchment-300/60 bg-parchment-50 p-3 shadow-lift"
+            className="absolute left-0 right-0 top-full z-30 mt-2 origin-top rounded-card border border-parchment-edge/60 bg-parchment-surface p-3 shadow-lift"
           >
             <div className="flex gap-2">
               <div className="flex-1">
-                <p className="mb-1.5 text-center text-[10px] font-medium uppercase tracking-[0.12em] text-ink-300">Hour</p>
+                <p className="mb-1.5 text-center text-[10px] font-medium uppercase tracking-[0.12em] text-ink-faint">Hour</p>
                 <div className="grid max-h-40 grid-cols-3 gap-1 overflow-y-auto pr-0.5">
                   {HOURS.map((h) => (
                     <button
                       key={h}
                       type="button"
                       onClick={() => set({ h12: h })}
-                      className={[cellBase, cur.h12 === h ? 'bg-iris-500 text-on-primary' : 'text-ink-700 hover:bg-parchment-100'].join(' ')}
+                      className={[cellBase, cur.h12 === h ? 'bg-accent-base text-on-accent' : 'text-ink-body hover:bg-parchment-ground'].join(' ')}
                     >
                       {h}
                     </button>
@@ -92,14 +92,14 @@ export default function TimeField({
                 </div>
               </div>
               <div className="flex-1">
-                <p className="mb-1.5 text-center text-[10px] font-medium uppercase tracking-[0.12em] text-ink-300">Min</p>
+                <p className="mb-1.5 text-center text-[10px] font-medium uppercase tracking-[0.12em] text-ink-faint">Min</p>
                 <div className="grid max-h-40 grid-cols-3 gap-1 overflow-y-auto pr-0.5">
                   {MINUTES.map((m) => (
                     <button
                       key={m}
                       type="button"
                       onClick={() => set({ minute: m })}
-                      className={[cellBase, cur.minute === m ? 'bg-iris-500 text-on-primary' : 'text-ink-700 hover:bg-parchment-100'].join(' ')}
+                      className={[cellBase, cur.minute === m ? 'bg-accent-base text-on-accent' : 'text-ink-body hover:bg-parchment-ground'].join(' ')}
                     >
                       {String(m).padStart(2, '0')}
                     </button>
@@ -107,14 +107,14 @@ export default function TimeField({
                 </div>
               </div>
               <div className="flex w-14 flex-col">
-                <p className="mb-1.5 text-center text-[10px] font-medium uppercase tracking-[0.12em] text-ink-300">&nbsp;</p>
+                <p className="mb-1.5 text-center text-[10px] font-medium uppercase tracking-[0.12em] text-ink-faint">&nbsp;</p>
                 <div className="flex flex-col gap-1">
                   {(['AM', 'PM'] as const).map((p) => (
                     <button
                       key={p}
                       type="button"
                       onClick={() => set({ period: p })}
-                      className={[cellBase, cur.period === p ? 'bg-iris-500 text-on-primary' : 'text-ink-700 hover:bg-parchment-100'].join(' ')}
+                      className={[cellBase, cur.period === p ? 'bg-accent-base text-on-accent' : 'text-ink-body hover:bg-parchment-ground'].join(' ')}
                     >
                       {p}
                     </button>
@@ -123,10 +123,10 @@ export default function TimeField({
               </div>
             </div>
             <div className="mt-3 flex items-center justify-between">
-              <button type="button" onClick={() => { onChange(null); setOpen(false); }} className="text-xs font-medium text-ink-500">
+              <button type="button" onClick={() => { onChange(null); setOpen(false); }} className="text-xs font-medium text-ink-muted">
                 Clear
               </button>
-              <button type="button" onClick={() => setOpen(false)} className="rounded-full bg-parchment-200 px-3.5 py-1.5 text-xs font-medium text-ink-900">
+              <button type="button" onClick={() => setOpen(false)} className="rounded-full bg-parchment-raised px-3.5 py-1.5 text-xs font-medium text-ink-strong">
                 Done
               </button>
             </div>

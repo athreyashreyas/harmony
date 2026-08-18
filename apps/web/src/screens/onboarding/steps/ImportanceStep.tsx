@@ -64,11 +64,11 @@ export default function ImportanceStep({
       footer={<PrimaryButton onClick={onNext}>Continue</PrimaryButton>}
     >
       <div className="py-6">
-        <h1 className="font-serif text-3xl leading-tight text-ink-900">
+        <h1 className="font-serif text-3xl leading-tight text-ink-strong">
           Which areas matter most?
         </h1>
-        <p className="mt-3 text-sm text-ink-500">These don't have to be in stone. Tweak any time.</p>
-        <p className="mt-1 text-xs text-ink-300">Drag a chip, or tap it to move it along.</p>
+        <p className="mt-3 text-sm text-ink-muted">These don't have to be in stone. Tweak any time.</p>
+        <p className="mt-1 text-xs text-ink-faint">Drag a chip, or tap it to move it along.</p>
 
         <div className="mt-6 space-y-3">
           {BUCKETS.map((bucket) => {
@@ -79,10 +79,10 @@ export default function ImportanceStep({
                 ref={(el) => {
                   bucketRefs.current[bucket.id] = el;
                 }}
-                className="rounded-sheet bg-parchment-200/70 p-4"
+                className="rounded-sheet bg-parchment-raised/70 p-4"
               >
-                <p className="text-sm font-medium text-ink-700">{bucket.label}</p>
-                <p className="text-xs text-ink-300">{bucket.hint}</p>
+                <p className="text-sm font-medium text-ink-body">{bucket.label}</p>
+                <p className="text-xs text-ink-faint">{bucket.hint}</p>
                 <div className="mt-3 flex min-h-[2.5rem] flex-wrap gap-2">
                   {inBucket.map((area) => (
                     <motion.button

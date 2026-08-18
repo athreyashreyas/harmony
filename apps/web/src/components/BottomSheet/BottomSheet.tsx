@@ -43,7 +43,7 @@ export default function BottomSheet({
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
         >
-          <div className="absolute inset-0 bg-ink-900/20" onClick={onClose} aria-hidden="true" />
+          <div className="absolute inset-0 bg-ink-strong/20" onClick={onClose} aria-hidden="true" />
 
           <motion.div
             ref={panelRef}
@@ -51,7 +51,7 @@ export default function BottomSheet({
             aria-modal="true"
             aria-label={title}
             tabIndex={-1}
-            className="scroll-ios relative flex flex-col rounded-t-sheet bg-parchment-50 shadow-sheet"
+            className="scroll-ios relative flex flex-col rounded-t-sheet bg-parchment-surface shadow-sheet"
             // Lift above the keyboard, and cap the height to the room left
             // between the status bar (safe-top) and the keyboard, so a tall
             // sheet can never be pushed up under the status bar.
@@ -77,11 +77,11 @@ export default function BottomSheet({
               onPointerDown={(e) => dragControls.start(e)}
               className="flex shrink-0 cursor-grab touch-none justify-center py-2.5 active:cursor-grabbing"
             >
-              <div className="h-1 w-9 rounded-full bg-parchment-300" />
+              <div className="h-1 w-9 rounded-full bg-parchment-edge" />
             </div>
 
             <div className="min-h-0 flex-1 overflow-y-auto px-5 pb-safe">
-              {title && <h2 className="mb-4 font-serif text-xl text-ink-900">{title}</h2>}
+              {title && <h2 className="mb-4 font-serif text-xl text-ink-strong">{title}</h2>}
               {children}
             </div>
           </motion.div>

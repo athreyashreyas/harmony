@@ -19,7 +19,7 @@ import { PrimaryButton, QuietLink } from '../../screens/onboarding/ui';
 export type { HabitDraft } from '../../lib/domain';
 
 const selectClass =
-  'w-full rounded-card bg-parchment-50/90 px-3.5 py-2.5 text-sm text-ink-900 ring-1 ring-inset ring-parchment-300 focus:ring-2 focus:ring-iris-500';
+  'w-full rounded-card bg-parchment-surface/90 px-3.5 py-2.5 text-sm text-ink-strong ring-1 ring-inset ring-parchment-edge focus:ring-2 focus:ring-accent-base';
 
 // Create and edit share one sheet. The watercolour wash appears once an area is
 // selected, in the habit's own colour if it has one. Habits can pick their own
@@ -112,7 +112,7 @@ export default function ComposeHabitSheet({
 
         <div className="relative space-y-5 pb-4">
           {!isEdit && (
-            <div className="flex rounded-full bg-parchment-200 p-0.5">
+            <div className="flex rounded-full bg-parchment-raised p-0.5">
               {(
                 [
                   { v: 'tend', label: 'Tend to' },
@@ -126,7 +126,7 @@ export default function ComposeHabitSheet({
                   aria-pressed={polarity === o.v}
                   className={[
                     'flex-1 rounded-full py-1.5 text-sm font-medium transition-colors',
-                    polarity === o.v ? 'bg-parchment-50 text-ink-900 shadow-card' : 'text-ink-500',
+                    polarity === o.v ? 'bg-parchment-surface text-ink-strong shadow-card' : 'text-ink-muted',
                   ].join(' ')}
                 >
                   {o.label}
@@ -135,13 +135,13 @@ export default function ComposeHabitSheet({
             </div>
           )}
           {isEase && (
-            <p className="text-xs text-ink-500">
+            <p className="text-xs text-ink-muted">
               A tug is something you'd like to ease off. There's no schedule. Log it on the days it
               happens, and it gently eats into the area's bloom. No shame, just an honest picture.
             </p>
           )}
           <div>
-            <p className="mb-2 text-sm font-medium text-ink-700">Area</p>
+            <p className="mb-2 text-sm font-medium text-ink-body">Area</p>
             <div className="flex flex-wrap gap-2">
               {areas.map((area) => (
                 <button
@@ -153,7 +153,7 @@ export default function ComposeHabitSheet({
                   style={
                     areaId === area.id
                       ? { backgroundColor: hexToRgba(area.color, 0.16), color: area.color }
-                      : { backgroundColor: 'var(--parchment-200)', color: 'var(--ink-700)' }
+                      : { backgroundColor: 'var(--parchment-raised)', color: 'var(--ink-body)' }
                   }
                 >
                   <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: area.color }} />
@@ -164,7 +164,7 @@ export default function ComposeHabitSheet({
           </div>
 
           <div>
-            <label htmlFor="habit-name" className="mb-1.5 block text-sm font-medium text-ink-700">
+            <label htmlFor="habit-name" className="mb-1.5 block text-sm font-medium text-ink-body">
               Habit
             </label>
             <input
@@ -180,7 +180,7 @@ export default function ComposeHabitSheet({
 
           {isEase && (
             <div>
-              <p className="mb-2 text-sm font-medium text-ink-700">How much does it set you back?</p>
+              <p className="mb-2 text-sm font-medium text-ink-body">How much does it set you back?</p>
               <div className="flex gap-2">
                 {(
                   [
@@ -197,8 +197,8 @@ export default function ComposeHabitSheet({
                     className="flex-1 rounded-card py-2 text-sm font-medium transition-colors"
                     style={
                       tugWeight === o.w
-                        ? { backgroundColor: 'var(--ink-300)', color: '#fff' }
-                        : { backgroundColor: 'var(--parchment-200)', color: 'var(--ink-700)' }
+                        ? { backgroundColor: 'var(--ink-faint)', color: '#fff' }
+                        : { backgroundColor: 'var(--parchment-raised)', color: 'var(--ink-body)' }
                     }
                   >
                     {o.label}
@@ -212,7 +212,7 @@ export default function ComposeHabitSheet({
 
           {!isEase && (
             <div>
-              <p className="mb-1.5 text-sm font-medium text-ink-700">Time of day</p>
+              <p className="mb-1.5 text-sm font-medium text-ink-body">Time of day</p>
               <SegmentedControl
                 value={timeOfDay}
                 options={TIME_OF_DAY_OPTIONS}
@@ -224,18 +224,18 @@ export default function ComposeHabitSheet({
 
           {!isEase && (
           <div>
-            <p className="mb-1.5 text-sm font-medium text-ink-700">Duration</p>
+            <p className="mb-1.5 text-sm font-medium text-ink-body">Duration</p>
             <div className="flex items-center gap-3">
-              <span className="w-12 shrink-0 text-sm text-ink-500">Starts</span>
+              <span className="w-12 shrink-0 text-sm text-ink-muted">Starts</span>
               <DateField value={startDate} onChange={setStartDate} />
             </div>
             <div className="mt-2 flex items-center gap-3">
-              <span className="w-12 shrink-0 text-sm text-ink-500">Ends</span>
+              <span className="w-12 shrink-0 text-sm text-ink-muted">Ends</span>
               {endDate === null ? (
                 <button
                   type="button"
                   onClick={() => setEndDate(startDate)}
-                  className="flex-1 rounded-card bg-parchment-200 px-3.5 py-2.5 text-left text-sm text-ink-500"
+                  className="flex-1 rounded-card bg-parchment-raised px-3.5 py-2.5 text-left text-sm text-ink-muted"
                 >
                   No end date. Tap to set one.
                 </button>
@@ -245,7 +245,7 @@ export default function ComposeHabitSheet({
                   <button
                     type="button"
                     onClick={() => setEndDate(null)}
-                    className="shrink-0 text-sm text-ink-500 hover:text-ink-700"
+                    className="shrink-0 text-sm text-ink-muted hover:text-ink-body"
                   >
                     Clear
                   </button>
@@ -257,9 +257,9 @@ export default function ComposeHabitSheet({
 
           {!isEase && (
           <div>
-            <p className="mb-1.5 text-sm font-medium text-ink-700">Remind me at</p>
+            <p className="mb-1.5 text-sm font-medium text-ink-body">Remind me at</p>
             <TimeField value={reminderTime} onChange={setReminderTime} placeholder="Set a reminder time" />
-            <p className="mt-1.5 text-xs text-ink-300">
+            <p className="mt-1.5 text-xs text-ink-faint">
               Optional. A gentle nudge at this time on the days it's due.
             </p>
           </div>
@@ -267,17 +267,17 @@ export default function ComposeHabitSheet({
 
           {!isEase && (
           <div>
-            <p className="mb-3 text-sm font-medium text-ink-700">Colour</p>
+            <p className="mb-3 text-sm font-medium text-ink-body">Colour</p>
             <div className="mb-3">
               <button
                 type="button"
                 onClick={() => setColor(null)}
                 aria-pressed={color === null}
                 title="Match the area's colour"
-                className="flex h-9 items-center rounded-full bg-parchment-200 px-4 text-sm font-medium text-ink-500"
+                className="flex h-9 items-center rounded-full bg-parchment-raised px-4 text-sm font-medium text-ink-muted"
                 style={
                   color === null && selectedArea
-                    ? { boxShadow: `0 0 0 2px var(--parchment-50), 0 0 0 4px ${selectedArea.color}` }
+                    ? { boxShadow: `0 0 0 2px var(--parchment-surface), 0 0 0 4px ${selectedArea.color}` }
                     : undefined
                 }
               >

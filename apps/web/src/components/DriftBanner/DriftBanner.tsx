@@ -20,7 +20,7 @@ export default function DriftBanner({
       initial={{ opacity: 0, y: -8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={spring}
-      className="w-full rounded-card px-4 py-3 text-left text-sm leading-relaxed text-ink-700"
+      className="w-full rounded-card px-4 py-3 text-left text-sm leading-relaxed text-ink-body"
       style={{ backgroundColor: hexToRgba(color, 0.12), borderLeft: `3px solid ${color}` }}
     >
       {text}

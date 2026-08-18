@@ -59,7 +59,7 @@ export default function CalendarHeatmap({ cells, color = '#5b7a35' }: { cells: C
   });
 
   const fill = (ratio: number, count: number): string => {
-    if (count === 0) return 'var(--parchment-200)';
+    if (count === 0) return 'var(--parchment-raised)';
     if (ratio >= 1) return color;
     if (ratio >= 0.67) return hexToRgba(color, 0.8);
     if (ratio >= 0.34) return hexToRgba(color, 0.58);
@@ -70,10 +70,10 @@ export default function CalendarHeatmap({ cells, color = '#5b7a35' }: { cells: C
     <div ref={scrollRef} className="-mx-1 overflow-x-auto px-1">
       <div className="flex" style={{ width: 'max-content' }}>
         {/* Weekday labels down the left, all seven, sticky so they stay in view. */}
-        <div className="sticky left-0 z-[1] mr-2 shrink-0 bg-parchment-50" style={{ paddingTop: MONTH_ROW }}>
+        <div className="sticky left-0 z-[1] mr-2 shrink-0 bg-parchment-surface" style={{ paddingTop: MONTH_ROW }}>
           {WEEKDAY_SHORT.map((d, r) => (
             <div key={r} className="flex items-center" style={{ height: CELL, marginBottom: r < 6 ? GAP : 0 }}>
-              <span className="text-[9px] leading-none text-ink-300">{d}</span>
+              <span className="text-[9px] leading-none text-ink-faint">{d}</span>
             </div>
           ))}
         </div>
@@ -82,7 +82,7 @@ export default function CalendarHeatmap({ cells, color = '#5b7a35' }: { cells: C
           {/* Month labels across the top, aligned to the week they begin. */}
           <div className="relative" style={{ height: MONTH_ROW, width: weeks.length * STEP }}>
             {monthLabels.map(({ index, label }) => (
-              <span key={index} className="absolute top-0 whitespace-nowrap text-[9px] text-ink-300" style={{ left: index * STEP }}>
+              <span key={index} className="absolute top-0 whitespace-nowrap text-[9px] text-ink-faint" style={{ left: index * STEP }}>
                 {label}
               </span>
             ))}
@@ -100,7 +100,7 @@ export default function CalendarHeatmap({ cells, color = '#5b7a35' }: { cells: C
                       <span
                         key={di}
                         className="rounded-[3px] border border-dashed"
-                        style={{ height: CELL, width: CELL, borderColor: 'var(--parchment-300)' }}
+                        style={{ height: CELL, width: CELL, borderColor: 'var(--parchment-edge)' }}
                         title={`${longDay(cell.date)}: still to come`}
                       />
                     );
@@ -111,7 +111,7 @@ export default function CalendarHeatmap({ cells, color = '#5b7a35' }: { cells: C
                       className="rounded-[3px]"
                       // A hairline border so each day is discernible; today wears a
                       // ring so the present is easy to find in the year.
-                      style={{ height: CELL, width: CELL, backgroundColor: fill(cell.ratio, cell.count), boxShadow: `inset 0 0 0 1px ${isToday ? 'var(--iris-500)' : 'rgba(35,25,15,0.10)'}` }}
+                      style={{ height: CELL, width: CELL, backgroundColor: fill(cell.ratio, cell.count), boxShadow: `inset 0 0 0 1px ${isToday ? 'var(--accent-base)' : 'var(--parchment-edge)'}` }}
                       title={`${longDay(cell.date)}: ${cell.count === 0 ? 'nothing logged' : `${cell.count} logged`}`}
                     />
                   );

@@ -349,8 +349,8 @@ export default function HomeScreen() {
       {/* Reserve the top-right corner so a long name or date never slides under
           the sync dot that TabScreen anchors there. */}
       <div className="pr-12">
-        <p className="text-sm text-ink-300">{formatLongDate()}</p>
-        <h1 className="mt-0.5 font-serif text-2xl text-ink-900">
+        <p className="text-sm text-ink-faint">{formatLongDate()}</p>
+        <h1 className="mt-0.5 font-serif text-2xl text-ink-strong">
           {greetingWord()}
           {profile ? `, ${profile.firstName.trim()}.` : '.'}
         </h1>
@@ -377,7 +377,7 @@ export default function HomeScreen() {
                 onSelectArea={toggleAreaFilter}
               />
             </div>
-            <p className="mt-4 text-center text-sm text-ink-500">{bloomCaption(activities)}</p>
+            <p className="mt-4 text-center text-sm text-ink-muted">{bloomCaption(activities)}</p>
           </>
         ) : (
           <div className="flex flex-col items-center">
@@ -404,7 +404,7 @@ export default function HomeScreen() {
       )}
 
       <div className="mt-9">
-        <div className="flex w-full rounded-full bg-parchment-200 p-0.5">
+        <div className="flex w-full rounded-full bg-parchment-raised p-0.5">
           {(['today', 'all'] as const).map((v) => (
             <button
               key={v}
@@ -413,7 +413,7 @@ export default function HomeScreen() {
               aria-pressed={view === v}
               className={[
                 'flex-1 rounded-full py-1.5 text-sm font-medium capitalize transition-colors',
-                view === v ? 'bg-parchment-50 text-ink-900 shadow-card' : 'text-ink-500',
+                view === v ? 'bg-parchment-surface text-ink-strong shadow-card' : 'text-ink-muted',
               ].join(' ')}
             >
               {v}
@@ -423,7 +423,7 @@ export default function HomeScreen() {
         {loaded && shownHabits.length > 0 && (
           <div className="mt-2 flex items-center justify-between gap-3">
             <SortMenu value={sortBy} options={SORT_OPTIONS} onChange={chooseSort} />
-            <p className="text-xs text-ink-300">
+            <p className="text-xs text-ink-faint">
               {doneCount} of {shownHabits.length} tended to
             </p>
           </div>
@@ -436,9 +436,9 @@ export default function HomeScreen() {
               <Skeleton className="h-[58px] w-full" />
             </div>
           ) : habits.length === 0 ? (
-            <p className="text-sm text-ink-300">Your habits will appear here once you add one.</p>
+            <p className="text-sm text-ink-faint">Your habits will appear here once you add one.</p>
           ) : shownHabits.length === 0 ? (
-            <p className="text-sm text-ink-300">
+            <p className="text-sm text-ink-faint">
               {activeFilter
                 ? 'Nothing here. Tap the area again to see everything.'
                 : view === 'today'
@@ -484,14 +484,14 @@ export default function HomeScreen() {
       {loaded && (habits.length > 0 || rituals.length > 0) && (
         <div className="mt-9">
           <div className="flex items-center justify-between">
-            <p className="text-xs font-medium uppercase tracking-[0.1em] text-ink-300">Rituals</p>
-            <button type="button" onClick={() => setRitualEditing(null)} className="flex items-center gap-1 text-xs font-medium text-iris-500">
+            <p className="text-xs font-medium uppercase tracking-[0.1em] text-ink-faint">Rituals</p>
+            <button type="button" onClick={() => setRitualEditing(null)} className="flex items-center gap-1 text-xs font-medium text-accent-base">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg>
               New
             </button>
           </div>
           {rituals.length === 0 ? (
-            <p className="mt-1 text-xs text-ink-300">Gather a few habits into a flow you move through together, like a morning ritual.</p>
+            <p className="mt-1 text-xs text-ink-faint">Gather a few habits into a flow you move through together, like a morning ritual.</p>
           ) : (
             <div className="mt-3 space-y-2.5">
               {rituals.map((r) => {
@@ -499,10 +499,10 @@ export default function HomeScreen() {
                 const doneCount = steps.filter((h) => doneIds.has(h.id)).length;
                 const complete = steps.length > 0 && doneCount === steps.length;
                 return (
-                  <div key={r.id} className="flex items-center gap-3 rounded-card bg-parchment-50 px-3.5 py-3 shadow-card">
+                  <div key={r.id} className="flex items-center gap-3 rounded-card bg-parchment-surface px-3.5 py-3 shadow-card">
                     <button type="button" onClick={() => setRitualEditing(r)} className="min-w-0 flex-1 text-left">
-                      <span className="block truncate text-sm text-ink-900">{r.name}</span>
-                      <span className="text-xs text-ink-300">
+                      <span className="block truncate text-sm text-ink-strong">{r.name}</span>
+                      <span className="text-xs text-ink-faint">
                         {steps.length} step{steps.length === 1 ? '' : 's'}
                         {steps.length > 0 && ` · ${complete ? 'all done today' : `${doneCount}/${steps.length} today`}`}
                       </span>
@@ -511,7 +511,7 @@ export default function HomeScreen() {
                       type="button"
                       onClick={() => setPlayingRitual(r)}
                       disabled={steps.length === 0}
-                      className="shrink-0 rounded-full bg-iris-500 px-4 py-1.5 text-xs font-medium text-on-primary disabled:opacity-40"
+                      className="shrink-0 rounded-full bg-accent-base px-4 py-1.5 text-xs font-medium text-on-accent disabled:opacity-40"
                     >
                       {complete ? 'Review' : 'Begin'}
                     </button>
@@ -525,8 +525,8 @@ export default function HomeScreen() {
 
       {loaded && tugs.length > 0 && (
         <div className="mt-9">
-          <p className="text-xs font-medium uppercase tracking-[0.1em] text-ink-300">Tugs</p>
-          <p className="mt-1 text-xs text-ink-300">The pulls you're easing off. Tap one if it happened today.</p>
+          <p className="text-xs font-medium uppercase tracking-[0.1em] text-ink-faint">Tugs</p>
+          <p className="mt-1 text-xs text-ink-faint">The pulls you're easing off. Tap one if it happened today.</p>
           <div className="mt-3 space-y-2.5">
             {tugs.map((habit) => {
               const loggedToday = doneIds.has(habit.id);
@@ -546,7 +546,7 @@ export default function HomeScreen() {
                 // + edit), reached the same way you'd open a habit.
                 <div
                   key={habit.id}
-                  className="flex w-full items-center gap-3 rounded-card border border-dashed border-ink-300/60 bg-parchment-50 px-3 py-3"
+                  className="flex w-full items-center gap-3 rounded-card border border-dashed border-ink-faint/60 bg-parchment-surface px-3 py-3"
                 >
                   <button
                     type="button"
@@ -556,8 +556,8 @@ export default function HomeScreen() {
                     className="flex h-[22px] w-[22px] shrink-0 items-center justify-center rounded-full"
                     style={
                       loggedToday
-                        ? { backgroundColor: 'var(--ink-300)' }
-                        : { boxShadow: 'inset 0 0 0 1.5px rgb(var(--ink-300-rgb) / 0.33)' }
+                        ? { backgroundColor: 'var(--ink-faint)' }
+                        : { boxShadow: 'inset 0 0 0 1.5px rgb(var(--ink-faint-rgb) / 0.33)' }
                     }
                   >
                     {loggedToday && (
@@ -572,12 +572,12 @@ export default function HomeScreen() {
                     className="flex min-w-0 flex-1 items-center gap-3 text-left"
                   >
                     <span className="min-w-0 flex-1">
-                      <TruncatedText text={habit.name} className="text-sm text-ink-900" />
+                      <TruncatedText text={habit.name} className="text-sm text-ink-strong" />
                       {/* The generated status line wraps to two lines rather than
                           cropping mid-sentence, so it always reads in full. */}
-                      <span className="line-clamp-2 text-xs text-ink-500">{note}</span>
+                      <span className="line-clamp-2 text-xs text-ink-muted">{note}</span>
                     </span>
-                    <span className="shrink-0 text-[10px] uppercase tracking-wide text-ink-300">tug</span>
+                    <span className="shrink-0 text-[10px] uppercase tracking-wide text-ink-faint">tug</span>
                   </button>
                 </div>
               );

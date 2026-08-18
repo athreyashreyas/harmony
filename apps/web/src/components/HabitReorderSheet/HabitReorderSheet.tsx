@@ -20,9 +20,9 @@ function Row({ habit, color }: { habit: Habit; color: string }) {
       dragControls={controls}
       dragElastic={0}
       dragMomentum={false}
-      whileDrag={{ scale: 1.03, boxShadow: '0 10px 26px rgba(35, 25, 15, 0.18)', zIndex: 1 }}
+      whileDrag={{ scale: 1.03, boxShadow: 'var(--shadow-drag)', zIndex: 1 }}
       transition={{ duration: 0.16, ease: 'easeOut' }}
-      className="flex select-none items-center gap-3 rounded-card bg-parchment-100 px-3 py-3"
+      className="flex select-none items-center gap-3 rounded-card bg-parchment-ground px-3 py-3"
     >
       <button
         type="button"
@@ -32,12 +32,12 @@ function Row({ habit, color }: { habit: Habit; color: string }) {
         }}
         aria-label={`Reorder ${habit.name}`}
         style={{ touchAction: 'none' }}
-        className="-m-1.5 shrink-0 cursor-grab touch-none p-1.5 text-ink-300 active:cursor-grabbing"
+        className="-m-1.5 shrink-0 cursor-grab touch-none p-1.5 text-ink-faint active:cursor-grabbing"
       >
         <GripIcon />
       </button>
       <span className="h-1.5 w-1.5 shrink-0 rounded-full" style={{ backgroundColor: habit.color ?? color }} />
-      <span className="min-w-0 flex-1 truncate text-sm text-ink-900">{habit.name}</span>
+      <span className="min-w-0 flex-1 truncate text-sm text-ink-strong">{habit.name}</span>
     </Reorder.Item>
   );
 }
@@ -64,7 +64,7 @@ export default function HabitReorderSheet({
 
   return (
     <BottomSheet open={open} onClose={onClose} title={area ? `Order in ${area.name}` : 'Reorder habits'}>
-      <p className="-mt-1 pb-3 text-xs text-ink-300">Drag to set the priority of habits in this area.</p>
+      <p className="-mt-1 pb-3 text-xs text-ink-faint">Drag to set the priority of habits in this area.</p>
       <Reorder.Group
         axis="y"
         values={ordered}
@@ -75,7 +75,7 @@ export default function HabitReorderSheet({
         className="space-y-2 pb-4"
       >
         {ordered.map((habit) => (
-          <Row key={habit.id} habit={habit} color={area?.color ?? 'var(--iris-500)'} />
+          <Row key={habit.id} habit={habit} color={area?.color ?? 'var(--accent-base)'} />
         ))}
       </Reorder.Group>
     </BottomSheet>

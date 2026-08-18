@@ -24,7 +24,7 @@ export default function OnboardingScaffold({
   footer?: ReactNode;
 }) {
   return (
-    <div className="relative flex h-full flex-col overflow-hidden bg-parchment-100">
+    <div className="relative flex h-full flex-col overflow-hidden bg-parchment-ground">
       {background}
 
       <header className="relative z-10 flex items-center justify-between px-5 pt-safe">

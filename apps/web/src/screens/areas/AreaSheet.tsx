@@ -31,7 +31,7 @@ const SENSITIVITY_OPTIONS: { value: DriftSensitivity; label: string }[] = [
 export type { AreaFields } from '../../lib/domain';
 
 const inputClass =
-  'w-full rounded-card bg-parchment-100 px-3.5 py-2.5 text-sm text-ink-900 ring-1 ring-inset ring-parchment-300 placeholder:text-ink-300 focus:ring-2 focus:ring-iris-500';
+  'w-full rounded-card bg-parchment-ground px-3.5 py-2.5 text-sm text-ink-strong ring-1 ring-inset ring-parchment-edge placeholder:text-ink-faint focus:ring-2 focus:ring-accent-base';
 
 // Create and edit share one sheet (section 10: long-press a row to edit; the
 // FAB on the Areas screen creates). Also reused, unchanged, by Settings'
@@ -129,7 +129,7 @@ export default function AreaSheet({
     <BottomSheet open={open} onClose={onClose} title={isEdit ? 'Edit area' : 'Add area'}>
       <div className="space-y-5 pb-4">
         <div>
-          <label htmlFor="area-name" className="mb-1.5 block text-sm font-medium text-ink-700">
+          <label htmlFor="area-name" className="mb-1.5 block text-sm font-medium text-ink-body">
             Name
           </label>
           <input
@@ -144,12 +144,12 @@ export default function AreaSheet({
         </div>
 
         <div>
-          <p className="mb-3 text-sm font-medium text-ink-700">Colour</p>
+          <p className="mb-3 text-sm font-medium text-ink-body">Colour</p>
           <ColorPicker value={color} onChange={setColor} usedColors={usedColors} />
         </div>
 
         <div>
-          <p className="mb-2 text-sm font-medium text-ink-700">How much it matters</p>
+          <p className="mb-2 text-sm font-medium text-ink-body">How much it matters</p>
           <div className="flex gap-2">
             {IMPORTANCE_OPTIONS.map((option) => (
               <button
@@ -160,8 +160,8 @@ export default function AreaSheet({
                 className={[
                   'flex-1 rounded-full px-3 py-2 text-xs font-medium transition-colors',
                   importance === option.value
-                    ? 'bg-iris-50 text-iris-500'
-                    : 'bg-parchment-200 text-ink-500',
+                    ? 'bg-accent-tint text-accent-base'
+                    : 'bg-parchment-raised text-ink-muted',
                 ].join(' ')}
               >
                 {option.label}
@@ -172,12 +172,12 @@ export default function AreaSheet({
 
         {isEdit && habits.length > 1 && (
           <div>
-            <p className="mb-1 text-sm font-medium text-ink-700">How much each habit counts</p>
-            <p className="mb-3 text-xs text-ink-300">
+            <p className="mb-1 text-sm font-medium text-ink-body">How much each habit counts</p>
+            <p className="mb-3 text-xs text-ink-faint">
               Their shares of this area's bloom. Slide one to set its exact percent; the rest adjust to keep the total at 100. Lock a share to hold it while you set the others.
             </p>
             {/* Live stacked bar of the shares. */}
-            <div className="mb-3 flex h-2.5 overflow-hidden rounded-full bg-parchment-200">
+            <div className="mb-3 flex h-2.5 overflow-hidden rounded-full bg-parchment-raised">
               {habits.map((h) => (
                 <span
                   key={h.id}
@@ -200,16 +200,16 @@ export default function AreaSheet({
                     <div className="mb-1 flex items-center justify-between gap-2">
                       <span className="flex min-w-0 items-center gap-2">
                         <span className="h-1.5 w-1.5 shrink-0 rounded-full" style={{ backgroundColor: h.color ?? color }} />
-                        <span className="truncate text-sm text-ink-700">{h.name}</span>
+                        <span className="truncate text-sm text-ink-body">{h.name}</span>
                       </span>
                       <span className="flex shrink-0 items-center gap-2">
-                        <span className="text-xs font-medium text-ink-500">{pct}%</span>
+                        <span className="text-xs font-medium text-ink-muted">{pct}%</span>
                         <button
                           type="button"
                           onClick={() => toggleLock(h.id)}
                           aria-pressed={locked}
                           aria-label={locked ? `Unlock ${h.name}` : `Lock ${h.name} at ${pct} percent`}
-                          className={`-mr-1 rounded-full p-1 transition-colors ${locked ? 'text-iris-500' : 'text-ink-300 hover:text-ink-500'}`}
+                          className={`-mr-1 rounded-full p-1 transition-colors ${locked ? 'text-accent-base' : 'text-ink-faint hover:text-ink-muted'}`}
                         >
                           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                             <rect x="4.5" y="10.5" width="15" height="10" rx="2.4" fill={locked ? 'currentColor' : 'none'} />
@@ -233,7 +233,7 @@ export default function AreaSheet({
                       }
                       aria-label={`Percent share for ${h.name}`}
                       aria-valuetext={`${pct} percent`}
-                      className="w-full accent-iris-500 disabled:cursor-not-allowed disabled:opacity-40"
+                      className="w-full accent-accent-base disabled:cursor-not-allowed disabled:opacity-40"
                     />
                   </div>
                 );
@@ -243,7 +243,7 @@ export default function AreaSheet({
         )}
 
         <div>
-          <label htmlFor="area-why" className="mb-1.5 block text-sm font-medium text-ink-700">
+          <label htmlFor="area-why" className="mb-1.5 block text-sm font-medium text-ink-body">
             In your own words
           </label>
           <textarea
@@ -256,12 +256,12 @@ export default function AreaSheet({
             className={`${inputClass} resize-none`}
           />
           {whySentence.length > MAX_WHY_SENTENCE - 40 && (
-            <p className="mt-1 text-right text-xs text-ink-300">{MAX_WHY_SENTENCE - whySentence.length} left</p>
+            <p className="mt-1 text-right text-xs text-ink-faint">{MAX_WHY_SENTENCE - whySentence.length} left</p>
           )}
         </div>
 
         <div>
-          <p className="mb-2 text-sm font-medium text-ink-700">How readily reminders fire</p>
+          <p className="mb-2 text-sm font-medium text-ink-body">How readily reminders fire</p>
           <div className="flex gap-2">
             {SENSITIVITY_OPTIONS.map((option) => (
               <button
@@ -272,8 +272,8 @@ export default function AreaSheet({
                 className={[
                   'flex-1 rounded-full px-3 py-2 text-xs font-medium transition-colors',
                   driftSensitivity === option.value
-                    ? 'bg-iris-50 text-iris-500'
-                    : 'bg-parchment-200 text-ink-500',
+                    ? 'bg-accent-tint text-accent-base'
+                    : 'bg-parchment-raised text-ink-muted',
                 ].join(' ')}
               >
                 {option.label}
@@ -283,7 +283,7 @@ export default function AreaSheet({
         </div>
 
         <div>
-          <p className="mb-1.5 text-sm font-medium text-ink-700">When reminders for this area arrive</p>
+          <p className="mb-1.5 text-sm font-medium text-ink-body">When reminders for this area arrive</p>
           <SegmentedControl
             value={reminderTimeOfDay}
             options={TIME_OF_DAY_OPTIONS}

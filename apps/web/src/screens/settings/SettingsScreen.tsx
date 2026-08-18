@@ -17,7 +17,7 @@ import { useSettings } from '../../store/useSettings';
 import { useUser } from '../../store/useUser';
 import { PrimaryButton } from '../onboarding/ui';
 
-const eyebrow = 'text-[10px] font-medium uppercase tracking-[0.1em] text-ink-300';
+const eyebrow = 'text-[10px] font-medium uppercase tracking-[0.1em] text-ink-faint';
 
 export default function SettingsScreen() {
   const navigate = useNavigate();
@@ -147,22 +147,22 @@ export default function SettingsScreen() {
   function deviceNotice() {
     switch (pushState) {
       case 'granted':
-        return <p className="mt-3 text-xs text-ink-300">Reminders are on for this device.</p>;
+        return <p className="mt-3 text-xs text-ink-faint">Reminders are on for this device.</p>;
       case 'denied':
         return (
-          <p className="mt-3 text-xs text-ink-300">
+          <p className="mt-3 text-xs text-ink-faint">
             Notifications are blocked in your browser settings. Turn them on there to enable reminders.
           </p>
         );
       case 'needs-install':
         return (
-          <p className="mt-3 text-xs text-ink-300">
+          <p className="mt-3 text-xs text-ink-faint">
             Add Harmony to your home screen first, then reminders can be turned on here.
           </p>
         );
       case 'unconfigured':
         return (
-          <p className="mt-3 text-xs text-ink-300">
+          <p className="mt-3 text-xs text-ink-faint">
             Push is not configured for this build yet.
           </p>
         );
@@ -172,7 +172,7 @@ export default function SettingsScreen() {
             type="button"
             onClick={handleEnablePush}
             disabled={pushBusy}
-            className="mt-3 rounded-full bg-iris-500 px-4 py-2 text-sm font-medium text-on-primary disabled:opacity-40"
+            className="mt-3 rounded-full bg-accent-base px-4 py-2 text-sm font-medium text-on-accent disabled:opacity-40"
           >
             {pushBusy ? 'Turning on...' : 'Turn on reminders on this device'}
           </button>
@@ -186,24 +186,24 @@ export default function SettingsScreen() {
   // no clearance under it: the version line ends the page.
   return (
     <TabScreen className="pt-8 pb-10">
-      <h1 className="font-serif text-3xl text-ink-900">Me</h1>
+      <h1 className="font-serif text-3xl text-ink-strong">Me</h1>
 
       <section className="mt-7">
         <p className={eyebrow}>Account</p>
         {/* Fixed height so the buttons below never jump when the email lands. */}
-        <p className="mt-2 min-h-[1.25rem] text-sm text-ink-700">{email ?? ''}</p>
+        <p className="mt-2 min-h-[1.25rem] text-sm text-ink-body">{email ?? ''}</p>
         <div className="mt-4 flex flex-wrap gap-3">
           <button
             type="button"
             onClick={handleSignOut}
-            className="rounded-full bg-parchment-200 px-5 py-2.5 text-sm font-medium text-ink-700 hover:bg-parchment-300"
+            className="rounded-full bg-parchment-raised px-5 py-2.5 text-sm font-medium text-ink-body hover:bg-parchment-edge"
           >
             Sign out
           </button>
           <button
             type="button"
             onClick={openDeleteModal}
-            className="rounded-full px-5 py-2.5 text-sm font-medium text-rose-600 hover:bg-rose-100"
+            className="rounded-full px-5 py-2.5 text-sm font-medium text-rose-strong hover:bg-rose-wash"
           >
             Delete account
           </button>
@@ -212,7 +212,7 @@ export default function SettingsScreen() {
 
       <section className="mt-9">
         <p className={eyebrow}>Appearance</p>
-        <p className="mt-2 text-xs text-ink-300">Pick the theme you want to open into.</p>
+        <p className="mt-2 text-xs text-ink-faint">Pick the theme you want to open into.</p>
         <div className="mt-4 grid grid-cols-1 gap-2.5 sm:grid-cols-2">
           {THEMES.map((theme) => {
             const active = theme.id === themeId;
@@ -223,8 +223,8 @@ export default function SettingsScreen() {
                 onClick={() => chooseTheme(theme.id)}
                 aria-pressed={active}
                 aria-label={`Use the ${theme.name} theme`}
-                className={`flex items-center gap-3 rounded-card bg-parchment-50 px-3 py-3 text-left shadow-card ring-2 transition-shadow ${
-                  active ? 'ring-iris-500' : 'ring-transparent'
+                className={`flex items-center gap-3 rounded-card bg-parchment-surface px-3 py-3 text-left shadow-card ring-2 transition-shadow ${
+                  active ? 'ring-accent-base' : 'ring-transparent'
                 }`}
               >
                 {/* A little swatch: the theme's paper with its accent and surface. */}
@@ -240,14 +240,14 @@ export default function SettingsScreen() {
                 </span>
                 <span className="min-w-0 flex-1">
                   <span className="flex items-center gap-2">
-                    <span className="text-sm font-medium text-ink-900">{theme.name}</span>
+                    <span className="text-sm font-medium text-ink-strong">{theme.name}</span>
                     {active && (
-                      <span className="text-iris-500" aria-hidden="true">
+                      <span className="text-accent-base" aria-hidden="true">
                         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M5 13l4 4L19 7" /></svg>
                       </span>
                     )}
                   </span>
-                  <span className="mt-0.5 block text-xs text-ink-300">{theme.description}</span>
+                  <span className="mt-0.5 block text-xs text-ink-faint">{theme.description}</span>
                 </span>
               </button>
             );
@@ -257,10 +257,10 @@ export default function SettingsScreen() {
 
       <section className="mt-9">
         <p className={eyebrow}>Celebrations</p>
-        <div className="mt-3 flex items-center justify-between rounded-card bg-parchment-50 px-4 py-3 shadow-card">
+        <div className="mt-3 flex items-center justify-between rounded-card bg-parchment-surface px-4 py-3 shadow-card">
           <span className="min-w-0 pr-3">
-            <span className="block text-sm text-ink-900">Confetti in full bloom</span>
-            <span className="block text-xs text-ink-300">A little burst when an area fills, in its own colour. Turn it off for a calmer Bloom.</span>
+            <span className="block text-sm text-ink-strong">Confetti in full bloom</span>
+            <span className="block text-xs text-ink-faint">A little burst when an area fills, in its own colour. Turn it off for a calmer Bloom.</span>
           </span>
           <Switch
             checked={dnd.confettiEnabled ?? true}
@@ -272,8 +272,8 @@ export default function SettingsScreen() {
 
       <section className="mt-9">
         <p className={eyebrow}>Notifications</p>
-        <div className="mt-3 flex items-center justify-between rounded-card bg-parchment-50 px-4 py-3 shadow-card">
-          <span className="text-sm text-ink-900">All notifications</span>
+        <div className="mt-3 flex items-center justify-between rounded-card bg-parchment-surface px-4 py-3 shadow-card">
+          <span className="text-sm text-ink-strong">All notifications</span>
           <Switch
             checked={dnd.masterEnabled}
             onChange={(next) => profile && void updateNotifications(profile.id, { masterEnabled: next })}
@@ -289,9 +289,9 @@ export default function SettingsScreen() {
               {areas.map((area) => (
                 <div
                   key={area.id}
-                  className="flex items-center justify-between rounded-card bg-parchment-50 px-4 py-3 shadow-card"
+                  className="flex items-center justify-between rounded-card bg-parchment-surface px-4 py-3 shadow-card"
                 >
-                  <span className="flex items-center gap-2 text-sm text-ink-900">
+                  <span className="flex items-center gap-2 text-sm text-ink-strong">
                     <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: area.color }} />
                     {area.name}
                   </span>
@@ -304,9 +304,9 @@ export default function SettingsScreen() {
               ))}
             </div>
 
-            <div className="mt-4 rounded-card bg-parchment-50 p-4 shadow-card">
-              <p className="text-sm text-ink-900">Do not disturb</p>
-              <p className="mt-0.5 text-xs text-ink-300">
+            <div className="mt-4 rounded-card bg-parchment-surface p-4 shadow-card">
+              <p className="text-sm text-ink-strong">Do not disturb</p>
+              <p className="mt-0.5 text-xs text-ink-faint">
                 Drift nudges and the evening summary pause during this window. Reminders you set a time
                 for still come through.
               </p>
@@ -316,23 +316,23 @@ export default function SettingsScreen() {
                   value={dnd.dndStart}
                   onChange={(e) => profile && void updateNotifications(profile.id, { dndStart: e.target.value })}
                   aria-label="Do not disturb start"
-                  className="rounded-card bg-parchment-100 px-3 py-2 text-sm text-ink-900 ring-1 ring-inset ring-parchment-300"
+                  className="rounded-card bg-parchment-ground px-3 py-2 text-sm text-ink-strong ring-1 ring-inset ring-parchment-edge"
                 />
-                <span className="text-sm text-ink-300">to</span>
+                <span className="text-sm text-ink-faint">to</span>
                 <input
                   type="time"
                   value={dnd.dndEnd}
                   onChange={(e) => profile && void updateNotifications(profile.id, { dndEnd: e.target.value })}
                   aria-label="Do not disturb end"
-                  className="rounded-card bg-parchment-100 px-3 py-2 text-sm text-ink-900 ring-1 ring-inset ring-parchment-300"
+                  className="rounded-card bg-parchment-ground px-3 py-2 text-sm text-ink-strong ring-1 ring-inset ring-parchment-edge"
                 />
               </div>
             </div>
 
-            <div className="mt-4 flex items-center justify-between rounded-card bg-parchment-50 px-4 py-3 shadow-card">
+            <div className="mt-4 flex items-center justify-between rounded-card bg-parchment-surface px-4 py-3 shadow-card">
               <span className="min-w-0 pr-3">
-                <span className="block text-sm text-ink-900">Habit reminders</span>
-                <span className="block text-xs text-ink-300">A nudge at a habit's set time, on the days it's due.</span>
+                <span className="block text-sm text-ink-strong">Habit reminders</span>
+                <span className="block text-xs text-ink-faint">A nudge at a habit's set time, on the days it's due.</span>
               </span>
               <Switch
                 checked={dnd.habitReminders}
@@ -341,10 +341,10 @@ export default function SettingsScreen() {
               />
             </div>
 
-            <div className="mt-2 flex items-center justify-between rounded-card bg-parchment-50 px-4 py-3 shadow-card">
+            <div className="mt-2 flex items-center justify-between rounded-card bg-parchment-surface px-4 py-3 shadow-card">
               <span className="min-w-0 pr-3">
-                <span className="block text-sm text-ink-900">Evening summary</span>
-                <span className="block text-xs text-ink-300">One gentle round-up of anything still unlogged that day.</span>
+                <span className="block text-sm text-ink-strong">Evening summary</span>
+                <span className="block text-xs text-ink-faint">One gentle round-up of anything still unlogged that day.</span>
               </span>
               <Switch
                 checked={dnd.dailySummary}
@@ -359,7 +359,7 @@ export default function SettingsScreen() {
       {/* A line straight to the person who makes it. */}
       <section className="mt-9">
         <p className={eyebrow}>Make Harmony Yours</p>
-        <p className="mt-2 text-xs text-ink-300">
+        <p className="mt-2 text-xs text-ink-faint">
           One person looks after Harmony, and whatever you write here lands on
           their desk. Tell them what went wrong, or what you wish the app did. A
           sentence or two is plenty.
@@ -383,13 +383,13 @@ export default function SettingsScreen() {
         <button
           type="button"
           onClick={() => navigate('/guide?pane=new', { replace: true })}
-          className="mt-3 flex w-full items-center justify-between rounded-card bg-parchment-50 px-4 py-3.5 text-left shadow-card"
+          className="mt-3 flex w-full items-center justify-between rounded-card bg-parchment-surface px-4 py-3.5 text-left shadow-card"
         >
           <span className="min-w-0 pr-3">
-            <span className="block text-sm text-ink-900">How Harmony works</span>
-            <span className="block text-xs text-ink-300">What's new, and how to use everything.</span>
+            <span className="block text-sm text-ink-strong">How Harmony works</span>
+            <span className="block text-xs text-ink-faint">What's new, and how to use everything.</span>
           </span>
-          <span className="shrink-0 text-ink-300">
+          <span className="shrink-0 text-ink-faint">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
               <path d="M9 5l7 7-7 7" />
             </svg>
@@ -399,15 +399,15 @@ export default function SettingsScreen() {
 
       <section className="mt-9">
         <p className={eyebrow}>About</p>
-        <p className="mt-2 text-sm text-ink-500">Harmony, version {APP_VERSION}.</p>
+        <p className="mt-2 text-sm text-ink-muted">Harmony, version {APP_VERSION}.</p>
       </section>
 
       <Modal open={deleteOpen} onClose={closeDeleteModal} title="Delete account">
-        <p className="text-sm text-ink-700">
+        <p className="text-sm text-ink-body">
           This deletes everything you've added: your areas, habits, logs, and notes, on this device
           and in your account. It can't be undone.
         </p>
-        <label htmlFor="delete-confirm" className="mt-4 block text-sm text-ink-700">
+        <label htmlFor="delete-confirm" className="mt-4 block text-sm text-ink-body">
           Type <span className="font-semibold">{DELETE_WORD}</span> to confirm.
         </label>
         <input
@@ -421,7 +421,7 @@ export default function SettingsScreen() {
           spellCheck={false}
           placeholder={DELETE_WORD}
           aria-label={`Type ${DELETE_WORD} to confirm account deletion`}
-          className="mt-1.5 w-full rounded-card bg-parchment-100 px-3.5 py-2.5 text-sm text-ink-900 ring-1 ring-inset ring-parchment-300 placeholder:text-ink-300 focus:ring-2 focus:ring-iris-500"
+          className="mt-1.5 w-full rounded-card bg-parchment-ground px-3.5 py-2.5 text-sm text-ink-strong ring-1 ring-inset ring-parchment-edge placeholder:text-ink-faint focus:ring-2 focus:ring-accent-base"
         />
         <div className="mt-5 space-y-2">
           <PrimaryButton onClick={handleDeleteAccount} disabled={!canDelete}>
@@ -430,7 +430,7 @@ export default function SettingsScreen() {
           <button
             type="button"
             onClick={closeDeleteModal}
-            className="w-full rounded-full py-2.5 text-sm text-ink-500"
+            className="w-full rounded-full py-2.5 text-sm text-ink-muted"
           >
             Keep my account
           </button>
@@ -456,13 +456,13 @@ function FeedbackRow({
     <button
       type="button"
       onClick={onClick}
-      className="flex w-full items-center justify-between rounded-card bg-parchment-50 px-4 py-3.5 text-left shadow-card"
+      className="flex w-full items-center justify-between rounded-card bg-parchment-surface px-4 py-3.5 text-left shadow-card"
     >
       <span className="min-w-0 pr-3">
-        <span className="block text-sm text-ink-900">{title}</span>
-        <span className="block text-xs text-ink-300">{sub}</span>
+        <span className="block text-sm text-ink-strong">{title}</span>
+        <span className="block text-xs text-ink-faint">{sub}</span>
       </span>
-      <span className="shrink-0 text-ink-300">
+      <span className="shrink-0 text-ink-faint">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
           <path d="M9 5l7 7-7 7" />
         </svg>

@@ -122,9 +122,9 @@ export default function SignInScreen() {
           />
         </div>
 
-        {error && <p className="text-sm text-rose-600">{error}</p>}
+        {error && <p className="text-sm text-rose-strong">{error}</p>}
         {resetSent && (
-          <p className="text-sm text-sage-600">
+          <p className="text-sm text-sage-strong">
             Check your email for a link to reset your password.
           </p>
         )}
@@ -135,14 +135,14 @@ export default function SignInScreen() {
       <button
         type="button"
         onClick={handleReset}
-        className="mt-4 text-sm text-ink-500 underline-offset-2 hover:text-iris-500 hover:underline"
+        className="mt-4 text-sm text-ink-muted underline-offset-2 hover:text-accent-base hover:underline"
       >
         Forgot your password?
       </button>
 
-      <p className="mt-8 text-sm text-ink-500">
+      <p className="mt-8 text-sm text-ink-muted">
         New to Harmony?{' '}
-        <Link to="/sign-up" className="text-iris-500 hover:underline">
+        <Link to="/sign-up" className="text-accent-base hover:underline">
           Create an account
         </Link>
       </p>

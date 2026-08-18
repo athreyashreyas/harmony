@@ -7,7 +7,7 @@
 
 @layer base {
   body {
-    @apply bg-parchment-100 text-ink-700 font-sans antialiased;
+    @apply bg-parchment-ground text-ink-body font-sans antialiased;
     font-feature-settings: 'kern';
     text-rendering: optimizeLegibility;
   }
@@ -15,13 +15,13 @@
   h1,
   h2,
   h3 {
-    @apply font-serif text-ink-900;
+    @apply font-serif text-ink-strong;
   }
 
   /* Visible iris keyboard focus on every interactive element (section 20). */
   :focus-visible {
     outline: none;
-    @apply ring-2 ring-iris-500 ring-offset-2 ring-offset-parchment-100;
+    @apply ring-2 ring-accent-base ring-offset-2 ring-offset-parchment-ground;
   }
 }
 

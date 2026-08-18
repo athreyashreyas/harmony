@@ -102,8 +102,8 @@ export default function AreasScreen() {
 
   return (
     <TabScreen className="pt-8 pb-36 md:pb-16">
-      <h1 className="font-serif text-3xl text-ink-900">Areas</h1>
-      <p className="mt-2 text-sm text-ink-300">Your areas of life, in priority order.</p>
+      <h1 className="font-serif text-3xl text-ink-strong">Areas</h1>
+      <p className="mt-2 text-sm text-ink-faint">Your areas of life, in priority order.</p>
 
       <div className="mt-6">
         {!loaded ? (
@@ -113,7 +113,7 @@ export default function AreasScreen() {
             <Skeleton className="h-[70px] w-full" />
           </div>
         ) : orderedAreas.length === 0 ? (
-          <p className="text-sm text-ink-300">Add the parts of life you want to tend to.</p>
+          <p className="text-sm text-ink-faint">Add the parts of life you want to tend to.</p>
         ) : (
           <Reorder.Group axis="y" values={orderedAreas} onReorder={handleReorder} className="space-y-2.5">
             {orderedAreas.map((area) => (
@@ -137,7 +137,7 @@ export default function AreasScreen() {
       </div>
 
       {loaded && orderedAreas.length >= MAX_AREAS && (
-        <p className="mt-6 text-center text-xs text-ink-300">
+        <p className="mt-6 text-center text-xs text-ink-faint">
           You're keeping the most areas Harmony holds ({MAX_AREAS}). Delete one to add another.
         </p>
       )}

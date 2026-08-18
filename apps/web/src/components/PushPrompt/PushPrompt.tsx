@@ -50,12 +50,12 @@ export default function PushPrompt({ userId }: { userId: string }) {
       initial={{ opacity: 0, y: -8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={spring}
-      className="mt-6 rounded-card bg-iris-50 p-4"
+      className="mt-6 rounded-card bg-accent-tint p-4"
     >
-      <p className="text-sm font-medium text-ink-900">
+      <p className="text-sm font-medium text-ink-strong">
         {isInstall ? 'Add Harmony to your home screen' : 'Bring your words back to you'}
       </p>
-      <p className="mt-1 text-sm text-ink-500">
+      <p className="mt-1 text-sm text-ink-muted">
         {isInstall
           ? 'Tap the share icon, then "Add to Home Screen". Notifications only work this way on iPhone, by Apple\'s design.'
           : 'Notifications are how we bring your words back to you. Sound, banner, lock screen, like any other app.'}
@@ -66,12 +66,12 @@ export default function PushPrompt({ userId }: { userId: string }) {
             type="button"
             onClick={turnOn}
             disabled={busy}
-            className="rounded-full bg-iris-500 px-4 py-2 text-sm font-medium text-on-primary disabled:opacity-40"
+            className="rounded-full bg-accent-base px-4 py-2 text-sm font-medium text-on-accent disabled:opacity-40"
           >
             Turn on reminders
           </button>
         )}
-        <button type="button" onClick={notNow} className="text-sm text-ink-500 hover:text-ink-700">
+        <button type="button" onClick={notNow} className="text-sm text-ink-muted hover:text-ink-body">
           Not now
         </button>
       </div>

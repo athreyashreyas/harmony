@@ -13,7 +13,7 @@ export default function SegmentedControl<T extends string>({
   ariaLabel?: string;
 }) {
   return (
-    <div role="radiogroup" aria-label={ariaLabel} className="flex gap-1 rounded-full bg-parchment-200 p-0.5">
+    <div role="radiogroup" aria-label={ariaLabel} className="flex gap-1 rounded-full bg-parchment-raised p-0.5">
       {options.map((o) => {
         const active = o.value === value;
         return (
@@ -25,7 +25,7 @@ export default function SegmentedControl<T extends string>({
             onClick={() => onChange(o.value)}
             className={[
               'flex-1 rounded-full py-1.5 text-xs font-medium transition-colors',
-              active ? 'bg-parchment-50 text-ink-900 shadow-card' : 'text-ink-500',
+              active ? 'bg-parchment-surface text-ink-strong shadow-card' : 'text-ink-muted',
             ].join(' ')}
           >
             {o.label}

@@ -9,7 +9,7 @@ import { PrimaryButton, QuietLink } from '../ui';
 import { CADENCE_OPTIONS, TIME_OF_DAY_OPTIONS, cadenceKey } from '../../../lib/cadenceOptions';
 
 const selectClass =
-  'w-full rounded-card bg-parchment-50 px-3.5 py-2.5 text-sm text-ink-900 ring-1 ring-inset ring-parchment-300 focus:ring-2 focus:ring-iris-500';
+  'w-full rounded-card bg-parchment-surface px-3.5 py-2.5 text-sm text-ink-strong ring-1 ring-inset ring-parchment-edge focus:ring-2 focus:ring-accent-base';
 
 // Screen 5, shown once per area. One starter habit per area, not three.
 export default function HabitsStep({
@@ -65,19 +65,19 @@ export default function HabitsStep({
       }
     >
       <div className="py-6">
-        <p className="text-xs uppercase tracking-[0.1em] text-ink-300">
+        <p className="text-xs uppercase tracking-[0.1em] text-ink-faint">
           {area.name} ({index + 1} of {areas.length})
         </p>
-        <h1 className="mt-2 font-serif text-3xl leading-tight text-ink-900">
+        <h1 className="mt-2 font-serif text-3xl leading-tight text-ink-strong">
           What's one small thing you'd like to do for your {area.name}?
         </h1>
-        <p className="mt-3 text-sm text-ink-500">One is enough. You can add more later.</p>
+        <p className="mt-3 text-sm text-ink-muted">One is enough. You can add more later.</p>
 
         <div className="mt-7 space-y-5">
           <div>
             <label
               htmlFor="habit-name"
-              className="mb-1.5 block text-sm font-medium text-ink-700"
+              className="mb-1.5 block text-sm font-medium text-ink-body"
             >
               Habit
             </label>
@@ -93,7 +93,7 @@ export default function HabitsStep({
           </div>
 
           <div>
-            <p className="mb-1.5 text-sm font-medium text-ink-700">How often</p>
+            <p className="mb-1.5 text-sm font-medium text-ink-body">How often</p>
             <SelectMenu
               value={cadenceKey(habit.cadence)}
               options={CADENCE_OPTIONS.map((o) => ({ value: cadenceKey(o.value), label: o.label }))}
@@ -106,7 +106,7 @@ export default function HabitsStep({
           </div>
 
           <div>
-            <p className="mb-1.5 text-sm font-medium text-ink-700">Time of day</p>
+            <p className="mb-1.5 text-sm font-medium text-ink-body">Time of day</p>
             <SegmentedControl
               value={habit.timeOfDay}
               options={TIME_OF_DAY_OPTIONS}

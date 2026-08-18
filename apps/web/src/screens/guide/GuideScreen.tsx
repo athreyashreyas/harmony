@@ -10,16 +10,16 @@ type Pane = 'new' | 'guide';
 
 function Section({ section }: { section: GuideSection }) {
   return (
-    <section className="border-t border-parchment-200 pt-7">
-      <h2 className="font-serif text-2xl text-ink-900">{section.title}</h2>
+    <section className="border-t border-parchment-raised pt-7">
+      <h2 className="font-serif text-2xl text-ink-strong">{section.title}</h2>
       {section.art && (
-        <div className="mt-4 flex justify-center rounded-card bg-parchment-50 px-4 py-6 shadow-card">
+        <div className="mt-4 flex justify-center rounded-card bg-parchment-surface px-4 py-6 shadow-card">
           <GuideArt kind={section.art} />
         </div>
       )}
       <div className="mt-4 space-y-3">
         {section.body.map((p, i) => (
-          <p key={i} className="text-sm leading-relaxed text-ink-700">
+          <p key={i} className="text-sm leading-relaxed text-ink-body">
             {p}
           </p>
         ))}
@@ -27,8 +27,8 @@ function Section({ section }: { section: GuideSection }) {
       {section.steps && (
         <ul className="mt-4 space-y-2">
           {section.steps.map((s, i) => (
-            <li key={i} className="flex gap-2.5 text-sm leading-relaxed text-ink-500">
-              <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-iris-400" />
+            <li key={i} className="flex gap-2.5 text-sm leading-relaxed text-ink-muted">
+              <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-accent-soft" />
               <span>{s}</span>
             </li>
           ))}
@@ -62,25 +62,25 @@ export default function GuideScreen() {
   const [historyOpen, setHistoryOpen] = useState(false);
 
   return (
-    <div className="relative flex h-full flex-col overflow-hidden bg-parchment-100">
+    <div className="relative flex h-full flex-col overflow-hidden bg-parchment-ground">
       <header className="flex items-center justify-between px-4 pt-safe">
         <div className="flex h-14 items-center">
           <BackButton onClick={goBack} />
         </div>
         <div className="flex h-14 items-center">
-          <span className="text-xs text-ink-300">Harmony {APP_VERSION}</span>
+          <span className="text-xs text-ink-faint">Harmony {APP_VERSION}</span>
         </div>
       </header>
 
       <div className="scroll-ios min-h-0 flex-1 overflow-y-auto pb-safe pl-safe pr-safe">
         <main className="mx-auto w-full max-w-md px-5 pb-12">
-          <p className="text-[10px] font-medium uppercase tracking-[0.1em] text-ink-300">How Harmony works</p>
-          <h1 className="mt-1 font-serif text-3xl leading-tight text-ink-900">
+          <p className="text-[10px] font-medium uppercase tracking-[0.1em] text-ink-faint">How Harmony works</p>
+          <h1 className="mt-1 font-serif text-3xl leading-tight text-ink-strong">
             A gentle place to return to yourself.
           </h1>
 
           {/* Two sides: what's new, and the lasting walk-through. */}
-          <div role="tablist" aria-label="Guide" className="mt-6 flex gap-1 rounded-full bg-parchment-200 p-1">
+          <div role="tablist" aria-label="Guide" className="mt-6 flex gap-1 rounded-full bg-parchment-raised p-1">
             {([
               ['new', "What's new"],
               ['guide', 'Guide'],
@@ -94,7 +94,7 @@ export default function GuideScreen() {
                   aria-selected={active}
                   onClick={() => setPane(value)}
                   className={`flex-1 rounded-full py-2 text-sm font-medium transition-colors ${
-                    active ? 'bg-parchment-50 text-ink-900 shadow-card' : 'text-ink-300'
+                    active ? 'bg-parchment-surface text-ink-strong shadow-card' : 'text-ink-faint'
                   }`}
                 >
                   {label}
@@ -115,10 +115,10 @@ export default function GuideScreen() {
                     aria-expanded={historyOpen}
                     className="flex w-full items-center justify-between py-2 text-left"
                   >
-                    <span className="text-[10px] font-medium uppercase tracking-[0.1em] text-ink-300">
+                    <span className="text-[10px] font-medium uppercase tracking-[0.1em] text-ink-faint">
                       Earlier versions
                     </span>
-                    <span className={`text-ink-300 transition-transform ${historyOpen ? 'rotate-180' : ''}`} aria-hidden="true">
+                    <span className={`text-ink-faint transition-transform ${historyOpen ? 'rotate-180' : ''}`} aria-hidden="true">
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                         <path d="M6 9l6 6 6-6" />
                       </svg>
@@ -145,7 +145,7 @@ export default function GuideScreen() {
           <button
             type="button"
             onClick={() => navigate('/', { replace: true })}
-            className="mt-10 w-full rounded-full bg-iris-500 py-3 text-sm font-medium text-on-primary"
+            className="mt-10 w-full rounded-full bg-accent-base py-3 text-sm font-medium text-on-accent"
           >
             Back to Harmony
           </button>

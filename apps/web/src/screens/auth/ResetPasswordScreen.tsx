@@ -99,7 +99,7 @@ export default function ResetPasswordScreen() {
       >
         <Link
           to="/sign-in"
-          className="inline-block rounded-full bg-iris-500 px-6 py-3 text-sm font-medium text-on-primary"
+          className="inline-block rounded-full bg-accent-base px-6 py-3 text-sm font-medium text-on-accent"
         >
           Back to sign in
         </Link>
@@ -113,7 +113,7 @@ export default function ResetPasswordScreen() {
         <button
           type="button"
           onClick={() => navigate('/sign-in', { replace: true })}
-          className="rounded-full bg-iris-500 px-6 py-3 text-sm font-medium text-on-primary"
+          className="rounded-full bg-accent-base px-6 py-3 text-sm font-medium text-on-accent"
         >
           Sign in
         </button>
@@ -147,7 +147,7 @@ export default function ResetPasswordScreen() {
           />
         </div>
 
-        {error && <p className="text-sm text-rose-600">{error}</p>}
+        {error && <p className="text-sm text-rose-strong">{error}</p>}
 
         <PrimaryButton disabled={submitting}>Save new password</PrimaryButton>
       </form>

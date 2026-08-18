@@ -20,8 +20,8 @@ export default function WeekBloomWheel({ petals }: { petals: GardenPetal[] }) {
 
   return (
     <svg viewBox={`0 0 ${SIZE} ${SIZE}`} className="mx-auto block h-full w-full" role="img" aria-label="That week's bloom">
-      <circle cx={CENTER} cy={CENTER} r={RING_1} fill="none" stroke="var(--parchment-300)" strokeDasharray="2 4" />
-      <circle cx={CENTER} cy={CENTER} r={RING_2} fill="none" stroke="var(--parchment-300)" strokeDasharray="2 4" />
+      <circle cx={CENTER} cy={CENTER} r={RING_1} fill="none" stroke="var(--parchment-edge)" strokeDasharray="2 4" />
+      <circle cx={CENTER} cy={CENTER} r={RING_2} fill="none" stroke="var(--parchment-edge)" strokeDasharray="2 4" />
 
       {petals.map((p, i) => {
         const start = i * sliceAngle + GAP_DEGREES / 2;
@@ -35,14 +35,14 @@ export default function WeekBloomWheel({ petals }: { petals: GardenPetal[] }) {
         );
       })}
 
-      <circle cx={CENTER} cy={CENTER} r={CENTER_RADIUS} fill="var(--parchment-50)" />
+      <circle cx={CENTER} cy={CENTER} r={CENTER_RADIUS} fill="var(--parchment-surface)" />
       <text
         x={CENTER}
         y={CENTER}
         textAnchor="middle"
         dominantBaseline="central"
         fontSize="20"
-        fill="var(--iris-500)"
+        fill="var(--accent-base)"
         style={{ fontFamily: 'var(--font-serif)' }}
       >
         h

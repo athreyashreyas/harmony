@@ -38,7 +38,7 @@ export default function Modal({
           exit={{ opacity: 0 }}
         >
           <div
-            className="absolute inset-0 bg-ink-900/20"
+            className="absolute inset-0 bg-ink-strong/20"
             onClick={onClose}
             aria-hidden="true"
           />
@@ -48,13 +48,13 @@ export default function Modal({
             aria-modal="true"
             aria-label={title}
             tabIndex={-1}
-            className="relative w-full max-w-sm rounded-sheet bg-parchment-50 p-5 shadow-sheet"
+            className="relative w-full max-w-sm rounded-sheet bg-parchment-surface p-5 shadow-sheet"
             initial={{ opacity: 0, y: 16, scale: 0.98 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 16, scale: 0.98 }}
             transition={spring}
           >
-            {title && <h2 className="mb-4 font-serif text-xl text-ink-900">{title}</h2>}
+            {title && <h2 className="mb-4 font-serif text-xl text-ink-strong">{title}</h2>}
             {children}
           </motion.div>
         </motion.div>

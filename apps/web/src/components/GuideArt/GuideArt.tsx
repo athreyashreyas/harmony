@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import type { GuideArtKind } from '../../lib/guide';
+import { THEMES } from '../../lib/theme/themes';
 import MiniBloom from '../MiniBloom/MiniBloom';
 
 const ASH = '#5a636f';
@@ -19,7 +20,7 @@ export default function GuideArt({ kind }: { kind: GuideArtKind }) {
     case 'bloom':
       return (
         <svg viewBox="0 0 120 120" className="h-28 w-28" aria-hidden="true">
-          <circle cx="60" cy="60" r="44" fill="none" stroke="var(--parchment-300)" strokeDasharray="2 4" />
+          <circle cx="60" cy="60" r="44" fill="none" stroke="var(--parchment-edge)" strokeDasharray="2 4" />
           <g>
             <path d="M60 60 L60 18 A42 42 0 0 1 96 39 Z" fill="#b5532f" opacity="0.85" />
             <path d="M60 60 L96 39 A42 42 0 0 1 96 81 Z" fill="#b7902a" opacity="0.5" />
@@ -28,22 +29,22 @@ export default function GuideArt({ kind }: { kind: GuideArtKind }) {
             <path d="M60 60 L24 81 A42 42 0 0 1 24 39 Z" fill="#3a7ca8" opacity="0.6" />
             <path d="M60 60 L24 39 A42 42 0 0 1 60 18 Z" fill="#944021" opacity="0.5" />
           </g>
-          <circle cx="60" cy="60" r="16" fill="var(--parchment-50)" />
-          <text x="60" y="61" textAnchor="middle" dominantBaseline="central" fontFamily="var(--font-serif)" fontSize="20" fill="var(--iris-500)">h</text>
+          <circle cx="60" cy="60" r="16" fill="var(--parchment-surface)" />
+          <text x="60" y="61" textAnchor="middle" dominantBaseline="central" fontFamily="var(--font-serif)" fontSize="20" fill="var(--accent-base)">h</text>
         </svg>
       );
     case 'habit':
       return (
         <div className="w-full max-w-[240px] space-y-2">
-          <div className="flex items-center gap-3 rounded-card bg-parchment-50 py-3 pl-3 pr-4 shadow-card" style={{ borderLeft: '3px solid #5b7a35' }}>
+          <div className="flex items-center gap-3 rounded-card bg-parchment-surface py-3 pl-3 pr-4 shadow-card" style={{ borderLeft: '3px solid #5b7a35' }}>
             <span className="flex h-[22px] w-[22px] items-center justify-center rounded-full" style={{ backgroundColor: '#5b7a35' }}>
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M5 13l4 4L19 7" /></svg>
             </span>
-            <span className="flex-1 text-sm text-ink-300 line-through">Morning walk</span>
+            <span className="flex-1 text-sm text-ink-faint line-through">Morning walk</span>
           </div>
-          <div className="flex items-center gap-3 rounded-card bg-parchment-50 py-3 pl-3 pr-4 shadow-card" style={{ borderLeft: '3px solid #944021' }}>
-            <span className="h-[22px] w-[22px] rounded-full" style={{ boxShadow: 'inset 0 0 0 1.5px var(--parchment-300)' }} />
-            <span className="flex-1 text-sm text-ink-900">Read a few pages</span>
+          <div className="flex items-center gap-3 rounded-card bg-parchment-surface py-3 pl-3 pr-4 shadow-card" style={{ borderLeft: '3px solid #944021' }}>
+            <span className="h-[22px] w-[22px] rounded-full" style={{ boxShadow: 'inset 0 0 0 1.5px var(--parchment-edge)' }} />
+            <span className="flex-1 text-sm text-ink-strong">Read a few pages</span>
           </div>
         </div>
       );
@@ -65,12 +66,12 @@ export default function GuideArt({ kind }: { kind: GuideArtKind }) {
     case 'weights':
       return (
         <div className="w-full max-w-[240px]">
-          <div className="flex h-2.5 overflow-hidden rounded-full bg-parchment-200">
+          <div className="flex h-2.5 overflow-hidden rounded-full bg-parchment-raised">
             <span style={{ width: '55%', backgroundColor: '#b5532f' }} />
             <span style={{ width: '30%', backgroundColor: '#b7902a' }} />
             <span style={{ width: '15%', backgroundColor: '#5b7a35' }} />
           </div>
-          <div className="mt-2 flex justify-between text-[10px] text-ink-300">
+          <div className="mt-2 flex justify-between text-[10px] text-ink-faint">
             <span>55%</span>
             <span>30%</span>
             <span>15%</span>
@@ -93,16 +94,16 @@ export default function GuideArt({ kind }: { kind: GuideArtKind }) {
           ] as const).map(([label, c, pct], i) => (
             <div key={label}>
               <div className="mb-1.5 flex items-center justify-between gap-4 text-[11px]">
-                <span className="flex min-w-0 items-center gap-1.5 text-ink-700">
+                <span className="flex min-w-0 items-center gap-1.5 text-ink-body">
                   <span className="h-1.5 w-1.5 shrink-0 rounded-full" style={{ backgroundColor: c }} />
                   <span className="truncate">{label}</span>
                 </span>
-                <span className="shrink-0 font-medium text-ink-500">{pct}%</span>
+                <span className="shrink-0 font-medium text-ink-muted">{pct}%</span>
               </div>
               {/* Track, and a filled portion that glides out to the percent. The
                   thumb rides the fill's leading edge, so it follows along for
                   free as the width animates. */}
-              <div className="relative h-2 rounded-full bg-parchment-200">
+              <div className="relative h-2 rounded-full bg-parchment-raised">
                 <motion.div
                   className="absolute inset-y-0 left-0 rounded-full"
                   style={{ backgroundColor: c }}
@@ -111,7 +112,7 @@ export default function GuideArt({ kind }: { kind: GuideArtKind }) {
                   transition={{ duration: 0.8, ease: 'easeOut', delay: 0.15 + i * 0.15 }}
                 >
                   <span
-                    className="absolute h-3.5 w-3.5 rounded-full bg-parchment-50 shadow-card"
+                    className="absolute h-3.5 w-3.5 rounded-full bg-parchment-surface shadow-card"
                     style={{ top: '50%', right: -7, marginTop: -7, boxShadow: `0 0 0 1.5px ${c}` }}
                   />
                 </motion.div>
@@ -124,8 +125,8 @@ export default function GuideArt({ kind }: { kind: GuideArtKind }) {
       return (
         <div className="flex w-full max-w-[240px] items-center gap-3 rounded-card border border-dashed px-3 py-3" style={{ borderColor: `${ASH}73` }}>
           <span className="h-[22px] w-[22px] rounded-full" style={{ boxShadow: `inset 0 0 0 1.5px ${ASH}88` }} />
-          <span className="flex-1 text-sm text-ink-900">Late-night scrolling</span>
-          <span className="text-[10px] uppercase tracking-wide text-ink-300">tug</span>
+          <span className="flex-1 text-sm text-ink-strong">Late-night scrolling</span>
+          <span className="text-[10px] uppercase tracking-wide text-ink-faint">tug</span>
         </div>
       );
     case 'log':
@@ -133,7 +134,7 @@ export default function GuideArt({ kind }: { kind: GuideArtKind }) {
         <div className="grid grid-cols-7 gap-1.5" style={{ width: 'fit-content' }}>
           {Array.from({ length: 21 }).map((_, i) => {
             const on = [1, 2, 4, 8, 9, 11, 15, 16, 18].includes(i);
-            return <span key={i} className="h-3.5 w-3.5 rounded-full" style={{ backgroundColor: on ? '#b5532f' : 'var(--parchment-300)' }} />;
+            return <span key={i} className="h-3.5 w-3.5 rounded-full" style={{ backgroundColor: on ? '#b5532f' : 'var(--parchment-edge)' }} />;
           })}
         </div>
       );
@@ -143,24 +144,24 @@ export default function GuideArt({ kind }: { kind: GuideArtKind }) {
           {[
             ['#c0392b', 'Offline'],
             ['#b7902a', 'Syncing'],
-            ['var(--sage-500)', 'Synced'],
+            ['var(--sage-base)', 'Synced'],
           ].map(([c, label]) => (
             <span key={label} className="flex flex-col items-center gap-1.5">
               <span className="h-3 w-3 rounded-full" style={{ backgroundColor: c }} />
-              <span className="text-[10px] text-ink-300">{label}</span>
+              <span className="text-[10px] text-ink-faint">{label}</span>
             </span>
           ))}
         </div>
       );
     case 'reminder':
       return (
-        <div className="w-full max-w-[240px] rounded-card bg-parchment-50 px-3.5 py-3 shadow-card">
+        <div className="w-full max-w-[240px] rounded-card bg-parchment-surface px-3.5 py-3 shadow-card">
           <div className="flex items-center gap-2">
-            <span className="flex h-6 w-6 items-center justify-center rounded-[7px] bg-iris-500 font-serif text-sm text-on-primary">h</span>
-            <span className="text-xs font-semibold text-ink-900">Harmony</span>
-            <span className="ml-auto text-[10px] text-ink-300">now</span>
+            <span className="flex h-6 w-6 items-center justify-center rounded-[7px] bg-accent-base font-serif text-sm text-on-accent">h</span>
+            <span className="text-xs font-semibold text-ink-strong">Harmony</span>
+            <span className="ml-auto text-[10px] text-ink-faint">now</span>
           </div>
-          <p className="mt-1.5 text-sm text-ink-700">A little time for your morning walk.</p>
+          <p className="mt-1.5 text-sm text-ink-body">A little time for your morning walk.</p>
         </div>
       );
     case 'logo':
@@ -181,37 +182,60 @@ export default function GuideArt({ kind }: { kind: GuideArtKind }) {
       // accent, with a neutral gray hairline that reads on any current theme.
       // The vivid accent dominates (legible on light and dark alike) while the
       // paper dot hints light-vs-dark without glaring as a solid block.
+      // Driven from THEMES so adding or retiring a theme never leaves this stale.
       return (
         <div className="grid max-w-[210px] grid-cols-4 justify-items-center gap-3.5">
-          {[
-            ['#b5532f', '#fbf1e4'], // Terracotta
-            ['#f2a900', '#fff4d6'], // Mango Sunshine
-            ['#47602a', '#e8ecd8'], // Sage Grove
-            ['#7c6bd0', '#f1eefa'], // Lavender
-            ['#c25072', '#fbeef0'], // Rose Quartz
-            ['#8c7ce0', '#1b1e2c'], // Indigo Night
-            ['#cf9455', '#241d17'], // Espresso
-            ['#74c084', '#16211a'], // Forest Night
-          ].map(([accent, paper]) => (
+          {THEMES.map((theme) => (
             <span
-              key={accent}
+              key={theme.id}
               className="h-[42px] w-[42px] rounded-full"
               style={{
-                background: `radial-gradient(circle at center, ${paper} 0 44%, ${accent} 46% 100%)`,
+                background: `radial-gradient(circle at center, ${theme.bg} 0 44%, ${theme.primary} 46% 100%)`,
                 boxShadow: '0 0 0 1px rgba(128,128,128,0.35)',
               }}
             />
           ))}
         </div>
       );
+    case 'darkthemes':
+      // The darks, each shown as what they actually are: a card sitting on a
+      // page. The card carries its theme's own edge colour, which is the thing
+      // that changed — on a dark ground a shadow alone leaves a card with no
+      // edge at all. Literal theme colours here are deliberate: this art
+      // depicts other themes rather than following the active one.
+      return (
+        <div className="grid w-full max-w-[240px] grid-cols-3 gap-2.5">
+          {THEMES.filter((t) => t.dark).map((theme) => (
+            <div
+              key={theme.id}
+              className="rounded-[9px] p-2"
+              style={{ background: theme.bg, boxShadow: '0 0 0 1px rgba(128,128,128,0.3)' }}
+            >
+              <div
+                className="flex items-center gap-1.5 rounded-[6px] px-1.5 py-1.5"
+                style={{ background: theme.surface, boxShadow: `0 0 0 1px ${theme.edge}` }}
+              >
+                <span
+                  className="h-2.5 w-2.5 shrink-0 rounded-full"
+                  style={{ background: theme.primary }}
+                />
+                <span className="flex-1 space-y-1">
+                  <span className="block h-1 rounded-full" style={{ background: theme.primary, opacity: 0.5 }} />
+                  <span className="block h-1 w-2/3 rounded-full" style={{ background: theme.edge }} />
+                </span>
+              </div>
+            </div>
+          ))}
+        </div>
+      );
     case 'sort':
       return (
         <div className="w-full max-w-[240px]">
-          <div className="mb-2.5 flex items-center gap-1.5" style={{ color: 'var(--ink-300)' }}>
+          <div className="mb-2.5 flex items-center gap-1.5" style={{ color: 'var(--ink-faint)' }}>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
               <path d="M4 6h13M4 12h9M4 18h5" />
             </svg>
-            <span className="rounded-full bg-parchment-200 px-2.5 py-1 text-[11px] font-medium text-ink-700">Time of day</span>
+            <span className="rounded-full bg-parchment-raised px-2.5 py-1 text-[11px] font-medium text-ink-body">Time of day</span>
           </div>
           <div className="space-y-1.5">
             {[
@@ -220,9 +244,9 @@ export default function GuideArt({ kind }: { kind: GuideArtKind }) {
               ['Evening', '#7a3b6e'],
               ['Anytime', '#8a8f98'],
             ].map(([label, c]) => (
-              <div key={label} className="flex items-center gap-2 rounded-card bg-parchment-50 px-3 py-2 shadow-card">
+              <div key={label} className="flex items-center gap-2 rounded-card bg-parchment-surface px-3 py-2 shadow-card">
                 <span className="h-2 w-2 rounded-full" style={{ backgroundColor: c }} />
-                <span className="text-xs text-ink-700">{label}</span>
+                <span className="text-xs text-ink-body">{label}</span>
               </div>
             ))}
           </div>
@@ -232,22 +256,22 @@ export default function GuideArt({ kind }: { kind: GuideArtKind }) {
       return (
         <div className="w-full max-w-[240px]">
           {/* A range switcher, a little trend line, and rhythm bars. */}
-          <div className="mb-2.5 flex gap-1 rounded-full bg-parchment-200 p-0.5 text-[10px] font-medium">
-            <span className="flex-1 rounded-full bg-parchment-50 py-1 text-center text-ink-900 shadow-card">Week</span>
+          <div className="mb-2.5 flex gap-1 rounded-full bg-parchment-raised p-0.5 text-[10px] font-medium">
+            <span className="flex-1 rounded-full bg-parchment-surface py-1 text-center text-ink-strong shadow-card">Week</span>
             {['Month', 'Year', 'All'].map((l) => (
-              <span key={l} className="flex-1 py-1 text-center text-ink-300">{l}</span>
+              <span key={l} className="flex-1 py-1 text-center text-ink-faint">{l}</span>
             ))}
           </div>
-          <div className="rounded-card bg-parchment-50 p-3 shadow-card">
+          <div className="rounded-card bg-parchment-surface p-3 shadow-card">
             <svg viewBox="0 0 200 56" width="100%" height="48" preserveAspectRatio="none" aria-hidden="true">
               <defs>
                 <linearGradient id="gi" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="var(--iris-500)" stopOpacity="0.28" />
-                  <stop offset="100%" stopColor="var(--iris-500)" stopOpacity="0" />
+                  <stop offset="0%" stopColor="var(--accent-base)" stopOpacity="0.28" />
+                  <stop offset="100%" stopColor="var(--accent-base)" stopOpacity="0" />
                 </linearGradient>
               </defs>
               <path d="M4 44 L36 30 L68 34 L100 16 L132 22 L164 10 L196 14 L196 52 L4 52 Z" fill="url(#gi)" />
-              <path d="M4 44 L36 30 L68 34 L100 16 L132 22 L164 10 L196 14" fill="none" stroke="var(--iris-500)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" vectorEffect="non-scaling-stroke" />
+              <path d="M4 44 L36 30 L68 34 L100 16 L132 22 L164 10 L196 14" fill="none" stroke="var(--accent-base)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" vectorEffect="non-scaling-stroke" />
             </svg>
             <div className="mt-2 flex items-end gap-1" style={{ height: 26 }}>
               {[10, 16, 8, 22, 14, 24, 12].map((h, i) => (
@@ -287,11 +311,11 @@ export default function GuideArt({ kind }: { kind: GuideArtKind }) {
             ['Journal', '#3a7ca8', true],
             ['A glass of water', '#b7902a', false],
           ].map(([label, c, done], i) => (
-            <div key={label as string} className="flex items-center gap-2.5 rounded-card bg-parchment-50 px-3 py-2 shadow-card">
+            <div key={label as string} className="flex items-center gap-2.5 rounded-card bg-parchment-surface px-3 py-2 shadow-card">
               <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[10px] font-semibold" style={done ? { backgroundColor: c as string, color: '#fff' } : { boxShadow: `inset 0 0 0 1.5px ${c as string}`, color: c as string }}>
                 {i + 1}
               </span>
-              <span className="text-xs text-ink-700">{label as string}</span>
+              <span className="text-xs text-ink-body">{label as string}</span>
             </div>
           ))}
         </div>
@@ -315,7 +339,7 @@ export default function GuideArt({ kind }: { kind: GuideArtKind }) {
       ];
       return (
         <svg viewBox="0 0 120 120" className="h-28 w-28" aria-hidden="true">
-          <circle cx="60" cy="60" r="44" fill="none" stroke="var(--parchment-300)" strokeDasharray="2 4" />
+          <circle cx="60" cy="60" r="44" fill="none" stroke="var(--parchment-edge)" strokeDasharray="2 4" />
           <g>
             <path d="M60 60 L60 18 A42 42 0 0 1 96 39 Z" fill="#b5532f" opacity="0.9" />
             <path d="M60 60 L96 39 A42 42 0 0 1 96 81 Z" fill="#b7902a" opacity="0.85" />
@@ -324,8 +348,8 @@ export default function GuideArt({ kind }: { kind: GuideArtKind }) {
             <path d="M60 60 L24 81 A42 42 0 0 1 24 39 Z" fill="#3a7ca8" opacity="0.88" />
             <path d="M60 60 L24 39 A42 42 0 0 1 60 18 Z" fill="#944021" opacity="0.85" />
           </g>
-          <circle cx="60" cy="60" r="16" fill="var(--parchment-50)" />
-          <text x="60" y="61" textAnchor="middle" dominantBaseline="central" fontFamily="var(--font-serif)" fontSize="20" fill="var(--iris-500)">h</text>
+          <circle cx="60" cy="60" r="16" fill="var(--parchment-surface)" />
+          <text x="60" y="61" textAnchor="middle" dominantBaseline="central" fontFamily="var(--font-serif)" fontSize="20" fill="var(--accent-base)">h</text>
           {pieces.map(([x, y, s, r, c], i) => (
             <rect
               key={i}
@@ -344,14 +368,14 @@ export default function GuideArt({ kind }: { kind: GuideArtKind }) {
     case 'guide':
       return (
         <div className="w-full max-w-[240px]">
-          <div className="flex gap-1 rounded-full bg-parchment-200 p-1 text-[11px] font-medium">
-            <span className="flex-1 rounded-full bg-parchment-50 py-1 text-center text-ink-900 shadow-card">What's new</span>
-            <span className="flex-1 py-1 text-center text-ink-300">Guide</span>
+          <div className="flex gap-1 rounded-full bg-parchment-raised p-1 text-[11px] font-medium">
+            <span className="flex-1 rounded-full bg-parchment-surface py-1 text-center text-ink-strong shadow-card">What's new</span>
+            <span className="flex-1 py-1 text-center text-ink-faint">Guide</span>
           </div>
           <div className="mt-2 space-y-1.5">
-            <span className="block h-2 w-3/4 rounded-full bg-parchment-300" />
-            <span className="block h-2 w-full rounded-full bg-parchment-200" />
-            <span className="block h-2 w-5/6 rounded-full bg-parchment-200" />
+            <span className="block h-2 w-3/4 rounded-full bg-parchment-edge" />
+            <span className="block h-2 w-full rounded-full bg-parchment-raised" />
+            <span className="block h-2 w-5/6 rounded-full bg-parchment-raised" />
           </div>
         </div>
       );
@@ -360,16 +384,16 @@ export default function GuideArt({ kind }: { kind: GuideArtKind }) {
     case 'message':
       return (
         <div className="w-full max-w-[240px] space-y-2.5">
-          <div className="flex gap-1 rounded-full bg-parchment-200 p-1 text-[11px] font-medium">
-            <span className="flex-1 rounded-full bg-parchment-50 py-1 text-center text-ink-900 shadow-card">Broken</span>
-            <span className="flex-1 py-1 text-center text-ink-300">An idea</span>
+          <div className="flex gap-1 rounded-full bg-parchment-raised p-1 text-[11px] font-medium">
+            <span className="flex-1 rounded-full bg-parchment-surface py-1 text-center text-ink-strong shadow-card">Broken</span>
+            <span className="flex-1 py-1 text-center text-ink-faint">An idea</span>
           </div>
 
-          <div className="rounded-card bg-parchment-50 p-3 shadow-card">
-            <p className="text-xs leading-relaxed text-ink-700">
+          <div className="rounded-card bg-parchment-surface p-3 shadow-card">
+            <p className="text-xs leading-relaxed text-ink-body">
               I tended a habit and the petal for that area stayed where it was.
             </p>
-            <p className="mt-2 text-[10px] text-ink-300">Harmony 1.4.0 · iPhone</p>
+            <p className="mt-2 text-[10px] text-ink-faint">Harmony 1.4.0 · iPhone</p>
           </div>
 
           <motion.div
@@ -378,10 +402,10 @@ export default function GuideArt({ kind }: { kind: GuideArtKind }) {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, ease: 'easeOut', delay: 0.35 }}
           >
-            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-iris-500">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="text-on-primary"><path d="M5 13l4 4L19 7" /></svg>
+            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-accent-base">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="text-on-accent"><path d="M5 13l4 4L19 7" /></svg>
             </span>
-            <span className="text-[11px] text-ink-500">It is with them</span>
+            <span className="text-[11px] text-ink-muted">It is with them</span>
           </motion.div>
         </div>
       );

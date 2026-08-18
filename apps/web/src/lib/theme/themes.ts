@@ -10,12 +10,14 @@ export interface ThemeMeta {
   id: string;
   name: string;
   description: string;
-  /** Resting background (parchment-100) — also the status-bar tint. */
+  /** Resting background (parchment-ground) — also the status-bar tint. */
   bg: string;
-  /** Card surface (parchment-50). */
+  /** Card surface (parchment-surface). */
   surface: string;
-  /** Brand accent (iris-500). */
+  /** Brand accent (accent-base). */
   primary: string;
+  /** Hairline/border colour (parchment-edge) — what gives a card its edge. */
+  edge: string;
   /** Dark themes flip the swatch text and hint at native dark controls. */
   dark?: boolean;
 }
@@ -28,6 +30,7 @@ export const THEMES: ThemeMeta[] = [
     bg: '#FBF1E4',
     surface: '#FFFAF1',
     primary: '#B5532F',
+    edge: '#E7D3B4',
   },
   {
     id: 'mango-sunshine',
@@ -36,6 +39,7 @@ export const THEMES: ThemeMeta[] = [
     bg: '#FFF4D6',
     surface: '#FFFCF2',
     primary: '#F2A900',
+    edge: '#F1D78C',
   },
   {
     id: 'sage-grove',
@@ -44,6 +48,7 @@ export const THEMES: ThemeMeta[] = [
     bg: '#E8ECD8',
     surface: '#F6F8EA',
     primary: '#47602A',
+    edge: '#C2CBA2',
   },
   {
     id: 'lavender',
@@ -52,6 +57,7 @@ export const THEMES: ThemeMeta[] = [
     bg: '#F1EEFA',
     surface: '#FAF8FF',
     primary: '#7C6BD0',
+    edge: '#D0C6EA',
   },
   {
     id: 'rose-quartz',
@@ -60,6 +66,7 @@ export const THEMES: ThemeMeta[] = [
     bg: '#FBEEF0',
     surface: '#FFF7F8',
     primary: '#C25072',
+    edge: '#EBC6CE',
   },
   {
     id: 'eggshell',
@@ -68,6 +75,7 @@ export const THEMES: ThemeMeta[] = [
     bg: '#F4F0E6',
     surface: '#FDFBF6',
     primary: '#7C6A4D',
+    edge: '#D9D1BD',
   },
   {
     id: 'indigo-night',
@@ -76,30 +84,80 @@ export const THEMES: ThemeMeta[] = [
     bg: '#1B1E2C',
     surface: '#262A3C',
     primary: '#8C7CE0',
+    edge: '#3F4459',
     dark: true,
   },
   {
-    id: 'espresso',
-    name: 'Espresso',
-    description: 'A warm dark: caramel on deep coffee-brown. Cozy after hours.',
-    bg: '#241D17',
-    surface: '#322820',
-    primary: '#CF9455',
+    id: 'ember',
+    name: 'Ember',
+    description: 'Banked coals with a live flame. Warm all the way down.',
+    bg: '#1A100A',
+    surface: '#2C1E16',
+    primary: '#E56C4C',
+    edge: '#563F2F',
+    dark: true,
+  },
+  {
+    id: 'mulberry',
+    name: 'Mulberry',
+    description: 'Deep plum with apricot light across it.',
+    bg: '#22121B',
+    surface: '#331F2C',
+    primary: '#EAB679',
+    edge: '#593D53',
+    dark: true,
+  },
+  {
+    id: 'tidepool',
+    name: 'Tidepool',
+    description: 'Cold teal water, warm sand above.',
+    bg: '#051E21',
+    surface: '#0E2D30',
+    primary: '#DBB158',
+    edge: '#225151',
+    dark: true,
+  },
+  {
+    id: 'graphite',
+    name: 'Graphite',
+    description: 'Almost no colour at all. Oyster on charcoal.',
+    bg: '#100D0B',
+    surface: '#201D19',
+    primary: '#E4D2B4',
+    edge: '#474137',
     dark: true,
   },
   {
     id: 'forest-night',
     name: 'Forest Night',
-    description: 'A restful green dark: soft moss on deep pine.',
-    bg: '#16211A',
-    surface: '#1F2E25',
-    primary: '#74C084',
+    description: 'Deep pine and lichen. Restful and green.',
+    bg: '#081812',
+    surface: '#13281F',
+    primary: '#A7CC82',
+    edge: '#314C38',
     dark: true,
   },
 ];
 
 export const DEFAULT_THEME_ID = 'terracotta';
 
+/** Themes that have been retired, mapped to their nearest surviving relative so
+ *  a saved preference never silently falls back to a light theme. */
+export const RETIRED_THEMES: Record<string, string> = {
+  espresso: 'ember',
+};
+
+/** Normalise any theme id — from localStorage, the synced settings row, or a
+ *  URL — to one that still exists. Retired ids map to their replacement rather
+ *  than falling through to the default, which would drop a dark-theme user onto
+ *  a light theme. Anything unrecognised falls back to the default. */
+export function resolveThemeId(id: string | null | undefined): string {
+  if (!id) return DEFAULT_THEME_ID;
+  if (THEMES.some((t) => t.id === id)) return id;
+  return RETIRED_THEMES[id] ?? DEFAULT_THEME_ID;
+}
+
 export function getTheme(id: string | null | undefined): ThemeMeta {
-  return THEMES.find((t) => t.id === id) ?? THEMES[0];
+  const resolved = resolveThemeId(id);
+  return THEMES.find((t) => t.id === resolved) ?? THEMES[0];
 }

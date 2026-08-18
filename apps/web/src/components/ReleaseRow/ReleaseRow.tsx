@@ -13,8 +13,8 @@ export default function ReleaseRow({ release, defaultOpen }: { release: Release;
     <div
       className={
         release.major
-          ? 'overflow-hidden rounded-card bg-iris-50 ring-1 ring-iris-100'
-          : 'overflow-hidden rounded-card bg-parchment-100'
+          ? 'overflow-hidden rounded-card bg-accent-tint ring-1 ring-accent-wash'
+          : 'overflow-hidden rounded-card bg-parchment-ground'
       }
     >
       <button
@@ -23,15 +23,15 @@ export default function ReleaseRow({ release, defaultOpen }: { release: Release;
         aria-expanded={open}
         className="flex w-full items-center gap-3 p-3.5 text-left"
       >
-        <span className="shrink-0 rounded-full bg-iris-100 px-2 py-0.5 text-[11px] font-semibold text-iris-700">
+        <span className="shrink-0 rounded-full bg-accent-wash px-2 py-0.5 text-[11px] font-semibold text-accent-emphasis">
           {release.version}
         </span>
         <span className="min-w-0 flex-1">
-          <span className="block break-words text-sm font-medium text-ink-900">{release.title}</span>
+          <span className="block break-words text-sm font-medium text-ink-strong">{release.title}</span>
           <span className="mt-0.5 flex flex-wrap items-center gap-2">
-            <span className="text-xs text-ink-500">{formatDateMedium(release.date)}</span>
+            <span className="text-xs text-ink-muted">{formatDateMedium(release.date)}</span>
             {release.major && (
-              <span className="rounded-full bg-iris-500 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-on-primary">
+              <span className="rounded-full bg-accent-base px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-on-accent">
                 Major
               </span>
             )}
@@ -40,7 +40,7 @@ export default function ReleaseRow({ release, defaultOpen }: { release: Release;
         <motion.span
           animate={{ rotate: open ? 180 : 0 }}
           transition={{ duration: 0.2 }}
-          className="shrink-0 text-ink-300"
+          className="shrink-0 text-ink-faint"
           aria-hidden="true"
         >
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
@@ -59,11 +59,11 @@ export default function ReleaseRow({ release, defaultOpen }: { release: Release;
             className="overflow-hidden"
           >
             <div className="px-3.5">
-              <p className="text-[10px] font-medium uppercase tracking-[0.1em] text-ink-300">Release notes</p>
+              <p className="text-[10px] font-medium uppercase tracking-[0.1em] text-ink-faint">Release notes</p>
               <ul className="mt-2 space-y-2">
                 {release.notes.map((note, i) => (
-                  <li key={i} className="flex gap-2 text-sm leading-relaxed text-ink-700">
-                    <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-iris-400" />
+                  <li key={i} className="flex gap-2 text-sm leading-relaxed text-ink-body">
+                    <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-accent-soft" />
                     <span>{note}</span>
                   </li>
                 ))}
@@ -72,11 +72,11 @@ export default function ReleaseRow({ release, defaultOpen }: { release: Release;
 
             {release.howTo && release.howTo.length > 0 && (
               <div className="mt-5 px-3.5">
-                <p className="text-[10px] font-medium uppercase tracking-[0.1em] text-ink-300">How to find it</p>
+                <p className="text-[10px] font-medium uppercase tracking-[0.1em] text-ink-faint">How to find it</p>
                 <ol className="mt-2 space-y-2">
                   {release.howTo.map((step, i) => (
-                    <li key={i} className="flex gap-2.5 text-sm leading-relaxed text-ink-700">
-                      <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-iris-100 text-[11px] font-semibold text-iris-700">
+                    <li key={i} className="flex gap-2.5 text-sm leading-relaxed text-ink-body">
+                      <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-accent-wash text-[11px] font-semibold text-accent-emphasis">
                         {i + 1}
                       </span>
                       <span>{step}</span>
@@ -86,7 +86,7 @@ export default function ReleaseRow({ release, defaultOpen }: { release: Release;
                 {release.art && release.art.length > 0 && (
                   <div className="mt-4 flex flex-wrap items-center justify-center gap-4">
                     {release.art.map((kind) => (
-                      <div key={kind} className="flex items-center justify-center rounded-card bg-parchment-50/70 px-4 py-4 shadow-card">
+                      <div key={kind} className="flex items-center justify-center rounded-card bg-parchment-surface/70 px-4 py-4 shadow-card">
                         <GuideArt kind={kind} />
                       </div>
                     ))}

@@ -3,7 +3,7 @@
 const W = 100;
 const H = 28;
 
-export default function Sparkline({ values, color = 'var(--iris-500)' }: { values: number[]; color?: string }) {
+export default function Sparkline({ values, color = 'var(--accent-base)' }: { values: number[]; color?: string }) {
   if (values.length === 0) return null;
   const n = values.length;
   const x = (i: number) => (n === 1 ? W / 2 : (i / (n - 1)) * W);

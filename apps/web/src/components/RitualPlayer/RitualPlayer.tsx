@@ -76,15 +76,15 @@ export default function RitualPlayer({
   return (
     <AnimatePresence>
       <motion.div
-        className="fixed inset-0 z-[90] flex flex-col bg-parchment-100 pt-safe pb-safe"
+        className="fixed inset-0 z-[90] flex flex-col bg-parchment-ground pt-safe pb-safe"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         transition={{ duration: 0.25 }}
       >
         <div className="relative flex items-center justify-between px-5 py-4">
-          <span className="text-sm font-medium text-ink-500">{ritual.name}</span>
-          <button type="button" onClick={onClose} aria-label="Close ritual" className="flex h-9 w-9 items-center justify-center rounded-full text-ink-500 hover:bg-parchment-200">
+          <span className="text-sm font-medium text-ink-muted">{ritual.name}</span>
+          <button type="button" onClick={onClose} aria-label="Close ritual" className="flex h-9 w-9 items-center justify-center rounded-full text-ink-muted hover:bg-parchment-raised">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M18 6L6 18M6 6l12 12" /></svg>
           </button>
         </div>
@@ -96,7 +96,7 @@ export default function RitualPlayer({
               <span
                 key={s.id}
                 className="h-1.5 rounded-full transition-all"
-                style={{ width: i === index ? 20 : 6, backgroundColor: i <= index ? color : 'var(--parchment-300)' }}
+                style={{ width: i === index ? 20 : 6, backgroundColor: i <= index ? color : 'var(--parchment-edge)' }}
               />
             ))}
           </div>
@@ -110,18 +110,18 @@ export default function RitualPlayer({
                 <span className="flex h-20 w-20 items-center justify-center rounded-full" style={{ backgroundColor: color }}>
                   <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M5 13l4 4L19 7" /></svg>
                 </span>
-                <h2 className="mt-6 font-serif text-2xl text-ink-900">Ritual complete</h2>
-                <p className="mt-2 max-w-xs text-sm text-ink-500">That's {ritual.name.toLowerCase()} done. A good way to meet the day.</p>
-                <button type="button" onClick={onClose} className="mt-8 rounded-full bg-ink-900 px-6 py-2.5 text-sm font-medium text-parchment-50">
+                <h2 className="mt-6 font-serif text-2xl text-ink-strong">Ritual complete</h2>
+                <p className="mt-2 max-w-xs text-sm text-ink-muted">That's {ritual.name.toLowerCase()} done. A good way to meet the day.</p>
+                <button type="button" onClick={onClose} className="mt-8 rounded-full bg-ink-strong px-6 py-2.5 text-sm font-medium text-parchment-surface">
                   Done
                 </button>
               </motion.div>
             ) : (
               <motion.div key={index} initial={{ opacity: 0, x: 24 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -24 }} transition={{ duration: 0.24 }} className="relative flex flex-col items-center">
-                <span className="text-xs font-medium uppercase tracking-[0.14em] text-ink-300">
+                <span className="text-xs font-medium uppercase tracking-[0.14em] text-ink-faint">
                   Step {index + 1} of {steps.length}
                 </span>
-                <h2 className="mt-3 max-w-sm font-serif text-3xl leading-tight text-ink-900">{current.name}</h2>
+                <h2 className="mt-3 max-w-sm font-serif text-3xl leading-tight text-ink-strong">{current.name}</h2>
 
                 <button
                   type="button"
@@ -139,9 +139,9 @@ export default function RitualPlayer({
                     <path d="M5 13l4 4L19 7" />
                   </motion.svg>
                 </button>
-                <p className="mt-5 text-sm text-ink-500">{done ? 'Done. Tap to continue.' : 'Tap when you have done it.'}</p>
+                <p className="mt-5 text-sm text-ink-muted">{done ? 'Done. Tap to continue.' : 'Tap when you have done it.'}</p>
 
-                <button type="button" onClick={advance} className="mt-6 text-sm font-medium text-ink-300">
+                <button type="button" onClick={advance} className="mt-6 text-sm font-medium text-ink-faint">
                   {index < steps.length - 1 ? 'Skip for now' : 'Finish'}
                 </button>
               </motion.div>

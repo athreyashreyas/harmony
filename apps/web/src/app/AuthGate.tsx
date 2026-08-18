@@ -281,8 +281,8 @@ export default function AuthGate() {
   if (!isSupabaseConfigured) {
     return (
       <main className="flex min-h-full flex-col items-center justify-center px-5 pt-safe pb-safe text-center">
-        <h1 className="font-serif text-2xl text-ink-900">Supabase is not configured.</h1>
-        <p className="mt-3 max-w-sm text-sm text-ink-500">
+        <h1 className="font-serif text-2xl text-ink-strong">Supabase is not configured.</h1>
+        <p className="mt-3 max-w-sm text-sm text-ink-muted">
           Add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to apps/web/.env.local, then restart
           the dev server.
         </p>

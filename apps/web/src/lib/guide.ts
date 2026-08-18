@@ -5,7 +5,7 @@
 //
 // Each section may name one illustration, drawn by GuideScreen's GuideArt.
 
-export type GuideArtKind = 'bloom' | 'habit' | 'areas' | 'weights' | 'weightsfine' | 'tug' | 'log' | 'sync' | 'guide' | 'reminder' | 'logo' | 'themes' | 'sort' | 'insights' | 'palette' | 'garden' | 'ritual' | 'confetti' | 'message';
+export type GuideArtKind = 'bloom' | 'habit' | 'areas' | 'weights' | 'weightsfine' | 'tug' | 'log' | 'sync' | 'guide' | 'reminder' | 'logo' | 'themes' | 'sort' | 'insights' | 'palette' | 'garden' | 'ritual' | 'confetti' | 'message' | 'darkthemes';
 
 export interface GuideSection {
   id: string;
@@ -137,7 +137,7 @@ export const GUIDE: GuideSection[] = [
     id: 'themes',
     title: 'Make it yours',
     body: [
-      'Harmony comes in eight lights. Choose the one that makes you happy to open the app: by day, the warm Terracotta, a golden Mango Sunshine, a restful Sage Grove, a dreamy Lavender, or a tender Rose Quartz; and after dark, Indigo Night, a warm Espresso, or a green Forest Night.',
+      'Harmony comes in twelve lights. Choose the one that makes you happy to open the app: by day, the warm Terracotta, a golden Mango Sunshine, a restful Sage Grove, a dreamy Lavender, a tender Rose Quartz, or a quiet Eggshell; and after dark, Indigo Night, a glowing Ember, a deep Mulberry, a cool Tidepool, an almost-colourless Graphite, or a green Forest Night.',
       'A theme changes the colours around your habits, never the colours of your areas, so your bloom always means the same thing.',
     ],
     steps: [

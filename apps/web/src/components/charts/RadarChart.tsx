@@ -32,21 +32,21 @@ export default function RadarChart({ data }: { data: RadarDatum[] }) {
       <svg viewBox={`0 0 ${SIZE} ${SIZE}`} width="100%" height={SIZE} className="max-w-[280px]" role="img" aria-label="Balance across areas">
         <defs>
           <radialGradient id={gradId}>
-            <stop offset="0%" stopColor="var(--iris-500)" stopOpacity="0.28" />
-            <stop offset="100%" stopColor="var(--iris-500)" stopOpacity="0.12" />
+            <stop offset="0%" stopColor="var(--accent-base)" stopOpacity="0.28" />
+            <stop offset="100%" stopColor="var(--accent-base)" stopOpacity="0.12" />
           </radialGradient>
         </defs>
         {/* Reference rings. */}
         {[0.34, 0.67, 1].map((r) => (
-          <circle key={r} cx={C} cy={C} r={R * r} fill="none" stroke="var(--parchment-300)" strokeWidth="1" strokeDasharray={r === 1 ? undefined : '2 4'} />
+          <circle key={r} cx={C} cy={C} r={R * r} fill="none" stroke="var(--parchment-edge)" strokeWidth="1" strokeDasharray={r === 1 ? undefined : '2 4'} />
         ))}
         {/* Spokes. */}
         {data.map((_, i) => {
           const p = point(i, 1);
-          return <line key={i} x1={C} y1={C} x2={p.x} y2={p.y} stroke="var(--parchment-300)" strokeWidth="1" />;
+          return <line key={i} x1={C} y1={C} x2={p.x} y2={p.y} stroke="var(--parchment-edge)" strokeWidth="1" />;
         })}
         {/* The filled shape. */}
-        <polygon points={shape} fill={`url(#${gradId})`} stroke="var(--iris-500)" strokeWidth="1.5" strokeLinejoin="round" />
+        <polygon points={shape} fill={`url(#${gradId})`} stroke="var(--accent-base)" strokeWidth="1.5" strokeLinejoin="round" />
         {/* Each area's point, in its own colour. */}
         {data.map((d, i) => {
           const p = point(i, Math.max(0.04, d.value));
@@ -55,7 +55,7 @@ export default function RadarChart({ data }: { data: RadarDatum[] }) {
       </svg>
       <div className="mt-2 flex flex-wrap justify-center gap-x-3 gap-y-1">
         {data.map((d) => (
-          <span key={d.label} className="flex items-center gap-1.5 text-xs text-ink-500">
+          <span key={d.label} className="flex items-center gap-1.5 text-xs text-ink-muted">
             <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: d.color }} />
             {d.label}
           </span>

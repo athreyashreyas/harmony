@@ -27,7 +27,7 @@ function EditIcon() {
   );
 }
 
-const eyebrow = 'text-[10px] font-medium uppercase tracking-[0.1em] text-ink-300';
+const eyebrow = 'text-[10px] font-medium uppercase tracking-[0.1em] text-ink-faint';
 
 export default function HabitDetailScreen() {
   const { habitId } = useParams<{ habitId: string }>();
@@ -102,8 +102,8 @@ export default function HabitDetailScreen() {
   if (!habit || !area) {
     return (
       <main className="flex h-full flex-col items-center justify-center px-5 pt-safe pb-safe text-center">
-        <p className="text-sm text-ink-300">This habit is no longer here.</p>
-        <button type="button" onClick={() => navigate('/', { replace: true })} className="mt-4 text-sm text-iris-500 hover:underline">
+        <p className="text-sm text-ink-faint">This habit is no longer here.</p>
+        <button type="button" onClick={() => navigate('/', { replace: true })} className="mt-4 text-sm text-accent-base hover:underline">
           Back to home
         </button>
       </main>
@@ -125,7 +125,7 @@ export default function HabitDetailScreen() {
   }
 
   return (
-    <div className="relative flex h-full flex-col overflow-hidden bg-parchment-100">
+    <div className="relative flex h-full flex-col overflow-hidden bg-parchment-ground">
       <WatercolorWash color={accent ?? area.color} from="top" height={360} />
 
       <div className="scroll-ios relative z-10 min-h-0 flex-1 overflow-y-auto pb-safe">
@@ -146,7 +146,7 @@ export default function HabitDetailScreen() {
               type="button"
               onClick={() => setSheetOpen(true)}
               aria-label="Edit habit"
-              className="rounded-full p-2 text-ink-500 hover:text-ink-700"
+              className="rounded-full p-2 text-ink-muted hover:text-ink-body"
             >
               <EditIcon />
             </button>
@@ -157,14 +157,14 @@ export default function HabitDetailScreen() {
           <div className="flex">
             <AreaChip area={area} onClick={() => navigate('/areas', { replace: true })} />
           </div>
-          <h1 className="mt-3 font-serif text-3xl leading-tight text-ink-900">{habit.name}</h1>
+          <h1 className="mt-3 font-serif text-3xl leading-tight text-ink-strong">{habit.name}</h1>
 
           {area.whySentence && (
             <div className="my-10 text-center">
-              <p className="font-serif text-xl italic leading-relaxed text-ink-700">
+              <p className="font-serif text-xl italic leading-relaxed text-ink-body">
                 &ldquo;{area.whySentence}&rdquo;
               </p>
-              <p className="mt-3 text-xs text-ink-300">your words</p>
+              <p className="mt-3 text-xs text-ink-faint">your words</p>
             </div>
           )}
 
@@ -175,7 +175,7 @@ export default function HabitDetailScreen() {
               color={accent ?? area.color}
               variant={isTug ? 'tug' : 'tend'}
             />
-            <p className="mt-3 text-xs text-ink-500">
+            <p className="mt-3 text-xs text-ink-muted">
               {lastLog
                 ? isTug
                   ? `Last noted ${lastTendedPhrase(lastLog.date, lastLog.loggedAt)}.`
@@ -189,7 +189,7 @@ export default function HabitDetailScreen() {
           {!isTug && patterns.length > 0 && (
             <section className="mt-9 space-y-1.5">
               {patterns.map((p) => (
-                <p key={p} className="text-sm text-ink-700">
+                <p key={p} className="text-sm text-ink-body">
                   {p}
                 </p>
               ))}
@@ -201,9 +201,9 @@ export default function HabitDetailScreen() {
               <p className={eyebrow}>Notes</p>
               <div className="mt-3 space-y-2">
                 {notes.map((log) => (
-                  <div key={log.id} className="rounded-card bg-parchment-50 p-3 shadow-card">
-                    <p className="text-xs text-ink-300">{formatDateMedium(log.date)}</p>
-                    <p className="mt-1 text-sm text-ink-700">{log.note}</p>
+                  <div key={log.id} className="rounded-card bg-parchment-surface p-3 shadow-card">
+                    <p className="text-xs text-ink-faint">{formatDateMedium(log.date)}</p>
+                    <p className="mt-1 text-sm text-ink-body">{log.note}</p>
                   </div>
                 ))}
               </div>
@@ -219,11 +219,11 @@ export default function HabitDetailScreen() {
                     key={n.id}
                     type="button"
                     onClick={() => openHabit(n.id, { replace: true })}
-                    className="flex shrink-0 items-center gap-2 rounded-full bg-parchment-50 px-3.5 py-1.5 text-sm text-ink-700 shadow-card"
+                    className="flex shrink-0 items-center gap-2 rounded-full bg-parchment-surface px-3.5 py-1.5 text-sm text-ink-body shadow-card"
                   >
                     <span
                       className="h-1.5 w-1.5 rounded-full"
-                      style={{ backgroundColor: recent ? area.color : 'var(--parchment-300)' }}
+                      style={{ backgroundColor: recent ? area.color : 'var(--parchment-edge)' }}
                     />
                     {n.name}
                   </button>
@@ -241,11 +241,11 @@ export default function HabitDetailScreen() {
                     key={n.id}
                     type="button"
                     onClick={() => openHabit(n.id, { replace: true })}
-                    className="flex shrink-0 items-center gap-2 rounded-full border border-dashed border-ink-300/60 px-3.5 py-1.5 text-sm text-ink-700"
+                    className="flex shrink-0 items-center gap-2 rounded-full border border-dashed border-ink-faint/60 px-3.5 py-1.5 text-sm text-ink-body"
                   >
                     <span
                       className="h-1.5 w-1.5 rounded-full"
-                      style={{ backgroundColor: recent ? 'var(--ink-300)' : 'var(--parchment-300)' }}
+                      style={{ backgroundColor: recent ? 'var(--ink-faint)' : 'var(--parchment-edge)' }}
                     />
                     {n.name}
                   </button>

@@ -69,7 +69,7 @@ export default function FeedbackSheet({
         <Delivered queued={state === 'queued'} account={account} onClose={onClose} />
       ) : (
         <div className="space-y-4 pb-2">
-          <div className="flex gap-1.5 rounded-card bg-parchment-200 p-1">
+          <div className="flex gap-1.5 rounded-card bg-parchment-raised p-1">
             <KindTab
               active={active === 'bug'}
               onClick={() => chooseKind('bug')}
@@ -82,7 +82,7 @@ export default function FeedbackSheet({
             />
           </div>
 
-          <p className="text-sm text-ink-500">{copy.prompt}</p>
+          <p className="text-sm text-ink-muted">{copy.prompt}</p>
 
           <div>
             <textarea
@@ -95,16 +95,16 @@ export default function FeedbackSheet({
               maxLength={MAX_FEEDBACK_LENGTH + 200}
               placeholder={copy.placeholder}
               aria-label={copy.label}
-              className="w-full resize-none rounded-card bg-parchment-100 px-3.5 py-2.5 text-sm leading-relaxed text-ink-900 ring-1 ring-inset ring-parchment-300 transition-shadow placeholder:text-ink-300 focus:outline-none focus:ring-2 focus:ring-iris-500"
+              className="w-full resize-none rounded-card bg-parchment-ground px-3.5 py-2.5 text-sm leading-relaxed text-ink-strong ring-1 ring-inset ring-parchment-edge transition-shadow placeholder:text-ink-faint focus:outline-none focus:ring-2 focus:ring-accent-base"
             />
             {message.length > COUNTER_FROM && (
-              <p className="mt-1.5 text-right text-xs tabular-nums text-ink-300">
+              <p className="mt-1.5 text-right text-xs tabular-nums text-ink-faint">
                 {MAX_FEEDBACK_LENGTH - message.trim().length} left
               </p>
             )}
           </div>
 
-          <p className="text-xs leading-relaxed text-ink-300">
+          <p className="text-xs leading-relaxed text-ink-faint">
             This goes to the person who looks after Harmony. Nothing about your
             areas or habits travels with it.
             {account ? ` Replies come to ${account}.` : ''}
@@ -112,14 +112,14 @@ export default function FeedbackSheet({
 
           {/* A line is always held here, so an error arriving never shoves the
               button out from under a thumb already on its way to it. */}
-          <p className="min-h-5 text-sm text-rose-600">{error}</p>
+          <p className="min-h-5 text-sm text-rose-strong">{error}</p>
 
           <motion.button
             type="button"
             whileTap={{ scale: 0.97 }}
             onClick={handleSend}
             disabled={sending}
-            className="w-full rounded-full bg-iris-500 py-3 text-sm font-medium text-on-primary transition-opacity disabled:opacity-40"
+            className="w-full rounded-full bg-accent-base py-3 text-sm font-medium text-on-accent transition-opacity disabled:opacity-40"
           >
             {sending ? 'Sending' : 'Send it over'}
           </motion.button>
@@ -148,25 +148,25 @@ function Delivered({
         animate={{ scale: 1, opacity: 1 }}
         transition={spring}
         className={`mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full ${
-          queued ? 'bg-parchment-200' : 'bg-iris-500'
+          queued ? 'bg-parchment-raised' : 'bg-accent-base'
         }`}
       >
         {queued ? (
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="text-ink-500" aria-hidden="true">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="text-ink-muted" aria-hidden="true">
             <path d="M3 3l18 18M8.5 6.5A6 6 0 0 1 18 11h1a4 4 0 0 1 2.4 7.2M6 10a4 4 0 0 0 0 8h9" />
           </svg>
         ) : (
-          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-on-primary" aria-hidden="true">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-on-accent" aria-hidden="true">
             <path d="M5 13l4 4L19 7" />
           </svg>
         )}
       </motion.div>
 
-      <p className="text-center font-serif text-xl text-ink-900">
+      <p className="text-center font-serif text-xl text-ink-strong">
         {queued ? 'Kept here, and it will go on its own.' : 'It is with them.'}
       </p>
 
-      <div className="mx-auto mt-3 max-w-sm space-y-2.5 text-center text-sm text-ink-500">
+      <div className="mx-auto mt-3 max-w-sm space-y-2.5 text-center text-sm text-ink-muted">
         {queued ? (
           <p>
             It could not go just now, so it is resting on your device. Harmony
@@ -186,16 +186,16 @@ function Delivered({
         </p>
         {account && (
           <p>
-            Replies come to <span className="font-medium text-ink-700">{account}</span>.
+            Replies come to <span className="font-medium text-ink-body">{account}</span>.
           </p>
         )}
-        <p className="text-ink-300">Thank you for stopping to write.</p>
+        <p className="text-ink-faint">Thank you for stopping to write.</p>
       </div>
 
       <button
         type="button"
         onClick={onClose}
-        className="mt-5 w-full rounded-full bg-parchment-200 py-3 text-sm font-medium text-ink-700 hover:bg-parchment-300"
+        className="mt-5 w-full rounded-full bg-parchment-raised py-3 text-sm font-medium text-ink-body hover:bg-parchment-edge"
       >
         Close
       </button>
@@ -218,7 +218,7 @@ function KindTab({
       onClick={onClick}
       aria-pressed={active}
       className={`flex-1 rounded-card py-2 text-xs font-medium transition-colors ${
-        active ? 'bg-parchment-50 text-ink-900 shadow-card' : 'text-ink-500'
+        active ? 'bg-parchment-surface text-ink-strong shadow-card' : 'text-ink-muted'
       }`}
     >
       {label}

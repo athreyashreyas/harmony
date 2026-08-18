@@ -50,10 +50,10 @@ function Sidebar() {
   return (
     <nav
       aria-label="Primary"
-      className="hidden shrink-0 flex-col border-r border-parchment-300 bg-parchment-50 pt-safe pb-safe pl-safe md:flex md:w-60"
+      className="hidden shrink-0 flex-col border-r border-parchment-edge bg-parchment-surface pt-safe pb-safe pl-safe md:flex md:w-60"
     >
       <div className="px-6 py-7">
-        <span className="font-serif text-2xl text-iris-500">Harmony</span>
+        <span className="font-serif text-2xl text-accent-base">Harmony</span>
       </div>
       <ul className="flex flex-col gap-1 px-3">
         {NAV_ITEMS.map((item) => (
@@ -66,14 +66,14 @@ function Sidebar() {
                 [
                   'flex items-center gap-3 rounded-card px-3 py-2.5 text-sm transition-colors',
                   isActive
-                    ? 'bg-iris-50 text-iris-500'
-                    : 'text-ink-500 hover:bg-parchment-200 hover:text-ink-700',
+                    ? 'bg-accent-tint text-accent-base'
+                    : 'text-ink-muted hover:bg-parchment-raised hover:text-ink-body',
                 ].join(' ')
               }
             >
               {({ isActive }) => (
                 <>
-                  <span className={isActive ? 'text-iris-500' : 'text-ink-300'}>{item.icon}</span>
+                  <span className={isActive ? 'text-accent-base' : 'text-ink-faint'}>{item.icon}</span>
                   <span className="font-medium">{item.label}</span>
                 </>
               )}
@@ -90,7 +90,7 @@ function BottomNav() {
   return (
     <nav
       aria-label="Primary"
-      className="shrink-0 border-t border-parchment-200 bg-parchment-50 pb-safe pl-safe pr-safe shadow-[0_-2px_10px_rgba(35,25,15,0.06)] md:hidden"
+      className="shrink-0 border-t border-parchment-raised bg-parchment-surface pb-safe pl-safe pr-safe shadow-nav md:hidden"
     >
       <div className="mx-auto flex max-w-md items-stretch justify-around px-2 pt-1.5">
         {NAV_ITEMS.map((item) => (
@@ -102,7 +102,7 @@ function BottomNav() {
             className={({ isActive }) =>
               [
                 'flex flex-1 flex-col items-center gap-0.5 py-1 transition-colors',
-                isActive ? 'text-iris-500' : 'text-ink-300',
+                isActive ? 'text-accent-base' : 'text-ink-faint',
               ].join(' ')
             }
           >

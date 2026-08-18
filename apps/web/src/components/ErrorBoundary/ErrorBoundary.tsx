@@ -26,18 +26,18 @@ export default class ErrorBoundary extends Component<Props, State> {
     if (this.state.error) {
       return (
         <main className="flex min-h-full flex-col items-center justify-center gap-4 px-6 pt-safe pb-safe text-center">
-          <h1 className="font-serif text-2xl text-ink-900">Something broke.</h1>
-          <p className="max-w-sm text-sm text-ink-500">
+          <h1 className="font-serif text-2xl text-ink-strong">Something broke.</h1>
+          <p className="max-w-sm text-sm text-ink-muted">
             That is on us, not you. Reloading usually sorts it out.
           </p>
           <button
             type="button"
             onClick={() => window.location.reload()}
-            className="rounded-full bg-iris-500 px-5 py-2.5 text-sm font-medium text-on-primary"
+            className="rounded-full bg-accent-base px-5 py-2.5 text-sm font-medium text-on-accent"
           >
             Reload Harmony
           </button>
-          <p className="mt-2 max-w-sm break-words text-xs text-ink-300">{this.state.error.message}</p>
+          <p className="mt-2 max-w-sm break-words text-xs text-ink-faint">{this.state.error.message}</p>
         </main>
       );
     }

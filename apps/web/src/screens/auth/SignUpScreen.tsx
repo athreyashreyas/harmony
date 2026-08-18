@@ -70,10 +70,10 @@ export default function SignUpScreen() {
   if (needsConfirmation) {
     return (
       <AuthLayout title="Almost there." sub="">
-        <p className="text-sm text-ink-500">
+        <p className="text-sm text-ink-muted">
           Check your email to confirm your account, then sign in.
         </p>
-        <Link to="/sign-in" className="mt-6 inline-block text-sm text-iris-500 hover:underline">
+        <Link to="/sign-in" className="mt-6 inline-block text-sm text-accent-base hover:underline">
           Go to sign in
         </Link>
       </AuthLayout>
@@ -116,17 +116,17 @@ export default function SignUpScreen() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
-          <p className="mt-1.5 text-xs text-ink-300">At least 8 characters.</p>
+          <p className="mt-1.5 text-xs text-ink-faint">At least 8 characters.</p>
         </div>
 
-        {error && <p className="text-sm text-rose-600">{error}</p>}
+        {error && <p className="text-sm text-rose-strong">{error}</p>}
 
         <PrimaryButton disabled={submitting}>Create account</PrimaryButton>
       </form>
 
-      <p className="mt-8 text-sm text-ink-500">
+      <p className="mt-8 text-sm text-ink-muted">
         Already have an account?{' '}
-        <Link to="/sign-in" className="text-iris-500 hover:underline">
+        <Link to="/sign-in" className="text-accent-base hover:underline">
           Sign in
         </Link>
       </p>

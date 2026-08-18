@@ -79,7 +79,7 @@ export default function CelebrationToast({
             type="button"
             onClick={onDismiss}
             aria-label="Dismiss celebration"
-            className="pointer-events-auto flex w-full max-w-sm items-center gap-3 rounded-card bg-parchment-50 px-4 py-3 text-left shadow-sheet"
+            className="pointer-events-auto flex w-full max-w-sm items-center gap-3 rounded-card bg-parchment-surface px-4 py-3 text-left shadow-sheet"
             style={{ borderLeft: `3px solid ${accent}` }}
           >
             <span
@@ -90,8 +90,8 @@ export default function CelebrationToast({
               🌸
             </span>
             <span className="min-w-0 flex-1">
-              <span className="block truncate font-serif text-sm text-ink-900">{copy.title}</span>
-              <span className="block text-xs leading-snug text-ink-500">{copy.body}</span>
+              <span className="block truncate font-serif text-sm text-ink-strong">{copy.title}</span>
+              <span className="block text-xs leading-snug text-ink-muted">{copy.body}</span>
             </span>
             {/* A little row of the celebrated sections' colours. */}
             <span className="flex shrink-0 items-center gap-1" aria-hidden="true">

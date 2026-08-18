@@ -37,8 +37,8 @@ const VIEW_OPTIONS: { value: ViewKey; label: string }[] = [
   { value: 'garden', label: 'Garden' },
 ];
 
-const eyebrow = 'text-[10px] font-medium uppercase tracking-[0.1em] text-ink-300';
-const card = 'rounded-card bg-parchment-50 p-4 shadow-card';
+const eyebrow = 'text-[10px] font-medium uppercase tracking-[0.1em] text-ink-faint';
+const card = 'rounded-card bg-parchment-surface p-4 shadow-card';
 
 const RANGE_WORD: Record<InsightsRange, string> = {
   week: 'this week',
@@ -52,7 +52,7 @@ function Section({ title, hint, children }: { title: string; hint?: string; chil
   return (
     <section className="mt-8">
       <p className={eyebrow}>{title}</p>
-      {hint && <p className="mt-1 text-xs text-ink-300">{hint}</p>}
+      {hint && <p className="mt-1 text-xs text-ink-faint">{hint}</p>}
       <div className="mt-3">{children}</div>
     </section>
   );
@@ -147,7 +147,7 @@ export default function InsightsScreen() {
 
   return (
     <TabScreen className="pt-8 pb-28 md:pb-12">
-      <h1 className="font-serif text-3xl text-ink-900">Insights</h1>
+      <h1 className="font-serif text-3xl text-ink-strong">Insights</h1>
 
       <div className="mt-4">
         <SegmentedControl value={view} options={VIEW_OPTIONS} onChange={setView} ariaLabel="Insights view" />
@@ -182,34 +182,34 @@ export default function InsightsScreen() {
           <div className="mt-6 grid grid-cols-3 gap-2.5">
             {summaryCards.map((s) => (
               <div key={s.label} className={`${card} text-center`}>
-                <p className="font-serif text-2xl text-ink-900">{s.value}</p>
-                <p className="mt-0.5 text-[11px] leading-tight text-ink-300">{s.label}</p>
+                <p className="font-serif text-2xl text-ink-strong">{s.value}</p>
+                <p className="mt-0.5 text-[11px] leading-tight text-ink-faint">{s.label}</p>
               </div>
             ))}
           </div>
           {insights.runs.current >= 2 && (
-            <p className="mt-3 text-sm text-ink-500">
-              You're on a <span className="font-medium text-ink-700">{insights.runs.current}-day</span> run of showing up. Beautiful.
+            <p className="mt-3 text-sm text-ink-muted">
+              You're on a <span className="font-medium text-ink-body">{insights.runs.current}-day</span> run of showing up. Beautiful.
             </p>
           )}
 
           {!insights.hasData ? (
-            <p className="mt-6 text-sm text-ink-300">
+            <p className="mt-6 text-sm text-ink-faint">
               Nothing to show for {RANGE_WORD[range]} yet. Log a habit or two and your patterns will bloom here.
             </p>
           ) : (
             <>
               <Section title="Momentum" hint="How much of what you set out to do you came back to.">
                 <div className={card}>
-                  <TrendChart points={insights.trend} color={focusArea?.color ?? 'var(--iris-500)'} />
-                  {momentumCaption && <p className="mt-2 text-xs text-ink-300">{momentumCaption}</p>}
+                  <TrendChart points={insights.trend} color={focusArea?.color ?? 'var(--accent-base)'} />
+                  {momentumCaption && <p className="mt-2 text-xs text-ink-faint">{momentumCaption}</p>}
                 </div>
               </Section>
 
               <Section title="Every day" hint="Each day you showed up, warmer the more you did.">
                 <div className={card}>
                   <CalendarHeatmap cells={insights.calendar} color={heatColor} />
-                  <div className="mt-3 flex items-center justify-end gap-1.5 text-[10px] text-ink-300">
+                  <div className="mt-3 flex items-center justify-end gap-1.5 text-[10px] text-ink-faint">
                     <span>less</span>
                     {[0.2, 0.45, 0.7, 1].map((a) => (
                       <span key={a} className="h-2.5 w-2.5 rounded-[3px]" style={{ backgroundColor: hexToRgba(heatColor, a) }} />
@@ -222,11 +222,11 @@ export default function InsightsScreen() {
               <Section title="Your rhythm" hint={rhythmCaption ?? 'The days and times you show up most.'}>
                 <div className="grid gap-2.5 sm:grid-cols-2">
                   <div className={card}>
-                    <p className="mb-2 text-xs font-medium text-ink-500">By day</p>
+                    <p className="mb-2 text-xs font-medium text-ink-muted">By day</p>
                     <Bars data={insights.weekday.map((v, i) => ({ label: WEEKDAY_LABELS[i], value: v }))} color="#3a7ca8" />
                   </div>
                   <div className={card}>
-                    <p className="mb-3 text-xs font-medium text-ink-500">By time of day</p>
+                    <p className="mb-3 text-xs font-medium text-ink-muted">By time of day</p>
                     <HBars data={insights.segments.map((s) => ({ label: SEGMENT_LABELS[s.segment], value: s.count }))} />
                   </div>
                 </div>
@@ -248,14 +248,14 @@ export default function InsightsScreen() {
                         <div className="mb-1 flex items-center justify-between gap-2">
                           <span className="flex min-w-0 items-center gap-2">
                             <span className="h-1.5 w-1.5 shrink-0 rounded-full" style={{ backgroundColor: area.color }} />
-                            <span className="truncate text-sm text-ink-700">{area.name}</span>
+                            <span className="truncate text-sm text-ink-body">{area.name}</span>
                           </span>
-                          <span className="shrink-0 text-xs text-ink-300">
+                          <span className="shrink-0 text-xs text-ink-faint">
                             {completed}
                             {tugCount > 0 && <span className="ml-1.5">· {tugCount} tug{tugCount === 1 ? '' : 's'}</span>}
                           </span>
                         </div>
-                        <div className="h-2 overflow-hidden rounded-full bg-parchment-200">
+                        <div className="h-2 overflow-hidden rounded-full bg-parchment-raised">
                           <div className="h-full rounded-full" style={{ width: `${ratio * 100}%`, backgroundColor: hexToRgba(area.color, 0.87) }} />
                         </div>
                       </button>
@@ -279,20 +279,20 @@ export default function InsightsScreen() {
                           >
                             <span className="h-2 w-2 shrink-0 rounded-full" style={{ backgroundColor: h.color }} />
                             <span className="min-w-0 flex-1">
-                              <span className="block truncate text-sm text-ink-900">{h.habit.name}</span>
-                              <span className="text-xs text-ink-300">
+                              <span className="block truncate text-sm text-ink-strong">{h.habit.name}</span>
+                              <span className="text-xs text-ink-faint">
                                 {h.completed === 0 ? `Quietly waiting ${RANGE_WORD[range]}` : `${h.completed}× ${RANGE_WORD[range]}`}
                                 {h.bestWeekday != null && ` · best on ${WEEKDAY_NAMES[h.bestWeekday]}s`}
                               </span>
                             </span>
                             <div className="w-16 shrink-0">
-                              <div className="h-1.5 overflow-hidden rounded-full bg-parchment-200">
+                              <div className="h-1.5 overflow-hidden rounded-full bg-parchment-raised">
                                 <div className="h-full rounded-full" style={{ width: `${h.ratio * 100}%`, backgroundColor: hexToRgba(h.color, 0.85) }} />
                               </div>
                             </div>
                             <motion.svg
                               width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
-                              className="shrink-0 text-ink-300" animate={{ rotate: expanded ? 180 : 0 }} transition={{ duration: 0.18 }} aria-hidden="true"
+                              className="shrink-0 text-ink-faint" animate={{ rotate: expanded ? 180 : 0 }} transition={{ duration: 0.18 }} aria-hidden="true"
                             >
                               <path d="M6 9l6 6 6-6" />
                             </motion.svg>
@@ -309,7 +309,7 @@ export default function InsightsScreen() {
                                 <div className="pt-3">
                                   <Sparkline values={h.spark} color={h.color} />
                                   <div className="mt-2 flex items-center justify-between">
-                                    <span className="text-xs text-ink-300">
+                                    <span className="text-xs text-ink-faint">
                                       {h.lastDate ? `Last on ${new Date(`${h.lastDate}T00:00:00`).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}` : 'Not yet logged'}
                                     </span>
                                     <button type="button" onClick={() => goToHabit(h.habit.id)} className="text-xs font-medium" style={{ color: h.color }}>
@@ -334,8 +334,8 @@ export default function InsightsScreen() {
                     <div className="mt-3 space-y-1.5">
                       {insights.tugStats.filter((t) => t.count > 0).map((t) => (
                         <div key={t.habit.id} className="flex items-center justify-between text-xs">
-                          <span className="text-ink-700">{t.habit.name}</span>
-                          <span className="text-ink-300">
+                          <span className="text-ink-body">{t.habit.name}</span>
+                          <span className="text-ink-faint">
                             {t.count}× {RANGE_WORD[range]}
                             {t.daysSince != null && ` · ${t.daysSince === 0 ? 'today' : `${t.daysSince}d ago`}`}
                           </span>
@@ -352,7 +352,7 @@ export default function InsightsScreen() {
             <Section title="Worth noticing">
               <div className="space-y-2">
                 {observations.map((text, i) => (
-                  <p key={i} className="text-sm leading-relaxed text-ink-700">{text}</p>
+                  <p key={i} className="text-sm leading-relaxed text-ink-body">{text}</p>
                 ))}
               </div>
             </Section>
@@ -362,7 +362,7 @@ export default function InsightsScreen() {
             <Section title="A gentle next step">
               <div className="space-y-2.5">
                 {suggestions.map((s, i) => (
-                  <button key={i} type="button" onClick={() => handleSuggestion(s)} className="w-full rounded-card bg-iris-50 px-4 py-3 text-left text-sm text-iris-500">
+                  <button key={i} type="button" onClick={() => handleSuggestion(s)} className="w-full rounded-card bg-accent-tint px-4 py-3 text-left text-sm text-accent-base">
                     {s.text}
                   </button>
                 ))}
@@ -371,11 +371,11 @@ export default function InsightsScreen() {
           )}
 
           {reflection.length > 0 && (
-            <section className="mt-9 rounded-card bg-parchment-50 p-5 shadow-card">
+            <section className="mt-9 rounded-card bg-parchment-surface p-5 shadow-card">
               <p className={eyebrow}>In reflection</p>
               <div className="mt-3 space-y-3">
                 {reflection.map((para, i) => (
-                  <p key={i} className={i === 0 ? 'font-serif text-lg leading-relaxed text-ink-900' : 'text-sm leading-relaxed text-ink-700'}>
+                  <p key={i} className={i === 0 ? 'font-serif text-lg leading-relaxed text-ink-strong' : 'text-sm leading-relaxed text-ink-body'}>
                     {para}
                   </p>
                 ))}
@@ -422,8 +422,8 @@ function FocusChip({ label, color, active, onClick }: { label: string; color?: s
         active
           ? color
             ? { backgroundColor: hexToRgba(color, 0.16), color }
-            : { backgroundColor: 'var(--iris-50)', color: 'var(--iris-500)' }
-          : { backgroundColor: 'var(--parchment-200)', color: 'var(--ink-500)' }
+            : { backgroundColor: 'var(--accent-tint)', color: 'var(--accent-base)' }
+          : { backgroundColor: 'var(--parchment-raised)', color: 'var(--ink-muted)' }
       }
     >
       {color && <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: color }} />}

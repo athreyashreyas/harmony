@@ -14,7 +14,7 @@ function CheckCircle({ done, color }: { done: boolean; color: string }) {
   return (
     <span
       className="flex h-[22px] w-[22px] shrink-0 items-center justify-center rounded-full"
-      style={done ? { backgroundColor: color } : { boxShadow: 'inset 0 0 0 1.5px var(--parchment-300)' }}
+      style={done ? { backgroundColor: color } : { boxShadow: 'inset 0 0 0 1.5px var(--parchment-edge)' }}
     >
       {done && (
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -34,7 +34,7 @@ function ChevronButton({ direction, onClick, disabled }: { direction: 'left' | '
       onClick={onClick}
       disabled={disabled}
       aria-label={direction === 'left' ? 'Previous month' : 'Next month'}
-      className="rounded-full p-2 text-ink-500 hover:text-ink-700 disabled:opacity-30"
+      className="rounded-full p-2 text-ink-muted hover:text-ink-body disabled:opacity-30"
     >
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
         <path d={direction === 'left' ? 'M15 5l-7 7 7 7' : 'M9 5l7 7-7 7'} />
@@ -137,20 +137,20 @@ export default function LogScreen() {
 
   return (
     <TabScreen className="pt-8 pb-28 md:pb-12">
-      <h1 className="font-serif text-3xl text-ink-900">Log</h1>
-      <p className="mt-2 text-sm text-ink-300">A record of what you tended to.</p>
+      <h1 className="font-serif text-3xl text-ink-strong">Log</h1>
+      <p className="mt-2 text-sm text-ink-faint">A record of what you tended to.</p>
 
       <section className="mt-7">
         <div className="flex items-center justify-between">
-          <p className="text-xs font-medium uppercase tracking-[0.1em] text-ink-300">This week</p>
-          <p className="text-xs text-ink-300">{weekTendedCount} tended</p>
+          <p className="text-xs font-medium uppercase tracking-[0.1em] text-ink-faint">This week</p>
+          <p className="text-xs text-ink-faint">{weekTendedCount} tended</p>
         </div>
         <div className="mt-3 flex justify-between">
           {last7.map(({ date, tended }) => (
             <span
               key={date}
               className="h-3 w-3 rounded-full"
-              style={{ backgroundColor: tended ? 'var(--iris-500)' : 'var(--parchment-300)' }}
+              style={{ backgroundColor: tended ? 'var(--accent-base)' : 'var(--parchment-edge)' }}
             />
           ))}
         </div>
@@ -162,7 +162,7 @@ export default function LogScreen() {
             direction="left"
             onClick={() => setViewedMonth((d) => new Date(d.getFullYear(), d.getMonth() - 1, 1))}
           />
-          <p className="text-sm font-medium text-ink-700">{formatMonthYear(viewedMonth)}</p>
+          <p className="text-sm font-medium text-ink-body">{formatMonthYear(viewedMonth)}</p>
           <ChevronButton
             direction="right"
             disabled={isCurrentMonth}
@@ -179,7 +179,7 @@ export default function LogScreen() {
         ) : (
         <div className="mt-4 grid grid-cols-7 gap-y-2 text-center">
           {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((d, i) => (
-            <span key={i} className="text-[10px] text-ink-300">
+            <span key={i} className="text-[10px] text-ink-faint">
               {d}
             </span>
           ))}
@@ -200,8 +200,8 @@ export default function LogScreen() {
                   <span
                     className={
                       isToday
-                        ? 'flex h-6 w-6 items-center justify-center rounded-full text-xs text-ink-700 ring-1 ring-iris-500'
-                        : 'flex h-6 w-6 items-center justify-center rounded-full text-xs text-ink-700'
+                        ? 'flex h-6 w-6 items-center justify-center rounded-full text-xs text-ink-body ring-1 ring-accent-base'
+                        : 'flex h-6 w-6 items-center justify-center rounded-full text-xs text-ink-body'
                     }
                   >
                     {Number(date.slice(-2))}
@@ -211,7 +211,7 @@ export default function LogScreen() {
                       <span
                         key={areaId}
                         className="h-1.5 w-1.5 rounded-full"
-                        style={{ backgroundColor: areaById.get(areaId)?.color ?? 'var(--parchment-300)' }}
+                        style={{ backgroundColor: areaById.get(areaId)?.color ?? 'var(--parchment-edge)' }}
                       />
                     ))}
                   </span>
@@ -230,16 +230,16 @@ export default function LogScreen() {
       >
         <div className="space-y-2 pb-4">
           {isFutureDay ? (
-            <p className="text-sm text-ink-300">This day hasn't happened yet.</p>
+            <p className="text-sm text-ink-faint">This day hasn't happened yet.</p>
           ) : dayHabits.length === 0 ? (
-            <p className="text-sm text-ink-300">No habits existed on this day.</p>
+            <p className="text-sm text-ink-faint">No habits existed on this day.</p>
           ) : (
             <>
-              <p className="pb-1 text-xs text-ink-300">Tap to mark or unmark what you tended to.</p>
+              <p className="pb-1 text-xs text-ink-faint">Tap to mark or unmark what you tended to.</p>
               {dayHabits.map((habit) => {
                 const area = areaById.get(habit.areaId);
                 const isTug = habit.polarity === 'ease';
-                const accent = isTug ? 'var(--ink-300)' : habit.color ?? area?.color ?? 'var(--iris-500)';
+                const accent = isTug ? 'var(--ink-faint)' : habit.color ?? area?.color ?? 'var(--accent-base)';
                 const log = dayLogByHabit.get(habit.id);
                 const done = log != null;
                 const due = selectedDate ? isHabitDueOn(habit, selectedDate) : false;
@@ -251,23 +251,23 @@ export default function LogScreen() {
                     aria-pressed={done}
                     className={
                       isTug
-                        ? 'flex w-full items-center gap-3 rounded-card border border-dashed border-ink-300/60 px-3 py-2.5 text-left'
-                        : 'flex w-full items-center gap-3 rounded-card bg-parchment-100 px-3 py-2.5 text-left'
+                        ? 'flex w-full items-center gap-3 rounded-card border border-dashed border-ink-faint/60 px-3 py-2.5 text-left'
+                        : 'flex w-full items-center gap-3 rounded-card bg-parchment-ground px-3 py-2.5 text-left'
                     }
                   >
                     <CheckCircle done={done} color={accent} />
                     <span className="min-w-0 flex-1">
-                      <TruncatedText text={habit.name} className={done ? 'text-sm text-ink-500 line-through' : 'text-sm text-ink-900'} />
+                      <TruncatedText text={habit.name} className={done ? 'text-sm text-ink-muted line-through' : 'text-sm text-ink-strong'} />
                       {log?.note ? (
-                        <span className="line-clamp-2 text-xs italic text-ink-500">&ldquo;{log.note}&rdquo;</span>
+                        <span className="line-clamp-2 text-xs italic text-ink-muted">&ldquo;{log.note}&rdquo;</span>
                       ) : (
-                        !isTug && !due && <span className="block text-xs text-ink-300">Not scheduled that day</span>
+                        !isTug && !due && <span className="block text-xs text-ink-faint">Not scheduled that day</span>
                       )}
                     </span>
                     {isTug ? (
-                      <span className="shrink-0 text-[10px] uppercase tracking-wide text-ink-300">tug</span>
+                      <span className="shrink-0 text-[10px] uppercase tracking-wide text-ink-faint">tug</span>
                     ) : (
-                      <span className="h-1.5 w-1.5 shrink-0 rounded-full" style={{ backgroundColor: area?.color ?? 'var(--parchment-300)' }} />
+                      <span className="h-1.5 w-1.5 shrink-0 rounded-full" style={{ backgroundColor: area?.color ?? 'var(--parchment-edge)' }} />
                     )}
                   </button>
                 );

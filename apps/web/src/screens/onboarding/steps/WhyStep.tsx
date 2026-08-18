@@ -76,19 +76,19 @@ export default function WhyStep({
           </PrimaryButton>
           <div className="text-center">
             <QuietLink onClick={goNext}>Skip for now</QuietLink>
-            <p className="mt-1 text-xs text-ink-300">Without this, reminders feel less like you.</p>
+            <p className="mt-1 text-xs text-ink-faint">Without this, reminders feel less like you.</p>
           </div>
         </div>
       }
     >
       <div className="py-6">
-        <p className="text-xs uppercase tracking-[0.1em] text-ink-300">
+        <p className="text-xs uppercase tracking-[0.1em] text-ink-faint">
           {area.name} ({index + 1} of {areas.length})
         </p>
-        <h1 className="mt-2 font-serif text-3xl leading-tight text-ink-900">
+        <h1 className="mt-2 font-serif text-3xl leading-tight text-ink-strong">
           A good week of {area.name}, in your own words.
         </h1>
-        <p className="mt-3 text-sm text-ink-500">
+        <p className="mt-3 text-sm text-ink-muted">
           A short sentence is enough. We bring this back to you in reminders.
         </p>
 
@@ -98,10 +98,10 @@ export default function WhyStep({
           placeholder="Write here."
           rows={3}
           maxLength={MAX_WHY_SENTENCE}
-          className="mt-6 w-full resize-none rounded-card bg-parchment-50/90 px-3.5 py-3 text-base text-ink-900 ring-1 ring-inset ring-parchment-300 placeholder:text-ink-300 focus:ring-2 focus:ring-iris-500"
+          className="mt-6 w-full resize-none rounded-card bg-parchment-surface/90 px-3.5 py-3 text-base text-ink-strong ring-1 ring-inset ring-parchment-edge placeholder:text-ink-faint focus:ring-2 focus:ring-accent-base"
         />
         {value.length > MAX_WHY_SENTENCE - 40 && (
-          <p className="mt-1 text-right text-xs text-ink-300">{MAX_WHY_SENTENCE - value.length} left</p>
+          <p className="mt-1 text-right text-xs text-ink-faint">{MAX_WHY_SENTENCE - value.length} left</p>
         )}
 
         <div className="mt-2">
@@ -109,12 +109,12 @@ export default function WhyStep({
         </div>
 
         <div className="mt-7">
-          <p className="text-xs uppercase tracking-[0.1em] text-ink-300">A reminder might read</p>
+          <p className="text-xs uppercase tracking-[0.1em] text-ink-faint">A reminder might read</p>
           <div
-            className="mt-2 rounded-card bg-parchment-50/90 p-4 text-sm leading-relaxed"
+            className="mt-2 rounded-card bg-parchment-surface/90 p-4 text-sm leading-relaxed"
             style={{ borderLeft: `3px solid ${area.color}` }}
           >
-            <span className={value.trim() ? 'text-ink-700' : 'text-ink-300'}>
+            <span className={value.trim() ? 'text-ink-body' : 'text-ink-faint'}>
               {previewNudge(area.name, value)}
             </span>
           </div>

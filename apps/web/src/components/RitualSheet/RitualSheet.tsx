@@ -57,7 +57,7 @@ export default function RitualSheet({
     <BottomSheet open={open} onClose={onClose} title={isEdit ? 'Edit ritual' : 'New ritual'}>
       <div className="space-y-5 pb-4">
         <div>
-          <label htmlFor="ritual-name" className="mb-1.5 block text-sm font-medium text-ink-700">
+          <label htmlFor="ritual-name" className="mb-1.5 block text-sm font-medium text-ink-body">
             Name
           </label>
           <input
@@ -67,15 +67,15 @@ export default function RitualSheet({
             onChange={(e) => setName(e.target.value)}
             placeholder="Morning ritual"
             maxLength={MAX_AREA_NAME}
-            className="w-full rounded-card bg-parchment-50/90 px-3.5 py-2.5 text-sm text-ink-900 ring-1 ring-inset ring-parchment-300 placeholder:text-ink-300 focus:ring-2 focus:ring-iris-500"
+            className="w-full rounded-card bg-parchment-surface/90 px-3.5 py-2.5 text-sm text-ink-strong ring-1 ring-inset ring-parchment-edge placeholder:text-ink-faint focus:ring-2 focus:ring-accent-base"
           />
         </div>
 
         <div>
-          <p className="text-sm font-medium text-ink-700">Steps</p>
-          <p className="mb-2.5 mt-0.5 text-xs text-ink-300">Tap habits to add them, in the order you'll do them.</p>
+          <p className="text-sm font-medium text-ink-body">Steps</p>
+          <p className="mb-2.5 mt-0.5 text-xs text-ink-faint">Tap habits to add them, in the order you'll do them.</p>
           {habits.length === 0 ? (
-            <p className="text-sm text-ink-300">Add a habit or two first, then gather them into a ritual.</p>
+            <p className="text-sm text-ink-faint">Add a habit or two first, then gather them into a ritual.</p>
           ) : (
             <div className="space-y-2">
               {habits.map((h) => {
@@ -89,15 +89,15 @@ export default function RitualSheet({
                     onClick={() => toggle(h.id)}
                     aria-pressed={on}
                     className="flex w-full items-center gap-3 rounded-card px-3 py-2.5 text-left transition-colors"
-                    style={on ? { backgroundColor: hexToRgba(c, 0.12) } : { backgroundColor: 'var(--parchment-200)' }}
+                    style={on ? { backgroundColor: hexToRgba(c, 0.12) } : { backgroundColor: 'var(--parchment-raised)' }}
                   >
                     <span
                       className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[11px] font-semibold"
-                      style={on ? { backgroundColor: c, color: '#fff' } : { boxShadow: 'inset 0 0 0 1.5px var(--parchment-300)', color: 'transparent' }}
+                      style={on ? { backgroundColor: c, color: '#fff' } : { boxShadow: 'inset 0 0 0 1.5px var(--parchment-edge)', color: 'transparent' }}
                     >
                       {on ? idx + 1 : ''}
                     </span>
-                    <span className="min-w-0 flex-1 truncate text-sm text-ink-900">{h.name}</span>
+                    <span className="min-w-0 flex-1 truncate text-sm text-ink-strong">{h.name}</span>
                     <span className="h-1.5 w-1.5 shrink-0 rounded-full" style={{ backgroundColor: c }} />
                   </button>
                 );

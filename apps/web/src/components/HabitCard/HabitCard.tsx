@@ -55,7 +55,7 @@ export default function HabitCard({
 
   return (
     <div
-      className="flex items-center gap-3 rounded-card bg-parchment-50 py-3 pl-3 pr-4 shadow-card"
+      className="flex items-center gap-3 rounded-card bg-parchment-surface py-3 pl-3 pr-4 shadow-card"
       style={{ borderLeft: `3px solid ${accent}` }}
     >
       <motion.button
@@ -68,7 +68,7 @@ export default function HabitCard({
         style={
           done
             ? { backgroundColor: accent }
-            : { boxShadow: 'inset 0 0 0 1.5px var(--parchment-300)' }
+            : { boxShadow: 'inset 0 0 0 1.5px var(--parchment-edge)' }
         }
       >
         {done && (
@@ -91,14 +91,14 @@ export default function HabitCard({
         <span className="min-w-0 flex-1">
           <TruncatedText
             text={habit.name}
-            className={done ? 'text-sm text-ink-300 line-through' : 'text-sm text-ink-900'}
+            className={done ? 'text-sm text-ink-faint line-through' : 'text-sm text-ink-strong'}
           />
           <span className="block truncate text-xs" style={{ color: area.color }}>
             {area.name}
           </span>
         </span>
 
-        <span className="shrink-0 text-xs text-ink-300">{TIME_LABEL[habit.timeOfDay]}</span>
+        <span className="shrink-0 text-xs text-ink-faint">{TIME_LABEL[habit.timeOfDay]}</span>
       </button>
     </div>
   );

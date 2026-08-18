@@ -9,7 +9,7 @@ const W = 320;
 const H = 116;
 const PAD = 8;
 
-export default function TrendChart({ points, color = 'var(--iris-500)' }: { points: TrendPoint[]; color?: string }) {
+export default function TrendChart({ points, color = 'var(--accent-base)' }: { points: TrendPoint[]; color?: string }) {
   // useId contains colons, which are invalid inside url(#…); strip them.
   const gradId = `trend-${useId().replace(/:/g, '')}`;
   if (points.length === 0) return null;
@@ -35,14 +35,14 @@ export default function TrendChart({ points, color = 'var(--iris-500)' }: { poin
           </linearGradient>
         </defs>
         {/* Soft baseline + midline for reference. */}
-        <line x1={PAD} y1={H - PAD} x2={W - PAD} y2={H - PAD} stroke="var(--parchment-300)" strokeWidth="1" vectorEffect="non-scaling-stroke" />
-        <line x1={PAD} y1={y(0.5)} x2={W - PAD} y2={y(0.5)} stroke="var(--parchment-300)" strokeWidth="1" strokeDasharray="2 4" vectorEffect="non-scaling-stroke" opacity="0.7" />
+        <line x1={PAD} y1={H - PAD} x2={W - PAD} y2={H - PAD} stroke="var(--parchment-edge)" strokeWidth="1" vectorEffect="non-scaling-stroke" />
+        <line x1={PAD} y1={y(0.5)} x2={W - PAD} y2={y(0.5)} stroke="var(--parchment-edge)" strokeWidth="1" strokeDasharray="2 4" vectorEffect="non-scaling-stroke" opacity="0.7" />
         <path d={area} fill={`url(#${gradId})`} />
         <path d={line} fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" vectorEffect="non-scaling-stroke" />
       </svg>
       <div className="mt-1.5 flex justify-between px-1">
         {labels.map((l, i) => (
-          <span key={i} className="text-[10px] text-ink-300">{l}</span>
+          <span key={i} className="text-[10px] text-ink-faint">{l}</span>
         ))}
       </div>
     </div>

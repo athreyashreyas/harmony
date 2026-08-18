@@ -45,10 +45,10 @@ export default function DateField({
         onClick={() => setOpen((v) => !v)}
         aria-haspopup="dialog"
         aria-expanded={open}
-        className="flex w-full items-center justify-between rounded-card bg-parchment-50/90 px-3.5 py-2.5 text-sm ring-1 ring-inset ring-parchment-300"
+        className="flex w-full items-center justify-between rounded-card bg-parchment-surface/90 px-3.5 py-2.5 text-sm ring-1 ring-inset ring-parchment-edge"
       >
-        <span className={value ? 'text-ink-900' : 'text-ink-300'}>{value ? formatShort(value) : placeholder}</span>
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" className="text-ink-300" aria-hidden="true">
+        <span className={value ? 'text-ink-strong' : 'text-ink-faint'}>{value ? formatShort(value) : placeholder}</span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" className="text-ink-faint" aria-hidden="true">
           <rect x="3" y="4.5" width="18" height="16" rx="2" />
           <path d="M3 9h18M8 3v3M16 3v3" />
         </svg>
@@ -63,23 +63,23 @@ export default function DateField({
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -4, scale: 0.98 }}
             transition={{ duration: 0.16, ease: 'easeOut' }}
-            className="absolute left-0 right-0 top-full z-30 mt-2 origin-top rounded-card border border-parchment-300/60 bg-parchment-50 p-3 shadow-lift"
+            className="absolute left-0 right-0 top-full z-30 mt-2 origin-top rounded-card border border-parchment-edge/60 bg-parchment-surface p-3 shadow-lift"
           >
             <div className="mb-2 flex items-center justify-between">
               <button
                 type="button"
                 aria-label="Previous month"
                 onClick={() => setCursor((c) => new Date(c.getFullYear(), c.getMonth() - 1, 1))}
-                className="flex h-8 w-8 items-center justify-center rounded-full text-ink-500 hover:bg-parchment-100"
+                className="flex h-8 w-8 items-center justify-center rounded-full text-ink-muted hover:bg-parchment-ground"
               >
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6" /></svg>
               </button>
-              <span className="text-sm font-medium text-ink-900">{formatMonthYear(cursor)}</span>
+              <span className="text-sm font-medium text-ink-strong">{formatMonthYear(cursor)}</span>
               <button
                 type="button"
                 aria-label="Next month"
                 onClick={() => setCursor((c) => new Date(c.getFullYear(), c.getMonth() + 1, 1))}
-                className="flex h-8 w-8 items-center justify-center rounded-full text-ink-500 hover:bg-parchment-100"
+                className="flex h-8 w-8 items-center justify-center rounded-full text-ink-muted hover:bg-parchment-ground"
               >
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6" /></svg>
               </button>
@@ -87,7 +87,7 @@ export default function DateField({
 
             <div className="mb-1 grid grid-cols-7 gap-1">
               {WEEKDAY_INITIALS.map((d, i) => (
-                <span key={i} className="text-center text-[10px] font-medium text-ink-300">{d}</span>
+                <span key={i} className="text-center text-[10px] font-medium text-ink-faint">{d}</span>
               ))}
             </div>
 
@@ -111,12 +111,12 @@ export default function DateField({
                         className={[
                           'flex h-8 w-8 items-center justify-center rounded-full text-sm transition-colors',
                           selected
-                            ? 'bg-iris-500 text-on-primary'
+                            ? 'bg-accent-base text-on-accent'
                             : disabled
-                              ? 'text-ink-300/40'
+                              ? 'text-ink-faint/40'
                               : isToday
-                                ? 'text-ink-900 ring-1 ring-inset ring-iris-400/60 hover:bg-parchment-100'
-                                : 'text-ink-700 hover:bg-parchment-100',
+                                ? 'text-ink-strong ring-1 ring-inset ring-accent-soft/60 hover:bg-parchment-ground'
+                                : 'text-ink-body hover:bg-parchment-ground',
                         ].join(' ')}
                       >
                         {Number(dateISO.slice(-2))}

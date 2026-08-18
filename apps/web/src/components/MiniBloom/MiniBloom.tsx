@@ -12,7 +12,7 @@ export default function MiniBloom({ petals, size = 76 }: { petals: GardenPetal[]
 
   return (
     <svg viewBox={`0 0 ${size} ${size}`} width={size} height={size} aria-hidden="true">
-      <circle cx={cx} cy={cy} r={R} fill="none" stroke="var(--parchment-300)" strokeDasharray="2 4" />
+      <circle cx={cx} cy={cy} r={R} fill="none" stroke="var(--parchment-edge)" strokeDasharray="2 4" />
       <g>
         {petals.map((p, i) => {
           const r = R * (0.32 + 0.68 * Math.max(0, Math.min(1, p.value)));
@@ -29,8 +29,8 @@ export default function MiniBloom({ petals, size = 76 }: { petals: GardenPetal[]
           return <path key={p.id} d={`M ${cx} ${cy} L ${x0.toFixed(1)} ${y0.toFixed(1)} A ${r.toFixed(1)} ${r.toFixed(1)} 0 ${large} 1 ${x1.toFixed(1)} ${y1.toFixed(1)} Z`} fill={fill} />;
         })}
       </g>
-      <circle cx={cx} cy={cy} r={R * 0.26} fill="var(--parchment-50)" />
-      <text x={cx} y={cy} textAnchor="middle" dominantBaseline="central" fontFamily="var(--font-serif)" fontSize={size * 0.2} fill="var(--iris-500)">
+      <circle cx={cx} cy={cy} r={R * 0.26} fill="var(--parchment-surface)" />
+      <text x={cx} y={cy} textAnchor="middle" dominantBaseline="central" fontFamily="var(--font-serif)" fontSize={size * 0.2} fill="var(--accent-base)">
         h
       </text>
     </svg>

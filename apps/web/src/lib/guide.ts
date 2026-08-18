@@ -137,11 +137,12 @@ export const GUIDE: GuideSection[] = [
     id: 'themes',
     title: 'Make it yours',
     body: [
-      'Harmony comes in ten lights. Choose the one that makes you happy to open the app: by day, the warm Terracotta, a golden Mango Sunshine, a restful Sage Grove, a dreamy Lavender, a tender Rose Quartz, or a quiet Eggshell; and after dark, Indigo Night, a glowing Ember, an almost-colourless Graphite, or a green Forest Night.',
+      'Harmony comes in twelve lights, arranged as six couples. Each theme has an opposite number holding the same colour at the other end of the day: Terracotta and Ember, Mango Sunshine and Lantern, Sage Grove and Forest Night, Lavender and Indigo Night, Rose Quartz and Garnet, Eggshell and Graphite.',
       'A theme changes the colours around your habits, never the colours of your areas, so your bloom always means the same thing.',
+      'Pick whichever you like and stay in it. The couples are there so that if you do want to change with the hour, the app still looks like itself when you do.',
     ],
     steps: [
-      'Open Me, then Appearance, and tap any theme to switch instantly.',
+      'Open Me, then Appearance, and tap any theme to switch instantly. Day on the left, after dark on the right, each pair on its own row.',
       'Terracotta is the default, and your choice is remembered across all devices.',
     ],
   },

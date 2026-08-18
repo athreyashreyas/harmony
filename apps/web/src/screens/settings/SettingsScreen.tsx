@@ -9,7 +9,7 @@ import { APP_VERSION } from '../../lib/changelog';
 import type { FeedbackKind } from '../../lib/feedback';
 import { enablePush, pushReadiness, type PushReadiness } from '../../lib/push/subscribe';
 import { useTheme } from '../../lib/theme/theme';
-import { THEMES } from '../../lib/theme/themes';
+import { THEME_PAIRS } from '../../lib/theme/themes';
 import { supabase } from '../../lib/supabase/client';
 import { deleteAccount, flushOutbox, wipeLocalData } from '../../lib/supabase/sync';
 import { useUserData } from '../../lib/useUserData';
@@ -212,46 +212,56 @@ export default function SettingsScreen() {
 
       <section className="mt-9">
         <p className={eyebrow}>Appearance</p>
-        <p className="mt-2 text-xs text-ink-faint">Pick the theme you want to open into.</p>
-        <div className="mt-4 grid grid-cols-1 gap-2.5 sm:grid-cols-2">
-          {THEMES.map((theme) => {
-            const active = theme.id === themeId;
-            return (
-              <button
-                key={theme.id}
-                type="button"
-                onClick={() => chooseTheme(theme.id)}
-                aria-pressed={active}
-                aria-label={`Use the ${theme.name} theme`}
-                className={`flex items-center gap-3 rounded-card bg-parchment-surface px-3 py-3 text-left shadow-card ring-2 transition-shadow ${
-                  active ? 'ring-accent-base' : 'ring-transparent'
-                }`}
-              >
-                {/* A little swatch: the theme's paper with its accent and surface. */}
-                <span
-                  className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-full"
-                  style={{ backgroundColor: theme.bg, boxShadow: 'inset 0 0 0 1px rgba(0,0,0,0.06)' }}
+        <p className="mt-2 text-xs text-ink-faint">Pick the theme you want to open into. Each one has an opposite number for the other half of the day.</p>
+        <div className="mt-4">
+          {/* Each theme has an opposite number: the two share an accent hue and
+              differ only in the light they sit in. Laying them out as couples,
+              day on the left and night on the right, makes that legible at a
+              glance instead of leaving it as a coincidence in a flat list. */}
+          <div className="mb-2 grid grid-cols-2 gap-2.5">
+            <p className="text-[11px] font-medium uppercase tracking-wide text-ink-faint">Day</p>
+            <p className="text-[11px] font-medium uppercase tracking-wide text-ink-faint">After dark</p>
+          </div>
+          <div className="grid grid-cols-2 gap-2.5">
+            {THEME_PAIRS.flatMap(({ light, dark }) => [light, dark]).map((theme) => {
+              const active = theme.id === themeId;
+              return (
+                <button
+                  key={theme.id}
+                  type="button"
+                  onClick={() => chooseTheme(theme.id)}
+                  aria-pressed={active}
+                  aria-label={`Use the ${theme.name} theme`}
+                  className={`flex items-center gap-2.5 rounded-card bg-parchment-surface px-2.5 py-2.5 text-left shadow-card ring-2 transition-shadow sm:gap-3 sm:px-3 sm:py-3 ${
+                    active ? 'ring-accent-base' : 'ring-transparent'
+                  }`}
                 >
-                  <span className="h-5 w-5 rounded-full" style={{ backgroundColor: theme.primary }} />
+                  {/* A little swatch: the theme's paper with its accent and surface. */}
                   <span
-                    className="absolute bottom-1 right-1 h-2.5 w-2.5 rounded-full"
-                    style={{ backgroundColor: theme.surface, boxShadow: 'inset 0 0 0 1px rgba(0,0,0,0.06)' }}
-                  />
-                </span>
-                <span className="min-w-0 flex-1">
-                  <span className="flex items-center gap-2">
-                    <span className="text-sm font-medium text-ink-strong">{theme.name}</span>
-                    {active && (
-                      <span className="text-accent-base" aria-hidden="true">
-                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M5 13l4 4L19 7" /></svg>
-                      </span>
-                    )}
+                    className="relative flex h-9 w-9 shrink-0 items-center justify-center rounded-full sm:h-10 sm:w-10"
+                    style={{ backgroundColor: theme.bg, boxShadow: 'inset 0 0 0 1px rgba(128,128,128,0.25)' }}
+                  >
+                    <span className="h-4.5 w-4.5 rounded-full sm:h-5 sm:w-5" style={{ backgroundColor: theme.primary }} />
+                    <span
+                      className="absolute bottom-0.5 right-0.5 h-2.5 w-2.5 rounded-full sm:bottom-1 sm:right-1"
+                      style={{ backgroundColor: theme.surface, boxShadow: `inset 0 0 0 1px ${theme.edge}` }}
+                    />
                   </span>
-                  <span className="mt-0.5 block text-xs text-ink-faint">{theme.description}</span>
-                </span>
-              </button>
-            );
-          })}
+                  <span className="min-w-0 flex-1">
+                    <span className="flex items-center gap-1.5">
+                      <span className="truncate text-sm font-medium text-ink-strong">{theme.name}</span>
+                      {active && (
+                        <span className="shrink-0 text-accent-base" aria-hidden="true">
+                          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M5 13l4 4L19 7" /></svg>
+                        </span>
+                      )}
+                    </span>
+                    <span className="mt-0.5 hidden text-xs text-ink-faint sm:block">{theme.description}</span>
+                  </span>
+                </button>
+              );
+            })}
+          </div>
         </div>
       </section>
 

@@ -19,14 +19,21 @@
 --accent-base-rgb: 181 83 47;    <span class="tok-c">// "r g b" channels — for Tailwind</span></code></pre>
   <p>Tailwind's config maps colours to <code>rgb(var(--accent-base-rgb) / &lt;alpha-value&gt;)</code>. That single line is why <code>bg-accent-base</code> <em>and</em> <code>bg-accent-base/20</code> both re-theme — the opacity modifier composes with the channel form. A theme is one <code>:root[data-theme="id"]</code> block that overrides these variables; switching themes is just setting <code>data-theme</code> on <code>&lt;html&gt;</code>. Every class and inline <code>var()</code> across the app cascades from there.</p>
 
-  <div class="callout decision"><span class="label">Decision · variables, not a rebuild</span>Themes change at runtime with zero JS recomputation and no flash — the saved theme is applied <em>before first paint</em> in <code>main.tsx</code>. The alternative (Tailwind's <code>dark:</code> variants or multiple built stylesheets) couldn't express six light + four dark palettes cleanly, nor re-theme inline SVG. One source of truth, cascading.</div>
+  <div class="callout decision"><span class="label">Decision · variables, not a rebuild</span>Themes change at runtime with zero JS recomputation and no flash — the saved theme is applied <em>before first paint</em> in <code>main.tsx</code>. The alternative (Tailwind's <code>dark:</code> variants or multiple built stylesheets) couldn't express six light + six dark palettes cleanly, nor re-theme inline SVG. One source of truth, cascading.</div>
 
-  <h2>The ten themes</h2>
+  <h2>The twelve themes, as six couples</h2>
   <table>
-    <tr><th>Light</th><th>Dark</th></tr>
-    <tr><td>Terracotta (default), Mango Sunshine, Sage Grove, Lavender, Rose Quartz, Eggshell</td><td>Indigo Night, Ember (warm), Graphite (near-mono), Forest Night (green)</td></tr>
+    <tr><th>Day</th><th>After dark</th><th>Shared accent hue</th></tr>
+    <tr><td>Terracotta (default)</td><td>Ember</td><td>h&nbsp;40</td></tr>
+    <tr><td>Mango Sunshine</td><td>Lantern</td><td>h&nbsp;78 / 73</td></tr>
+    <tr><td>Sage Grove</td><td>Forest Night</td><td>h&nbsp;130</td></tr>
+    <tr><td>Lavender</td><td>Indigo Night</td><td>h&nbsp;289</td></tr>
+    <tr><td>Rose Quartz</td><td>Garnet</td><td>h&nbsp;4 / 18</td></tr>
+    <tr><td>Eggshell</td><td>Graphite</td><td>h&nbsp;79 / 81</td></tr>
   </table>
-  <p>Dark themes set <code>color-scheme: dark</code>, re-point the parchment/ink roles, and <em>lift</em> the status colours (rose/sage) for legibility. Each dark theme sets its own ground depth, chroma envelope and hue drift rather than sharing one lightness ladder with the hue swapped — the grounds span OKLCH&nbsp;L&nbsp;16&ndash;24, so they stay distinguishable from one another. A token <code>--on-accent</code> is the text colour that sits on a filled accent (near-white on dark accents, dark ink on bright ones like Mango's gold) so buttons always read.</p>
+  <p>Dark themes set <code>color-scheme: dark</code>, re-point the parchment/ink roles, and <em>lift</em> the status colours (rose/sage) for legibility. Each dark theme sets its own ground depth, chroma envelope and hue drift rather than sharing one lightness ladder with the hue swapped — the grounds span OKLCH&nbsp;L&nbsp;16&ndash;24, so they stay distinguishable from one another.</p>
+
+  <div class="callout decision"><span class="label">Decision &middot; darks are pairs, not strangers</span>Every dark theme already shared an accent hue with one light theme &mdash; Ember with Terracotta, Forest Night with Sage Grove, Indigo Night with Lavender, Graphite with Eggshell &mdash; because the light set occupies most of the warm spectrum and any warm dark will echo it. Rather than fight that, the darks are now built to it deliberately: each answers its partner's accent hue exactly, and the picker lays them out as couples. What read as derivative reads as a system once it is named. Lantern and Garnet were added to give Mango Sunshine and Rose Quartz partners of their own.<p> A token <code>--on-accent</code> is the text colour that sits on a filled accent (near-white on dark accents, dark ink on bright ones like Mango's gold) so buttons always read.</p>
 
   <div class="callout decision"><span class="label">Decision &middot; roles, not numbers</span>Token steps are named for what they do (<code>parchment-ground</code>, <code>parchment-surface</code>, <code>parchment-raised</code>, <code>parchment-edge</code>; <code>ink-strong</code> &rarr; <code>ink-faint</code>) rather than a 50&ndash;300 scale. A numeric ramp inverts incoherently: on a dark theme the &ldquo;50&rdquo; step is no longer the lightest, it sits between &ldquo;100&rdquo; and &ldquo;200&rdquo;, and the numbers stop describing anything. Roles survive the flip.</div>
 

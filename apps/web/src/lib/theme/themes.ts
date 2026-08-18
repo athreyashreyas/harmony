@@ -20,6 +20,10 @@ export interface ThemeMeta {
   edge: string;
   /** Dark themes flip the swatch text and hint at native dark controls. */
   dark?: boolean;
+  /** The id of this theme's opposite number. Every theme has exactly one: each
+   *  dark answers its light partner's accent hue, so the two are the same
+   *  colour idea at two times of day. */
+  pairedWith: string;
 }
 
 export const THEMES: ThemeMeta[] = [
@@ -31,6 +35,18 @@ export const THEMES: ThemeMeta[] = [
     surface: '#FFFAF1',
     primary: '#B5532F',
     edge: '#E7D3B4',
+    pairedWith: 'ember',
+  },
+  {
+    id: 'ember',
+    name: 'Ember',
+    description: 'Terracotta banked down to coals.',
+    bg: '#1A1009',
+    surface: '#2C1E14',
+    primary: '#DD6D45',
+    edge: '#55402C',
+    dark: true,
+    pairedWith: 'terracotta',
   },
   {
     id: 'mango-sunshine',
@@ -40,6 +56,18 @@ export const THEMES: ThemeMeta[] = [
     surface: '#FFFCF2',
     primary: '#F2A900',
     edge: '#F1D78C',
+    pairedWith: 'lantern',
+  },
+  {
+    id: 'lantern',
+    name: 'Lantern',
+    description: 'Mango’s gold, carried into the dark.',
+    bg: '#1C1509',
+    surface: '#2D2414',
+    primary: '#EA9B00',
+    edge: '#56442B',
+    dark: true,
+    pairedWith: 'mango-sunshine',
   },
   {
     id: 'sage-grove',
@@ -49,6 +77,18 @@ export const THEMES: ThemeMeta[] = [
     surface: '#F6F8EA',
     primary: '#47602A',
     edge: '#C2CBA2',
+    pairedWith: 'forest-night',
+  },
+  {
+    id: 'forest-night',
+    name: 'Forest Night',
+    description: 'Sage Grove after sundown.',
+    bg: '#081812',
+    surface: '#13281F',
+    primary: '#A7CC82',
+    edge: '#314C38',
+    dark: true,
+    pairedWith: 'sage-grove',
   },
   {
     id: 'lavender',
@@ -58,24 +98,7 @@ export const THEMES: ThemeMeta[] = [
     surface: '#FAF8FF',
     primary: '#7C6BD0',
     edge: '#D0C6EA',
-  },
-  {
-    id: 'rose-quartz',
-    name: 'Rose Quartz',
-    description: 'A deep rose on soft blush paper. Tender and warm.',
-    bg: '#FBEEF0',
-    surface: '#FFF7F8',
-    primary: '#C25072',
-    edge: '#EBC6CE',
-  },
-  {
-    id: 'eggshell',
-    name: 'Eggshell',
-    description: 'Soft taupe on warm off-white. Clean, quiet, and bright.',
-    bg: '#F4F0E6',
-    surface: '#FDFBF6',
-    primary: '#7C6A4D',
-    edge: '#D9D1BD',
+    pairedWith: 'indigo-night',
   },
   {
     id: 'indigo-night',
@@ -86,38 +109,60 @@ export const THEMES: ThemeMeta[] = [
     primary: '#8C7CE0',
     edge: '#3F4459',
     dark: true,
+    pairedWith: 'lavender',
   },
   {
-    id: 'ember',
-    name: 'Ember',
-    description: 'Banked coals with a live flame. Warm all the way down.',
-    bg: '#1A100A',
-    surface: '#2C1E16',
-    primary: '#E56C4C',
-    edge: '#563F2F',
+    id: 'rose-quartz',
+    name: 'Rose Quartz',
+    description: 'A deep rose on soft blush paper. Tender and warm.',
+    bg: '#FBEEF0',
+    surface: '#FFF7F8',
+    primary: '#C25072',
+    edge: '#EBC6CE',
+    pairedWith: 'garnet',
+  },
+  {
+    id: 'garnet',
+    name: 'Garnet',
+    description: 'Rose Quartz gone deep and warm.',
+    bg: '#210F12',
+    surface: '#331C21',
+    primary: '#DF666E',
+    edge: '#5C3945',
     dark: true,
+    pairedWith: 'rose-quartz',
+  },
+  {
+    id: 'eggshell',
+    name: 'Eggshell',
+    description: 'Soft taupe on warm off-white. Clean, quiet, and bright.',
+    bg: '#F4F0E6',
+    surface: '#FDFBF6',
+    primary: '#7C6A4D',
+    edge: '#D9D1BD',
+    pairedWith: 'graphite',
   },
   {
     id: 'graphite',
     name: 'Graphite',
-    description: 'Almost no colour at all. Oyster on charcoal.',
+    description: 'Eggshell with the lights off.',
     bg: '#100D0B',
     surface: '#201D19',
     primary: '#E4D2B4',
     edge: '#474137',
     dark: true,
-  },
-  {
-    id: 'forest-night',
-    name: 'Forest Night',
-    description: 'Deep pine and lichen. Restful and green.',
-    bg: '#081812',
-    surface: '#13281F',
-    primary: '#A7CC82',
-    edge: '#314C38',
-    dark: true,
+    pairedWith: 'eggshell',
   },
 ];
+
+/** The themes as light/dark couples, in picker order. Derived rather than
+ *  hand-listed so it cannot drift out of step with THEMES. */
+export const THEME_PAIRS: Array<{ light: ThemeMeta; dark: ThemeMeta }> = THEMES
+  .filter((t) => !t.dark)
+  .map((light) => ({
+    light,
+    dark: THEMES.find((t) => t.id === light.pairedWith) as ThemeMeta,
+  }));
 
 export const DEFAULT_THEME_ID = 'terracotta';
 

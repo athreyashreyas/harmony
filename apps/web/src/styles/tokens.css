@@ -27,7 +27,8 @@
    are user data and are never themed. Themes appear in the settings picker in
    the order they are listed in themes.ts. */
 
-/* Terracotta + Amber — the default. */
+
+/* Terracotta + Amber — the default. Ember is its night. */
 :root,
 :root[data-theme='terracotta'] {
   --parchment-ground: #fbf1e4; --parchment-ground-rgb: 251 241 228;
@@ -55,6 +56,49 @@
   --sage-wash: #eaf0dd; --sage-wash-rgb: 234 240 221;
 }
 
+/* Ember — Terracotta after dark. Accent locked to Terracotta’s own h40; the ground is that clay banked down to L 18. */
+:root[data-theme='ember'] {
+  color-scheme: dark;
+
+  --parchment-ground: #1a1009; --parchment-ground-rgb: 26 16 9;
+  --parchment-surface: #2c1e14; --parchment-surface-rgb: 44 30 20;
+  --parchment-raised: #3b2b1d; --parchment-raised-rgb: 59 43 29;
+  --parchment-edge: #55402c; --parchment-edge-rgb: 85 64 44;
+
+  --ink-strong: #f7f1eb; --ink-strong-rgb: 247 241 235;
+  --ink-body: #dacdbf; --ink-body-rgb: 218 205 191;
+  --ink-muted: #b39f8b; --ink-muted-rgb: 179 159 139;
+  --ink-faint: #937b63; --ink-faint-rgb: 147 123 99;
+
+  --accent-emphasis: #efac87; --accent-emphasis-rgb: 239 172 135;
+  --accent-base: #dd6d45; --accent-base-rgb: 221 109 69;
+  --accent-soft: #c0563c; --accent-soft-rgb: 192 86 60;
+  --accent-wash: #471f17; --accent-wash-rgb: 71 31 23;
+  --accent-tint: #301511; --accent-tint-rgb: 48 21 17;
+  --on-accent: #f8f0ea; --on-accent-rgb: 248 240 234;
+
+  --rose-strong: #db97ae; --rose-strong-rgb: 219 151 174;
+  --rose-base: #cb84a2; --rose-base-rgb: 203 132 162;
+  --rose-wash: #3f2a34; --rose-wash-rgb: 63 42 52;
+  --sage-strong: #a8ce90; --sage-strong-rgb: 168 206 144;
+  --sage-base: #9bbe78; --sage-base-rgb: 155 190 120;
+  --sage-wash: #2a321c; --sage-wash-rgb: 42 50 28;
+
+  /* Elevation on dark: the card is defined by its edge, not by a shadow. */
+  --shadow-ring: var(--parchment-edge);
+  --shadow-inset: var(--parchment-raised);
+  --shadow-rgb: 0 0 0;
+  --shadow-card-a: 0.34;
+  --shadow-card-b: 0.22;
+  --shadow-lift-a: 0.55;
+  --shadow-lift-b: 0.35;
+  --shadow-sheet-a: 0.45;
+  --shadow-fab-rgb: 0 0 0;
+  --shadow-fab-a: 0.50;
+  --shadow-nav-a: 0.40;
+  --shadow-drag-a: 0.60;
+}
+
 /* Mango Sunshine — a true golden sunflower on warm sunlit cream. */
 :root[data-theme='mango-sunshine'] {
   --parchment-ground: #fff4d6; --parchment-ground-rgb: 255 244 214;
@@ -73,6 +117,49 @@
   --accent-wash: #fbe7bc; --accent-wash-rgb: 251 231 188;
   --accent-tint: #fef6e0; --accent-tint-rgb: 254 246 224;
   --on-accent: #3a2a0e; --on-accent-rgb: 58 42 14;
+}
+
+/* Lantern — Mango Sunshine after dark. The same gold (h73 to Mango’s h78), carried by a lantern rather than the sun, so the ground stays a deep warm brown. */
+:root[data-theme='lantern'] {
+  color-scheme: dark;
+
+  --parchment-ground: #1c1509; --parchment-ground-rgb: 28 21 9;
+  --parchment-surface: #2d2414; --parchment-surface-rgb: 45 36 20;
+  --parchment-raised: #3d301d; --parchment-raised-rgb: 61 48 29;
+  --parchment-edge: #56442b; --parchment-edge-rgb: 86 68 43;
+
+  --ink-strong: #f5efe9; --ink-strong-rgb: 245 239 233;
+  --ink-body: #d7ccbf; --ink-body-rgb: 215 204 191;
+  --ink-muted: #b3a28c; --ink-muted-rgb: 179 162 140;
+  --ink-faint: #937e63; --ink-faint-rgb: 147 126 99;
+
+  --accent-emphasis: #ffbf84; --accent-emphasis-rgb: 255 191 132;
+  --accent-base: #ea9b00; --accent-base-rgb: 234 155 0;
+  --accent-soft: #ce8f00; --accent-soft-rgb: 206 143 0;
+  --accent-wash: #422c00; --accent-wash-rgb: 66 44 0;
+  --accent-tint: #2e1f00; --accent-tint-rgb: 46 31 0;
+  --on-accent: #181105; --on-accent-rgb: 24 17 5;
+
+  --rose-strong: #da94a2; --rose-strong-rgb: 218 148 162;
+  --rose-base: #cb8196; --rose-base-rgb: 203 129 150;
+  --rose-wash: #452e36; --rose-wash-rgb: 69 46 54;
+  --sage-strong: #a7cb8c; --sage-strong-rgb: 167 203 140;
+  --sage-base: #9bbb73; --sage-base-rgb: 155 187 115;
+  --sage-wash: #2f3720; --sage-wash-rgb: 47 55 32;
+
+  /* Elevation on dark: the card is defined by its edge, not by a shadow. */
+  --shadow-ring: var(--parchment-edge);
+  --shadow-inset: var(--parchment-raised);
+  --shadow-rgb: 0 0 0;
+  --shadow-card-a: 0.34;
+  --shadow-card-b: 0.22;
+  --shadow-lift-a: 0.55;
+  --shadow-lift-b: 0.35;
+  --shadow-sheet-a: 0.45;
+  --shadow-fab-rgb: 0 0 0;
+  --shadow-fab-a: 0.50;
+  --shadow-nav-a: 0.40;
+  --shadow-drag-a: 0.60;
 }
 
 /* Sage Grove — a deep, restful moss green on warm paper. */
@@ -95,6 +182,49 @@
   --on-accent: #eff3e2; --on-accent-rgb: 239 243 226;
 }
 
+/* Forest Night — Sage Grove after dark. Accent at h130, exactly Sage Grove’s, on a deep pine ground. */
+:root[data-theme='forest-night'] {
+  color-scheme: dark;
+
+  --parchment-ground: #081812; --parchment-ground-rgb: 8 24 18;
+  --parchment-surface: #13281f; --parchment-surface-rgb: 19 40 31;
+  --parchment-raised: #1e3629; --parchment-raised-rgb: 30 54 41;
+  --parchment-edge: #314c38; --parchment-edge-rgb: 49 76 56;
+
+  --ink-strong: #edf2eb; --ink-strong-rgb: 237 242 235;
+  --ink-body: #c6d1c5; --ink-body-rgb: 198 209 197;
+  --ink-muted: #97ab98; --ink-muted-rgb: 151 171 152;
+  --ink-faint: #6f8a73; --ink-faint-rgb: 111 138 115;
+
+  --accent-emphasis: #c6eac2; --accent-emphasis-rgb: 198 234 194;
+  --accent-base: #a7cc82; --accent-base-rgb: 167 204 130;
+  --accent-soft: #9fb76f; --accent-soft-rgb: 159 183 111;
+  --accent-wash: #2b3217; --accent-wash-rgb: 43 50 23;
+  --accent-tint: #1e2210; --accent-tint-rgb: 30 34 16;
+  --on-accent: #eaf5f0; --on-accent-rgb: 234 245 240;
+
+  --rose-strong: #dc96a1; --rose-strong-rgb: 220 150 161;
+  --rose-base: #cd8295; --rose-base-rgb: 205 130 149;
+  --rose-wash: #432c32; --rose-wash-rgb: 67 44 50;
+  --sage-strong: #abcc8c; --sage-strong-rgb: 171 204 140;
+  --sage-base: #9ebc73; --sage-base-rgb: 158 188 115;
+  --sage-wash: #2d341d; --sage-wash-rgb: 45 52 29;
+
+  /* Elevation on dark: the card is defined by its edge, not by a shadow. */
+  --shadow-ring: var(--parchment-edge);
+  --shadow-inset: var(--parchment-raised);
+  --shadow-rgb: 0 0 0;
+  --shadow-card-a: 0.34;
+  --shadow-card-b: 0.22;
+  --shadow-lift-a: 0.55;
+  --shadow-lift-b: 0.35;
+  --shadow-sheet-a: 0.45;
+  --shadow-fab-rgb: 0 0 0;
+  --shadow-fab-a: 0.50;
+  --shadow-nav-a: 0.40;
+  --shadow-drag-a: 0.60;
+}
+
 /* Lavender — a calm wisteria purple on pale violet paper. */
 :root[data-theme='lavender'] {
   --parchment-ground: #f1eefa; --parchment-ground-rgb: 241 238 250;
@@ -115,47 +245,7 @@
   --on-accent: #faf8ff; --on-accent-rgb: 250 248 255;
 }
 
-/* Rose Quartz — a deep rose on soft blush paper. */
-:root[data-theme='rose-quartz'] {
-  --parchment-ground: #fbeef0; --parchment-ground-rgb: 251 238 240;
-  --parchment-surface: #fff7f8; --parchment-surface-rgb: 255 247 248;
-  --parchment-raised: #f4dce1; --parchment-raised-rgb: 244 220 225;
-  --parchment-edge: #ebc6ce; --parchment-edge-rgb: 235 198 206;
-
-  --ink-strong: #2c1a1f; --ink-strong-rgb: 44 26 31;
-  --ink-body: #4a2f36; --ink-body-rgb: 74 47 54;
-  --ink-muted: #785a61; --ink-muted-rgb: 120 90 97;
-  --ink-faint: #b8949c; --ink-faint-rgb: 184 148 156;
-
-  --accent-emphasis: #8a3350; --accent-emphasis-rgb: 138 51 80;
-  --accent-base: #c25072; --accent-base-rgb: 194 80 114;
-  --accent-soft: #d06c8a; --accent-soft-rgb: 208 108 138;
-  --accent-wash: #f4dbe3; --accent-wash-rgb: 244 219 227;
-  --accent-tint: #fbecf0; --accent-tint-rgb: 251 236 240;
-  --on-accent: #fff7f8; --on-accent-rgb: 255 247 248;
-}
-
-/* Eggshell — a warm off-white paper with a soft taupe-stone accent. */
-:root[data-theme='eggshell'] {
-  --parchment-ground: #f4f0e6; --parchment-ground-rgb: 244 240 230;
-  --parchment-surface: #fdfbf6; --parchment-surface-rgb: 253 251 246;
-  --parchment-raised: #e8e2d3; --parchment-raised-rgb: 232 226 211;
-  --parchment-edge: #d9d1bd; --parchment-edge-rgb: 217 209 189;
-
-  --ink-strong: #2b2620; --ink-strong-rgb: 43 38 32;
-  --ink-body: #4c463b; --ink-body-rgb: 76 70 59;
-  --ink-muted: #79715f; --ink-muted-rgb: 121 113 95;
-  --ink-faint: #aba189; --ink-faint-rgb: 171 161 137;
-
-  --accent-emphasis: #4e4230; --accent-emphasis-rgb: 78 66 48;
-  --accent-base: #7c6a4d; --accent-base-rgb: 124 106 77;
-  --accent-soft: #94805e; --accent-soft-rgb: 148 128 94;
-  --accent-wash: #e9e1d0; --accent-wash-rgb: 233 225 208;
-  --accent-tint: #f3eddf; --accent-tint-rgb: 243 237 223;
-  --on-accent: #fdfbf6; --on-accent-rgb: 253 251 246;
-}
-
-/* Indigo Night — soft lights on a deep night ground. Left exactly as it was. */
+/* Indigo Night — Lavender after dark. Left exactly as it was. */
 :root[data-theme='indigo-night'] {
   color-scheme: dark;
 
@@ -198,33 +288,53 @@
   --shadow-drag-a: 0.60;
 }
 
-/* Ember — a deep roasted neutral with a live coral flame. Ground L 18.5, accent h 36. */
-:root[data-theme='ember'] {
+/* Rose Quartz — a deep rose on soft blush paper. */
+:root[data-theme='rose-quartz'] {
+  --parchment-ground: #fbeef0; --parchment-ground-rgb: 251 238 240;
+  --parchment-surface: #fff7f8; --parchment-surface-rgb: 255 247 248;
+  --parchment-raised: #f4dce1; --parchment-raised-rgb: 244 220 225;
+  --parchment-edge: #ebc6ce; --parchment-edge-rgb: 235 198 206;
+
+  --ink-strong: #2c1a1f; --ink-strong-rgb: 44 26 31;
+  --ink-body: #4a2f36; --ink-body-rgb: 74 47 54;
+  --ink-muted: #785a61; --ink-muted-rgb: 120 90 97;
+  --ink-faint: #b8949c; --ink-faint-rgb: 184 148 156;
+
+  --accent-emphasis: #8a3350; --accent-emphasis-rgb: 138 51 80;
+  --accent-base: #c25072; --accent-base-rgb: 194 80 114;
+  --accent-soft: #d06c8a; --accent-soft-rgb: 208 108 138;
+  --accent-wash: #f4dbe3; --accent-wash-rgb: 244 219 227;
+  --accent-tint: #fbecf0; --accent-tint-rgb: 251 236 240;
+  --on-accent: #fff7f8; --on-accent-rgb: 255 247 248;
+}
+
+/* Garnet — Rose Quartz after dark. The accent sits a little warm of Rose Quartz’s h4 and the status rose is pulled cool, so the brand colour and the “below rhythm” colour are not the same red. */
+:root[data-theme='garnet'] {
   color-scheme: dark;
 
-  --parchment-ground: #1a100a; --parchment-ground-rgb: 26 16 10;
-  --parchment-surface: #2c1e16; --parchment-surface-rgb: 44 30 22;
-  --parchment-raised: #3c2a20; --parchment-raised-rgb: 60 42 32;
-  --parchment-edge: #563f2f; --parchment-edge-rgb: 86 63 47;
+  --parchment-ground: #210f12; --parchment-ground-rgb: 33 15 18;
+  --parchment-surface: #331c21; --parchment-surface-rgb: 51 28 33;
+  --parchment-raised: #43272f; --parchment-raised-rgb: 67 39 47;
+  --parchment-edge: #5c3945; --parchment-edge-rgb: 92 57 69;
 
-  --ink-strong: #f8f1eb; --ink-strong-rgb: 248 241 235;
-  --ink-body: #dcccc0; --ink-body-rgb: 220 204 192;
-  --ink-muted: #b69e8d; --ink-muted-rgb: 182 158 141;
-  --ink-faint: #967a66; --ink-faint-rgb: 150 122 102;
+  --ink-strong: #f7eef2; --ink-strong-rgb: 247 238 242;
+  --ink-body: #dccad1; --ink-body-rgb: 220 202 209;
+  --ink-muted: #b89ca6; --ink-muted-rgb: 184 156 166;
+  --ink-faint: #9a7683; --ink-faint-rgb: 154 118 131;
 
-  --accent-emphasis: #f6ad8b; --accent-emphasis-rgb: 246 173 139;
-  --accent-base: #e56c4c; --accent-base-rgb: 229 108 76;
-  --accent-soft: #c75543; --accent-soft-rgb: 199 85 67;
-  --accent-wash: #481d19; --accent-wash-rgb: 72 29 25;
-  --accent-tint: #311412; --accent-tint-rgb: 49 20 18;
-  --on-accent: #f9f0eb; --on-accent-rgb: 249 240 235;
+  --accent-emphasis: #ec9eac; --accent-emphasis-rgb: 236 158 172;
+  --accent-base: #df666e; --accent-base-rgb: 223 102 110;
+  --accent-soft: #c65554; --accent-soft-rgb: 198 85 84;
+  --accent-wash: #4b211e; --accent-wash-rgb: 75 33 30;
+  --accent-tint: #331714; --accent-tint-rgb: 51 23 20;
+  --on-accent: #faeff0; --on-accent-rgb: 250 239 240;
 
-  --rose-strong: #f0a08f; --rose-strong-rgb: 240 160 143;
-  --rose-base: #e08a78; --rose-base-rgb: 224 138 120;
-  --rose-wash: #3d211a; --rose-wash-rgb: 61 33 26;
-  --sage-strong: #b6cf7e; --sage-strong-rgb: 182 207 126;
-  --sage-base: #a6c26c; --sage-base-rgb: 166 194 108;
-  --sage-wash: #2b3318; --sage-wash-rgb: 43 51 24;
+  --rose-strong: #d197bd; --rose-strong-rgb: 209 151 189;
+  --rose-base: #bf84b3; --rose-base-rgb: 191 132 179;
+  --rose-wash: #3f2e3d; --rose-wash-rgb: 63 46 61;
+  --sage-strong: #a9cc8d; --sage-strong-rgb: 169 204 141;
+  --sage-base: #9cbc73; --sage-base-rgb: 156 188 115;
+  --sage-wash: #2e351e; --sage-wash-rgb: 46 53 30;
 
   /* Elevation on dark: the card is defined by its edge, not by a shadow. */
   --shadow-ring: var(--parchment-edge);
@@ -241,9 +351,27 @@
   --shadow-drag-a: 0.60;
 }
 
+/* Eggshell — a warm off-white paper with a soft taupe-stone accent. */
+:root[data-theme='eggshell'] {
+  --parchment-ground: #f4f0e6; --parchment-ground-rgb: 244 240 230;
+  --parchment-surface: #fdfbf6; --parchment-surface-rgb: 253 251 246;
+  --parchment-raised: #e8e2d3; --parchment-raised-rgb: 232 226 211;
+  --parchment-edge: #d9d1bd; --parchment-edge-rgb: 217 209 189;
 
+  --ink-strong: #2b2620; --ink-strong-rgb: 43 38 32;
+  --ink-body: #4c463b; --ink-body-rgb: 76 70 59;
+  --ink-muted: #79715f; --ink-muted-rgb: 121 113 95;
+  --ink-faint: #aba189; --ink-faint-rgb: 171 161 137;
 
-/* Graphite — near-monochrome warm charcoal, pale oyster accent that takes dark text. */
+  --accent-emphasis: #4e4230; --accent-emphasis-rgb: 78 66 48;
+  --accent-base: #7c6a4d; --accent-base-rgb: 124 106 77;
+  --accent-soft: #94805e; --accent-soft-rgb: 148 128 94;
+  --accent-wash: #e9e1d0; --accent-wash-rgb: 233 225 208;
+  --accent-tint: #f3eddf; --accent-tint-rgb: 243 237 223;
+  --on-accent: #fdfbf6; --on-accent-rgb: 253 251 246;
+}
+
+/* Graphite — Eggshell after dark. Near-monochrome, a pale oyster accent that takes dark text. */
 :root[data-theme='graphite'] {
   color-scheme: dark;
 
@@ -264,55 +392,12 @@
   --accent-tint: #1d1812; --accent-tint-rgb: 29 24 18;
   --on-accent: #0b0907; --on-accent-rgb: 11 9 7;
 
-  --rose-strong: #e8a49c; --rose-strong-rgb: 232 164 156;
-  --rose-base: #d68f88; --rose-base-rgb: 214 143 136;
-  --rose-wash: #33221f; --rose-wash-rgb: 51 34 31;
-  --sage-strong: #aec498; --sage-strong-rgb: 174 196 152;
-  --sage-base: #9db486; --sage-base-rgb: 157 180 134;
-  --sage-wash: #262d1f; --sage-wash-rgb: 38 45 31;
-
-  /* Elevation on dark: the card is defined by its edge, not by a shadow. */
-  --shadow-ring: var(--parchment-edge);
-  --shadow-inset: var(--parchment-raised);
-  --shadow-rgb: 0 0 0;
-  --shadow-card-a: 0.34;
-  --shadow-card-b: 0.22;
-  --shadow-lift-a: 0.55;
-  --shadow-lift-b: 0.35;
-  --shadow-sheet-a: 0.45;
-  --shadow-fab-rgb: 0 0 0;
-  --shadow-fab-a: 0.50;
-  --shadow-nav-a: 0.40;
-  --shadow-drag-a: 0.60;
-}
-
-/* Forest Night — re-derived: deeper pine (L 19.2) and a lichen green that no longer reads as a success state. */
-:root[data-theme='forest-night'] {
-  color-scheme: dark;
-
-  --parchment-ground: #081812; --parchment-ground-rgb: 8 24 18;
-  --parchment-surface: #13281f; --parchment-surface-rgb: 19 40 31;
-  --parchment-raised: #1e3629; --parchment-raised-rgb: 30 54 41;
-  --parchment-edge: #314c38; --parchment-edge-rgb: 49 76 56;
-
-  --ink-strong: #edf2eb; --ink-strong-rgb: 237 242 235;
-  --ink-body: #c6d1c5; --ink-body-rgb: 198 209 197;
-  --ink-muted: #97ab98; --ink-muted-rgb: 151 171 152;
-  --ink-faint: #6f8a73; --ink-faint-rgb: 111 138 115;
-
-  --accent-emphasis: #c6eac2; --accent-emphasis-rgb: 198 234 194;
-  --accent-base: #a7cc82; --accent-base-rgb: 167 204 130;
-  --accent-soft: #9fb76f; --accent-soft-rgb: 159 183 111;
-  --accent-wash: #2b3217; --accent-wash-rgb: 43 50 23;
-  --accent-tint: #1e2210; --accent-tint-rgb: 30 34 16;
-  --on-accent: #eaf5f0; --on-accent-rgb: 234 245 240;
-
-  --rose-strong: #eda3a8; --rose-strong-rgb: 237 163 168;
-  --rose-base: #db8d94; --rose-base-rgb: 219 141 148;
-  --rose-wash: #3a2429; --rose-wash-rgb: 58 36 41;
-  --sage-strong: #b9d489; --sage-strong-rgb: 185 212 137;
-  --sage-base: #a7c577; --sage-base-rgb: 167 197 119;
-  --sage-wash: #28331b; --sage-wash-rgb: 40 51 27;
+  --rose-strong: #e39ba3; --rose-strong-rgb: 227 155 163;
+  --rose-base: #d48796; --rose-base-rgb: 212 135 150;
+  --rose-wash: #3b242a; --rose-wash-rgb: 59 36 42;
+  --sage-strong: #aad194; --sage-strong-rgb: 170 209 148;
+  --sage-base: #9fc27c; --sage-base-rgb: 159 194 124;
+  --sage-wash: #242d17; --sage-wash-rgb: 36 45 23;
 
   /* Elevation on dark: the card is defined by its edge, not by a shadow. */
   --shadow-ring: var(--parchment-edge);

@@ -24,13 +24,13 @@ export const CHANGELOG: Release[] = [
     version: '1.5.0',
     date: '2026-08-18',
     major: true,
-    title: 'Four new lights for after dark',
+    title: 'Two new lights for after dark',
     notes: [
-      'Four new ways to end the day. Ember, banked coals with a live flame in them. Mulberry, a deep plum with apricot light across it. Tidepool, cold teal water and warm sand above it. And Graphite, almost no colour at all, just oyster on charcoal.',
+      'Two new ways to end the day. Ember, banked coals with a live flame in them. And Graphite, almost no colour at all, just oyster on charcoal.',
       'Espresso has gone and Ember has taken its place, with the same warmth and rather more life. If Espresso was yours, you are on Ember now and there is nothing to do.',
       'Forest Night has settled deeper into the pine, and its green has gone soft and mossy.',
       'Cards have edges in the dark now. They used to lean on a shadow that a dark screen simply swallowed, so they floated on the page. Every card, sheet and menu now sits properly wherever you are.',
-      'Twelve lights in all, six for the day and six for after it.',
+      'Ten lights in all, six for the day and four for after it.',
     ],
     howTo: [
       'Open Me, then Appearance, and tap any theme to switch instantly.',
@@ -88,7 +88,7 @@ export const CHANGELOG: Release[] = [
     howTo: [
       'On Home, under Rituals, tap New to build a flow, then Begin to move through it step by step.',
       'Open Insights and tap Garden at the top; scroll the weeks and tap any bloom.',
-      'Open Me, then Appearance, to try any of the twelve themes.',
+      'Open Me, then Appearance, to try any of the ten themes.',
     ],
     art: ['ritual', 'garden', 'themes'],
   },

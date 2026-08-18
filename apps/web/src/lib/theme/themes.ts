@@ -98,26 +98,6 @@ export const THEMES: ThemeMeta[] = [
     dark: true,
   },
   {
-    id: 'mulberry',
-    name: 'Mulberry',
-    description: 'Deep plum with apricot light across it.',
-    bg: '#22121B',
-    surface: '#331F2C',
-    primary: '#EAB679',
-    edge: '#593D53',
-    dark: true,
-  },
-  {
-    id: 'tidepool',
-    name: 'Tidepool',
-    description: 'Cold teal water, warm sand above.',
-    bg: '#051E21',
-    surface: '#0E2D30',
-    primary: '#DBB158',
-    edge: '#225151',
-    dark: true,
-  },
-  {
     id: 'graphite',
     name: 'Graphite',
     description: 'Almost no colour at all. Oyster on charcoal.',
@@ -145,6 +125,10 @@ export const DEFAULT_THEME_ID = 'terracotta';
  *  a saved preference never silently falls back to a light theme. */
 export const RETIRED_THEMES: Record<string, string> = {
   espresso: 'ember',
+  // Mapped by nearest surviving ground + accent, so a retired pick lands
+  // somewhere recognisable rather than on the light default.
+  mulberry: 'graphite',
+  tidepool: 'forest-night',
 };
 
 /** Normalise any theme id — from localStorage, the synced settings row, or a

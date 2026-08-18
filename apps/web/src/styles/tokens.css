@@ -192,7 +192,8 @@
   --shadow-lift-a: 0.55;
   --shadow-lift-b: 0.35;
   --shadow-sheet-a: 0.45;
-  --shadow-fab-a: 0.34;
+  --shadow-fab-rgb: 0 0 0;
+  --shadow-fab-a: 0.50;
   --shadow-nav-a: 0.40;
   --shadow-drag-a: 0.60;
 }
@@ -234,94 +235,13 @@
   --shadow-lift-a: 0.55;
   --shadow-lift-b: 0.35;
   --shadow-sheet-a: 0.45;
-  --shadow-fab-a: 0.34;
+  --shadow-fab-rgb: 0 0 0;
+  --shadow-fab-a: 0.50;
   --shadow-nav-a: 0.40;
   --shadow-drag-a: 0.60;
 }
 
-/* Mulberry — plum ground, apricot warmth across it. Ground L 20.8, accent h 70. */
-:root[data-theme='mulberry'] {
-  color-scheme: dark;
 
-  --parchment-ground: #22121b; --parchment-ground-rgb: 34 18 27;
-  --parchment-surface: #331f2c; --parchment-surface-rgb: 51 31 44;
-  --parchment-raised: #422b3b; --parchment-raised-rgb: 66 43 59;
-  --parchment-edge: #593d53; --parchment-edge-rgb: 89 61 83;
-
-  --ink-strong: #f5eff5; --ink-strong-rgb: 245 239 245;
-  --ink-body: #d7cbd6; --ink-body-rgb: 215 203 214;
-  --ink-muted: #b39fb1; --ink-muted-rgb: 179 159 177;
-  --ink-faint: #957990; --ink-faint-rgb: 149 121 144;
-
-  --accent-emphasis: #ffd8c0; --accent-emphasis-rgb: 255 216 192;
-  --accent-base: #eab679; --accent-base-rgb: 234 182 121;
-  --accent-soft: #d0a86a; --accent-soft-rgb: 208 168 106;
-  --accent-wash: #3d3019; --accent-wash-rgb: 61 48 25;
-  --accent-tint: #2a2313; --accent-tint-rgb: 42 35 19;
-  --on-accent: #f8eff4; --on-accent-rgb: 248 239 244;
-
-  --rose-strong: #f0a2ab; --rose-strong-rgb: 240 162 171;
-  --rose-base: #de8c97; --rose-base-rgb: 222 140 151;
-  --rose-wash: #3b2229; --rose-wash-rgb: 59 34 41;
-  --sage-strong: #b2cd8c; --sage-strong-rgb: 178 205 140;
-  --sage-base: #a1bd79; --sage-base-rgb: 161 189 121;
-  --sage-wash: #2a3320; --sage-wash-rgb: 42 51 32;
-
-  /* Elevation on dark: the card is defined by its edge, not by a shadow. */
-  --shadow-ring: var(--parchment-edge);
-  --shadow-inset: var(--parchment-raised);
-  --shadow-rgb: 0 0 0;
-  --shadow-card-a: 0.34;
-  --shadow-card-b: 0.22;
-  --shadow-lift-a: 0.55;
-  --shadow-lift-b: 0.35;
-  --shadow-sheet-a: 0.45;
-  --shadow-fab-a: 0.34;
-  --shadow-nav-a: 0.40;
-  --shadow-drag-a: 0.60;
-}
-
-/* Tidepool — cold teal water, warm sand above. Ground L 21.7, accent h 84. */
-:root[data-theme='tidepool'] {
-  color-scheme: dark;
-
-  --parchment-ground: #051e21; --parchment-ground-rgb: 5 30 33;
-  --parchment-surface: #0e2d30; --parchment-surface-rgb: 14 45 48;
-  --parchment-raised: #153b3d; --parchment-raised-rgb: 21 59 61;
-  --parchment-edge: #225151; --parchment-edge-rgb: 34 81 81;
-
-  --ink-strong: #eef6f5; --ink-strong-rgb: 238 246 245;
-  --ink-body: #c5d7d5; --ink-body-rgb: 197 215 213;
-  --ink-muted: #91afac; --ink-muted-rgb: 145 175 172;
-  --ink-faint: #648c8a; --ink-faint-rgb: 100 140 138;
-
-  --accent-emphasis: #f7d0a3; --accent-emphasis-rgb: 247 208 163;
-  --accent-base: #dbb158; --accent-base-rgb: 219 177 88;
-  --accent-soft: #c0a34c; --accent-soft-rgb: 192 163 76;
-  --accent-wash: #3c3414; --accent-wash-rgb: 60 52 20;
-  --accent-tint: #2a2611; --accent-tint-rgb: 42 38 17;
-  --on-accent: #e9f4f6; --on-accent-rgb: 233 244 246;
-
-  --rose-strong: #f2a0a0; --rose-strong-rgb: 242 160 160;
-  --rose-base: #e08a8c; --rose-base-rgb: 224 138 140;
-  --rose-wash: #3d2226; --rose-wash-rgb: 61 34 38;
-  --sage-strong: #96d3a6; --sage-strong-rgb: 150 211 166;
-  --sage-base: #84c496; --sage-base-rgb: 132 196 150;
-  --sage-wash: #1c3527; --sage-wash-rgb: 28 53 39;
-
-  /* Elevation on dark: the card is defined by its edge, not by a shadow. */
-  --shadow-ring: var(--parchment-edge);
-  --shadow-inset: var(--parchment-raised);
-  --shadow-rgb: 0 0 0;
-  --shadow-card-a: 0.34;
-  --shadow-card-b: 0.22;
-  --shadow-lift-a: 0.55;
-  --shadow-lift-b: 0.35;
-  --shadow-sheet-a: 0.45;
-  --shadow-fab-a: 0.34;
-  --shadow-nav-a: 0.40;
-  --shadow-drag-a: 0.60;
-}
 
 /* Graphite — near-monochrome warm charcoal, pale oyster accent that takes dark text. */
 :root[data-theme='graphite'] {
@@ -360,7 +280,8 @@
   --shadow-lift-a: 0.55;
   --shadow-lift-b: 0.35;
   --shadow-sheet-a: 0.45;
-  --shadow-fab-a: 0.34;
+  --shadow-fab-rgb: 0 0 0;
+  --shadow-fab-a: 0.50;
   --shadow-nav-a: 0.40;
   --shadow-drag-a: 0.60;
 }
@@ -402,7 +323,8 @@
   --shadow-lift-a: 0.55;
   --shadow-lift-b: 0.35;
   --shadow-sheet-a: 0.45;
-  --shadow-fab-a: 0.34;
+  --shadow-fab-rgb: 0 0 0;
+  --shadow-fab-a: 0.50;
   --shadow-nav-a: 0.40;
   --shadow-drag-a: 0.60;
 }
@@ -426,6 +348,10 @@
   --shadow-lift-a: 0.12;
   --shadow-lift-b: 0.06;
   --shadow-sheet-a: 0.10;
+  /* On light themes the FAB casts an accent-tinted shadow. On dark the same
+     recipe becomes a glow — a bright accent blooming on a deep ground — so
+     dark themes point this at black and let the accent speak for itself. */
+  --shadow-fab-rgb: var(--accent-base-rgb);
   --shadow-fab-a: 0.28;
   --shadow-nav-a: 0.06;
   --shadow-drag-a: 0.18;
@@ -445,7 +371,7 @@
     inset 0 1px 0 var(--shadow-inset);
   /* The FAB glow follows the accent, so it is never a stray terracotta halo
      around a violet button. */
-  --shadow-fab: 0 4px 16px rgb(var(--accent-base-rgb) / var(--shadow-fab-a));
+  --shadow-fab: 0 4px 16px rgb(var(--shadow-fab-rgb) / var(--shadow-fab-a));
   /* The mobile nav bar sits above the page, so its shadow points up. */
   --shadow-nav:
     0 -2px 10px rgb(var(--shadow-rgb) / var(--shadow-nav-a)),

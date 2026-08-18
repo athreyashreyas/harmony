@@ -19,12 +19,12 @@
 --accent-base-rgb: 181 83 47;    <span class="tok-c">// "r g b" channels — for Tailwind</span></code></pre>
   <p>Tailwind's config maps colours to <code>rgb(var(--accent-base-rgb) / &lt;alpha-value&gt;)</code>. That single line is why <code>bg-accent-base</code> <em>and</em> <code>bg-accent-base/20</code> both re-theme — the opacity modifier composes with the channel form. A theme is one <code>:root[data-theme="id"]</code> block that overrides these variables; switching themes is just setting <code>data-theme</code> on <code>&lt;html&gt;</code>. Every class and inline <code>var()</code> across the app cascades from there.</p>
 
-  <div class="callout decision"><span class="label">Decision · variables, not a rebuild</span>Themes change at runtime with zero JS recomputation and no flash — the saved theme is applied <em>before first paint</em> in <code>main.tsx</code>. The alternative (Tailwind's <code>dark:</code> variants or multiple built stylesheets) couldn't express six light + six dark palettes cleanly, nor re-theme inline SVG. One source of truth, cascading.</div>
+  <div class="callout decision"><span class="label">Decision · variables, not a rebuild</span>Themes change at runtime with zero JS recomputation and no flash — the saved theme is applied <em>before first paint</em> in <code>main.tsx</code>. The alternative (Tailwind's <code>dark:</code> variants or multiple built stylesheets) couldn't express six light + four dark palettes cleanly, nor re-theme inline SVG. One source of truth, cascading.</div>
 
-  <h2>The twelve themes</h2>
+  <h2>The ten themes</h2>
   <table>
     <tr><th>Light</th><th>Dark</th></tr>
-    <tr><td>Terracotta (default), Mango Sunshine, Sage Grove, Lavender, Rose Quartz, Eggshell</td><td>Indigo Night, Ember (warm), Mulberry (plum), Tidepool (teal), Graphite (near-mono), Forest Night (green)</td></tr>
+    <tr><td>Terracotta (default), Mango Sunshine, Sage Grove, Lavender, Rose Quartz, Eggshell</td><td>Indigo Night, Ember (warm), Graphite (near-mono), Forest Night (green)</td></tr>
   </table>
   <p>Dark themes set <code>color-scheme: dark</code>, re-point the parchment/ink roles, and <em>lift</em> the status colours (rose/sage) for legibility. Each dark theme sets its own ground depth, chroma envelope and hue drift rather than sharing one lightness ladder with the hue swapped — the grounds span OKLCH&nbsp;L&nbsp;16&ndash;24, so they stay distinguishable from one another. A token <code>--on-accent</code> is the text colour that sits on a filled accent (near-white on dark accents, dark ink on bright ones like Mango's gold) so buttons always read.</p>
 

@@ -28,6 +28,8 @@
    the order they are listed in themes.ts. */
 
 
+
+
 /* Terracotta + Amber — the default. Ember is its night. */
 :root,
 :root[data-theme='terracotta'] {
@@ -123,29 +125,29 @@
 :root[data-theme='lantern'] {
   color-scheme: dark;
 
-  --parchment-ground: #1c1509; --parchment-ground-rgb: 28 21 9;
-  --parchment-surface: #2d2414; --parchment-surface-rgb: 45 36 20;
-  --parchment-raised: #3d301d; --parchment-raised-rgb: 61 48 29;
-  --parchment-edge: #56442b; --parchment-edge-rgb: 86 68 43;
+  --parchment-ground: #2a2208; --parchment-ground-rgb: 42 34 8;
+  --parchment-surface: #3b3011; --parchment-surface-rgb: 59 48 17;
+  --parchment-raised: #4a3c19; --parchment-raised-rgb: 74 60 25;
+  --parchment-edge: #614e25; --parchment-edge-rgb: 97 78 37;
 
-  --ink-strong: #f5efe9; --ink-strong-rgb: 245 239 233;
-  --ink-body: #d7ccbf; --ink-body-rgb: 215 204 191;
-  --ink-muted: #b3a28c; --ink-muted-rgb: 179 162 140;
-  --ink-faint: #937e63; --ink-faint-rgb: 147 126 99;
+  --ink-strong: #f7f2ec; --ink-strong-rgb: 247 242 236;
+  --ink-body: #dcd3c4; --ink-body-rgb: 220 211 196;
+  --ink-muted: #b9aa92; --ink-muted-rgb: 185 170 146;
+  --ink-faint: #9a8867; --ink-faint-rgb: 154 136 103;
 
-  --accent-emphasis: #ffbf84; --accent-emphasis-rgb: 255 191 132;
-  --accent-base: #ea9b00; --accent-base-rgb: 234 155 0;
-  --accent-soft: #ce8f00; --accent-soft-rgb: 206 143 0;
-  --accent-wash: #422c00; --accent-wash-rgb: 66 44 0;
-  --accent-tint: #2e1f00; --accent-tint-rgb: 46 31 0;
-  --on-accent: #181105; --on-accent-rgb: 24 17 5;
+  --accent-emphasis: #ffd6aa; --accent-emphasis-rgb: 255 214 170;
+  --accent-base: #fdb01c; --accent-base-rgb: 253 176 28;
+  --accent-soft: #e5a405; --accent-soft-rgb: 229 164 5;
+  --accent-wash: #513a09; --accent-wash-rgb: 81 58 9;
+  --accent-tint: #3b2d0f; --accent-tint-rgb: 59 45 15;
+  --on-accent: #261d01; --on-accent-rgb: 38 29 1;
 
-  --rose-strong: #da94a2; --rose-strong-rgb: 218 148 162;
-  --rose-base: #cb8196; --rose-base-rgb: 203 129 150;
-  --rose-wash: #452e36; --rose-wash-rgb: 69 46 54;
-  --sage-strong: #a7cb8c; --sage-strong-rgb: 167 203 140;
-  --sage-base: #9bbb73; --sage-base-rgb: 155 187 115;
-  --sage-wash: #2f3720; --sage-wash-rgb: 47 55 32;
+  --rose-strong: #d08b99; --rose-strong-rgb: 208 139 153;
+  --rose-base: #c1788d; --rose-base-rgb: 193 120 141;
+  --rose-wash: #543c44; --rose-wash-rgb: 84 60 68;
+  --sage-strong: #a0c385; --sage-strong-rgb: 160 195 133;
+  --sage-base: #92b16a; --sage-base-rgb: 146 177 106;
+  --sage-wash: #3d452d; --sage-wash-rgb: 61 69 45;
 
   /* Elevation on dark: the card is defined by its edge, not by a shadow. */
   --shadow-ring: var(--parchment-edge);
@@ -312,29 +314,29 @@
 :root[data-theme='garnet'] {
   color-scheme: dark;
 
-  --parchment-ground: #210f12; --parchment-ground-rgb: 33 15 18;
-  --parchment-surface: #331c21; --parchment-surface-rgb: 51 28 33;
-  --parchment-raised: #43272f; --parchment-raised-rgb: 67 39 47;
-  --parchment-edge: #5c3945; --parchment-edge-rgb: 92 57 69;
+  --parchment-ground: #210710; --parchment-ground-rgb: 33 7 16;
+  --parchment-surface: #33141f; --parchment-surface-rgb: 51 20 31;
+  --parchment-raised: #43202e; --parchment-raised-rgb: 67 32 46;
+  --parchment-edge: #5b3245; --parchment-edge-rgb: 91 50 69;
 
-  --ink-strong: #f7eef2; --ink-strong-rgb: 247 238 242;
-  --ink-body: #dccad1; --ink-body-rgb: 220 202 209;
-  --ink-muted: #b89ca6; --ink-muted-rgb: 184 156 166;
-  --ink-faint: #9a7683; --ink-faint-rgb: 154 118 131;
+  --ink-strong: #f6eef2; --ink-strong-rgb: 246 238 242;
+  --ink-body: #d9c8d1; --ink-body-rgb: 217 200 209;
+  --ink-muted: #b59aa7; --ink-muted-rgb: 181 154 167;
+  --ink-faint: #967383; --ink-faint-rgb: 150 115 131;
 
-  --accent-emphasis: #ec9eac; --accent-emphasis-rgb: 236 158 172;
-  --accent-base: #df666e; --accent-base-rgb: 223 102 110;
-  --accent-soft: #c65554; --accent-soft-rgb: 198 85 84;
-  --accent-wash: #4b211e; --accent-wash-rgb: 75 33 30;
-  --accent-tint: #331714; --accent-tint-rgb: 51 23 20;
-  --on-accent: #faeff0; --on-accent-rgb: 250 239 240;
+  --accent-emphasis: #eea5c1; --accent-emphasis-rgb: 238 165 193;
+  --accent-base: #e36c88; --accent-base-rgb: 227 108 136;
+  --accent-soft: #cb5b6c; --accent-soft-rgb: 203 91 108;
+  --accent-wash: #451c20; --accent-wash-rgb: 69 28 32;
+  --accent-tint: #2e1314; --accent-tint-rgb: 46 19 20;
+  --on-accent: #f9eff1; --on-accent-rgb: 249 239 241;
 
-  --rose-strong: #d197bd; --rose-strong-rgb: 209 151 189;
-  --rose-base: #bf84b3; --rose-base-rgb: 191 132 179;
-  --rose-wash: #3f2e3d; --rose-wash-rgb: 63 46 61;
-  --sage-strong: #a9cc8d; --sage-strong-rgb: 169 204 141;
-  --sage-base: #9cbc73; --sage-base-rgb: 156 188 115;
-  --sage-wash: #2e351e; --sage-wash-rgb: 46 53 30;
+  --rose-strong: #ce9bc9; --rose-strong-rgb: 206 155 201;
+  --rose-base: #bc89bf; --rose-base-rgb: 188 137 191;
+  --rose-wash: #382a3b; --rose-wash-rgb: 56 42 59;
+  --sage-strong: #abce8f; --sage-strong-rgb: 171 206 143;
+  --sage-base: #a0bf76; --sage-base-rgb: 160 191 118;
+  --sage-wash: #29311a; --sage-wash-rgb: 41 49 26;
 
   /* Elevation on dark: the card is defined by its edge, not by a shadow. */
   --shadow-ring: var(--parchment-edge);

@@ -61,11 +61,11 @@ export const THEMES: ThemeMeta[] = [
   {
     id: 'lantern',
     name: 'Lantern',
-    description: 'Mango’s gold, carried into the dark.',
-    bg: '#1C1509',
-    surface: '#2D2414',
-    primary: '#EA9B00',
-    edge: '#56442B',
+    description: 'Mango’s gold, in a warm lit room.',
+    bg: '#2A2208',
+    surface: '#3B3011',
+    primary: '#FDB01C',
+    edge: '#614E25',
     dark: true,
     pairedWith: 'mango-sunshine',
   },
@@ -125,10 +125,10 @@ export const THEMES: ThemeMeta[] = [
     id: 'garnet',
     name: 'Garnet',
     description: 'Rose Quartz gone deep and warm.',
-    bg: '#210F12',
-    surface: '#331C21',
-    primary: '#DF666E',
-    edge: '#5C3945',
+    bg: '#210710',
+    surface: '#33141F',
+    primary: '#E36C88',
+    edge: '#5B3245',
     dark: true,
     pairedWith: 'rose-quartz',
   },
@@ -168,12 +168,20 @@ export const DEFAULT_THEME_ID = 'terracotta';
 
 /** Themes that have been retired, mapped to their nearest surviving relative so
  *  a saved preference never silently falls back to a light theme. */
+/** Retired theme ids, mapped to their nearest surviving relative.
+ *
+ *  Keep entries here forever. A saved preference outlives the theme it names —
+ *  it sits in localStorage and in the synced settings row — and without a
+ *  mapping it falls through to the light default, which is a jarring place to
+ *  land if the retired theme was dark. Mapped by nearest surviving accent hue
+ *  and ground, not by name. */
 export const RETIRED_THEMES: Record<string, string> = {
   espresso: 'ember',
-  // Mapped by nearest surviving ground + accent, so a retired pick lands
-  // somewhere recognisable rather than on the light default.
-  mulberry: 'graphite',
+  mulberry: 'garnet',
   tidepool: 'forest-night',
+  // Removed back in July 2026 with no mapping, so anyone still on it has been
+  // landing on Terracotta. Sage Grove is the closest surviving accent hue.
+  'ocean-blue': 'sage-grove',
 };
 
 /** Normalise any theme id — from localStorage, the synced settings row, or a

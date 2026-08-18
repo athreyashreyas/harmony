@@ -21,6 +21,15 @@ export interface Release {
 // plain, the same voice as the rest of the app.
 export const CHANGELOG: Release[] = [
   {
+    version: '1.5.1',
+    date: '2026-08-18',
+    title: 'A clearer theme picker, and a brighter Lantern',
+    notes: [
+      'Appearance now shows each couple as one card, with the theme\'s own colour as a coin you can actually tell apart at a glance. The swatches were leading with the paper, which is near-white on every day theme and near-black on every night one, so they all looked alike.',
+      'Lantern has been lifted out of the dark. It sat almost exactly where Ember sits, so the two were hard to tell apart; it is now a warmer, lighter room with a richer gold.',
+    ],
+  },
+  {
     version: '1.5.0',
     date: '2026-08-18',
     major: true,

@@ -212,56 +212,57 @@ export default function SettingsScreen() {
 
       <section className="mt-9">
         <p className={eyebrow}>Appearance</p>
-        <p className="mt-2 text-xs text-ink-faint">Pick the theme you want to open into. Each one has an opposite number for the other half of the day.</p>
-        <div className="mt-4">
-          {/* Each theme has an opposite number: the two share an accent hue and
-              differ only in the light they sit in. Laying them out as couples,
-              day on the left and night on the right, makes that legible at a
-              glance instead of leaving it as a coincidence in a flat list. */}
-          <div className="mb-2 grid grid-cols-2 gap-2.5">
-            <p className="text-[11px] font-medium uppercase tracking-wide text-ink-faint">Day</p>
-            <p className="text-[11px] font-medium uppercase tracking-wide text-ink-faint">After dark</p>
-          </div>
-          <div className="grid grid-cols-2 gap-2.5">
-            {THEME_PAIRS.flatMap(({ light, dark }) => [light, dark]).map((theme) => {
-              const active = theme.id === themeId;
-              return (
-                <button
-                  key={theme.id}
-                  type="button"
-                  onClick={() => chooseTheme(theme.id)}
-                  aria-pressed={active}
-                  aria-label={`Use the ${theme.name} theme`}
-                  className={`flex items-center gap-2.5 rounded-card bg-parchment-surface px-2.5 py-2.5 text-left shadow-card ring-2 transition-shadow sm:gap-3 sm:px-3 sm:py-3 ${
-                    active ? 'ring-accent-base' : 'ring-transparent'
-                  }`}
-                >
-                  {/* A little swatch: the theme's paper with its accent and surface. */}
-                  <span
-                    className="relative flex h-9 w-9 shrink-0 items-center justify-center rounded-full sm:h-10 sm:w-10"
-                    style={{ backgroundColor: theme.bg, boxShadow: 'inset 0 0 0 1px rgba(128,128,128,0.25)' }}
+        <p className="mt-2 text-xs text-ink-faint">Pick the theme you want to open into. Each pair is one colour: daylight on the left, after dark on the right.</p>
+        <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
+          {/* One card per couple, two tiles inside it. The coin leads and the
+              name gets a line of its own, so "Mango Sunshine" fits where it
+              would not in a text column. The coin's centre is the theme's own
+              paper, which reads as day or night without needing a label. */}
+          {THEME_PAIRS.map(({ light, dark }) => (
+            <div
+              key={light.id}
+              className="grid grid-cols-2 gap-1 rounded-card bg-parchment-surface p-1 shadow-card"
+            >
+              {[light, dark].map((theme) => {
+                const active = theme.id === themeId;
+                return (
+                  <button
+                    key={theme.id}
+                    type="button"
+                    onClick={() => chooseTheme(theme.id)}
+                    aria-pressed={active}
+                    aria-label={`Use the ${theme.name} theme, ${theme.dark ? 'for after dark' : 'for the day'}`}
+                    className={`flex flex-col items-center gap-2 rounded-[9px] px-2 py-3 ring-2 transition-colors ${
+                      active
+                        ? 'bg-parchment-raised ring-accent-base'
+                        : 'ring-transparent hover:bg-parchment-raised/60'
+                    }`}
                   >
-                    <span className="h-4.5 w-4.5 rounded-full sm:h-5 sm:w-5" style={{ backgroundColor: theme.primary }} />
-                    <span
-                      className="absolute bottom-0.5 right-0.5 h-2.5 w-2.5 rounded-full sm:bottom-1 sm:right-1"
-                      style={{ backgroundColor: theme.surface, boxShadow: `inset 0 0 0 1px ${theme.edge}` }}
-                    />
-                  </span>
-                  <span className="min-w-0 flex-1">
-                    <span className="flex items-center gap-1.5">
-                      <span className="truncate text-sm font-medium text-ink-strong">{theme.name}</span>
+                    <span className="relative">
+                      <span
+                        className="block h-12 w-12 rounded-full"
+                        style={{
+                          background: `radial-gradient(circle at center, ${theme.bg} 0 42%, ${theme.primary} 45% 100%)`,
+                          boxShadow: `inset 0 0 0 1px ${theme.edge}`,
+                        }}
+                      />
                       {active && (
-                        <span className="shrink-0 text-accent-base" aria-hidden="true">
-                          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M5 13l4 4L19 7" /></svg>
+                        <span
+                          className="absolute -bottom-0.5 -right-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-accent-base text-on-accent"
+                          aria-hidden="true"
+                        >
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 13l4 4L19 7" /></svg>
                         </span>
                       )}
                     </span>
-                    <span className="mt-0.5 hidden text-xs text-ink-faint sm:block">{theme.description}</span>
-                  </span>
-                </button>
-              );
-            })}
-          </div>
+                    <span className="text-center text-xs font-medium leading-tight text-ink-strong">
+                      {theme.name}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          ))}
         </div>
       </section>
 

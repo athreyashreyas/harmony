@@ -8,6 +8,7 @@ import { flushOutbox, hasLocalData, pullProfile, pullUserData, subscribeUserReal
 import { refreshStores, syncNow } from '../lib/sync/refresh';
 import { startFeedbackOutbox } from '../lib/feedbackOutbox';
 import { useTheme } from '../lib/theme/theme';
+import { resolveThemeId } from '../lib/theme/themes';
 import { getSeenVersionLocal, isNewerVersion, setSeenVersionLocal } from '../lib/whatsNew';
 import Splash from '../components/Splash/Splash';
 import { useAreas } from '../store/useAreas';
@@ -66,8 +67,14 @@ export default function AuthGate() {
   }, []);
 
   useEffect(() => {
-    if (syncedTheme && syncedTheme !== useTheme.getState().themeId) {
-      useTheme.getState().setTheme(syncedTheme);
+    if (!syncedTheme) return;
+    // Compare the *resolved* id. The settings row can still name a retired
+    // theme from a device that never upgraded, and comparing the raw value
+    // would never converge: 'espresso' is forever unequal to the 'ember' it
+    // resolves to, so every sync would re-apply the same theme.
+    const resolved = resolveThemeId(syncedTheme);
+    if (resolved !== useTheme.getState().themeId) {
+      useTheme.getState().setTheme(resolved);
     }
   }, [syncedTheme]);
 

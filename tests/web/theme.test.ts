@@ -7,6 +7,7 @@ import {
   getTheme,
   resolveThemeId,
 } from '../../apps/web/src/lib/theme/themes';
+import { acceptsRemoteTheme } from '../../apps/web/src/lib/theme/theme';
 
 describe('resolveThemeId', () => {
   it('passes a live theme through untouched', () => {
@@ -83,5 +84,36 @@ describe('theme pairing', () => {
         expect(t[k], `${t.id}.${k}`).toMatch(/^#[0-9A-Fa-f]{6}$/);
       }
     }
+  });
+});
+
+describe('acceptsRemoteTheme', () => {
+  const LONG_AGO = 60_000;
+
+  it('applies a genuine change from another device', () => {
+    expect(acceptsRemoteTheme('graphite', 'terracotta', LONG_AGO)).toBe(true);
+  });
+
+  it('ignores an echo of what is already showing', () => {
+    // The caller resolves first, so a row still naming a retired theme compares
+    // equal to the live theme it maps to and does not re-apply on every sync.
+    expect(acceptsRemoteTheme('ember', 'ember', LONG_AGO)).toBe(false);
+    expect(acceptsRemoteTheme(resolveThemeId('espresso'), 'ember', LONG_AGO)).toBe(false);
+  });
+
+  it('lets a local tap outrank a late echo of an older choice', () => {
+    // Rapid tapping means echoes can land out of order and after the fact.
+    expect(acceptsRemoteTheme('lantern', 'graphite', 0)).toBe(false);
+    expect(acceptsRemoteTheme('lantern', 'graphite', 100)).toBe(false);
+    expect(acceptsRemoteTheme('lantern', 'graphite', 3999, 4000)).toBe(false);
+  });
+
+  it('accepts remote changes again once the local window has passed', () => {
+    expect(acceptsRemoteTheme('lantern', 'graphite', 4000, 4000)).toBe(true);
+  });
+
+  it('ignores an empty or missing id', () => {
+    expect(acceptsRemoteTheme(null, 'terracotta', LONG_AGO)).toBe(false);
+    expect(acceptsRemoteTheme('', 'terracotta', LONG_AGO)).toBe(false);
   });
 });

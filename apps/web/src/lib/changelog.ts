@@ -21,25 +21,14 @@ export interface Release {
 // plain, the same voice as the rest of the app.
 export const CHANGELOG: Release[] = [
   {
-    version: '1.5.1',
-    date: '2026-08-18',
-    title: 'A clearer theme picker, and a brighter Lantern',
-    notes: [
-      'Appearance now shows each couple as one card, with the theme\'s own colour as a coin you can actually tell apart at a glance. The swatches were leading with the paper, which is near-white on every day theme and near-black on every night one, so they all looked alike.',
-      'Lantern has been lifted out of the dark. It sat almost exactly where Ember sits, so the two were hard to tell apart; it is now a warmer, lighter room with a richer gold.',
-    ],
-  },
-  {
     version: '1.5.0',
     date: '2026-08-18',
     major: true,
     title: 'Every light now has its opposite number',
     notes: [
-      'Every theme now has an opposite number: the same colour, at the other end of the day. Terracotta and Ember, Mango Sunshine and Lantern, Sage Grove and Forest Night, Lavender and Indigo Night, Rose Quartz and Garnet, Eggshell and Graphite.',
-      'Four of those are new after dark. Ember is Terracotta banked down to coals. Lantern carries Mango\'s gold into the dark. Garnet is Rose Quartz gone deep and warm. And Graphite is Eggshell with the lights off, almost no colour at all.',
-      'Espresso has gone, and Ember has taken its place, with the same warmth and rather more life. If Espresso was yours, you are on Ember now and there is nothing to do.',
-      'Appearance now shows them as couples, day on the left and after dark on the right, so you can see which is which. Pick whichever you like and stay in it, or move between a pair as the day goes.',
-      'Cards have edges in the dark now. They used to lean on a shadow that a dark screen simply swallowed, so they floated on the page. Every card, sheet and menu now sits properly wherever you are.',
+      'Every theme now has an opposite number: the same colour, at the other end of the day. Terracotta and Ember, Mango Sunshine and Lantern, Sage Grove and Forest Night, Lavender and Indigo Night, Rose Quartz and Garnet, Eggshell and Graphite. Appearance shows them as couples so you can see which is which.',
+      'Four of those are new after dark. Ember is Terracotta banked down to coals. Lantern carries Mango\'s gold into a warm lit room. Garnet is Rose Quartz gone deep. And Graphite is Eggshell with the lights off, almost no colour at all. Espresso has gone; if it was yours, you are on Ember now and there is nothing to do.',
+      'Cards have edges in the dark now. They used to lean on a shadow that a dark screen simply swallowed, so they floated on the page. Every card, sheet and menu sits properly wherever you are.',
       'Twelve lights in all, six for the day and six for after it.',
     ],
     howTo: [

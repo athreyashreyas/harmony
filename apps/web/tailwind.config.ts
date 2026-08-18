@@ -2,6 +2,10 @@ import type { Config } from 'tailwindcss';
 import plugin from 'tailwindcss/plugin';
 
 export default {
+  // Touch devices leave :hover stuck on the last thing tapped, so a hover
+  // highlight reads as a stray selection. This wraps every hover: utility in
+  // @media (hover: hover) so it only ever applies to a real pointer.
+  future: { hoverOnlyWhenSupported: true },
   content: ['./index.html', './src/**/*.{ts,tsx}'],
   theme: {
     extend: {

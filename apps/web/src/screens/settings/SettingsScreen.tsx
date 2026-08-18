@@ -232,7 +232,7 @@ export default function SettingsScreen() {
                     onClick={() => chooseTheme(theme.id)}
                     aria-pressed={active}
                     aria-label={`Use the ${theme.name} theme, ${theme.dark ? 'for after dark' : 'for the day'}`}
-                    className={`flex flex-col items-center gap-2 rounded-[9px] px-2 py-3 ring-2 transition-colors ${
+                    className={`flex flex-col items-center gap-2 rounded-[9px] px-2 py-3 ring-2 ${
                       active
                         ? 'bg-parchment-raised ring-accent-base'
                         : 'ring-transparent hover:bg-parchment-raised/60'

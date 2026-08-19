@@ -53,7 +53,7 @@ function Sidebar() {
       className="hidden shrink-0 flex-col border-r border-parchment-edge bg-parchment-surface pt-safe pb-safe pl-safe md:flex md:w-60"
     >
       <div className="px-6 py-7">
-        <span className="font-serif text-2xl text-accent-base">Harmony</span>
+        <span className="font-serif text-2xl text-accent-emphasis">Harmony</span>
       </div>
       <ul className="flex flex-col gap-1 px-3">
         {NAV_ITEMS.map((item) => (
@@ -66,14 +66,14 @@ function Sidebar() {
                 [
                   'flex items-center gap-3 rounded-card px-3 py-2.5 text-sm transition-colors',
                   isActive
-                    ? 'bg-accent-tint text-accent-base'
+                    ? 'bg-accent-tint text-accent-emphasis'
                     : 'text-ink-muted hover:bg-parchment-raised hover:text-ink-body',
                 ].join(' ')
               }
             >
               {({ isActive }) => (
                 <>
-                  <span className={isActive ? 'text-accent-base' : 'text-ink-faint'}>{item.icon}</span>
+                  <span className={isActive ? 'text-accent-emphasis' : 'text-ink-faint'}>{item.icon}</span>
                   <span className="font-medium">{item.label}</span>
                 </>
               )}
@@ -102,7 +102,7 @@ function BottomNav() {
             className={({ isActive }) =>
               [
                 'flex flex-1 flex-col items-center gap-0.5 py-1 transition-colors',
-                isActive ? 'text-accent-base' : 'text-ink-faint',
+                isActive ? 'text-accent-emphasis' : 'text-ink-faint',
               ].join(' ')
             }
           >

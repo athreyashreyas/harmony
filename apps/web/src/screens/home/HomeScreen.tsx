@@ -485,7 +485,7 @@ export default function HomeScreen() {
         <div className="mt-9">
           <div className="flex items-center justify-between">
             <p className="text-xs font-medium uppercase tracking-[0.1em] text-ink-faint">Rituals</p>
-            <button type="button" onClick={() => setRitualEditing(null)} className="flex items-center gap-1 text-xs font-medium text-accent-base">
+            <button type="button" onClick={() => setRitualEditing(null)} className="flex items-center gap-1 text-xs font-medium text-accent-emphasis">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg>
               New
             </button>

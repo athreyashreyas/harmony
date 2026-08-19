@@ -36,7 +36,7 @@ export function QuietLink({
     <button
       type="button"
       onClick={onClick}
-      className="text-sm text-ink-muted underline-offset-2 hover:text-accent-base hover:underline"
+      className="text-sm text-ink-muted underline-offset-2 hover:text-accent-emphasis hover:underline"
     >
       {children}
     </button>

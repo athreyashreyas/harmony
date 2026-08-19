@@ -127,7 +127,7 @@ export const THEMES: ThemeMeta[] = [
     description: 'The same magenta, lit from a plum-black room.',
     bg: '#220817',
     surface: '#341527',
-    primary: '#F64E9F',
+    primary: '#EF4799',
     edge: '#5C334D',
     dark: true,
     pairedWith: 'barbie-pink',

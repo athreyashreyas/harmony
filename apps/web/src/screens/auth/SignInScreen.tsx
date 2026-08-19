@@ -135,14 +135,14 @@ export default function SignInScreen() {
       <button
         type="button"
         onClick={handleReset}
-        className="mt-4 text-sm text-ink-muted underline-offset-2 hover:text-accent-base hover:underline"
+        className="mt-4 text-sm text-ink-muted underline-offset-2 hover:text-accent-emphasis hover:underline"
       >
         Forgot your password?
       </button>
 
       <p className="mt-8 text-sm text-ink-muted">
         New to Harmony?{' '}
-        <Link to="/sign-up" className="text-accent-base hover:underline">
+        <Link to="/sign-up" className="text-accent-emphasis hover:underline">
           Create an account
         </Link>
       </p>

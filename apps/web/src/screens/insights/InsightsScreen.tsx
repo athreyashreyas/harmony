@@ -362,7 +362,7 @@ export default function InsightsScreen() {
             <Section title="A gentle next step">
               <div className="space-y-2.5">
                 {suggestions.map((s, i) => (
-                  <button key={i} type="button" onClick={() => handleSuggestion(s)} className="w-full rounded-card bg-accent-tint px-4 py-3 text-left text-sm text-accent-base">
+                  <button key={i} type="button" onClick={() => handleSuggestion(s)} className="w-full rounded-card bg-accent-tint px-4 py-3 text-left text-sm text-accent-emphasis">
                     {s.text}
                   </button>
                 ))}

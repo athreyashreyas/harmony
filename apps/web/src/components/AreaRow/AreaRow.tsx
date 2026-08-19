@@ -227,7 +227,7 @@ export default function AreaRow({
                       <button
                         type="button"
                         onClick={onRequestReorder}
-                        className="px-2 pt-1 text-xs font-medium text-accent-base"
+                        className="px-2 pt-1 text-xs font-medium text-accent-emphasis"
                       >
                         Reorder habits
                       </button>

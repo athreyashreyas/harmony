@@ -73,7 +73,7 @@ export default function SignUpScreen() {
         <p className="text-sm text-ink-muted">
           Check your email to confirm your account, then sign in.
         </p>
-        <Link to="/sign-in" className="mt-6 inline-block text-sm text-accent-base hover:underline">
+        <Link to="/sign-in" className="mt-6 inline-block text-sm text-accent-emphasis hover:underline">
           Go to sign in
         </Link>
       </AuthLayout>
@@ -126,7 +126,7 @@ export default function SignUpScreen() {
 
       <p className="mt-8 text-sm text-ink-muted">
         Already have an account?{' '}
-        <Link to="/sign-in" className="text-accent-base hover:underline">
+        <Link to="/sign-in" className="text-accent-emphasis hover:underline">
           Sign in
         </Link>
       </p>

@@ -6,6 +6,12 @@
                rgb(var(--x-rgb) / <alpha-value>) so utility classes AND their
                opacity modifiers (bg-accent-base/20) re-theme too.
 
+   CONTRAST IS CHECKED WITH APCA, NOT WCAG 2. WCAG 2 is symmetric and human
+   vision is not: it overstates contrast for dark colours badly enough that a
+   passing 4.5:1 can be unreadable on a dark ground. Every text role here meets
+   an APCA target instead — body Lc 75, secondary Lc 60, captions Lc 45 — which
+   is what the dark themes are actually tuned against.
+
    TOKEN NAMES ARE ROLES, NOT NUMBERS. A numeric scale (parchment-50 … -300)
    breaks under inversion: on a dark theme the "50" step is no longer the
    lightest, it sits between "100" and "200", and the numbers stop meaning
@@ -16,7 +22,15 @@
      parchment-raised   a well, chip or inset inside a card
      parchment-edge     hairlines, rings and borders
      ink-strong/body/muted/faint     text, most to least emphasis
-     accent-emphasis/base/soft       the brand accent, most to least emphasis
+     accent-base                     the accent as a FILL — buttons, the FAB,
+                                     the bloom's heart. Sized for white or dark
+                                     ink on top of it, not for carrying text.
+     accent-emphasis                 the accent as TEXT. A fill colour and a
+                                     text colour have different jobs and
+                                     different contrast needs; conflating them
+                                     is why Mango's gold was unreadable as a
+                                     link. Same split as Radix steps 9 and 11.
+     accent-soft                     the accent at lower emphasis
      accent-wash/tint                tinted grounds built from the accent
      on-accent                       text that sits ON an accent fill
 
@@ -41,7 +55,7 @@
   --ink-strong: #23190f; --ink-strong-rgb: 35 25 15;
   --ink-body: #483a27; --ink-body-rgb: 72 58 39;
   --ink-muted: #76654c; --ink-muted-rgb: 118 101 76;
-  --ink-faint: #ab977a; --ink-faint-rgb: 171 151 122;
+  --ink-faint: #aa9679; --ink-faint-rgb: 170 150 121;
 
   --accent-emphasis: #7a3318; --accent-emphasis-rgb: 122 51 24;
   --accent-base: #b5532f; --accent-base-rgb: 181 83 47;
@@ -68,16 +82,16 @@
   --parchment-edge: #55402c; --parchment-edge-rgb: 85 64 44;
 
   --ink-strong: #f7f1eb; --ink-strong-rgb: 247 241 235;
-  --ink-body: #dacdbf; --ink-body-rgb: 218 205 191;
-  --ink-muted: #b39f8b; --ink-muted-rgb: 179 159 139;
-  --ink-faint: #937b63; --ink-faint-rgb: 147 123 99;
+  --ink-body: #dccfc1; --ink-body-rgb: 220 207 193;
+  --ink-muted: #cfbaa6; --ink-muted-rgb: 207 186 166;
+  --ink-faint: #af967d; --ink-faint-rgb: 175 150 125;
 
-  --accent-emphasis: #efac87; --accent-emphasis-rgb: 239 172 135;
+  --accent-emphasis: #f2af89; --accent-emphasis-rgb: 242 175 137;
   --accent-base: #dd6d45; --accent-base-rgb: 221 109 69;
   --accent-soft: #c0563c; --accent-soft-rgb: 192 86 60;
   --accent-wash: #471f17; --accent-wash-rgb: 71 31 23;
   --accent-tint: #301511; --accent-tint-rgb: 48 21 17;
-  --on-accent: #f8f0ea; --on-accent-rgb: 248 240 234;
+  --on-accent: #fef7f4; --on-accent-rgb: 254 247 244;
 
   --rose-strong: #db97ae; --rose-strong-rgb: 219 151 174;
   --rose-base: #cb84a2; --rose-base-rgb: 203 132 162;
@@ -110,15 +124,15 @@
 
   --ink-strong: #3a2a0e; --ink-strong-rgb: 58 42 14;
   --ink-body: #5e4a1e; --ink-body-rgb: 94 74 30;
-  --ink-muted: #8a7038; --ink-muted-rgb: 138 112 56;
-  --ink-faint: #bba268; --ink-faint-rgb: 187 162 104;
+  --ink-muted: #836931; --ink-muted-rgb: 131 105 49;
+  --ink-faint: #b1985f; --ink-faint-rgb: 177 152 95;
 
-  --accent-emphasis: #ae7a06; --accent-emphasis-rgb: 174 122 6;
+  --accent-emphasis: #8f6300; --accent-emphasis-rgb: 143 99 0;
   --accent-base: #f2a900; --accent-base-rgb: 242 169 0;
   --accent-soft: #f6bc3c; --accent-soft-rgb: 246 188 60;
   --accent-wash: #fbe7bc; --accent-wash-rgb: 251 231 188;
   --accent-tint: #fef6e0; --accent-tint-rgb: 254 246 224;
-  --on-accent: #3a2a0e; --on-accent-rgb: 58 42 14;
+  --on-accent: #1a0f01; --on-accent-rgb: 26 15 1;
 }
 
 /* Lantern — Mango Sunshine after dark. The same gold (h73 to Mango’s h78), carried by a lantern rather than the sun, so the ground stays a deep warm brown. */
@@ -131,9 +145,9 @@
   --parchment-edge: #614e25; --parchment-edge-rgb: 97 78 37;
 
   --ink-strong: #f7f2ec; --ink-strong-rgb: 247 242 236;
-  --ink-body: #dcd3c4; --ink-body-rgb: 220 211 196;
-  --ink-muted: #b9aa92; --ink-muted-rgb: 185 170 146;
-  --ink-faint: #9a8867; --ink-faint-rgb: 154 136 103;
+  --ink-body: #ddd4c5; --ink-body-rgb: 221 212 197;
+  --ink-muted: #d2c3a9; --ink-muted-rgb: 210 195 169;
+  --ink-faint: #ae9c7a; --ink-faint-rgb: 174 156 122;
 
   --accent-emphasis: #ffd6aa; --accent-emphasis-rgb: 255 214 170;
   --accent-base: #fdb01c; --accent-base-rgb: 253 176 28;
@@ -173,7 +187,7 @@
 
   --ink-strong: #1e2618; --ink-strong-rgb: 30 38 24;
   --ink-body: #34402a; --ink-body-rgb: 52 64 42;
-  --ink-muted: #4e5c38; --ink-muted-rgb: 78 92 56;
+  --ink-muted: #4d5b37; --ink-muted-rgb: 77 91 55;
   --ink-faint: #869066; --ink-faint-rgb: 134 144 102;
 
   --accent-emphasis: #31441c; --accent-emphasis-rgb: 49 68 28;
@@ -181,7 +195,7 @@
   --accent-soft: #5e7a3c; --accent-soft-rgb: 94 122 60;
   --accent-wash: #dce6c6; --accent-wash-rgb: 220 230 198;
   --accent-tint: #eef3e0; --accent-tint-rgb: 238 243 224;
-  --on-accent: #eff3e2; --on-accent-rgb: 239 243 226;
+  --on-accent: #f7f9f6; --on-accent-rgb: 247 249 246;
 }
 
 /* Forest Night — Sage Grove after dark. Accent at h130, exactly Sage Grove’s, on a deep pine ground. */
@@ -194,16 +208,16 @@
   --parchment-edge: #314c38; --parchment-edge-rgb: 49 76 56;
 
   --ink-strong: #edf2eb; --ink-strong-rgb: 237 242 235;
-  --ink-body: #c6d1c5; --ink-body-rgb: 198 209 197;
-  --ink-muted: #97ab98; --ink-muted-rgb: 151 171 152;
-  --ink-faint: #6f8a73; --ink-faint-rgb: 111 138 115;
+  --ink-body: #cad5c9; --ink-body-rgb: 202 213 201;
+  --ink-muted: #afc4b0; --ink-muted-rgb: 175 196 176;
+  --ink-faint: #86a28a; --ink-faint-rgb: 134 162 138;
 
   --accent-emphasis: #c6eac2; --accent-emphasis-rgb: 198 234 194;
   --accent-base: #a7cc82; --accent-base-rgb: 167 204 130;
   --accent-soft: #9fb76f; --accent-soft-rgb: 159 183 111;
   --accent-wash: #2b3217; --accent-wash-rgb: 43 50 23;
   --accent-tint: #1e2210; --accent-tint-rgb: 30 34 16;
-  --on-accent: #eaf5f0; --on-accent-rgb: 234 245 240;
+  --on-accent: #0e1409; --on-accent-rgb: 14 20 9;
 
   --rose-strong: #dc96a1; --rose-strong-rgb: 220 150 161;
   --rose-base: #cd8295; --rose-base-rgb: 205 130 149;
@@ -232,12 +246,12 @@
   --parchment-ground: #f1eefa; --parchment-ground-rgb: 241 238 250;
   --parchment-surface: #faf8ff; --parchment-surface-rgb: 250 248 255;
   --parchment-raised: #e3ddf3; --parchment-raised-rgb: 227 221 243;
-  --parchment-edge: #d0c6ea; --parchment-edge-rgb: 208 198 234;
+  --parchment-edge: #cfc6eb; --parchment-edge-rgb: 207 198 235;
 
-  --ink-strong: #221c33; --ink-strong-rgb: 34 28 51;
-  --ink-body: #3a3152; --ink-body-rgb: 58 49 82;
-  --ink-muted: #625a7e; --ink-muted-rgb: 98 90 126;
-  --ink-faint: #9a90b8; --ink-faint-rgb: 154 144 184;
+  --ink-strong: #1f1d34; --ink-strong-rgb: 31 29 52;
+  --ink-body: #373253; --ink-body-rgb: 55 50 83;
+  --ink-muted: #5f5b7f; --ink-muted-rgb: 95 91 127;
+  --ink-faint: #9891b9; --ink-faint-rgb: 152 145 185;
 
   --accent-emphasis: #4f3fa0; --accent-emphasis-rgb: 79 63 160;
   --accent-base: #7c6bd0; --accent-base-rgb: 124 107 208;
@@ -257,16 +271,16 @@
   --parchment-edge: #3f4459; --parchment-edge-rgb: 63 68 89;
 
   --ink-strong: #eceaf4; --ink-strong-rgb: 236 234 244;
-  --ink-body: #c4c2d8; --ink-body-rgb: 196 194 216;
-  --ink-muted: #aba9c4; --ink-muted-rgb: 171 169 196;
-  --ink-faint: #6e6e8a; --ink-faint-rgb: 110 110 138;
+  --ink-body: #d3d1e7; --ink-body-rgb: 211 209 231;
+  --ink-muted: #bfbdd9; --ink-muted-rgb: 191 189 217;
+  --ink-faint: #9a9ab8; --ink-faint-rgb: 154 154 184;
 
   --accent-emphasis: #c9c0f4; --accent-emphasis-rgb: 201 192 244;
   --accent-base: #8c7ce0; --accent-base-rgb: 140 124 224;
   --accent-soft: #7b6ad4; --accent-soft-rgb: 123 106 212;
   --accent-wash: #3a3a57; --accent-wash-rgb: 58 58 87;
   --accent-tint: #2a2b42; --accent-tint-rgb: 42 43 66;
-  --on-accent: #16182a; --on-accent-rgb: 22 24 42;
+  --on-accent: #f8f8fe; --on-accent-rgb: 248 248 254;
 
   --rose-strong: #e89aac; --rose-strong-rgb: 232 154 172;
   --rose-base: #d98598; --rose-base-rgb: 217 133 152;
@@ -298,22 +312,22 @@
    (dE 0.038) because a pink page raises the background luminance, and
    text-accent-base has to clear 4.5:1 against it. */
 :root[data-theme='barbie-pink'] {
-  --parchment-ground: #ffe5f0; --parchment-ground-rgb: 255 229 240;
+  --parchment-ground: #ffe5ef; --parchment-ground-rgb: 255 229 239;
   --parchment-surface: #fff0f6; --parchment-surface-rgb: 255 240 246;
-  --parchment-raised: #ffd3e7; --parchment-raised-rgb: 255 211 231;
-  --parchment-edge: #ffb5da; --parchment-edge-rgb: 255 181 218;
+  --parchment-raised: #ffd3e8; --parchment-raised-rgb: 255 211 232;
+  --parchment-edge: #feb5dd; --parchment-edge-rgb: 254 181 221;
 
-  --ink-strong: #301020; --ink-strong-rgb: 48 16 32;
-  --ink-body: #592c42; --ink-body-rgb: 89 44 66;
-  --ink-muted: #88586f; --ink-muted-rgb: 136 88 111;
-  --ink-faint: #bd8ca3; --ink-faint-rgb: 189 140 163;
+  --ink-strong: #2e1124; --ink-strong-rgb: 46 17 36;
+  --ink-body: #572d47; --ink-body-rgb: 87 45 71;
+  --ink-muted: #80536d; --ink-muted-rgb: 128 83 109;
+  --ink-faint: #b3839d; --ink-faint-rgb: 179 131 157;
 
   --accent-emphasis: #93004f; --accent-emphasis-rgb: 147 0 79;
   --accent-base: #cb0078; --accent-base-rgb: 203 0 120;
   --accent-soft: #eb479e; --accent-soft-rgb: 235 71 158;
   --accent-wash: #ffcce2; --accent-wash-rgb: 255 204 226;
   --accent-tint: #ffe1ed; --accent-tint-rgb: 255 225 237;
-  --on-accent: #ffffff; --on-accent-rgb: 255 255 255;
+  --on-accent: #fff6f9; --on-accent-rgb: 255 246 249;
 
   --rose-strong: #833770; --rose-strong-rgb: 131 55 112;
   --rose-base: #944f88; --rose-base-rgb: 148 79 136;
@@ -328,22 +342,22 @@
 :root[data-theme='afterparty'] {
   color-scheme: dark;
 
-  --parchment-ground: #220817; --parchment-ground-rgb: 34 8 23;
+  --parchment-ground: #220816; --parchment-ground-rgb: 34 8 22;
   --parchment-surface: #341527; --parchment-surface-rgb: 52 21 39;
   --parchment-raised: #442136; --parchment-raised-rgb: 68 33 54;
-  --parchment-edge: #5c334d; --parchment-edge-rgb: 92 51 77;
+  --parchment-edge: #5b334f; --parchment-edge-rgb: 91 51 79;
 
-  --ink-strong: #f7eff3; --ink-strong-rgb: 247 239 243;
-  --ink-body: #dccad2; --ink-body-rgb: 220 202 210;
-  --ink-muted: #b79baa; --ink-muted-rgb: 183 155 170;
-  --ink-faint: #967588; --ink-faint-rgb: 150 117 136;
+  --ink-strong: #f6eff4; --ink-strong-rgb: 246 239 244;
+  --ink-body: #decdd7; --ink-body-rgb: 222 205 215;
+  --ink-muted: #d0b5c7; --ink-muted-rgb: 208 181 199;
+  --ink-faint: #b291a6; --ink-faint-rgb: 178 145 166;
 
-  --accent-emphasis: #ff9abd; --accent-emphasis-rgb: 255 154 189;
-  --accent-base: #f64e9f; --accent-base-rgb: 246 78 159;
+  --accent-emphasis: #ffa5c3; --accent-emphasis-rgb: 255 165 195;
+  --accent-base: #ef4799; --accent-base-rgb: 239 71 153;
   --accent-soft: #d93990; --accent-soft-rgb: 217 57 144;
   --accent-wash: #4d1f37; --accent-wash-rgb: 77 31 55;
   --accent-tint: #331425; --accent-tint-rgb: 51 20 37;
-  --on-accent: #1e0312; --on-accent-rgb: 30 3 18;
+  --on-accent: #fff5f9; --on-accent-rgb: 255 245 249;
 
   --rose-strong: #ce9ac7; --rose-strong-rgb: 206 154 199;
   --rose-base: #ba87bb; --rose-base-rgb: 186 135 187;
@@ -376,8 +390,8 @@
 
   --ink-strong: #2b2620; --ink-strong-rgb: 43 38 32;
   --ink-body: #4c463b; --ink-body-rgb: 76 70 59;
-  --ink-muted: #79715f; --ink-muted-rgb: 121 113 95;
-  --ink-faint: #aba189; --ink-faint-rgb: 171 161 137;
+  --ink-muted: #6c6453; --ink-muted-rgb: 108 100 83;
+  --ink-faint: #9f957e; --ink-faint-rgb: 159 149 126;
 
   --accent-emphasis: #4e4230; --accent-emphasis-rgb: 78 66 48;
   --accent-base: #7c6a4d; --accent-base-rgb: 124 106 77;
@@ -397,9 +411,9 @@
   --parchment-edge: #474137; --parchment-edge-rgb: 71 65 55;
 
   --ink-strong: #f7f5f1; --ink-strong-rgb: 247 245 241;
-  --ink-body: #d0ccc4; --ink-body-rgb: 208 204 196;
-  --ink-muted: #a69f94; --ink-muted-rgb: 166 159 148;
-  --ink-faint: #857c6e; --ink-faint-rgb: 133 124 110;
+  --ink-body: #d5d1c8; --ink-body-rgb: 213 209 200;
+  --ink-muted: #c2bbb0; --ink-muted-rgb: 194 187 176;
+  --ink-faint: #a2988a; --ink-faint-rgb: 162 152 138;
 
   --accent-emphasis: #f6eeda; --accent-emphasis-rgb: 246 238 218;
   --accent-base: #e4d2b4; --accent-base-rgb: 228 210 180;

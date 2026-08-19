@@ -160,7 +160,7 @@ export default function AreaSheet({
                 className={[
                   'flex-1 rounded-full px-3 py-2 text-xs font-medium transition-colors',
                   importance === option.value
-                    ? 'bg-accent-tint text-accent-base'
+                    ? 'bg-accent-tint text-accent-emphasis'
                     : 'bg-parchment-raised text-ink-muted',
                 ].join(' ')}
               >
@@ -209,7 +209,7 @@ export default function AreaSheet({
                           onClick={() => toggleLock(h.id)}
                           aria-pressed={locked}
                           aria-label={locked ? `Unlock ${h.name}` : `Lock ${h.name} at ${pct} percent`}
-                          className={`-mr-1 rounded-full p-1 transition-colors ${locked ? 'text-accent-base' : 'text-ink-faint hover:text-ink-muted'}`}
+                          className={`-mr-1 rounded-full p-1 transition-colors ${locked ? 'text-accent-emphasis' : 'text-ink-faint hover:text-ink-muted'}`}
                         >
                           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                             <rect x="4.5" y="10.5" width="15" height="10" rx="2.4" fill={locked ? 'currentColor' : 'none'} />
@@ -272,7 +272,7 @@ export default function AreaSheet({
                 className={[
                   'flex-1 rounded-full px-3 py-2 text-xs font-medium transition-colors',
                   driftSensitivity === option.value
-                    ? 'bg-accent-tint text-accent-base'
+                    ? 'bg-accent-tint text-accent-emphasis'
                     : 'bg-parchment-raised text-ink-muted',
                 ].join(' ')}
               >

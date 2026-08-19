@@ -103,7 +103,7 @@ export default function HabitDetailScreen() {
     return (
       <main className="flex h-full flex-col items-center justify-center px-5 pt-safe pb-safe text-center">
         <p className="text-sm text-ink-faint">This habit is no longer here.</p>
-        <button type="button" onClick={() => navigate('/', { replace: true })} className="mt-4 text-sm text-accent-base hover:underline">
+        <button type="button" onClick={() => navigate('/', { replace: true })} className="mt-4 text-sm text-accent-emphasis hover:underline">
           Back to home
         </button>
       </main>

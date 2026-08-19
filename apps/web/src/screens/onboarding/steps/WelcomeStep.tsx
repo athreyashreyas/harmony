@@ -19,7 +19,7 @@ export default function WelcomeStep({
       footer={<PrimaryButton onClick={onNext}>Begin</PrimaryButton>}
     >
       <div className="flex min-h-full flex-col justify-center py-16">
-        <span className="font-serif text-2xl text-accent-base">Harmony</span>
+        <span className="font-serif text-2xl text-accent-emphasis">Harmony</span>
         <h1 className="mt-8 font-serif text-4xl leading-tight text-ink-strong">Habits, but gentler.</h1>
         <p className="mt-4 text-base text-ink-muted">
           We help you tend to the parts of life that make you feel like yourself. Nothing to win.

@@ -68,10 +68,9 @@ export default function SettingsScreen() {
 
   async function chooseFollowSun(next: boolean) {
     setFollowSun(next); // instant, local
-    // Ask for a location only on the way on, and only once. A refusal still
-    // leaves a working feature on the fallback hours.
+    // No-op while sun times come from a fixed reference point rather than the
+    // device's location; see lib/flags.ts.
     if (next) await requestSunLocation();
-    setFollowSun(next);
     if (profile) void updateNotifications(profile.id, { followSun: next });
   }
 

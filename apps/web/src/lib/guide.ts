@@ -139,7 +139,7 @@ export const GUIDE: GuideSection[] = [
     body: [
       'Harmony comes in twelve lights, arranged as six couples. Each theme has an opposite number holding the same colour at the other end of the day: Terracotta and Ember, Mango Sunshine and Lantern, Sage Grove and Forest Night, Lavender and Indigo Night, Barbie Pink and Afterparty, Eggshell and Graphite.',
       'A theme changes the colours around your habits, never the colours of your areas, so your bloom always means the same thing.',
-      'Pick whichever you like and stay in it, or turn on Follow the sun and let the couple do the work: the day half from sunrise, the after-dark half once the sun goes down. It asks once where you are so it knows when that is, and keeps that on your device.',
+      'Pick whichever you like and stay in it, or turn on Follow the sun and let the couple do the work: the day half from sunrise, the after-dark half once the sun goes down. Sunset moves through the year, so it comes later in June than in December.',
     ],
     steps: [
       'Open Me, then Appearance, and tap any theme to switch instantly. Day on the left, after dark on the right, each pair on its own row.',

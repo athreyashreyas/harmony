@@ -43,10 +43,45 @@ export function sunTimes(date: Date, lat: number, lon: number): SunTimes {
   };
 }
 
-/** Fixed hours for when there is no location, or the sun does not set here
- *  today. Deliberately unremarkable: 7am and 7pm. */
+/** Fixed hours for the last resort: no reference point at all, or a place
+ *  where the sun does not set today. Deliberately unremarkable. */
 export const FALLBACK_SUNRISE_H = 7;
 export const FALLBACK_SUNSET_H = 19;
+
+/** Where "Follow the sun" takes its times from while the feature is India-only.
+ *  Roughly the geographic centre of the country, so neither the north nor the
+ *  south is far out — Chennai and Delhi land within about twenty minutes of
+ *  this, which is well inside what anyone notices in a theme change. */
+export const INDIA_REFERENCE = { lat: 21.15, lon: 79.09 };
+const IST_OFFSET_MIN = 330; // UTC+5:30
+
+/** Minute of the day, in IST, for an absolute instant. */
+function istMinuteOfDay(d: Date): number {
+  return (((d.getTime() / 60000 + IST_OFFSET_MIN) % 1440) + 1440) % 1440;
+}
+
+function atMinute(date: Date, minuteOfDay: number): Date {
+  const d = new Date(date);
+  d.setHours(Math.floor(minuteOfDay / 60), Math.round(minuteOfDay % 60), 0, 0);
+  return d;
+}
+
+/** India's sunrise and sunset for this date, as clock times.
+ *
+ *  The solar times are computed for the reference point and then read as IST
+ *  wall-clock, which is applied to the local date. In India — everyone, today —
+ *  that is simply the right answer. Anywhere else it degrades to India's
+ *  seasonal rhythm on the local clock, which is a sane thing to see rather than
+ *  an absurd one: dark at 6.50pm in winter, 7.20pm in summer, wherever you are. */
+export function indiaDayWindow(now: Date): DayWindow | null {
+  const t = sunTimes(now, INDIA_REFERENCE.lat, INDIA_REFERENCE.lon);
+  if (t.polar || !t.sunrise || !t.sunset) return null;
+  return {
+    sunrise: atMinute(now, istMinuteOfDay(t.sunrise)),
+    sunset: atMinute(now, istMinuteOfDay(t.sunset)),
+    estimated: true,
+  };
+}
 
 function atHour(date: Date, hour: number): Date {
   const d = new Date(date);
@@ -62,12 +97,16 @@ export interface DayWindow {
 }
 
 export function dayWindow(now: Date, coords: { lat: number; lon: number } | null): DayWindow {
+  // Gated: only reached when FLAGS.sunUsesDeviceLocation is on and a location
+  // has actually been granted. See lib/flags.ts.
   if (coords) {
     const t = sunTimes(now, coords.lat, coords.lon);
     if (!t.polar && t.sunrise && t.sunset) {
       return { sunrise: t.sunrise, sunset: t.sunset, estimated: false };
     }
   }
+  const india = indiaDayWindow(now);
+  if (india) return india;
   return {
     sunrise: atHour(now, FALLBACK_SUNRISE_H),
     sunset: atHour(now, FALLBACK_SUNSET_H),

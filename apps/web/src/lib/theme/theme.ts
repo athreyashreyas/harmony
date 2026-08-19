@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { DEFAULT_THEME_ID, getTheme, resolveThemeId, sideForTime } from './themes';
 import { isAfterDark, msUntilNextChange } from './solar';
+import { FLAGS } from '../flags';
 
 // Applying a theme is one attribute on <html>; all the colour cascades from the
 // CSS variables in styles/tokens.css. The choice is a per-device preference
@@ -9,7 +10,8 @@ import { isAfterDark, msUntilNextChange } from './solar';
 
 const STORAGE_KEY = 'harmony.theme';
 /** Coordinates stay on this device. The preference syncs; the location does
- *  not — knowing when the sun sets here is nobody else's business. */
+ *  not. Only read when FLAGS.sunUsesDeviceLocation is on — which it is not
+ *  today, so no location is requested or stored. */
 const COORDS_KEY = 'harmony.sunCoords';
 
 /** How long a choice made here outranks an echo of the synced settings row.
@@ -109,6 +111,7 @@ export function initTheme(): void {
 }
 
 function readCoords(): { lat: number; lon: number } | null {
+  if (!FLAGS.sunUsesDeviceLocation) return null;
   try {
     const raw = localStorage.getItem(COORDS_KEY);
     if (!raw) return null;
@@ -128,9 +131,13 @@ function writeCoords(c: { lat: number; lon: number }): void {
 }
 
 /** Ask once, and only when someone turns the toggle on. A refusal is fine —
- *  without coordinates the fallback hours apply and the feature still works,
- *  just less precisely. */
+ *  without coordinates the reference times apply and the feature still works.
+ *
+ *  Inert while FLAGS.sunUsesDeviceLocation is off, which is the case today:
+ *  nothing is asked for and nothing is stored. Kept whole so the capability can
+ *  be switched back on, or deleted outright, without archaeology. */
 export async function requestSunLocation(): Promise<{ lat: number; lon: number } | null> {
+  if (!FLAGS.sunUsesDeviceLocation) return null;
   if (!('geolocation' in navigator)) return null;
   try {
     const pos = await new Promise<GeolocationPosition>((resolve, reject) => {

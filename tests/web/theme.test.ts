@@ -18,14 +18,22 @@ describe('resolveThemeId', () => {
     // The point of the map: someone who chose a dark theme must not be dropped
     // onto a light one just because their pick was retired.
     expect(resolveThemeId('espresso')).toBe('ember');
-    expect(resolveThemeId('mulberry')).toBe('garnet');
     expect(resolveThemeId('tidepool')).toBe('forest-night');
     expect(resolveThemeId('ocean-blue')).toBe('sage-grove');
+    expect(resolveThemeId('rose-quartz')).toBe('barbie-pink');
+    expect(resolveThemeId('garnet')).toBe('afterparty');
+  });
+
+  it('follows a chain when a replacement is itself later retired', () => {
+    // Mulberry was retired into Garnet, and Garnet has since been retired too.
+    // A single hop would land on an id that no longer exists.
+    expect(resolveThemeId('mulberry')).toBe('afterparty');
+    expect(THEMES.some((t) => t.id === resolveThemeId('mulberry'))).toBe(true);
   });
 
   it('keeps dark users on a dark theme when their pick is retired', () => {
     for (const [dead, replacement] of Object.entries(RETIRED_THEMES)) {
-      if (['espresso', 'mulberry', 'tidepool'].includes(dead)) {
+      if (['espresso', 'mulberry', 'tidepool', 'garnet'].includes(dead)) {
         expect(getTheme(replacement).dark).toBe(true);
       }
     }

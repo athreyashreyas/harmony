@@ -137,7 +137,7 @@ export const GUIDE: GuideSection[] = [
     id: 'themes',
     title: 'Make it yours',
     body: [
-      'Harmony comes in twelve lights, arranged as six couples. Each theme has an opposite number holding the same colour at the other end of the day: Terracotta and Ember, Mango Sunshine and Lantern, Sage Grove and Forest Night, Lavender and Indigo Night, Rose Quartz and Garnet, Eggshell and Graphite.',
+      'Harmony comes in twelve lights, arranged as six couples. Each theme has an opposite number holding the same colour at the other end of the day: Terracotta and Ember, Mango Sunshine and Lantern, Sage Grove and Forest Night, Lavender and Indigo Night, Barbie Pink and Afterparty, Eggshell and Graphite.',
       'A theme changes the colours around your habits, never the colours of your areas, so your bloom always means the same thing.',
       'Pick whichever you like and stay in it. The couples are there so that if you do want to change with the hour, the app still looks like itself when you do.',
     ],

@@ -290,53 +290,67 @@
   --shadow-drag-a: 0.60;
 }
 
-/* Rose Quartz — a deep rose on soft blush paper. */
-:root[data-theme='rose-quartz'] {
-  --parchment-ground: #fbeef0; --parchment-ground-rgb: 251 238 240;
-  --parchment-surface: #fff7f8; --parchment-surface-rgb: 255 247 248;
-  --parchment-raised: #f4dce1; --parchment-raised-rgb: 244 220 225;
-  --parchment-edge: #ebc6ce; --parchment-edge-rgb: 235 198 206;
+/* Barbie Pink — Mattel's magenta (Pantone 219 C, h355) on paper that is never
+   white. The 2023 film's production design treated its lightest value as the
+   palest tint of pink rather than white; the same rule here means the page is
+   pink and the cards are a paler pink, so this is a pink room rather than a
+   pink button on a white one. The accent sits a shade deeper than the Pantone
+   (dE 0.038) because a pink page raises the background luminance, and
+   text-accent-base has to clear 4.5:1 against it. */
+:root[data-theme='barbie-pink'] {
+  --parchment-ground: #ffe5f0; --parchment-ground-rgb: 255 229 240;
+  --parchment-surface: #fff0f6; --parchment-surface-rgb: 255 240 246;
+  --parchment-raised: #ffd3e7; --parchment-raised-rgb: 255 211 231;
+  --parchment-edge: #ffb5da; --parchment-edge-rgb: 255 181 218;
 
-  --ink-strong: #2c1a1f; --ink-strong-rgb: 44 26 31;
-  --ink-body: #4a2f36; --ink-body-rgb: 74 47 54;
-  --ink-muted: #785a61; --ink-muted-rgb: 120 90 97;
-  --ink-faint: #b8949c; --ink-faint-rgb: 184 148 156;
+  --ink-strong: #301020; --ink-strong-rgb: 48 16 32;
+  --ink-body: #592c42; --ink-body-rgb: 89 44 66;
+  --ink-muted: #88586f; --ink-muted-rgb: 136 88 111;
+  --ink-faint: #bd8ca3; --ink-faint-rgb: 189 140 163;
 
-  --accent-emphasis: #8a3350; --accent-emphasis-rgb: 138 51 80;
-  --accent-base: #c25072; --accent-base-rgb: 194 80 114;
-  --accent-soft: #d06c8a; --accent-soft-rgb: 208 108 138;
-  --accent-wash: #f4dbe3; --accent-wash-rgb: 244 219 227;
-  --accent-tint: #fbecf0; --accent-tint-rgb: 251 236 240;
-  --on-accent: #fff7f8; --on-accent-rgb: 255 247 248;
+  --accent-emphasis: #93004f; --accent-emphasis-rgb: 147 0 79;
+  --accent-base: #cb0078; --accent-base-rgb: 203 0 120;
+  --accent-soft: #eb479e; --accent-soft-rgb: 235 71 158;
+  --accent-wash: #ffcce2; --accent-wash-rgb: 255 204 226;
+  --accent-tint: #ffe1ed; --accent-tint-rgb: 255 225 237;
+  --on-accent: #ffffff; --on-accent-rgb: 255 255 255;
+
+  --rose-strong: #833770; --rose-strong-rgb: 131 55 112;
+  --rose-base: #944f88; --rose-base-rgb: 148 79 136;
+  --rose-wash: #eed8ea; --rose-wash-rgb: 238 216 234;
+  --sage-strong: #365517; --sage-strong-rgb: 54 85 23;
+  --sage-base: #4b6922; --sage-base-rgb: 75 105 34;
+  --sage-wash: #dae4cb; --sage-wash-rgb: 218 228 203;
 }
 
-/* Garnet — Rose Quartz after dark. The accent sits a little warm of Rose Quartz’s h4 and the status rose is pulled cool, so the brand colour and the “below rhythm” colour are not the same red. */
-:root[data-theme='garnet'] {
+/* Afterparty — Barbie Pink after dark. The same magenta at h355, lit from a
+   deep plum-black instead of a pink room. */
+:root[data-theme='afterparty'] {
   color-scheme: dark;
 
-  --parchment-ground: #210710; --parchment-ground-rgb: 33 7 16;
-  --parchment-surface: #33141f; --parchment-surface-rgb: 51 20 31;
-  --parchment-raised: #43202e; --parchment-raised-rgb: 67 32 46;
-  --parchment-edge: #5b3245; --parchment-edge-rgb: 91 50 69;
+  --parchment-ground: #220817; --parchment-ground-rgb: 34 8 23;
+  --parchment-surface: #341527; --parchment-surface-rgb: 52 21 39;
+  --parchment-raised: #442136; --parchment-raised-rgb: 68 33 54;
+  --parchment-edge: #5c334d; --parchment-edge-rgb: 92 51 77;
 
-  --ink-strong: #f6eef2; --ink-strong-rgb: 246 238 242;
-  --ink-body: #d9c8d1; --ink-body-rgb: 217 200 209;
-  --ink-muted: #b59aa7; --ink-muted-rgb: 181 154 167;
-  --ink-faint: #967383; --ink-faint-rgb: 150 115 131;
+  --ink-strong: #f7eff3; --ink-strong-rgb: 247 239 243;
+  --ink-body: #dccad2; --ink-body-rgb: 220 202 210;
+  --ink-muted: #b79baa; --ink-muted-rgb: 183 155 170;
+  --ink-faint: #967588; --ink-faint-rgb: 150 117 136;
 
-  --accent-emphasis: #eea5c1; --accent-emphasis-rgb: 238 165 193;
-  --accent-base: #e36c88; --accent-base-rgb: 227 108 136;
-  --accent-soft: #cb5b6c; --accent-soft-rgb: 203 91 108;
-  --accent-wash: #451c20; --accent-wash-rgb: 69 28 32;
-  --accent-tint: #2e1314; --accent-tint-rgb: 46 19 20;
-  --on-accent: #f9eff1; --on-accent-rgb: 249 239 241;
+  --accent-emphasis: #ff9abd; --accent-emphasis-rgb: 255 154 189;
+  --accent-base: #f64e9f; --accent-base-rgb: 246 78 159;
+  --accent-soft: #d93990; --accent-soft-rgb: 217 57 144;
+  --accent-wash: #4d1f37; --accent-wash-rgb: 77 31 55;
+  --accent-tint: #331425; --accent-tint-rgb: 51 20 37;
+  --on-accent: #1e0312; --on-accent-rgb: 30 3 18;
 
-  --rose-strong: #ce9bc9; --rose-strong-rgb: 206 155 201;
-  --rose-base: #bc89bf; --rose-base-rgb: 188 137 191;
-  --rose-wash: #382a3b; --rose-wash-rgb: 56 42 59;
-  --sage-strong: #abce8f; --sage-strong-rgb: 171 206 143;
-  --sage-base: #a0bf76; --sage-base-rgb: 160 191 118;
-  --sage-wash: #29311a; --sage-wash-rgb: 41 49 26;
+  --rose-strong: #ce9ac7; --rose-strong-rgb: 206 154 199;
+  --rose-base: #ba87bb; --rose-base-rgb: 186 135 187;
+  --rose-wash: #3b2c3d; --rose-wash-rgb: 59 44 61;
+  --sage-strong: #aace90; --sage-strong-rgb: 170 206 144;
+  --sage-base: #9dbe77; --sage-base-rgb: 157 190 119;
+  --sage-wash: #2b331c; --sage-wash-rgb: 43 51 28;
 
   /* Elevation on dark: the card is defined by its edge, not by a shadow. */
   --shadow-ring: var(--parchment-edge);

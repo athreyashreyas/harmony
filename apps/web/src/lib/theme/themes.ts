@@ -112,25 +112,25 @@ export const THEMES: ThemeMeta[] = [
     pairedWith: 'lavender',
   },
   {
-    id: 'rose-quartz',
-    name: 'Rose Quartz',
-    description: 'A deep rose on soft blush paper. Tender and warm.',
-    bg: '#FBEEF0',
-    surface: '#FFF7F8',
-    primary: '#C25072',
-    edge: '#EBC6CE',
-    pairedWith: 'garnet',
+    id: 'barbie-pink',
+    name: 'Barbie Pink',
+    description: 'Mattel magenta on paper that is never white.',
+    bg: '#FFE5F0',
+    surface: '#FFF0F6',
+    primary: '#CB0078',
+    edge: '#FFB5DA',
+    pairedWith: 'afterparty',
   },
   {
-    id: 'garnet',
-    name: 'Garnet',
-    description: 'Rose Quartz gone deep and warm.',
-    bg: '#210710',
-    surface: '#33141F',
-    primary: '#E36C88',
-    edge: '#5B3245',
+    id: 'afterparty',
+    name: 'Afterparty',
+    description: 'The same magenta, lit from a plum-black room.',
+    bg: '#220817',
+    surface: '#341527',
+    primary: '#F64E9F',
+    edge: '#5C334D',
     dark: true,
-    pairedWith: 'rose-quartz',
+    pairedWith: 'barbie-pink',
   },
   {
     id: 'eggshell',
@@ -177,11 +177,15 @@ export const DEFAULT_THEME_ID = 'terracotta';
  *  and ground, not by name. */
 export const RETIRED_THEMES: Record<string, string> = {
   espresso: 'ember',
-  mulberry: 'garnet',
+  mulberry: 'afterparty',
   tidepool: 'forest-night',
   // Removed back in July 2026 with no mapping, so anyone still on it has been
   // landing on Terracotta. Sage Grove is the closest surviving accent hue.
   'ocean-blue': 'sage-grove',
+  // Rose Quartz was the same hue as Mattel's magenta at two-thirds the chroma;
+  // Barbie Pink replaces it, and Garnet's partner slot goes with it.
+  'rose-quartz': 'barbie-pink',
+  garnet: 'afterparty',
 };
 
 /** Normalise any theme id — from localStorage, the synced settings row, or a
@@ -190,8 +194,17 @@ export const RETIRED_THEMES: Record<string, string> = {
  *  a light theme. Anything unrecognised falls back to the default. */
 export function resolveThemeId(id: string | null | undefined): string {
   if (!id) return DEFAULT_THEME_ID;
-  if (THEMES.some((t) => t.id === id)) return id;
-  return RETIRED_THEMES[id] ?? DEFAULT_THEME_ID;
+  // Follow the chain: a theme can be retired into another that is later retired
+  // itself, and a single hop would then land on an id that no longer exists.
+  // The bound is a cycle guard, not a real depth — chains are one or two long.
+  let current = id;
+  for (let hops = 0; hops <= Object.keys(RETIRED_THEMES).length; hops++) {
+    if (THEMES.some((t) => t.id === current)) return current;
+    const next = RETIRED_THEMES[current];
+    if (!next) return DEFAULT_THEME_ID;
+    current = next;
+  }
+  return DEFAULT_THEME_ID;
 }
 
 export function getTheme(id: string | null | undefined): ThemeMeta {

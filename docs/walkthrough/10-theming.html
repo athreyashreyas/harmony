@@ -28,12 +28,14 @@
     <tr><td>Mango Sunshine</td><td>Lantern</td><td>h&nbsp;78 / 73</td></tr>
     <tr><td>Sage Grove</td><td>Forest Night</td><td>h&nbsp;130</td></tr>
     <tr><td>Lavender</td><td>Indigo Night</td><td>h&nbsp;289</td></tr>
-    <tr><td>Rose Quartz</td><td>Garnet</td><td>h&nbsp;4 / 18</td></tr>
+    <tr><td>Barbie Pink</td><td>Afterparty</td><td>h&nbsp;355</td></tr>
     <tr><td>Eggshell</td><td>Graphite</td><td>h&nbsp;79 / 81</td></tr>
   </table>
   <p>Dark themes set <code>color-scheme: dark</code>, re-point the parchment/ink roles, and <em>lift</em> the status colours (rose/sage) for legibility. Each dark theme sets its own ground depth, chroma envelope and hue drift rather than sharing one lightness ladder with the hue swapped — the grounds span OKLCH&nbsp;L&nbsp;16&ndash;24, so they stay distinguishable from one another.</p>
 
-  <div class="callout decision"><span class="label">Decision &middot; darks are pairs, not strangers</span>Every dark theme already shared an accent hue with one light theme &mdash; Ember with Terracotta, Forest Night with Sage Grove, Indigo Night with Lavender, Graphite with Eggshell &mdash; because the light set occupies most of the warm spectrum and any warm dark will echo it. Rather than fight that, the darks are now built to it deliberately: each answers its partner's accent hue exactly, and the picker lays them out as couples. What read as derivative reads as a system once it is named. Lantern and Garnet were added to give Mango Sunshine and Rose Quartz partners of their own.<p> A token <code>--on-accent</code> is the text colour that sits on a filled accent (near-white on dark accents, dark ink on bright ones like Mango's gold) so buttons always read.</p>
+  <div class="callout decision"><span class="label">Decision &middot; darks are pairs, not strangers</span>Every dark theme already shared an accent hue with one light theme &mdash; Ember with Terracotta, Forest Night with Sage Grove, Indigo Night with Lavender, Graphite with Eggshell &mdash; because the light set occupies most of the warm spectrum and any warm dark will echo it. Rather than fight that, the darks are now built to it deliberately: each answers its partner's accent hue exactly, and the picker lays them out as couples. What read as derivative reads as a system once it is named. Lantern and Afterparty were added to give Mango Sunshine and the pink slot partners of their own, and Rose Quartz became Barbie Pink: the same hue it always was, at the chroma it should have had.</div>
+
+  <p>A token <code>--on-accent</code> is the text colour that sits on a filled accent (near-white on dark accents, dark ink on bright ones like Mango's gold) so buttons always read.</p>
 
   <div class="callout decision"><span class="label">Decision &middot; roles, not numbers</span>Token steps are named for what they do (<code>parchment-ground</code>, <code>parchment-surface</code>, <code>parchment-raised</code>, <code>parchment-edge</code>; <code>ink-strong</code> &rarr; <code>ink-faint</code>) rather than a 50&ndash;300 scale. A numeric ramp inverts incoherently: on a dark theme the &ldquo;50&rdquo; step is no longer the lightest, it sits between &ldquo;100&rdquo; and &ldquo;200&rdquo;, and the numbers stop describing anything. Roles survive the flip.</div>
 

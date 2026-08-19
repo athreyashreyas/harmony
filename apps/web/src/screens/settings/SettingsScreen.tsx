@@ -290,9 +290,7 @@ export default function SettingsScreen() {
           <span className="min-w-0 pr-3">
             <span className="block text-sm text-ink-strong">Follow the sun</span>
             <span className="block text-xs text-ink-faint">
-              Your theme&rsquo;s day half from sunrise, its after-dark half once the sun goes
-              down. Asks once where you are so it knows when that is; say no and it uses 7am
-              and 7pm.
+              Enable auto theme switches to dark after sunset and light after sunrise.
             </span>
           </span>
           <Switch

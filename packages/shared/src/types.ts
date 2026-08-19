@@ -142,4 +142,9 @@ export interface NotificationSettings {
   // full bloom. Synced so the choice follows the person. Absent = on (the
   // default); some people would rather it stay calm.
   confettiEnabled?: boolean;
+  // Whether the theme follows the sun — the day half of the chosen pair
+  // between sunrise and sunset, the after-dark half otherwise. Synced so the
+  // choice follows the person. Absent = off; the app does not change colour on
+  // its own unless asked. The location used to find sunrise stays on device.
+  followSun?: boolean;
 }

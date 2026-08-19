@@ -29,6 +29,7 @@ export const CHANGELOG: Release[] = [
       'Every theme now has an opposite number: the same colour, at the other end of the day. Terracotta and Ember, Mango Sunshine and Lantern, Sage Grove and Forest Night, Lavender and Indigo Night, Barbie Pink and Afterparty, Eggshell and Graphite. Appearance shows them as couples so you can see which is which.',
       'Five of those are new. Ember is Terracotta banked down to coals. Lantern carries Mango\'s gold into a warm lit room. Barbie Pink is Mattel’s magenta on paper that is never white, and Afterparty is that same pink lit from a plum-black room. And Graphite is Eggshell with the lights off, almost no colour at all. Espresso has gone; if it was yours, you are on Ember now and there is nothing to do.',
       'Cards have edges in the dark now. They used to lean on a shadow that a dark screen simply swallowed, so they floated on the page. Every card, sheet and menu sits properly wherever you are.',
+      'And if you would rather not think about it: turn on Follow the sun under Appearance and your theme takes its day half from sunrise and its after-dark half once the sun goes down. It asks once where you are so it knows when that is, and that stays on your device. Off unless you ask for it.',
       'Twelve lights in all, six for the day and six for after it.',
     ],
     howTo: [

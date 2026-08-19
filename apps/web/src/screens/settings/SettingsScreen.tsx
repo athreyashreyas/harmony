@@ -8,8 +8,8 @@ import Switch from '../../components/Switch/Switch';
 import { APP_VERSION } from '../../lib/changelog';
 import type { FeedbackKind } from '../../lib/feedback';
 import { enablePush, pushReadiness, type PushReadiness } from '../../lib/push/subscribe';
-import { useTheme } from '../../lib/theme/theme';
-import { THEME_PAIRS } from '../../lib/theme/themes';
+import { requestSunLocation, useTheme } from '../../lib/theme/theme';
+import { THEME_PAIRS, pairFor } from '../../lib/theme/themes';
 import { supabase } from '../../lib/supabase/client';
 import { deleteAccount, flushOutbox, wipeLocalData } from '../../lib/supabase/sync';
 import { useUserData } from '../../lib/useUserData';
@@ -29,6 +29,9 @@ export default function SettingsScreen() {
   const updateNotifications = useSettings((s) => s.update);
   const themeId = useTheme((s) => s.themeId);
   const setTheme = useTheme((s) => s.setTheme);
+  const followSun = useTheme((s) => s.followSun);
+  const showingId = useTheme((s) => s.showingId);
+  const setFollowSun = useTheme((s) => s.setFollowSun);
 
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -56,6 +59,21 @@ export default function SettingsScreen() {
   useEffect(() => {
     void loadNotifications();
   }, [loadNotifications]);
+
+  // The preference lives on the synced settings row so it follows the person;
+  // the store holds the working copy that actually drives the repaint.
+  useEffect(() => {
+    if (notifications) setFollowSun(notifications.followSun ?? false);
+  }, [notifications?.followSun, setFollowSun]);
+
+  async function chooseFollowSun(next: boolean) {
+    setFollowSun(next); // instant, local
+    // Ask for a location only on the way on, and only once. A refusal still
+    // leaves a working feature on the fallback hours.
+    if (next) await requestSunLocation();
+    setFollowSun(next);
+    if (profile) void updateNotifications(profile.id, { followSun: next });
+  }
 
   // Theme: switch on this device instantly, but debounce the cloud save. Saving
   // on every tap during rapid toggling spams the synced settings row, whose
@@ -224,7 +242,10 @@ export default function SettingsScreen() {
               className="grid grid-cols-2 gap-1 rounded-card bg-parchment-surface p-1 shadow-card"
             >
               {[light, dark].map((theme) => {
-                const active = theme.id === themeId;
+                // With the sun driving, the choice is the couple, so both
+                // halves read as chosen and only the one on screen is ticked.
+                const chosen = followSun ? pairFor(themeId).light.id === light.id : theme.id === themeId;
+                const active = theme.id === showingId;
                 return (
                   <button
                     key={theme.id}
@@ -246,7 +267,7 @@ export default function SettingsScreen() {
                           boxShadow: `inset 0 0 0 1px ${theme.edge}`,
                         }}
                       />
-                      {active && (
+                      {chosen && active && (
                         <span
                           className="absolute -bottom-0.5 -right-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-accent-base text-on-accent"
                           aria-hidden="true"
@@ -263,6 +284,22 @@ export default function SettingsScreen() {
               })}
             </div>
           ))}
+        </div>
+
+        <div className="mt-2.5 flex items-center justify-between rounded-card bg-parchment-surface px-4 py-3 shadow-card">
+          <span className="min-w-0 pr-3">
+            <span className="block text-sm text-ink-strong">Follow the sun</span>
+            <span className="block text-xs text-ink-faint">
+              Your theme&rsquo;s day half from sunrise, its after-dark half once the sun goes
+              down. Asks once where you are so it knows when that is; say no and it uses 7am
+              and 7pm.
+            </span>
+          </span>
+          <Switch
+            checked={followSun}
+            onChange={(next) => void chooseFollowSun(next)}
+            label="Follow the sun"
+          />
         </div>
       </section>
 

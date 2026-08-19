@@ -170,6 +170,7 @@ function notificationSettingsToRow(userId: string, s: NotificationSettings) {
     home_sort: s.homeSort ?? null,
     rituals: s.rituals ?? [],
     confetti_enabled: s.confettiEnabled ?? true,
+    follow_sun: s.followSun ?? false,
   };
 }
 
@@ -333,6 +334,7 @@ interface SettingsRow {
   home_sort: string | null;
   rituals: Ritual[] | null;
   confetti_enabled: boolean | null;
+  follow_sun: boolean | null;
 }
 
 function rowToArea(r: AreaRow): Area {
@@ -397,6 +399,7 @@ function rowToSettings(s: SettingsRow): NotificationSettings {
     homeSort: s.home_sort ?? null,
     rituals: s.rituals ?? [],
     confettiEnabled: s.confetti_enabled ?? true,
+    followSun: s.follow_sun ?? false,
   };
 }
 

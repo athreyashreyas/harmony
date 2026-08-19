@@ -164,6 +164,21 @@ export const THEME_PAIRS: Array<{ light: ThemeMeta; dark: ThemeMeta }> = THEMES
     dark: THEMES.find((t) => t.id === light.pairedWith) as ThemeMeta,
   }));
 
+/** The two halves of the couple a theme belongs to, whichever half you name. */
+export function pairFor(id: string | null | undefined): { light: ThemeMeta; dark: ThemeMeta } {
+  const theme = getTheme(id);
+  const partner = getTheme(theme.pairedWith);
+  return theme.dark ? { light: partner, dark: theme } : { light: theme, dark: partner };
+}
+
+/** Which half of the couple should be showing. Following the sun does not
+ *  change what someone chose — the choice is the couple — only which side of
+ *  it is on screen. */
+export function sideForTime(id: string | null | undefined, afterDark: boolean): string {
+  const { light, dark } = pairFor(id);
+  return afterDark ? dark.id : light.id;
+}
+
 export const DEFAULT_THEME_ID = 'terracotta';
 
 /** Themes that have been retired, mapped to their nearest surviving relative so

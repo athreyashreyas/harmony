@@ -53,7 +53,7 @@ export default function FeedbackSheet({
     const outcome = await send(active, message);
     if (outcome === 'failed') {
       setError(
-        'That could not be saved on this device just now. Your words are still here, so please try again.',
+        'Harmony could not save that on this device just now. Your words are still here, so please try again.',
       );
     }
   }
@@ -180,9 +180,8 @@ function Delivered({
           </p>
         )}
         <p>
-          Harmony is made and looked after by one person. They read what arrives,
-          and answer when there is something worth saying. A good deal of the app
-          began as somebody writing in.
+          The one person who looks after Harmony reads what arrives, and answers
+          when there is something worth saying.
         </p>
         {account && (
           <p>

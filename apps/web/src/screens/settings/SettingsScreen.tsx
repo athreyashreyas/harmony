@@ -174,7 +174,7 @@ export default function SettingsScreen() {
       case 'needs-install':
         return (
           <p className="mt-3 text-xs text-ink-faint">
-            Add Harmony to your home screen first, then reminders can be turned on here.
+            Add Harmony to your home screen first, then you can turn reminders on here.
           </p>
         );
       case 'unconfigured':
@@ -289,7 +289,7 @@ export default function SettingsScreen() {
           <span className="min-w-0 pr-3">
             <span className="block text-sm text-ink-strong">Follow the sun</span>
             <span className="block text-xs text-ink-faint">
-              Enable auto theme switches to dark after sunset and light after sunrise.
+              Your theme turns dark after sunset and light again at sunrise.
             </span>
           </span>
           <Switch
@@ -389,7 +389,7 @@ export default function SettingsScreen() {
             <div className="mt-2 flex items-center justify-between rounded-card bg-parchment-surface px-4 py-3 shadow-card">
               <span className="min-w-0 pr-3">
                 <span className="block text-sm text-ink-strong">Evening summary</span>
-                <span className="block text-xs text-ink-faint">One gentle round-up of anything still unlogged that day.</span>
+                <span className="block text-xs text-ink-faint">One round-up of anything still unlogged that day.</span>
               </span>
               <Switch
                 checked={dnd.dailySummary}
@@ -412,7 +412,7 @@ export default function SettingsScreen() {
         <div className="mt-3 space-y-2">
           <FeedbackRow
             title="Report something broken"
-            sub="Something behaving differently to how you expected?"
+            sub="Something not working the way it should."
             onClick={() => setFeedback('bug')}
           />
           <FeedbackRow

@@ -33,7 +33,7 @@ export const FEEDBACK_KINDS: Record<FeedbackKind, KindCopy> = {
     label: 'Something is broken',
     subject: 'Bug report',
     prompt:
-      'What happened, and what were you in the middle of when it did? Small details tend to be the ones that make something easy to track down.',
+      'What happened, and what were you in the middle of when it did? Small details are what make it easy to track down.',
     placeholder:
       'I tended a habit and the petal for that area stayed where it was...',
   },
@@ -41,7 +41,7 @@ export const FEEDBACK_KINDS: Record<FeedbackKind, KindCopy> = {
     label: 'An idea',
     subject: 'Feature idea',
     prompt:
-      'What would you like Harmony to do? It does not need to be thought through. A good deal of what is here began as somebody\'s passing thought.',
+      'What would you like Harmony to do? You do not need to have it worked out. A good deal of what is here started as somebody\'s passing thought.',
     placeholder: 'I keep wishing I could...',
   },
 };

@@ -1,6 +1,13 @@
+import type { User } from '@supabase/supabase-js';
 import { useState } from 'react';
 import { Link, Navigate } from 'react-router-dom';
 import { errorMessage } from '../../lib/errorMessage';
+import {
+  INTERACTIVE_TIMEOUT_MS,
+  UNREACHABLE_MESSAGE,
+  isTimeoutError,
+  withTimeout,
+} from '../../lib/timeout';
 import { supabase } from '../../lib/supabase/client';
 import { createProfile, pullProfile } from '../../lib/supabase/sync';
 import { useUser } from '../../store/useUser';
@@ -34,19 +41,36 @@ export default function SignInScreen() {
     setSubmitting(true);
     setError(null);
 
-    const { data, error: signInError } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-
-    if (signInError || !data.user) {
-      setError(signInError?.message ?? 'Something went wrong signing in.');
+    // Bounded so the button cannot spin forever against a server that has taken
+    // the request and will never answer it.
+    // Captured out of the narrowed result: assigning the whole object would
+    // lose the null check above by the time it is read below.
+    let user: User;
+    try {
+      const result = await withTimeout(
+        supabase.auth.signInWithPassword({ email, password }),
+        INTERACTIVE_TIMEOUT_MS
+      );
+      if (result.error || !result.data.user) {
+        setError(
+          isTimeoutError(result.error)
+            ? UNREACHABLE_MESSAGE
+            : (result.error?.message ?? 'Something went wrong signing in.')
+        );
+        setSubmitting(false);
+        return;
+      }
+      user = result.data.user;
+    } catch (err) {
+      setError(
+        isTimeoutError(err) ? UNREACHABLE_MESSAGE : errorMessage(err, 'Something went wrong signing in.')
+      );
       setSubmitting(false);
       return;
     }
 
     try {
-      const profile = await pullProfile(data.user.id);
+      const profile = await pullProfile(user.id);
       if (profile) {
         setSignedIn(profile);
       } else {
@@ -61,7 +85,7 @@ export default function SignInScreen() {
         }
         const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
         const created = await createProfile({
-          id: data.user.id,
+          id: user.id,
           firstName: pending.trim() || nameFromEmail(email),
           timezone,
         });

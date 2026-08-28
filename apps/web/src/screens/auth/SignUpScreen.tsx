@@ -1,7 +1,14 @@
+import type { Session, User } from '@supabase/supabase-js';
 import { useState } from 'react';
 import { Link, Navigate } from 'react-router-dom';
 import { errorMessage } from '../../lib/errorMessage';
 import { supabase } from '../../lib/supabase/client';
+import {
+  INTERACTIVE_TIMEOUT_MS,
+  UNREACHABLE_MESSAGE,
+  isTimeoutError,
+  withTimeout,
+} from '../../lib/timeout';
 import { createProfile } from '../../lib/supabase/sync';
 import { useUser } from '../../store/useUser';
 import AuthLayout, { FieldLabel, PrimaryButton, TextInput } from './AuthLayout';
@@ -33,15 +40,33 @@ export default function SignUpScreen() {
     setSubmitting(true);
     setError(null);
 
-    const { data, error: signUpError } = await supabase.auth.signUp({ email, password });
-
-    if (signUpError || !data.user) {
-      setError(signUpError?.message ?? 'Something went wrong creating your account.');
+    // Captured out of the narrowed result: assigning the whole object would
+    // lose the null check above by the time it is read below.
+    let user: User;
+    let session: Session | null;
+    try {
+      const result = await withTimeout(
+        supabase.auth.signUp({ email, password }),
+        INTERACTIVE_TIMEOUT_MS
+      );
+      if (result.error || !result.data.user) {
+        setError(
+          isTimeoutError(result.error)
+            ? UNREACHABLE_MESSAGE
+            : (result.error?.message ?? 'Something went wrong creating your account.')
+        );
+        setSubmitting(false);
+        return;
+      }
+      user = result.data.user;
+      session = result.data.session;
+    } catch (err) {
+      setError(isTimeoutError(err) ? UNREACHABLE_MESSAGE : 'Something went wrong creating your account.');
       setSubmitting(false);
       return;
     }
 
-    if (!data.session) {
+    if (!session) {
       // Email confirmation is required before a session exists. The profile
       // gets created on first sign in instead, once there is one. Stash the
       // name so that sign-in can use it when it creates the profile.
@@ -57,7 +82,7 @@ export default function SignUpScreen() {
 
     try {
       const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-      const profile = await createProfile({ id: data.user.id, firstName: firstName.trim(), timezone });
+      const profile = await createProfile({ id: user.id, firstName: firstName.trim(), timezone });
       setSignedIn(profile);
     } catch (err) {
       console.error('createProfile failed', err);

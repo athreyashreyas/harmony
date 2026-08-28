@@ -77,6 +77,16 @@ export async function pullProfile(userId: string): Promise<UserProfile | null> {
   return profile;
 }
 
+/**
+ * The profile already on this device, read straight from Dexie with no network
+ * at all. Used by the boot when auth cannot be reached, so a signed-in device
+ * still opens on its own data instead of waiting on a server that may not
+ * answer. pullProfile falls back to the network; this deliberately never does.
+ */
+export async function localProfile(userId: string): Promise<UserProfile | null> {
+  return (await db.profile.get(userId)) ?? null;
+}
+
 export async function markOnboarded(userId: string): Promise<void> {
   const onboardedAt = Date.now();
 

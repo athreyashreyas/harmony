@@ -4,7 +4,9 @@ import { AnimatePresence } from 'framer-motion';
 import { supabase, isSupabaseConfigured } from '../lib/supabase/client';
 import { APP_VERSION } from '../lib/changelog';
 import { ensureSubscribed } from '../lib/push/subscribe';
-import { flushOutbox, hasLocalData, pullProfile, pullUserData, subscribeUserRealtime, type SyncTable } from '../lib/supabase/sync';
+import { flushOutbox, hasLocalData, localProfile, pullProfile, pullUserData, subscribeUserRealtime, type SyncTable } from '../lib/supabase/sync';
+import { BOOT_AUTH_TIMEOUT_MS, withTimeout } from '../lib/timeout';
+import { forgetUser, lastUserId, rememberUser } from '../lib/lastSession';
 import { refreshStores, syncNow } from '../lib/sync/refresh';
 import { startFeedbackOutbox } from '../lib/feedbackOutbox';
 import { shouldAcceptRemoteTheme, useTheme } from '../lib/theme/theme';
@@ -114,13 +116,62 @@ export default function AuthGate() {
       }
     };
 
-    supabase.auth.getSession().then(async ({ data }) => {
+    // Settle into a definite state at startup whatever the server does.
+    //
+    // getSession() is not purely local: on an expired access token it awaits a
+    // refresh over the network (auth-js, _callRefreshToken). When that request
+    // hangs, an unbounded await here leaves status on 'loading' and the splash
+    // never lifts. Access tokens last an hour, so that is the ordinary path for
+    // anyone reopening the app, not an edge case.
+    void (async () => {
+      let session;
+      try {
+        const { data, error } = await withTimeout(
+          supabase.auth.getSession(),
+          BOOT_AUTH_TIMEOUT_MS
+        );
+        // A failed refresh comes back as an error beside a null session rather
+        // than as a rejection. Treating that as "signed out" would push someone
+        // with a perfectly good local database to a sign-in form, so route it
+        // to the same fallback as a hang.
+        if (error) throw error;
+        session = data.session;
+      } catch (err) {
+        console.warn('Could not confirm the session at startup.', err);
+        if (!active) return;
+        // Dexie is the source of truth and already holds this account's areas,
+        // habits and logs, so a device that was signed in opens on its own data
+        // rather than a sign-in form it has no way to complete. The
+        // onAuthStateChange listener below upgrades this to a confirmed session
+        // as soon as the server answers.
+        let cached = null;
+        try {
+          const known = lastUserId();
+          cached = known ? await localProfile(known) : null;
+        } catch (dexieErr) {
+          // Even the local read failed. Nothing left to open, but the app must
+          // still leave 'loading' rather than sit on the splash.
+          console.warn('Could not read the local profile.', dexieErr);
+        }
+        if (!active) return;
+        if (!cached) {
+          setSignedOut();
+          return;
+        }
+        setSignedIn(cached);
+        void useSettings.getState().load();
+        setSynced(true);
+        return;
+      }
+
       if (!active) return;
-      const user = data.session?.user;
+      const user = session?.user;
       if (!user) {
+        forgetUser();
         setSignedOut();
         return;
       }
+      rememberUser(user.id);
       setEmail(user.email ?? null);
       try {
         const loadedProfile = await pullProfile(user.id);
@@ -136,15 +187,17 @@ export default function AuthGate() {
         console.error('Failed to load profile after session check.', err);
         if (active) setSignedOut();
       }
-    });
+    })();
 
     const { data: subscription } = supabase.auth.onAuthStateChange(async (_event, session) => {
       if (!active) return;
       const user = session?.user;
       if (!user) {
+        forgetUser();
         setSignedOut();
         return;
       }
+      rememberUser(user.id);
       setEmail(user.email ?? null);
       try {
         const loadedProfile = await pullProfile(user.id);

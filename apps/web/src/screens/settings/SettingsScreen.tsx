@@ -11,6 +11,8 @@ import { enablePush, pushReadiness, type PushReadiness } from '../../lib/push/su
 import { requestSunLocation, useTheme } from '../../lib/theme/theme';
 import { THEME_PAIRS, pairFor } from '../../lib/theme/themes';
 import { supabase } from '../../lib/supabase/client';
+import { INTERACTIVE_TIMEOUT_MS, withTimeout } from '../../lib/timeout';
+import { forgetUser } from '../../lib/lastSession';
 import { deleteAccount, flushOutbox, wipeLocalData } from '../../lib/supabase/sync';
 import { useUserData } from '../../lib/useUserData';
 import { useSettings } from '../../store/useSettings';
@@ -121,8 +123,23 @@ export default function SettingsScreen() {
   async function handleSignOut() {
     // Flush queued writes while still authenticated, then sign out and wipe the
     // local cache so nothing is left on this device for the next account.
-    await flushOutbox();
-    await supabase?.auth.signOut();
+    //
+    // Both server steps are bounded and non-fatal. Wiping this device is the
+    // part that matters for privacy on a shared one, so it must never be gated
+    // on a server that may not answer: an unbounded signOut() that hangs would
+    // leave the previous account's data sitting in Dexie. An unreachable server
+    // still ends the session on its next refresh, when the token is rejected.
+    try {
+      await withTimeout(flushOutbox(), INTERACTIVE_TIMEOUT_MS);
+    } catch (err) {
+      console.warn('Could not flush queued writes before signing out.', err);
+    }
+    try {
+      await withTimeout(Promise.resolve(supabase?.auth.signOut()), INTERACTIVE_TIMEOUT_MS);
+    } catch (err) {
+      console.warn('Sign-out did not reach the server; clearing this device anyway.', err);
+    }
+    forgetUser();
     await wipeLocalData();
     setSignedOut();
   }
@@ -155,7 +172,12 @@ export default function SettingsScreen() {
     if (!profile || !canDelete) return;
     setDeleting(true);
     await deleteAccount(profile.id);
-    await supabase?.auth.signOut();
+    try {
+      await withTimeout(Promise.resolve(supabase?.auth.signOut()), INTERACTIVE_TIMEOUT_MS);
+    } catch (err) {
+      console.warn('Sign-out did not reach the server after deletion.', err);
+    }
+    forgetUser();
     window.location.href = '/sign-in';
   }
 

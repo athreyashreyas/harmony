@@ -68,7 +68,14 @@ export async function saveOnboarding(areas: Area[], habits: Habit[]): Promise<vo
 // Tap-to-log, optimistic (section 9.5). Logging twice on the same day for the
 // same habit un-logs it. Returns the log that was created, or null if this
 // call removed one.
-export async function toggleLog(habit: Habit, dateISO: string = todayISO()): Promise<Log | null> {
+export async function toggleLog(
+  habit: Habit,
+  dateISO: string = todayISO(),
+  // The id the caller already showed optimistically. Reusing it means the row
+  // that lands in Dexie is the row already on screen, so the store has nothing
+  // to correct afterwards and the list never re-renders a second time.
+  newId: string = crypto.randomUUID(),
+): Promise<Log | null> {
   // Run the check-and-set inside a transaction. Dexie serialises transactions
   // with overlapping scope, so a rapid double-tap can't have both taps read
   // "no log yet" and each create one — which would leave two rows for the same
@@ -81,7 +88,7 @@ export async function toggleLog(habit: Habit, dateISO: string = todayISO()): Pro
       return { kind: 'deleted', id: existing.id };
     }
     const log: Log = {
-      id: crypto.randomUUID(),
+      id: newId,
       userId: habit.userId,
       habitId: habit.id,
       areaId: habit.areaId,

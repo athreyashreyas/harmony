@@ -25,12 +25,13 @@ export const useLogs = create<LogsState>((set, get) => ({
   toggle: async (habit, dateISO = todayISO()) => {
     const existing = get().logs.find((l) => l.habitId === habit.id && l.date === dateISO);
 
-    // Optimistic update first.
+    // Optimistic update first, under an id the write will reuse.
+    const optimisticId = crypto.randomUUID();
     if (existing) {
       set({ logs: get().logs.filter((l) => l.id !== existing.id) });
     } else {
       const optimistic: Log = {
-        id: crypto.randomUUID(),
+        id: optimisticId,
         userId: habit.userId,
         habitId: habit.id,
         areaId: habit.areaId,
@@ -41,9 +42,20 @@ export const useLogs = create<LogsState>((set, get) => ({
       set({ logs: [...get().logs, optimistic] });
     }
 
-    // Reconcile with the real write, which has its own id when creating.
-    const result = await toggleLogInDb(habit, dateISO);
-    const withoutThisDay = get().logs.filter((l) => !(l.habitId === habit.id && l.date === dateISO));
+    const result = await toggleLogInDb(habit, dateISO, optimisticId);
+
+    // Reconcile only when the write actually disagreed with the guess, which
+    // happens if Dexie's view of the day differed (a rapid double tap, or a
+    // change synced in mid-write). Setting unconditionally replaced the array
+    // on every tap for no change, and each replacement costs a full re-render
+    // of Home plus another pass of the drift effect, which reads Dexie and
+    // scans the log window. That landed in the middle of the card's layout
+    // animation, which is where the dropped frames came from.
+    const current = get().logs;
+    const settled = current.find((l) => l.habitId === habit.id && l.date === dateISO) ?? null;
+    if ((result?.id ?? null) === (settled?.id ?? null)) return;
+
+    const withoutThisDay = current.filter((l) => !(l.habitId === habit.id && l.date === dateISO));
     set({ logs: result ? [...withoutThisDay, result] : withoutThisDay });
   },
   setNote: async (habit, note, dateISO = todayISO()) => {

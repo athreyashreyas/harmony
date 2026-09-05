@@ -10,15 +10,41 @@ export type GuideArtKind = 'bloom' | 'habit' | 'areas' | 'weights' | 'weightsfin
 export interface GuideSection {
   id: string;
   title: string;
+  /**
+   * One line saying what is inside, shown on the folded row. It is all a reader
+   * sees of a folded section, so it has to earn the tap on its own. The opening
+   * sections are already open and need none.
+   */
+  summary?: string;
   body: string[];
   steps?: string[];
   art?: GuideArtKind;
+  /** Part of the opening read, shown in full. See the note below. */
+  essential?: boolean;
 }
 
+/**
+ * The guide, in two parts.
+ *
+ * The first five sections are the opening read: the idea, the Bloom, tending a
+ * habit, areas, and the Log. They are shown in full, and they are the whole of
+ * what somebody needs before they start.
+ *
+ * Everything after them is folded away behind a one-line summary, opened only
+ * by someone who wants it. **A new feature belongs there, not in the opening
+ * read.** This screen is shown the moment onboarding ends, before anyone has
+ * tended a single habit, and a wall of reading is the opposite of what Harmony
+ * is for.
+ *
+ * Two paragraphs and three steps is the shape of a section. Anything needing
+ * more than that is usually a sign the screen itself should be doing the
+ * explaining.
+ */
 export const GUIDE: GuideSection[] = [
   {
     id: 'idea',
     title: 'The idea',
+    essential: true,
     body: [
       'Harmony is built around the parts of life that matter to you, not a wall of streaks. You name those areas in your own words, tend small habits inside them, and watch a living Bloom reflect how your weeks are going.',
       'There is nothing to break and nothing to lose. A slow day is just a slow day.',
@@ -28,6 +54,7 @@ export const GUIDE: GuideSection[] = [
   {
     id: 'bloom',
     title: 'The Bloom',
+    essential: true,
     body: [
       'Each petal is one area of life. A petal grows as you tend to that area and eases back when it goes untended. It reads your last two weeks, recalculated daily, so a single missed day never undoes things.',
       'Two things shape a petal: how much that area matters to you (areas you mark lower fill more readily, so your eye is drawn to what matters most), and how each habit is doing, by the weight you give it.',
@@ -41,6 +68,7 @@ export const GUIDE: GuideSection[] = [
   {
     id: 'tending',
     title: 'Tending habits',
+    essential: true,
     body: [
       'Your habits for today sit under the Bloom. One tap marks a habit tended; tap again to undo. Press and hold a habit to leave a few words about the day.',
       'Switch between Today and All to see everything you keep, not only what is due today.',
@@ -48,8 +76,35 @@ export const GUIDE: GuideSection[] = [
     art: 'habit',
   },
   {
+    id: 'areas',
+    title: 'Areas',
+    essential: true,
+    body: [
+      'Areas are the heart of Harmony. Give each one a colour, a note on why it matters, and a place in your priority order.',
+      'Open an area to reorder the habits inside it, set how much each habit counts toward the area, and edit the area itself with the pencil.',
+    ],
+    steps: [
+      'Drag the handle to reorder areas or habits.',
+      'In an area, slide each habit to weight its share of the bloom. Equal by default.',
+    ],
+    art: 'weights',
+  },
+  {
+    id: 'log',
+    title: 'The Log',
+    essential: true,
+    body: [
+      'The Log is a calm month view of what you tended to, with your notes alongside.',
+      'Tap any past day to set the record straight: mark something you forgot, or unmark something you tapped by mistake.',
+    ],
+    art: 'log',
+  },
+
+  // Everything below is folded away by default. New features go here.
+  {
     id: 'rituals',
     title: 'Rituals',
+    summary: 'A few habits gathered into one flow you move through together.',
     body: [
       'A ritual gathers a few habits into a flow you move through together, like a morning routine. Name it, pick the habits in the order you do them, and it lives in the Rituals section on Home.',
       'Tap Begin and Harmony walks you through it, one calm step at a time, marking each done as you go. Rituals follow you across your devices.',
@@ -62,21 +117,9 @@ export const GUIDE: GuideSection[] = [
     art: 'ritual',
   },
   {
-    id: 'areas',
-    title: 'Areas',
-    body: [
-      'Areas are the heart of Harmony. Give each one a colour, a note on why it matters, and a place in your priority order.',
-      'Open an area to reorder the habits inside it, set how much each habit counts toward the area, and edit the area itself with the pencil.',
-    ],
-    steps: [
-      'Drag the handle to reorder areas or habits.',
-      'In an area, slide each habit to weight its share of the bloom. Equal by default.',
-    ],
-    art: 'weights',
-  },
-  {
     id: 'tugs',
     title: 'Tugs',
+    summary: 'The things you would like to ease off, counted honestly.',
     body: [
       'A tug is something you would like to ease off. It is never scheduled. You note it on the days it happens, and it gently pulls back that area of your bloom, so a week shows the lift and the drag, the whole honest picture.',
       'Tugs live in their own muted, outlined style so they always read as something apart, never an alarm. No shame, just truth.',
@@ -88,21 +131,12 @@ export const GUIDE: GuideSection[] = [
     art: 'tug',
   },
   {
-    id: 'log',
-    title: 'The Log',
-    body: [
-      'The Log is a calm month view of what you tended to, with your notes alongside.',
-      'Tap any past day to set the record straight: mark something you forgot, or unmark something you tapped by mistake.',
-    ],
-    art: 'log',
-  },
-  {
     id: 'insights',
     title: 'Insights',
+    summary: 'A calm picture of how life is going, over any span you choose.',
     body: [
       'Insights turns what you have done into a calm picture of how life is going. Choose a range at the top, week, month, year, or all time, and every chart rescopes to match.',
-      'You will find your momentum over time, the days and times you show up most, how each area and habit is really doing, a balance constellation of your whole life, and the honest lift and drag of your tugs. It closes with a warm reflection written from your own week.',
-      'It is rich with real numbers, but always framed around showing up, never streaks to break. All of it drawn from what you actually did, in plain language.',
+      'You will find your momentum over time, the days and times you show up most, how each area and habit is really doing, a balance constellation of your whole life, and the honest lift and drag of your tugs. It closes with a warm reflection written from your own week, framed around showing up rather than streaks to break.',
     ],
     steps: [
       'Open Insights, and use the tabs at the top to switch between Insights and your Garden.',
@@ -114,6 +148,7 @@ export const GUIDE: GuideSection[] = [
   {
     id: 'garden',
     title: 'The Bloom garden',
+    summary: 'Every week of your life, pressed and kept as its own small bloom.',
     body: [
       'Every week of your life is pressed and kept as its own small bloom. Over time they form a garden you can scroll, watching your weeks flower in the full seasons and rest in the quiet ones.',
       'It is drawn live from what you have done, so it is always honest, and it stores nothing extra as the years go by.',
@@ -128,6 +163,7 @@ export const GUIDE: GuideSection[] = [
   {
     id: 'reminders',
     title: 'Reminders',
+    summary: 'A soft nudge at a time you choose, on the days it is due.',
     body: [
       'Give a habit a time and Harmony will send a soft nudge then, on the days it is due. There is also an optional evening note rounding up anything still unlogged.',
       'You set do-not-disturb hours, and you can mute any area. On iPhone, add Harmony to your home screen first, then turn reminders on for that device.',
@@ -136,10 +172,10 @@ export const GUIDE: GuideSection[] = [
   {
     id: 'themes',
     title: 'Make it yours',
+    summary: 'Twelve lights in six couples, one for the day and one for after dark.',
     body: [
       'Harmony comes in twelve lights, arranged as six couples. Each theme has an opposite number holding the same colour at the other end of the day: Terracotta and Ember, Mango Sunshine and Lantern, Sage Grove and Forest Night, Lavender and Indigo Night, Barbie Pink and Afterparty, Eggshell and Graphite.',
-      'A theme changes the colours around your habits, never the colours of your areas, so your bloom always means the same thing.',
-      'Pick whichever you like and stay in it, or turn on Follow the sun and let the couple do the work: the day half from sunrise, the after-dark half once the sun goes down. Sunset moves through the year, so it comes later in June than in December.',
+      'A theme changes the colours around your habits, never the colours of your areas, so your bloom always means the same thing. Pick whichever you like and stay in it, or turn on Follow the sun and let the couple do the work: the day half from sunrise, the after-dark half once the sun goes down.',
     ],
     steps: [
       'Open Me, then Appearance, and tap any theme to switch instantly. Day on the left, after dark on the right, each pair on its own row.',
@@ -149,6 +185,7 @@ export const GUIDE: GuideSection[] = [
   {
     id: 'sync',
     title: 'Across your devices',
+    summary: 'Works offline, and is the same on every device you sign in on.',
     body: [
       'Sign in anywhere and your areas, habits, and history are simply there, staying in sync as you go. It works offline too, and catches up when you reconnect.',
       'The dot at the top right shows where things stand. Tap it any time to sync on the spot or pick up a new version.',
@@ -162,11 +199,10 @@ export const GUIDE: GuideSection[] = [
   {
     id: 'yours',
     title: 'Making Harmony yours',
+    summary: 'A direct line to the person who makes it.',
     body: [
       'One person makes Harmony, and Me has a direct line to them. Say so if something is broken. Say so too if the app ought to do something it does not yet. There is no need to be sure of yourself, and none to phrase it carefully.',
-      'The message carries your version and the device you are holding, so you can describe what you saw and leave the rest alone.',
-      'It all gets read. Bugs are looked at quickly, ideas get proper thought, and where there is an answer worth giving it comes to the email you signed up with.',
-      'Writing it offline is fine. It waits on your device and goes out by itself the next time you have a connection, so you can close the app and forget you sent it.',
+      'The message carries your version and the device you are holding, so you can describe what you saw and leave the rest alone. It all gets read, bugs first, and where there is an answer worth giving it comes to the email you signed up with. Writing it offline is fine: it waits on your device and goes out by itself the next time you have a connection.',
     ],
     steps: [
       'Open Me and scroll to "Make Harmony Yours".',
@@ -175,3 +211,9 @@ export const GUIDE: GuideSection[] = [
     art: 'message',
   },
 ];
+
+/** The opening read: shown in full, and kept short on purpose. */
+export const GUIDE_ESSENTIALS = GUIDE.filter((s) => s.essential);
+
+/** The rest, folded behind their summaries until somebody wants them. */
+export const GUIDE_MORE = GUIDE.filter((s) => !s.essential);

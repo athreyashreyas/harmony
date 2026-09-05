@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { APP_VERSION, CHANGELOG } from '../../lib/changelog';
-import { GUIDE, type GuideSection } from '../../lib/guide';
+import { GUIDE_ESSENTIALS, GUIDE_MORE, type GuideSection } from '../../lib/guide';
 import GuideArt from '../../components/GuideArt/GuideArt';
 import ReleaseRow from '../../components/ReleaseRow/ReleaseRow';
 import { BackButton } from '../onboarding/ui';
@@ -12,8 +12,61 @@ function Section({ section }: { section: GuideSection }) {
   return (
     <section className="border-t border-parchment-raised pt-7">
       <h2 className="font-serif text-2xl text-ink-strong">{section.title}</h2>
+      <SectionBody section={section} />
+    </section>
+  );
+}
+
+/** One folded section: its title and one line, until somebody wants the rest. */
+function FoldedSection({ section }: { section: GuideSection }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="overflow-hidden rounded-card bg-parchment-surface shadow-card">
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        aria-expanded={open}
+        className="flex w-full items-center gap-3 p-4 text-left"
+      >
+        <span className="min-w-0 flex-1">
+          <span className="block text-sm font-medium text-ink-strong">{section.title}</span>
+          {section.summary && (
+            <span className="mt-0.5 block text-xs leading-relaxed text-ink-muted">
+              {section.summary}
+            </span>
+          )}
+        </span>
+        <span
+          className={`shrink-0 text-ink-faint transition-transform ${open ? 'rotate-180' : ''}`}
+          aria-hidden="true"
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M6 9l6 6 6-6" />
+          </svg>
+        </span>
+      </button>
+      {open && (
+        <div className="px-4 pb-4">
+          <SectionBody section={section} inset />
+        </div>
+      )}
+    </div>
+  );
+}
+
+/**
+ * The parts every section shares. `inset` is for a section inside a folded
+ * card, where the illustration sits within the card rather than on the page.
+ */
+function SectionBody({ section, inset = false }: { section: GuideSection; inset?: boolean }) {
+  return (
+    <>
       {section.art && (
-        <div className="mt-4 flex justify-center rounded-card bg-parchment-surface px-4 py-6 shadow-card">
+        <div
+          className={`mt-4 flex justify-center rounded-card px-4 py-6 ${
+            inset ? 'bg-parchment-raised' : 'bg-parchment-surface shadow-card'
+          }`}
+        >
           <GuideArt kind={section.art} />
         </div>
       )}
@@ -34,7 +87,7 @@ function Section({ section }: { section: GuideSection }) {
           ))}
         </ul>
       )}
-    </section>
+    </>
   );
 }
 
@@ -135,10 +188,28 @@ export default function GuideScreen() {
               )}
             </div>
           ) : (
-            <div className="mt-8 space-y-8">
-              {GUIDE.map((section) => (
-                <Section key={section.id} section={section} />
-              ))}
+            <div className="mt-8">
+              <div className="space-y-8">
+                {GUIDE_ESSENTIALS.map((section) => (
+                  <Section key={section.id} section={section} />
+                ))}
+              </div>
+
+              {/* The rest of Harmony, a line each. Folded so the read above stays
+                  the whole of what anyone has to take in on their first day,
+                  however many features end up down here. */}
+              <div className="mt-10 border-t border-parchment-raised pt-7">
+                <h2 className="font-serif text-2xl text-ink-strong">The rest of it</h2>
+                <p className="mt-2 text-sm leading-relaxed text-ink-muted">
+                  Nothing here is needed to begin. Open whichever you like, now or
+                  the day it comes up.
+                </p>
+                <div className="mt-4 space-y-2">
+                  {GUIDE_MORE.map((section) => (
+                    <FoldedSection key={section.id} section={section} />
+                  ))}
+                </div>
+              </div>
             </div>
           )}
 

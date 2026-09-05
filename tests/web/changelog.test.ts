@@ -1,6 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import { APP_VERSION, CHANGELOG } from '../../apps/web/src/lib/changelog';
-import { GUIDE, type GuideArtKind } from '../../apps/web/src/lib/guide';
+import {
+  GUIDE,
+  GUIDE_ESSENTIALS,
+  GUIDE_MORE,
+  type GuideArtKind,
+} from '../../apps/web/src/lib/guide';
 import { isNewerVersion } from '../../apps/web/src/lib/whatsNew';
 
 /**
@@ -132,6 +137,31 @@ describe('GUIDE', () => {
   it('gives any steps real text', () => {
     for (const s of GUIDE) {
       for (const step of s.steps ?? []) expect(step.trim().length).toBeGreaterThan(0);
+    }
+  });
+
+  it('keeps the opening read short, however many features land later', () => {
+    // This screen is shown the moment onboarding ends, before anybody has
+    // tended a habit. It is worth reading only while it is short, so a new
+    // feature is folded away rather than added to what everyone scrolls past.
+    expect(GUIDE_ESSENTIALS.length).toBeLessThanOrEqual(5);
+    expect(GUIDE_ESSENTIALS.length).toBeGreaterThan(0);
+    // And the opening read comes first, since the screen renders it that way.
+    expect(GUIDE.slice(0, GUIDE_ESSENTIALS.length)).toEqual(GUIDE_ESSENTIALS);
+  });
+
+  it('gives every folded section a summary, which is all a reader sees of it', () => {
+    for (const s of GUIDE_MORE) {
+      expect(s.summary?.trim().length ?? 0).toBeGreaterThan(0);
+    }
+  });
+
+  it('holds each section to a length somebody will actually read', () => {
+    // Two paragraphs and three steps. A section that wants more is usually a
+    // screen that should be explaining itself better.
+    for (const s of GUIDE) {
+      expect(s.body.length).toBeLessThanOrEqual(2);
+      expect(s.steps?.length ?? 0).toBeLessThanOrEqual(3);
     }
   });
 
